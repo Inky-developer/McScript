@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import ast
 import configparser
 import warnings
@@ -9,7 +11,7 @@ from src.mcscript.lang.Resource.AddressResource import AddressResource
 
 
 class Config:
-    currentConfig = None
+    currentConfig: Config = None
 
     def __init__(self, fpath: str):
         if Config.currentConfig:
@@ -20,6 +22,10 @@ class Config:
             "name": "mcscript",
             "utils": "mcscript_utils",
             "load_debug": False,
+            "block_list_path": "",
+            "item_list_path": "",
+            "biome_list_path": "",
+            "feature_list_path": "",
             "addresses": {
                 "return_score": ".ret",
                 "block_score": ".block"

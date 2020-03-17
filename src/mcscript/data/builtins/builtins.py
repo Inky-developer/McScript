@@ -40,8 +40,8 @@ class BuiltinFunction(ABC):
         self.used = False
 
     def create(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
-        result = self._makeResult(self.generate(compileState, *parameters), compileState.config)
         self._checkUsed(compileState)
+        result = self._makeResult(self.generate(compileState, *parameters), compileState.config)
         return result
 
     @classmethod
@@ -102,9 +102,9 @@ class CachedFunction(BuiltinFunction, ABC):
         if isStatic:
             if parameters not in self._cache:
                 blockName = compileState.pushBlock()
+                self._checkUsed(compileState)
                 result = self._makeResult(self.generate(compileState, *parameters), compileState.config)
                 compileState.writeline(result.code)
-                self._checkUsed(compileState)
                 compileState.popBlock()
                 self._cache[parameters] = blockName, result.resource
 

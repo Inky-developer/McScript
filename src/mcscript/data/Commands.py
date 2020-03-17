@@ -62,6 +62,7 @@ class ExecuteCommand(StringEnum):
     UNLESS_SCORE_RANGE = "unless score {stack} {name} matches {range} {command}"
     IF_BLOCK = "if block {x:~} {y:~} {z:~} {block} {command}"
     IF_ENTITY = "if entity {target} {command}"
+    IF_PREDICATE = "if predicate {:Config.currentConfig.UTILS}:{predicate} {command}"
 
 
 class Relation(StringEnum):

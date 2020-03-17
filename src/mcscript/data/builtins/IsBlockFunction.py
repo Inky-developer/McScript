@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptArgumentsError
 from src.mcscript.data.Commands import multiple_commands, Command, ExecuteCommand
-from src.mcscript.data.blocks import Blocks
 from src.mcscript.data.builtins.builtins import BuiltinFunction
+from src.mcscript.data.minecraftData.blocks import Blocks
 from src.mcscript.lang.Resource.ResourceBase import Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 

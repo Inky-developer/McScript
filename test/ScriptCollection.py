@@ -315,7 +315,7 @@ const yMin = -1.25
 const yMax = 1.25
 
 const maxIterations = 20
-const size = 250
+const size = 50
 
 x = xMin
 y = yMin
@@ -325,49 +325,46 @@ fun createMandelbrot() -> Null {
     x2 = x
     y2 = y
     i = 0
-    # yeah
-    while (i < maxIterations) * (x2*x2+y2*y2 < 4.0)  {
-        #print(i, ": x=", x2, "; y=", y2)
+    abs = x2*x2 + y2*y2
+    while (i < maxIterations) * (abs < 4.0)  {
         i += 1
         xTemp = x2*x2 - y2*y2 + x
         y2 = 2.0 * x2 * y2 + y
         x2 = xTemp
+        abs = x2*x2 + y2*y2
     }
-    abs = x2*x2+y2*y2
-    print("Stop At: ", abs)
     if abs < 4.0 {
         setBlock(blocks.black_wool, 0, -1, 0)
     } else {
-        block = blocks.white_concrete
         if i < 1
-            block = blocks.white_concrete
+            setBlock(blocks.white_concrete, 0, -1, 0)
         else if i <= 2
-            block = blocks.light_gray_concrete
+            setBlock(blocks.light_gray_concrete, 0, -1, 0)
         else if i <= 4
-            block = blocks.yellow_concrete
+            setBlock(blocks.yellow_concrete, 0, -1, 0)
         else if i <= 6
-            block = blocks.orange_concrete
+            setBlock(blocks.orange_concrete, 0, -1, 0)
         else if i <= 8
-            block = blocks.lime_concrete
+            setBlock(blocks.lime_concrete, 0, -1, 0)
         else if i <= 10
-            block = blocks.green_concrete
+            setBlock(blocks.green_concrete, 0, -1, 0)
         else if i <= 12
-            block = blocks.cyan_concrete
+            setBlock(blocks.cyan_concrete, 0, -1, 0)
         else if i <= 14
-            block = blocks.light_blue_concrete
+            setBlock(blocks.light_blue_concrete, 0, -1, 0)
         else if i <= 16
-            block = blocks.blue_concrete
+            setBlock(blocks.blue_concrete, 0, -1, 0)
         else if i <= 18
-            block = blocks.red_concrete
+            setBlock(blocks.red_concrete, 0, -1, 0)
         else if i <= 20
-            block = blocks.gray_concrete
-        setBlock(block, 0, -1, 0)
+            setBlock(blocks.gray_concrete, 0, -1, 0)
     }
 }
 
 fun onTick() -> Null {
     for @p at @s {
         if shouldRun {
+            print(x, ", ", xMax)
             createMandelbrot()
             if x < xMax {
                 x += (xMax - xMin) / size
@@ -390,15 +387,110 @@ const block = "stone"
 for @a at @s print(execute(stringFormat("setblock ~ ~ ~ $", block)))
 """
 
+code_weather = """
+fun onTick() -> Null {
+    for @a {
+        if isThundering() {
+            actionbar("Thunder")
+        } else if isRaining() {
+            actionbar("Rain")
+        } else {
+            actionbar("Clear Weather")
+        }
+    }
+}
+"""
+
+code_light = """
+fun onTick() -> Null {
+    for @a actionbar("Light level: ", getLightLevel())
+}
+"""
+
+code_biome = """
+fun onTick() -> Null {
+    for @a actionbar("The current biome id is: ", getBiome())
+}
+"""
+
+code_environment = """
+fun onTick() -> Null {
+    for @a {
+        lightlevel = getLightLevel()
+        biome = getBiome()
+        if isThundering() {
+            actionbar("Thunder, biomeId: ", biome, ", lightlevel: ", lightlevel)
+        } else if isRaining() {
+            actionbar("Rain, biomeId: ", biome, ", lightlevel: ", lightlevel)
+        } else {
+            actionbar("Clear Weather, biomeId: ", biome, ", lightlevel: ", lightlevel)
+        }
+    }
+}
+"""
+
+code_mark_feature = """
+### waring: this can crash the server! ###
+
+const feature = features.fortress
+const markerBlock = blocks.white_stained_glass
+const entityId = "mcscript_feature_detector"
+const summonString = "summon minecraft:area_effect_cloud ~$ ~$ ~$ {Duration:2147483647,Tags:['$']}"
+execute(stringFormat("kill @e[tag=$]", entityId))
+for @p at @s {
+    execute(stringFormat(summonString, "", "", "", entityId))
+}
+
+# checks all adjacent blocks if they are in the features bounding box.
+fun checkBlocks() -> Null {
+    if isFeature(feature) == 0 {
+        execute("kill @s")
+    } else if isBlock(markerBlock) == 0 {
+        setBlock(markerBlock)
+        execute(stringFormat(summonString, 0, 0, 1, entityId))
+        execute(stringFormat(summonString, 0, 0, -1, entityId))
+        execute(stringFormat(summonString, 0, 1, 0, entityId))
+        execute(stringFormat(summonString, 0, -1, 0, entityId))
+        execute(stringFormat(summonString, 1, 0, 0, entityId))
+        execute(stringFormat(summonString, -1, 0, 0, entityId))
+    } else {
+        execute("kill @s")
+    }
+}
+
+shouldRun = 0
+finished = 0
+fun doTick() -> Null {
+    if (finished == 0) * (evaluate(stringFormat("execute unless entity @e[tag=$]", entityId))) {
+        for @a print("Finished.")
+        finished = 1
+    }
+    if finished == 0 {
+        for @a actionbar("Running...")
+        # ToDo: better selectors
+        for @e[tag=mcscript_feature_detector,limit=250] at @s {
+            checkBlocks()
+        }
+    }
+}
+
+fun onTick() -> Null {
+    if shouldRun doTick()
+}
+"""
+
 code_temp = """
-a = 10
-for @a print(evaluate(stringFormat("scoreboard players get $ mcscript", a)))
+for @a {
+    print(isFeature(features.village))
+    print(isFeature(features.buried_treasure))
+}
+    
 """
 
 if __name__ == '__main__':
-    world = getWorld("McScript", r"D:\Dokumente\Informatik\Python\McScript\test\server")
+    world = getWorld("McScript2", r"D:\Dokumente\Informatik\Python\McScript\test\server")
     config = Config("config.ini")
     config.get("name")
-    datapack = compileMcScript(code_temp, lambda a, b, c: print(f"{a}: {b * 100}%"), config)
+    datapack = compileMcScript(code_mark_feature, lambda a, b, c: print(f"{a}: {b * 100}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

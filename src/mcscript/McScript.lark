@@ -21,7 +21,7 @@ function_block: "{" ( function_value "," )* function_value? "->" statement+ "}"
 function_parameter: IDENTIFIER ":" DATATYPE
 parameter_list: "(" (function_parameter "," )* function_parameter? ")"
 function_value: expression
-function_call: IDENTIFIER "(" (function_value "," )* function_value? ")" function_block?
+function_call: IDENTIFIER "(" (function_value "," )* function_value? ")"
 
 declaration: IDENTIFIER "=" expression
 const_declaration: "const " declaration

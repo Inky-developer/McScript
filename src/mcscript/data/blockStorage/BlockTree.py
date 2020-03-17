@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional, List
 
-from src.mcscript.data.blocks import Block
+from src.mcscript.data.minecraftData.blocks import Block
 
 
 @dataclass

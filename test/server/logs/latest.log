@@ -1,48 +1,152 @@
-[12:03:25] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
-[12:03:25] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
-[12:03:25] [main/WARN]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
-[12:03:25] [main/WARN]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
-[12:03:25] [Server thread/INFO]: Starting minecraft server version 1.15.2
-[12:03:25] [Server thread/INFO]: Loading properties
-[12:03:25] [Server thread/INFO]: Default game type: SURVIVAL
-[12:03:25] [Server thread/INFO]: Generating keypair
-[12:03:26] [Server thread/INFO]: Starting Minecraft server on *:25565
-[12:03:26] [Server thread/INFO]: Using default channel type
-[12:03:27] [Server thread/INFO]: Preparing level "McScript"
-[12:03:27] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[12:03:27] [Server thread/INFO]: Loaded 6 recipes
-[12:03:36] [Server thread/INFO]: Loaded 11379 custom command functions
-[12:03:36] [Server-Worker-3/ERROR]: Non [a-z0-9/._-] character in path of location: minecraft:tags/functions/loadToScoreboard.json
-[12:03:36] [Server thread/INFO]: Loaded 825 advancements
-[12:03:36] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
-[12:03:37] [Server thread/INFO]: Preparing spawn area: 0%
-[12:03:37] [Server thread/INFO]: Preparing spawn area: 0%
-[12:03:37] [Server thread/INFO]: Time elapsed: 801 ms
-[12:03:37] [Server thread/INFO]: Done (10.210s)! For help, type "help"
-[12:03:37] [Server thread/INFO]: Starting remote control listener
-[12:03:37] [RCON Listener #1/INFO]: RCON running on 0.0.0.0:25575
-[12:04:25] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[12:04:25] [Server thread/INFO]: [Rcon: Reloading!]
-[12:04:25] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[12:04:26] [Server thread/INFO]: Loaded 6 recipes
-[12:04:27] [Server thread/INFO]: Loaded 11379 custom command functions
-[12:04:27] [Server-Worker-5/ERROR]: Non [a-z0-9/._-] character in path of location: minecraft:tags/functions/loadToScoreboard.json
-[12:04:27] [Server thread/INFO]: Loaded 825 advancements
-[12:05:41] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[12:05:41] [Server thread/INFO]: [Rcon: Reloading!]
-[12:05:41] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[12:05:41] [Server thread/INFO]: Loaded 6 recipes
-[12:05:43] [Server thread/INFO]: Loaded 11379 custom command functions
-[12:05:43] [Server-Worker-8/ERROR]: Non [a-z0-9/._-] character in path of location: minecraft:tags/functions/loadToScoreboard.json
-[12:05:43] [Server thread/INFO]: Loaded 825 advancements
-[12:05:43] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 2281ms or 45 ticks behind
-[12:07:00] [User Authenticator #1/INFO]: UUID of player GrilloDavid91 is 3f78c5dc-2ac3-4a6c-baf2-0e6a15618d50
-[12:07:00] [Server thread/INFO]: GrilloDavid91[/127.0.0.1:51103] logged in with entity id 1 at (529.3524319159189, 70.31000672439255, 10639.917724869349)
-[12:07:00] [Server thread/INFO]: GrilloDavid91 joined the game
-[12:09:41] [Server thread/INFO]: [GrilloDavid91: Reloading!]
-[12:09:41] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[12:09:41] [Server thread/INFO]: Loaded 6 recipes
-[12:09:43] [Server thread/INFO]: Loaded 11379 custom command functions
-[12:09:43] [Server-Worker-38/ERROR]: Non [a-z0-9/._-] character in path of location: minecraft:tags/functions/loadToScoreboard.json
-[12:09:43] [Server thread/INFO]: Loaded 825 advancements
-[12:09:43] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 2300ms or 46 ticks behind
+[19:25:38] [main/WARN]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[19:25:38] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[19:25:38] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[19:25:38] [main/WARN]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[19:25:38] [main/WARN]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[19:25:38] [Server thread/INFO]: Starting minecraft server version 1.15.2
+[19:25:38] [Server thread/INFO]: Loading properties
+[19:25:38] [Server thread/INFO]: Default game type: SURVIVAL
+[19:25:38] [Server thread/INFO]: Generating keypair
+[19:25:38] [Server thread/INFO]: Starting Minecraft server on *:25565
+[19:25:38] [Server thread/INFO]: Using default channel type
+[19:25:39] [Server thread/INFO]: Preparing level "McScript2"
+[19:25:39] [Server thread/WARN]: Missing data pack file/McScript
+[19:25:39] [Server thread/INFO]: Reloading ResourceManager: Default
+[19:25:39] [Server thread/INFO]: Loaded 6 recipes
+[19:25:40] [Server thread/INFO]: Loaded 825 advancements
+[19:25:40] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[19:25:41] [Server thread/INFO]: Preparing spawn area: 0%
+[19:25:41] [Server thread/INFO]: Preparing spawn area: 0%
+[19:25:46] [Server-Worker-2/INFO]: Preparing spawn area: 0%
+[19:25:46] [Server-Worker-2/INFO]: Preparing spawn area: 0%
+[19:25:46] [Server-Worker-2/INFO]: Preparing spawn area: 0%
+[19:25:46] [Server-Worker-2/INFO]: Preparing spawn area: 0%
+[19:25:46] [Server-Worker-2/INFO]: Preparing spawn area: 0%
+[19:25:46] [Server-Worker-2/INFO]: Preparing spawn area: 0%
+[19:25:46] [Server-Worker-2/INFO]: Preparing spawn area: 0%
+[19:25:46] [Server-Worker-2/INFO]: Preparing spawn area: 0%
+[19:25:46] [Server-Worker-3/INFO]: Preparing spawn area: 0%
+[19:25:46] [Server-Worker-2/INFO]: Preparing spawn area: 0%
+[19:25:46] [Server thread/INFO]: Time elapsed: 5848 ms
+[19:25:46] [Server thread/INFO]: Done (7.377s)! For help, type "help"
+[19:25:46] [Server thread/INFO]: Starting remote control listener
+[19:25:46] [RCON Listener #1/INFO]: RCON running on 0.0.0.0:25575
+[19:25:46] [Server thread/INFO]: Unknown command
+[19:25:46] [Server thread/INFO]: <--[HERE]
+[19:25:52] [Server thread/INFO]: Invalid name or UUID
+[19:25:52] [Server thread/INFO]: kill   qe<--[HERE]
+[19:25:58] [Server thread/INFO]: Killed 99 entities
+[19:26:02] [User Authenticator #1/INFO]: UUID of player GrilloDavid91 is 3f78c5dc-2ac3-4a6c-baf2-0e6a15618d50
+[19:26:02] [Server thread/INFO]: GrilloDavid91[/127.0.0.1:53211] logged in with entity id 214 at (-15503.5, 63.572534841467466, -4431.5)
+[19:26:02] [Server thread/INFO]: GrilloDavid91 joined the game
+[19:26:07] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 2031ms or 40 ticks behind
+[19:26:19] [Server thread/INFO]: GrilloDavid91 fell out of the world
+[19:26:19] [Server thread/INFO]: Killed 12550 entities
+[19:26:39] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 7632ms or 152 ticks behind
+[19:26:44] [Server thread/INFO]: [GrilloDavid91: Teleported GrilloDavid91 to -14607.5, 82.0, -3327.5]
+[19:26:44] [Server thread/WARN]: GrilloDavid91 moved too quickly! -14407.0,0.0,-3088.0
+[19:26:44] [Server thread/WARN]: GrilloDavid91 moved too quickly! -14407.0,0.0,-3088.0
+[19:26:44] [Server thread/WARN]: GrilloDavid91 moved too quickly! -14407.0,0.0,-3088.0
+[19:26:51] [Server thread/INFO]: [GrilloDavid91: Teleported GrilloDavid91 to -15503.5, 82.0, -4431.5]
+[19:26:51] [Server thread/WARN]: GrilloDavid91 moved too quickly! -896.0,0.0,-1104.0
+[19:27:41] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[19:27:41] [Server thread/INFO]: [Rcon: Reloading!]
+[19:27:41] [Server thread/INFO]: Found new data pack file/McScript, loading it automatically
+[19:27:41] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[19:27:42] [Server thread/INFO]: Loaded 6 recipes
+[19:27:42] [Server thread/INFO]: Loaded 20 custom command functions
+[19:27:42] [Server thread/INFO]: Loaded 825 advancements
+[19:27:47] [Server thread/INFO]: [GrilloDavid91: Teleported GrilloDavid91 to 0.5, 50.0, 0.5]
+[19:27:55] [Server thread/INFO]: [GrilloDavid91: Teleported GrilloDavid91 to -383.5, 84.57047536439659, 1184.5]
+[19:27:55] [Server thread/WARN]: GrilloDavid91 moved too quickly! -384.0,0.0,1184.0
+[19:27:55] [Server thread/WARN]: GrilloDavid91 moved too quickly! -384.0,0.0,1184.0
+[19:27:55] [Server thread/WARN]: GrilloDavid91 moved too quickly! -384.0,0.0,1184.0
+[19:28:00] [Server thread/WARN]: Skipping Entity with id 
+[19:28:03] [Server thread/INFO]: [GrilloDavid91: Reloading!]
+[19:28:03] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[19:28:03] [Server thread/INFO]: Loaded 6 recipes
+[19:28:03] [Server thread/INFO]: Loaded 20 custom command functions
+[19:28:03] [Server thread/INFO]: Loaded 825 advancements
+[19:28:21] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[19:28:31] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 2009ms or 40 ticks behind
+[19:28:47] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[19:29:03] [Server thread/INFO]: [GrilloDavid91: Killed 5127 entities]
+[19:29:03] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 17147ms or 342 ticks behind
+[19:29:08] [Server thread/WARN]: GrilloDavid91 moved too quickly! 10.170163282610758,0.050138320753632115,-4.425574206820784
+[19:29:28] [Server thread/INFO]: [GrilloDavid91: Teleported GrilloDavid91 to -191.5, 73.96300614519505, 1680.5]
+[19:29:28] [Server thread/WARN]: GrilloDavid91 moved too quickly! -46.47214314569791,0.0,-307.5415940195917
+[19:29:28] [Server thread/WARN]: GrilloDavid91 moved too quickly! -46.47214314569791,0.0,-307.5415940195917
+[19:31:55] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[19:31:55] [Server thread/INFO]: [Rcon: Reloading!]
+[19:31:55] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[19:31:55] [Server thread/INFO]: Loaded 6 recipes
+[19:31:55] [Server thread/INFO]: Loaded 20 custom command functions
+[19:31:55] [Server thread/INFO]: Loaded 825 advancements
+[19:32:14] [Server thread/INFO]: [GrilloDavid91: Reloading!]
+[19:32:14] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[19:32:14] [Server thread/INFO]: Loaded 6 recipes
+[19:32:14] [Server thread/INFO]: Loaded 20 custom command functions
+[19:32:14] [Server thread/INFO]: Loaded 825 advancements
+[19:32:21] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[19:47:27] [Server thread/INFO]: [GrilloDavid91: Changed the block at -177, 72, 1649]
+[19:47:31] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[19:47:31] [Server thread/INFO]: GrilloDavid91 has made the advancement [We Need to Go Deeper]
+[19:47:36] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Spectator Mode]
+[19:47:55] [Server thread/INFO]: [GrilloDavid91: Teleported GrilloDavid91 to 832.5, 71.31245840064803, -127.5]
+[19:47:55] [Server thread/WARN]: GrilloDavid91 moved too quickly! 293.043138145232,0.0,-152.48308728897365
+[19:47:55] [Server thread/WARN]: GrilloDavid91 moved too quickly! 293.043138145232,0.0,-152.48308728897365
+[19:47:58] [Server thread/INFO]: GrilloDavid91 has made the advancement [A Terrible Fortress]
+[19:48:09] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[19:48:15] [Server thread/INFO]: [GrilloDavid91: Reloading!]
+[19:48:15] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[19:48:15] [Server thread/INFO]: Loaded 6 recipes
+[19:48:15] [Server thread/INFO]: Loaded 20 custom command functions
+[19:48:15] [Server thread/INFO]: Loaded 825 advancements
+[19:48:33] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[19:48:39] [Server thread/INFO]: [GrilloDavid91: Reloading!]
+[19:48:39] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[19:48:40] [Server thread/INFO]: Loaded 6 recipes
+[19:48:40] [Server thread/INFO]: Loaded 20 custom command functions
+[19:48:40] [Server thread/INFO]: Loaded 825 advancements
+[19:48:58] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[19:48:58] [Server thread/INFO]: [Rcon: Reloading!]
+[19:48:58] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[19:48:58] [Server thread/INFO]: Loaded 6 recipes
+[19:48:58] [Server thread/INFO]: Loaded 20 custom command functions
+[19:48:58] [Server thread/INFO]: Loaded 825 advancements
+[19:49:03] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[19:49:27] [Server thread/INFO]: GrilloDavid91 lost connection: Timed out
+[19:49:27] [Server thread/INFO]: GrilloDavid91 left the game
+[19:49:33] [User Authenticator #2/INFO]: UUID of player GrilloDavid91 is 3f78c5dc-2ac3-4a6c-baf2-0e6a15618d50
+[19:49:33] [Server thread/INFO]: GrilloDavid91[/127.0.0.1:53317] logged in with entity id 788015 at (898.3000000119209, 63.0, 16.699999988079078)
+[19:49:33] [Server thread/INFO]: GrilloDavid91 joined the game
+[19:49:35] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Spectator Mode]
+[19:50:10] [Server thread/INFO]: [GrilloDavid91: Reloading!]
+[19:50:10] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[19:50:10] [Server thread/INFO]: Loaded 6 recipes
+[19:50:10] [Server thread/INFO]: Loaded 20 custom command functions
+[19:50:10] [Server thread/INFO]: Loaded 825 advancements
+[19:50:25] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[19:50:26] [Server thread/WARN]: GrilloDavid91 moved too quickly! 1.7810159609171023,10.672675240093994,0.1917885175802425
+[19:50:36] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 2077ms or 41 ticks behind
+[19:50:55] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 3304ms or 66 ticks behind
+[19:50:57] [Server thread/INFO]: GrilloDavid91 lost connection: Timed out
+[19:50:57] [Server thread/INFO]: GrilloDavid91 left the game
+[19:51:00] [User Authenticator #3/INFO]: UUID of player GrilloDavid91 is 3f78c5dc-2ac3-4a6c-baf2-0e6a15618d50
+[19:51:00] [Server thread/INFO]: GrilloDavid91[/127.0.0.1:53322] logged in with entity id 1228823 at (866.3929623618965, 76.7220151351947, -34.78573451272605)
+[19:51:00] [Server thread/INFO]: GrilloDavid91 joined the game
+[19:51:18] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[19:51:18] [Server thread/INFO]: [Rcon: Reloading!]
+[19:51:18] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[19:51:18] [Server thread/INFO]: Loaded 6 recipes
+[19:51:18] [Server thread/INFO]: Loaded 20 custom command functions
+[19:51:18] [Server thread/INFO]: Loaded 825 advancements
+[19:51:21] [Server thread/WARN]: GrilloDavid91 moved too quickly! 20.99451915388738,0.0,6.482632884722179
+[19:51:38] [Server thread/INFO]: [GrilloDavid91: Reloading!]
+[19:51:38] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[19:51:39] [Server thread/INFO]: Loaded 6 recipes
+[19:51:39] [Server thread/INFO]: Loaded 20 custom command functions
+[19:51:39] [Server thread/INFO]: Loaded 825 advancements
+[19:51:59] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[19:53:57] [Server thread/INFO]: GrilloDavid91 lost connection: Disconnected
+[19:53:57] [Server thread/INFO]: GrilloDavid91 left the game

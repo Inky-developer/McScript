@@ -48,3 +48,50 @@ function {name}:main
         {}
     ]
 }}
+
+[predicate_weather_raining]
+{
+  "condition": "minecraft:weather_check",
+  "raining": true
+}
+
+[predicate_weather_thundering]
+{
+  "condition": "minecraft:weather_check",
+  "thundering": true
+}
+
+[predicate_light]
+{{
+  "condition": "minecraft:entity_properties",
+  "entity": "this",
+  "predicate": {{
+    "location": {{
+      "light": {{
+        "light": {light}
+      }}
+    }}
+  }}
+}}
+
+[predicate_biome]
+{{
+  "condition": "minecraft:entity_properties",
+  "entity": "this",
+  "predicate": {{
+    "location": {{
+      "biome": "{biome}"
+    }}
+  }}
+}}
+
+[predicate_feature]
+{{
+  "condition": "minecraft:entity_properties",
+  "entity": "this",
+  "predicate": {{
+    "location": {{
+      "feature": "{feature}"
+    }}
+  }}
+}}

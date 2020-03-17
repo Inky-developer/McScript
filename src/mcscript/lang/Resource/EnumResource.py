@@ -26,7 +26,8 @@ class EnumResource(ObjectResource):
         try:
             return self.namespace[name]
         except KeyError:
-            raise McScriptNameError(f"Member {name} of enum does not exist.")
+            raise McScriptNameError(
+                f"Member {name} of enum does not exist. Members: {', '.join(i for i in self.namespace)}")
 
     def toString(self) -> str:
         raise TypeError()

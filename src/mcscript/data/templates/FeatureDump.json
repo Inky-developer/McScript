@@ -1,0 +1,47 @@
+{
+  "minecraft:mineshaft": {
+    "protocol_id": 0
+  },
+  "minecraft:pillager_outpost": {
+    "protocol_id": 1
+  },
+  "minecraft:fortress": {
+    "protocol_id": 2
+  },
+  "minecraft:stronghold": {
+    "protocol_id": 3
+  },
+  "minecraft:jungle_pyramid": {
+    "protocol_id": 4
+  },
+  "minecraft:ocean_ruin": {
+    "protocol_id": 5
+  },
+  "minecraft:desert_pyramid": {
+    "protocol_id": 6
+  },
+  "minecraft:igloo": {
+    "protocol_id": 7
+  },
+  "minecraft:swamp_hut": {
+    "protocol_id": 8
+  },
+  "minecraft:monument": {
+    "protocol_id": 9
+  },
+  "minecraft:endcity": {
+    "protocol_id": 10
+  },
+  "minecraft:mansion": {
+    "protocol_id": 11
+  },
+  "minecraft:buried_treasure": {
+    "protocol_id": 12
+  },
+  "minecraft:shipwreck": {
+    "protocol_id": 13
+  },
+  "minecraft:village": {
+    "protocol_id": 14
+  }
+}

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import io
 import re
-from functools import cached_property
+from functools import cached_property, lru_cache
 from pathlib import Path
 from typing import Dict, Union, List, Optional
 
@@ -11,7 +11,11 @@ from src.mcscript.data.Commands import stringFormat
 from src.mcscript.data.Config import Config
 from src.mcscript.data.blockStorage.BlockTree import BlockTree
 from src.mcscript.data.blockStorage.Generator import BlockTagGenerator, BlockFunctionGenerator, IdToBlockGenerator
-from src.mcscript.data.blocks import Blocks
+from src.mcscript.data.minecraftData.blocks import Blocks
+from src.mcscript.data.predicates.BiomePredicate import BiomePredicate
+from src.mcscript.data.predicates.FeaturePredicate import FeaturePredicate
+from src.mcscript.data.predicates.LightPredicate import LightPredicate
+from src.mcscript.data.predicates.WeatherPredicate import WeatherPredicate
 from src.mcscript.utils.FileStructure import FileStructure
 
 
@@ -154,7 +158,7 @@ class MinecraftNamespace(Namespace):
         # add tick and loadToScoreboard tags
         directory.addFile("tick.json").write(stringFormat(data["tag_tick"]))
 
-        directory.addFile("loadToScoreboard.json").write(stringFormat(data["tag_load"]))
+        directory.addFile("load.json").write(stringFormat(data["tag_load"]))
 
 
 class MainNamespace(Namespace):
@@ -172,6 +176,12 @@ class MainNamespace(Namespace):
 class HelperNamespace(Namespace):
     def __init__(self, config: Config):
         super().__init__(config)
+        self.hasGetBlockFunction = False
+        self.hasSetBlockFunction = False
+        self.hasWeatherPredicate = False
+        self.hasLightPredicate = False
+        self.hasBiomePredicate = False
+        self.hasFeaturePredicate = False
 
     # cached blockTree for later
     @cached_property
@@ -179,12 +189,50 @@ class HelperNamespace(Namespace):
         return BlockTree.fromList(Blocks.getBlocks())
 
     def addGetBlockFunction(self):
+        if self.hasGetBlockFunction:
+            return
+        self.hasGetBlockFunction = True
         BlockTagGenerator(self.blockTree).generate(self.getPath("tags/blocks").fileStructure)
         BlockFunctionGenerator(self.blockTree).generate(self.getPath("functions").fileStructure)
 
     def addSetBlockFunction(self):
+        if self.hasSetBlockFunction:
+            return
+        self.hasSetBlockFunction = True
         IdToBlockGenerator().generate(self.getPath("functions").fileStructure, self.config.RETURN_SCORE,
                                       self.config.BLOCK_SCORE)
+
+    @lru_cache()
+    def addWeatherPredicate(self):
+        if self.hasWeatherPredicate:
+            return
+        self.hasWeatherPredicate = True
+        filestructure = self.getPath("predicates").fileStructure
+        return WeatherPredicate().generate(filestructure)
+
+    @lru_cache()
+    def addLightPredicate(self):
+        if self.hasLightPredicate:
+            return
+        self.hasLightPredicate = True
+        filestructure = self.getPath("predicates").fileStructure
+        return LightPredicate().generate(filestructure)
+
+    @lru_cache()
+    def addBiomePredicate(self):
+        if self.hasBiomePredicate:
+            return
+        self.hasBiomePredicate = True
+        filestructure = self.getPath("predicates").fileStructure
+        return BiomePredicate().generate(filestructure)
+
+    @lru_cache()
+    def addFeaturePredicate(self):
+        if self.hasFeaturePredicate:
+            return
+        self.hasFeaturePredicate = True
+        filestructure = self.getPath("predicates").fileStructure
+        return FeaturePredicate().generate(filestructure)
 
 
 class Datapack(Directory):

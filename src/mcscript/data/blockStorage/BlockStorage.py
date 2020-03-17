@@ -1,7 +1,7 @@
 from typing import List
 
 from src.mcscript.data.blockStorage.BlockTree import BlockTree
-from src.mcscript.data.blocks import Blocks, Block
+from src.mcscript.data.minecraftData.blocks import Blocks, Block
 
 
 class BlockStorage:

@@ -2,6 +2,7 @@ from functools import lru_cache
 from importlib.resources import read_text
 from typing import Dict
 
+from src.mcscript.data.Config import Config
 from src.mcscript.data.templates import DataReader
 
 
@@ -17,11 +18,31 @@ def getDictionaryResource(name: str) -> Dict[str, str]:
 
 
 def getBlocks() -> str:
+    if path := Config.currentConfig.get("block_list_path"):
+        with open(path) as f:
+            return f.read()
     return getResource("blockDump.txt")
 
 
 def getItems() -> str:
+    if path := Config.currentConfig.get("item_list_path"):
+        with open(path) as f:
+            return f.read()
     return getResource("itemDump.txt")
 
 
-__all__ = "getResource", "getDictionaryResource", "getBlocks", "getItems"
+def getBiomes() -> str:
+    if path := Config.currentConfig.get("biome_list_path"):
+        with open(path) as f:
+            return f.read()
+    return getResource("biomeDump.json")
+
+
+def getFeatures() -> str:
+    if path := Config.currentConfig.get("feature_list_path"):
+        with open(path) as f:
+            return f.read()
+    return getResource("FeatureDump.json")
+
+
+__all__ = "getResource", "getDictionaryResource", "getBlocks", "getItems", "getBiomes", "getFeatures"
