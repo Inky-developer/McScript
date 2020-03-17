@@ -1,0 +1,11 @@
+[Score]
+{{"score":{{"name":"{value}","objective":"{name}"}}}}
+
+[NBT]
+{{"nbt":"{:Storage.VARS}.{value}","storage":"{name}:{:Storage.NAME}"}}
+
+[Selector]
+{{"selector":"{value}"}}
+
+[Default]
+{{"text":"{value}"}}
