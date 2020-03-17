@@ -1,0 +1,48 @@
+[12:03:25] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[12:03:25] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[12:03:25] [main/WARN]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[12:03:25] [main/WARN]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[12:03:25] [Server thread/INFO]: Starting minecraft server version 1.15.2
+[12:03:25] [Server thread/INFO]: Loading properties
+[12:03:25] [Server thread/INFO]: Default game type: SURVIVAL
+[12:03:25] [Server thread/INFO]: Generating keypair
+[12:03:26] [Server thread/INFO]: Starting Minecraft server on *:25565
+[12:03:26] [Server thread/INFO]: Using default channel type
+[12:03:27] [Server thread/INFO]: Preparing level "McScript"
+[12:03:27] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
+[12:03:27] [Server thread/INFO]: Loaded 6 recipes
+[12:03:36] [Server thread/INFO]: Loaded 11379 custom command functions
+[12:03:36] [Server-Worker-3/ERROR]: Non [a-z0-9/._-] character in path of location: minecraft:tags/functions/loadToScoreboard.json
+[12:03:36] [Server thread/INFO]: Loaded 825 advancements
+[12:03:36] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[12:03:37] [Server thread/INFO]: Preparing spawn area: 0%
+[12:03:37] [Server thread/INFO]: Preparing spawn area: 0%
+[12:03:37] [Server thread/INFO]: Time elapsed: 801 ms
+[12:03:37] [Server thread/INFO]: Done (10.210s)! For help, type "help"
+[12:03:37] [Server thread/INFO]: Starting remote control listener
+[12:03:37] [RCON Listener #1/INFO]: RCON running on 0.0.0.0:25575
+[12:04:25] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[12:04:25] [Server thread/INFO]: [Rcon: Reloading!]
+[12:04:25] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
+[12:04:26] [Server thread/INFO]: Loaded 6 recipes
+[12:04:27] [Server thread/INFO]: Loaded 11379 custom command functions
+[12:04:27] [Server-Worker-5/ERROR]: Non [a-z0-9/._-] character in path of location: minecraft:tags/functions/loadToScoreboard.json
+[12:04:27] [Server thread/INFO]: Loaded 825 advancements
+[12:05:41] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[12:05:41] [Server thread/INFO]: [Rcon: Reloading!]
+[12:05:41] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
+[12:05:41] [Server thread/INFO]: Loaded 6 recipes
+[12:05:43] [Server thread/INFO]: Loaded 11379 custom command functions
+[12:05:43] [Server-Worker-8/ERROR]: Non [a-z0-9/._-] character in path of location: minecraft:tags/functions/loadToScoreboard.json
+[12:05:43] [Server thread/INFO]: Loaded 825 advancements
+[12:05:43] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 2281ms or 45 ticks behind
+[12:07:00] [User Authenticator #1/INFO]: UUID of player GrilloDavid91 is 3f78c5dc-2ac3-4a6c-baf2-0e6a15618d50
+[12:07:00] [Server thread/INFO]: GrilloDavid91[/127.0.0.1:51103] logged in with entity id 1 at (529.3524319159189, 70.31000672439255, 10639.917724869349)
+[12:07:00] [Server thread/INFO]: GrilloDavid91 joined the game
+[12:09:41] [Server thread/INFO]: [GrilloDavid91: Reloading!]
+[12:09:41] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
+[12:09:41] [Server thread/INFO]: Loaded 6 recipes
+[12:09:43] [Server thread/INFO]: Loaded 11379 custom command functions
+[12:09:43] [Server-Worker-38/ERROR]: Non [a-z0-9/._-] character in path of location: minecraft:tags/functions/loadToScoreboard.json
+[12:09:43] [Server thread/INFO]: Loaded 825 advancements
+[12:09:43] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 2300ms or 46 ticks behind

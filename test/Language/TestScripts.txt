@@ -1,0 +1,152 @@
+[Wrapper]
+testResult = 0
+fun test() -> Number {{
+  {}
+}}
+testResult = test()
+if testResult == 1 execute('tellraw @a ["",{{"text":"["}},{{"text":"McScript","color":"gold"}},{{"text":"] ["}},{{"text":"Test {index} of {count} ({name})","color":"gray"}},{{"text":"] "}},{{"text":"Success!","color":"dark_green"}}]')
+else execute('tellraw @a ["",{{"text":"["}},{{"text":"McScript","color":"gold"}},{{"text":"] ["}},{{"text":"Test {index} of {count} ({name})","color":"gray"}},{{"text":"] "}},{{"text":"Failure!","color":"red"}}]')
+
+[Sum]
+return 1 + 1 == 2
+
+[Subtraction]
+return 2 - 1 == 1
+
+[Product]
+return 2 * 5 == 10
+
+[Division]
+return 4 / 2 == 2
+
+[Division]
+return 3 / 2 == 1
+
+[Modulo]
+return 25 % 5 == 0
+
+[Modulo]
+return 27 % 5 == 2
+
+[Function]
+fun sum_and_square(a: Number, b: Number) -> Number {
+    myFancyVar = a + b
+    return myFancyVar * myFancyVar
+}
+
+return sum_and_square(6,6) + 6 == 150
+
+[If]
+a = 1
+if a == 0
+    a = 2
+else {a = 0}
+return a == 0
+
+[InPlaceOperator]
+a = 10
+a += 5
+a *= 2
+a -= 10
+a /= 10
+return a == 2
+
+[While]
+n = 5
+s = 0
+while n > 0 {
+    s += n
+    n -= 1
+}
+return s == 15
+
+[Enum]
+enum myEnum {
+    a;
+    b;
+    c = 100
+}
+return (myEnum.a==0)*(myEnum.b==1)*(myEnum.c==100)
+
+[Factorial]
+fun fac(n: Number) -> Number {
+    ret = 1
+    while n > 1 {
+        ret *= n
+        n -= 1
+    }
+    return ret
+}
+
+return fac(5) == 120
+
+[SetBlock]
+const block = blocks.player_head
+setBlock(blocks.air)
+isAir = isBlock(blocks.air)
+setBlock(block)
+isTheBlock = isBlock(block)
+return isAir * isTheBlock == 1
+
+[static_fixed_point_sum]
+const a = 1.5
+const b = 2.75
+
+return a + b == 4.25
+
+[static_fixed_point_difference]
+const a = 1.5
+const b = 2.75
+
+return a - b == -1.25
+
+[static_fixed_point_product]
+const a = 1.5
+const b = 2.75
+
+return a * b == 4.125
+
+[static_fixed_point_division]
+const a = 1.5
+const b = 2
+
+return a / b == 0.75
+
+[static_fixed_point_modulo]
+const a = 15.5
+const b = 2.5
+
+return a % b == 0.5
+
+[fixed_point_sum]
+a = 1.25
+b = 2.75
+
+return a + b == 4.0
+
+[fixed_point_difference]
+a = 1.25
+b = 2.75
+
+return a - b == -1.5
+
+[fixed_point_product]
+a = 1.25
+b = 2.75
+
+# the exact value is 3.4375, so to 3.438 would be rounded correctly.
+return a * b == 3.437
+
+[fixed_point_division]
+a = 1.25
+b = 2
+
+return a / b == 0.625
+
+[evaluate]
+const score = ".ret"
+const namespace = "mcscript"
+execute(stringFormat("scoreboard players set $ $ 1", score, namespace))
+return evaluate(stringFormat("scoreboard players get $ $", score, namespace))
+
+

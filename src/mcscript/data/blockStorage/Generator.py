@@ -1,11 +1,11 @@
 from abc import abstractmethod, ABC
 from typing import List
 
-from src.mcscript import FileStructure
 from src.mcscript.data import getDictionaryResource
 from src.mcscript.data.Commands import Command, ExecuteCommand, Config, multiple_commands
 from src.mcscript.data.blockStorage.BlockTree import BlockTree
 from src.mcscript.data.blocks import Block, BlockstateValue, Blockstate, Blocks
+from src.mcscript.utils.FileStructure import FileStructure
 
 
 def resetToZero():

@@ -6,7 +6,6 @@ from functools import cached_property
 from pathlib import Path
 from typing import Dict, Union, List, Optional
 
-from src.mcscript import FileStructure
 from src.mcscript.data import getDictionaryResource
 from src.mcscript.data.Commands import stringFormat
 from src.mcscript.data.Config import Config
