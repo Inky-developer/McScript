@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from src.mcscript.data.Commands import Command
+from src.mcscript.data.Commands import Command, BinaryOperator
+from src.mcscript.lang.Protocols.unaryOperatorProtocols import ExplicitUnaryNumberVariableOperationProtocol
 from src.mcscript.lang.Resource.AddressResource import AddressResource
 from src.mcscript.lang.Resource.NumberResource import NumberResource
 from src.mcscript.lang.Resource.ResourceBase import ValueResource
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
     from src.mcscript.compiler.CompileState import CompileState
 
 
-class NumberVariableResource(ValueResource):
+class NumberVariableResource(ValueResource, ExplicitUnaryNumberVariableOperationProtocol):
     """
     Used when a number is stored as a variable
     """
@@ -29,10 +30,26 @@ class NumberVariableResource(ValueResource):
     def type() -> ResourceType:
         return ResourceType.NUMBER
 
-    def loadToScoreboard(self, compileState: CompileState) -> NumberResource:
+    def load(self, compileState: CompileState) -> NumberResource:
         stack = compileState.expressionStack.next()
         compileState.writeline(Command.LOAD_VARIABLE(
             stack=stack,
             var=self.embed()
         ))
         return NumberResource(stack, False)
+
+    def operation_increment_one(self, compileState: CompileState) -> NumberVariableResource:
+        # 1. load self
+        # 2. increment scoreboard value
+        # 3. store back
+        number = self.load(compileState)
+        number = number.numericOperation(NumberResource(1, True), BinaryOperator.PLUS, compileState)
+        return number.storeToNbt(self.value, compileState)
+
+    def operation_decrement_one(self, compileState: CompileState) -> NumberVariableResource:
+        # 1. load self
+        # 2. increment scoreboard value
+        # 3. store back
+        number = self.load(compileState)
+        number = number.numericOperation(NumberResource(1, True), BinaryOperator.MINUS, compileState)
+        return number.storeToNbt(self.value, compileState)

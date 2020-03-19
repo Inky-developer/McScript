@@ -3,10 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptTypeError
-from src.mcscript.data.Commands import Command, Operator, multiple_commands, Struct
+from src.mcscript.data.Commands import Command, BinaryOperator, multiple_commands, Struct
+from src.mcscript.lang.Protocols.binaryOperatorProtocols import BinaryOperatorProtocol
+from src.mcscript.lang.Protocols.unaryOperatorProtocols import ExplicitUnaryNumberOperationProtocol
 from src.mcscript.lang.Resource.AddressResource import AddressResource
 from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
-from src.mcscript.lang.Resource.Protocols import NumberProtocol
 from src.mcscript.lang.Resource.ResourceBase import ValueResource, Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 
@@ -15,12 +16,13 @@ if TYPE_CHECKING:
     from src.mcscript.lang.Resource.NumberVariableResource import NumberVariableResource
 
 
-class NumberResource(ValueResource, NumberProtocol):
+class NumberResource(ValueResource, BinaryOperatorProtocol, ExplicitUnaryNumberOperationProtocol):
     """
     Holds a Number(int)
     """
 
-    def numericOperation(self, other: ValueResource, operator: Operator, compileState: CompileState) -> Resource:
+    def numericOperation(self, other: ValueResource, operator: BinaryOperator,
+                         compileState: CompileState) -> NumberResource:
         if self.isStatic and other.isStatic:
             try:
                 value = int(other)
@@ -50,7 +52,7 @@ class NumberResource(ValueResource, NumberProtocol):
         stack = compileState.expressionStack.next()
         compileState.writeline(multiple_commands(
             Command.SET_VALUE(stack=stack, value=FixedNumberResource.BASE),
-            Command.OPERATION(stack=self.value, operator=Operator.TIMES.value, stack2=stack)
+            Command.OPERATION(stack=self.value, operator=BinaryOperator.TIMES.value, stack2=stack)
         ))
 
         # remove the previous stack
@@ -70,7 +72,27 @@ class NumberResource(ValueResource, NumberProtocol):
             ))
         return NumberVariableResource(stack, False)
 
-    def _numericOperation(self, other: ValueResource, operator: Operator, compileState: CompileState) -> NumberResource:
+    def operation_negate(self, compileState: CompileState) -> Resource:
+        if self.isStatic:
+            return NumberResource(-self.value, True)
+
+        tmp = compileState.expressionStack.next()
+        compileState.writeline(multiple_commands(
+            Command.SET_VALUE(
+                stack=tmp,
+                value=-1
+            ),
+            Command.OPERATION(
+                stack=self.value,
+                operator=BinaryOperator.TIMES.value,
+                stack2=tmp
+            )
+        ))
+        compileState.expressionStack.previous()
+        return NumberResource(self.value, False)
+
+    def _numericOperation(self, other: ValueResource, operator: BinaryOperator,
+                          compileState: CompileState) -> NumberResource:
         try:
             other = other.convertToNumber(compileState)
         except TypeError:
@@ -78,7 +100,7 @@ class NumberResource(ValueResource, NumberProtocol):
         if self.isStatic:
             stack1 = compileState.expressionStack.next()
             compileState.writeline(Command.SET_VALUE(stack=stack1, value=self.value))
-        elif other.isStatic and operator in (Operator.PLUS, Operator.MINUS):
+        elif other.isStatic and operator in (BinaryOperator.PLUS, BinaryOperator.MINUS):
             # if this not static but the other variable is,
             # use the special 'scoreboard players add/remove' syntax if possible
             return self._numericOperationSpecialAdd(other.value if operator == operator.PLUS else -other.value,
@@ -106,13 +128,13 @@ class NumberResource(ValueResource, NumberProtocol):
         return NumberResource(stack1, False)
 
     # noinspection PyShadowingNames
-    def _numericOperationStatic(self, a: int, b: int, operator: Operator) -> NumberResource:
+    def _numericOperationStatic(self, a: int, b: int, operator: BinaryOperator) -> NumberResource:
         actions = {
-            Operator.PLUS: lambda a, b: a + b,
-            Operator.MINUS: lambda a, b: a - b,
-            Operator.TIMES: lambda a, b: a * b,
-            Operator.DIVIDE: lambda a, b: a // b,
-            Operator.MODULO: lambda a, b: a % b
+            BinaryOperator.PLUS: lambda a, b: a + b,
+            BinaryOperator.MINUS: lambda a, b: a - b,
+            BinaryOperator.TIMES: lambda a, b: a * b,
+            BinaryOperator.DIVIDE: lambda a, b: a // b,
+            BinaryOperator.MODULO: lambda a, b: a % b
         }
         return NumberResource(actions[operator](a, b), True)
 

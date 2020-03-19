@@ -21,8 +21,9 @@ class TestMcLang(unittest.TestCase):
         self.tests = loadScripts()
         self.wrapper = self.tests.pop("Wrapper")[0]
         self.world = getWorld("McScript", r"D:\Dokumente\Informatik\Python\McScript\test\server")
-        self.datapackName = "McScript-tests"
+        self.datapackName = "McScript_tests"
         self.config = Config("config.ini")
+        self.config["name"] = "mcscript_tests"
 
         rmtree(
             join(self.world.getDatapackPath(), self.datapackName),
@@ -54,6 +55,6 @@ class TestMcLang(unittest.TestCase):
 
     def assertMcTestSuccess(self, pack):
         rcon.send("reload")
-        result = rcon.send("data get storage mcscript:main state.vars.testResult")
+        result = rcon.send(f"data get storage {self.config.NAME}:main state.vars.testResult")
         result = result.split(": ")[-1]
         self.assertEqual(result, "1", str(pack.getMainDirectory().getPath("functions").fileStructure).strip())

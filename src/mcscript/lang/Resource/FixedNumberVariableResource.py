@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from src.mcscript.data.Commands import Command
+from src.mcscript.lang.Protocols.unaryOperatorProtocols import ExplicitUnaryNumberVariableOperationProtocol
 from src.mcscript.lang.Resource.AddressResource import AddressResource
 from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
 from src.mcscript.lang.Resource.ResourceBase import ValueResource
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
     from src.mcscript import CompileState
 
 
-class FixedNumberVariableResource(ValueResource):
+class FixedNumberVariableResource(ValueResource, ExplicitUnaryNumberVariableOperationProtocol):
     """
     Used when a fixed number is stored as a variable on a nbt storage
     """
@@ -28,10 +29,26 @@ class FixedNumberVariableResource(ValueResource):
     def type() -> ResourceType:
         return ResourceType.FIXED_POINT
 
-    def loadToScoreboard(self, compileState: CompileState) -> FixedNumberResource:
+    def load(self, compileState: CompileState) -> FixedNumberResource:
         stack = compileState.expressionStack.next()
         compileState.writeline(Command.LOAD_VARIABLE(
             stack=stack,
             var=self.embed()
         ))
         return FixedNumberResource(stack, False)
+
+    def operation_increment_one(self, compileState: CompileState) -> FixedNumberVariableResource:
+        # 1. load self
+        # 2. increment scoreboard value
+        # 3. store back
+        number = self.load(compileState)
+        number = number.operation_plus(FixedNumberResource.fromNumber(1), compileState)
+        return number.storeToNbt(self.value, compileState)
+
+    def operation_decrement_one(self, compileState: CompileState) -> FixedNumberVariableResource:
+        # 1. load self
+        # 2. increment scoreboard value
+        # 3. store back
+        number = self.load(compileState)
+        number = number.operation_minus(FixedNumberResource.fromNumber(1), compileState)
+        return number.storeToNbt(self.value, compileState)

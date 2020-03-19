@@ -430,13 +430,11 @@ fun onTick() -> Null {
 """
 
 code_mark_feature = """
-### waring: this can crash the server! ###
-
 const feature = features.fortress
 const markerBlock = blocks.white_stained_glass
 const entityId = "mcscript_feature_detector"
 const summonString = "summon minecraft:area_effect_cloud ~$ ~$ ~$ {Duration:2147483647,Tags:['$']}"
-execute(stringFormat("kill @e[tag=$]", entityId))
+execute("kill @e[tag=$entityId]")
 for @p at @s {
     execute(stringFormat(summonString, "", "", "", entityId))
 }
@@ -461,7 +459,7 @@ fun checkBlocks() -> Null {
 shouldRun = 0
 finished = 0
 fun doTick() -> Null {
-    if (finished == 0) * (evaluate(stringFormat("execute unless entity @e[tag=$]", entityId))) {
+    if (finished == 0) * (evaluate("execute unless entity @e[tag=$entityId]")) {
         for @a print("Finished.")
         finished = 1
     }
@@ -480,17 +478,14 @@ fun onTick() -> Null {
 """
 
 code_temp = """
-for @a {
-    print(isFeature(features.village))
-    print(isFeature(features.buried_treasure))
-}
-    
+a = -1
+a = -a
 """
 
 if __name__ == '__main__':
-    world = getWorld("McScript2", r"D:\Dokumente\Informatik\Python\McScript\test\server")
+    world = getWorld("McScript", r"D:\Dokumente\Informatik\Python\McScript\test\server")
     config = Config("config.ini")
     config.get("name")
-    datapack = compileMcScript(code_mark_feature, lambda a, b, c: print(f"{a}: {b * 100}%"), config)
+    datapack = compileMcScript(code_temp, lambda a, b, c: print(f"{a}: {b * 100}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

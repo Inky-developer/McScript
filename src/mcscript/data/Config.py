@@ -69,3 +69,9 @@ class Config:
 
     def _addressFormat(self, name: str) -> AddressResource:
         return AddressResource(name, True)
+
+    def __setitem__(self, key, value):
+        self.config["Configuration"][key] = value
+
+    def __getitem__(self, item):
+        return self.config["Configuration"][item]

@@ -37,11 +37,15 @@ term: sum
 value: NUMBER
      | DECIMAL
      | STRING
-     | MINUS value -> signed_value
+     | unary_operation
      | "(" expression ")"
      | IDENTIFIER -> variable
      | function_call
      | IDENTIFIER ("." IDENTIFIER)+ -> property
+
+unary_operation: MINUS value
+               | INCR_ONE value
+               | DECR_ONE value
 
 comparison: term (VERIFY_EQUAL | VERIFY_NOT_EQUAL | VERIFY_GREATER | VERIFY_GREATER_OR_EQUAL | VERIFY_LESS | VERIFY_LESS_OR_EQUAL) term
 
@@ -61,6 +65,9 @@ MINUS: "-"
 TIMES: "*"
 DIVIDE: "/"
 MODULO: "%"
+
+INCR_ONE: "++"
+DECR_ONE: "--"
 
 VERIFY_EQUAL: "=="
 VERIFY_NOT_EQUAL: "!="

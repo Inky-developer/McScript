@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from src.mcscript.data.Commands import Operator
+from src.mcscript.data.Commands import BinaryOperator
+from src.mcscript.lang.Protocols.binaryOperatorProtocols import BinaryOperatorProtocol
 from src.mcscript.lang.Resource.AddressResource import AddressResource
 from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
 from src.mcscript.lang.Resource.NumberResource import NumberResource
-from src.mcscript.lang.Resource.Protocols import NumberProtocol
 from src.mcscript.lang.Resource.ResourceBase import ValueResource, Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 
@@ -14,12 +14,12 @@ if TYPE_CHECKING:
     from src.mcscript import CompileState
 
 
-class BooleanResource(ValueResource, NumberProtocol):
+class BooleanResource(ValueResource, BinaryOperatorProtocol):
     """
     Holds a boolean
     """
 
-    def numericOperation(self, other: ValueResource, operator: Operator, compileState: CompileState) -> Resource:
+    def numericOperation(self, other: ValueResource, operator: BinaryOperator, compileState: CompileState) -> Resource:
         return self.convertToNumber(compileState).numericOperation(other, operator, compileState)
 
     @staticmethod

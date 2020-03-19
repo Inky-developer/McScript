@@ -101,12 +101,18 @@ class Relation(StringEnum):
         return cls[string.split("VERIFY_")[-1]]
 
 
-class Operator(StringEnum):
+class BinaryOperator(StringEnum):
     PLUS = "+"
     MINUS = "-"
     TIMES = "*"
     DIVIDE = "/"
     MODULO = "%"
+
+
+class UnaryOperator(StringEnum):
+    MINUS = "-"
+    INCREMENT_ONE = "++"
+    DECREMENT_ONE = "--"
 
 
 class Command(StringEnum):

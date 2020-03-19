@@ -3,16 +3,16 @@ from typing import List, Type, Optional
 from lark import Tree
 
 from src.mcscript.compiler import Namespace
-from src.mcscript.lang.Resource.ResourceBase import ObjectResource
+from src.mcscript.lang.Resource.ResourceBase import ObjectResource, Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 
 
 class Function(ObjectResource):
-    def __init__(self, function_name: str, returnType: Type[ResourceType], parameters: List[Tree]):
+    def __init__(self, function_name: str, returnType: Type[Resource], parameters: List[Tree]):
         super().__init__()
         self._name = function_name
         self.returnType = returnType
-        self.parameters = [parameter.children for parameter in parameters]
+        self.parameters = parameters
 
         # not optional, will beset after init
         self.namespace: Optional[Namespace] = None

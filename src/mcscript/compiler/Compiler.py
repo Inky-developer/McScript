@@ -1,20 +1,22 @@
 import warnings
 from typing import Dict
 
-from lark import Tree
+from lark import Tree, Token
 from lark.visitors import Interpreter
 
 from src.mcscript.Exceptions import McScriptNameError, McScriptArgumentsError, McScriptTypeError, \
     McScriptNotStaticError, McScriptIsStaticError
 from src.mcscript.compiler import CompileState
+from src.mcscript.compiler.tokenConverter import convertToken
 from src.mcscript.data import defaultCode
-from src.mcscript.data.Commands import Command, Operator, Relation, ExecuteCommand, Struct
+from src.mcscript.data.Commands import Command, BinaryOperator, Relation, ExecuteCommand, Struct, UnaryOperator
 from src.mcscript.data.Config import Config
 from src.mcscript.data.builtins.builtins import BuiltinFunction
+from src.mcscript.lang.Protocols.binaryOperatorProtocols import BinaryOperatorProtocol
+from src.mcscript.lang.Protocols.unaryOperatorProtocols import UnaryNumberOperatorProtocol, \
+    UnaryNumberVariableOperatorProtocol
 from src.mcscript.lang.Resource.BooleanResource import BooleanResource
 from src.mcscript.lang.Resource.FunctionResource import Function
-from src.mcscript.lang.Resource.NumberResource import NumberResource
-from src.mcscript.lang.Resource.Protocols import NumberProtocol
 from src.mcscript.lang.Resource.ResourceBase import Resource, ValueResource
 from src.mcscript.utils.Datapack import Datapack
 
@@ -38,21 +40,13 @@ class Compiler(Interpreter):
     def loadFunction(self, function: BuiltinFunction):
         self.compileState.currentNamespace().addFunction(function)
 
-    def control_execute(self, tree):
-        string, = tree.children
-
-        address = self.compileState.expressionStack.next()
-        self.compileState.writeline(Command.SET_VALUE_FROM(
-            stack=address,
-            command=string
-        ))
-        return NumberResource(address, False)
-
     def value(self, tree):
-        number = tree.children[0]
-        if isinstance(number, Tree):
-            return self.visit(number)
-        raise McScriptNameError(f"Invalid value: {number}", number)
+        value = tree.children[0]
+        if isinstance(value, Tree):
+            return self.visit(value)
+        elif isinstance(value, Token):
+            return convertToken(value, self.compileState)
+        raise McScriptNameError(f"Invalid value: {value}", value)
 
     def variable(self, tree):
         varName = tree.children[0]
@@ -67,28 +61,40 @@ class Compiler(Interpreter):
         # ))
         # return stack
         var = self.compileState.currentNamespace()[varName]
-        return var.loadToScoreboard(self.compileState)
+        return var
+
+    def unary_operation(self, tree):
+        # ToDo: get rid of these awful protocols
+        operator, value = tree.children
+        value = self.compileState.toResource(value)
+        operator = UnaryOperator(operator)
+
+        if not isinstance(value, UnaryNumberVariableOperatorProtocol) or operator == UnaryOperator.MINUS:
+            value = value.load(self.compileState)
+        if isinstance(value, (UnaryNumberVariableOperatorProtocol, UnaryNumberOperatorProtocol)):
+            return value.unaryOperation(operator, self.compileState)
+        raise McScriptTypeError(f"Resource {repr(value)} does not support unary operations.")
 
     def binaryOperation(self, *args):
         number1, *values = args
         # the first number can also be a list. Then just do a binary operation with it
         if isinstance(number1, list):
             number1 = self.binaryOperation(*number1)
-        number1 = self.compileState.toResource(number1)
+        number1 = self.compileState.load(number1)
         for i in range(0, len(values), 2):
             operator, number2, = values[i:i + 2]
             if isinstance(number2, list):
                 number2 = self.binaryOperation(*number2)
 
             # get the operator enum type
-            operator = Operator(operator)
+            operator = BinaryOperator(operator)
 
-            number2 = self.compileState.toResource(number2)
+            number2 = self.compileState.load(number2)
 
             if not isinstance(number2, ValueResource):
                 raise TypeError("Expected operand of type ValueResource")
 
-            if isinstance(number1, NumberProtocol):
+            if isinstance(number1, BinaryOperatorProtocol):
                 number1 = number1.numericOperation(number2, operator, self.compileState)
             else:
                 raise TypeError(f"Expected operand that supports numeric operations, not {repr(number1)}")
@@ -204,10 +210,10 @@ class Compiler(Interpreter):
 
     def term_ip(self, tree):
         variable, operator, resource = tree.children
-        resource = self.compileState.toResource(resource)
+        resource = self.compileState.load(resource)
         varResource = self.compileState.currentNamespace()[variable]
-        var = varResource.loadToScoreboard(self.compileState)
-        if not isinstance(var, (NumberProtocol, ValueResource)):
+        var = varResource.load(self.compileState)
+        if not isinstance(var, (BinaryOperatorProtocol, ValueResource)):
             raise McScriptTypeError(
                 "Cannot do a term-in-place operation with a variable that does not support numerical operations",
                 tree
@@ -217,7 +223,7 @@ class Compiler(Interpreter):
         if not isinstance(resource, ValueResource):
             raise AttributeError(f"Cannot do an operation with '{resource}'")
 
-        var = var.numericOperation(resource, Operator(operator), self.compileState)
+        var = var.numericOperation(resource, BinaryOperator(operator), self.compileState)
 
         # lastly, storeToNbt the value back into the variable
         self.compileState.writeline(Command.SET_VARIABLE_FROM(
@@ -317,7 +323,7 @@ class Compiler(Interpreter):
             self.compileState.writeline(Command.RUN_FUNCTION(function=blockName))
 
     def return_(self, tree):
-        address = self.compileState.toResource(tree.children[0])
+        address = self.compileState.load(tree.children[0])
         if not isinstance(address, ValueResource):
             raise McScriptTypeError("return value must be a ValueResource", tree)
         # set the return resource in the current namespace
@@ -331,12 +337,17 @@ class Compiler(Interpreter):
                 stack=address
             ))
 
+    def function_parameter(self, tree):
+        identifier, datatype = tree.children
+        datatype = convertToken(datatype, self.compileState)
+        return identifier, datatype
+
     def function_definition(self, tree):
         function_name, parameter_list, returnType, block = tree.children
         is_special = function_name in defaultCode.MAGIC_FUNCTIONS
 
-        parameter_list = parameter_list.children
-        function = Function(str(function_name), returnType, parameter_list)
+        parameter_list = [self.visit(i) for i in parameter_list.children]
+        function = Function(str(function_name), convertToken(returnType, self.compileState), parameter_list)
         self.compileState.currentNamespace().addFunction(function)
         self.compileState.nextNamespaceDefaults = function.parameters
 

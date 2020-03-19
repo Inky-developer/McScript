@@ -70,10 +70,11 @@ class ValueResource(Resource, ABC):
     def hasStaticValue(self):
         return self.isStatic and self._hasStaticValue
 
-    def loadToScoreboard(self, compileState: CompileState) -> Resource:
+    def load(self, compileState: CompileState) -> Resource:
         """
         Default: just return this and do nothing
-        loads this variable to a scoreboard
+        loads this resource. A NumberVariableResource would load to a scoreboard, A StringResource would check
+        for variables.
         :param compileState: the compile state
         :return: self
         """
@@ -87,7 +88,7 @@ class ValueResource(Resource, ABC):
         :param compileState:
         :return:
         """
-        raise TypeError
+        raise TypeError(f"{repr(self)} does not support this operation")
 
     def setValue(self, value, isStatic: bool):
         self.value = value

@@ -23,8 +23,8 @@
 [load]
 # 2**24-1, max tick length ~ 30s
 gamerule maxCommandChainLength 16777215
-scoreboard objectives remove mcscript
-scoreboard objectives add mcscript dummy
+scoreboard objectives remove {name}
+scoreboard objectives add {name} dummy
 
 data remove storage {name}:main state
 

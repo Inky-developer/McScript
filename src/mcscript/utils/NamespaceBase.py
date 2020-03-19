@@ -8,7 +8,7 @@ T = TypeVar("T")
 class NamespaceBase(Mapping[str, T]):
     class NamespaceIterator(Iterator[T]):
         def __init__(self, namespace: NamespaceBase):
-            self.data = iter(namespace.namespace.values())
+            self.data = iter(namespace.namespace.keys())
             self.predecessor = iter(namespace.predecessor) if namespace.predecessor is not None else None
             self.finishedBase = False
 
@@ -28,6 +28,9 @@ class NamespaceBase(Mapping[str, T]):
     def __init__(self, previous: Optional[NamespaceBase], index: int):
         self.predecessor = previous
         self.namespace: Dict[str, T] = {}
+
+    def asDict(self):
+        return {key: self[key] for key in self}
 
     def __iter__(self) -> Iterator[T]:
         return self.NamespaceIterator(self)

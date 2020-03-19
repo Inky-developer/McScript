@@ -13,6 +13,13 @@ if TYPE_CHECKING:
 
 
 class StringFormatFunction(BuiltinFunction):
+    """
+    Used so format strings can be store normally and replaced later using this function.
+    example:
+        const template = "setblock $ $ $ $"
+        execute(stringFormat(template, 0, 0, 0, blocks.stone))
+    """
+
     def name(self) -> str:
         return "stringFormat"
 

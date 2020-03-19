@@ -145,8 +145,30 @@ return a / b == 0.625
 
 [evaluate]
 const score = ".ret"
-const namespace = "mcscript"
+const namespace = "mcscript_tests"
 execute(stringFormat("scoreboard players set $ $ 1", score, namespace))
 return evaluate(stringFormat("scoreboard players get $ $", score, namespace))
+
+[unary_minus]
+return -(5*5) == -25
+
+[unary_minus]
+a = 5
+return -a*a == -25
+
+[increment_one]
+a = 0
+++a
+b = 0.0
+++b
+return (a == 1) * (b == 1.0)
+
+
+[decrement_one]
+a = 1
+--a
+b = 1
+--b
+return (a == 0) * (b == 0.0)
 
 

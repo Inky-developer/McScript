@@ -49,7 +49,7 @@ class SetBlockFunction(BuiltinFunction):
             except TypeError:
                 pass
         self.shouldGenerate = True
-        return self.generate_dynamic(compileState.config, block.loadToScoreboard(compileState), x, y, z)
+        return self.generate_dynamic(compileState.config, block.load(compileState), x, y, z)
 
     def generate_dynamic(self, config: Config, block: Resource, x: str, y: str, z: str) -> str:
         return multiple_commands(

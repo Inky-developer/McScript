@@ -21,7 +21,7 @@ class TestNamespace(unittest.TestCase):
         self.assertTrue("sub" in self.namespace)
 
     def test_iterator(self):
-        self.assertEqual(set(self.namespace), {"yes", "a", "b"})
+        self.assertEqual(set(self.namespace), {"sub", "a", "b"})
 
 
 if __name__ == '__main__':

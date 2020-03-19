@@ -35,17 +35,17 @@ class CompileState:
 
     def load(self, value: Resource) -> Resource:
         """
-        tries to loadToScoreboard the resource onto the scoreboard and returns the address.
+        tries to load the resource and returns the result.
         :param value: the value
         :return: the value itself or an addressResource
         """
         if isinstance(value, Tree):
             return self.load(self.compileFunction(value))
         try:
-            return value.loadToScoreboard(self)
+            return value.load(self)
         except TypeError:
             raise ValueError(
-                f"Cannot loadToScoreboard Resource of type {type(value)} to a scoreboard. It cannot be converted to a Number.")
+                f"Cannot load resource of type {type(value)}. It cannot be converted to a Number.")
 
     def toResource(self, value) -> Resource:
         if isinstance(value, Resource):

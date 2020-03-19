@@ -40,7 +40,7 @@ class FixedPointFunction(BuiltinFunction):
                         f"Parameter {parameter} could not be converted to a number for function fixed")
                 return FunctionResult(None, resource=FixedNumberResource(value, True))
             else:
-                stack = parameter.loadToScoreboard(compileState)
+                stack = parameter.load(compileState)
                 return FunctionResult(None, resource=FixedNumberResource(stack, False))
 
         # if the parameter is not a value resource, try to convert it to a fixed point number

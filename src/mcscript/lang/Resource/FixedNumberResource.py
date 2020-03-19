@@ -3,10 +3,11 @@ from __future__ import annotations
 from typing import Union, TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptTypeError
-from src.mcscript.data.Commands import Command, Struct, Operator, multiple_commands
+from src.mcscript.data.Commands import Command, Struct, BinaryOperator, multiple_commands
+from src.mcscript.lang.Protocols.binaryOperatorProtocols import ExplicitBinaryOperatorProtocol
+from src.mcscript.lang.Protocols.unaryOperatorProtocols import ExplicitUnaryNumberOperationProtocol
 from src.mcscript.lang.Resource.AddressResource import AddressResource
-from src.mcscript.lang.Resource.Protocols import ExplicitNumberProtocol
-from src.mcscript.lang.Resource.ResourceBase import ValueResource
+from src.mcscript.lang.Resource.ResourceBase import ValueResource, Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 
 if TYPE_CHECKING:
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
     from src.mcscript.lang.Resource.FixedNumberVariableResource import FixedNumberVariableResource
 
 
-class FixedNumberResource(ValueResource, ExplicitNumberProtocol):
+class FixedNumberResource(ValueResource, ExplicitBinaryOperatorProtocol, ExplicitUnaryNumberOperationProtocol):
     """
     A Fixed number: used for calculations with rational numbers.
     The current precision is not great (1/1024) and the number should be kept as small as possible
@@ -27,6 +28,7 @@ class FixedNumberResource(ValueResource, ExplicitNumberProtocol):
         - operations with other fixed numbers will produce fixed numbers
         - operations with other values will call toFixed of that resource and then do the operation
     """
+
     BASE = 1000
 
     def embed(self) -> str:
@@ -52,7 +54,7 @@ class FixedNumberResource(ValueResource, ExplicitNumberProtocol):
         compileState.writeline(Command.SET_VALUE(stack=tmpStack, value=self.BASE))
         compileState.writeline(Command.OPERATION(
             stack=self.value,
-            operator=Operator.DIVIDE.value,
+            operator=BinaryOperator.DIVIDE.value,
             stack2=tmpStack
         ))
         compileState.expressionStack.previous()
@@ -92,7 +94,7 @@ class FixedNumberResource(ValueResource, ExplicitNumberProtocol):
         # else do a normal operation
         compileState.writeline(Command.OPERATION(
             stack=a.value,
-            operator=Operator.PLUS.value,
+            operator=BinaryOperator.PLUS.value,
             stack2=b.value
         ))
         return a
@@ -113,7 +115,7 @@ class FixedNumberResource(ValueResource, ExplicitNumberProtocol):
         # else do a normal operation
         compileState.writeline(Command.OPERATION(
             stack=a.value,
-            operator=Operator.MINUS.value,
+            operator=BinaryOperator.MINUS.value,
             stack2=b.value
         ))
         return a
@@ -134,7 +136,7 @@ class FixedNumberResource(ValueResource, ExplicitNumberProtocol):
         compileState.writeline(multiple_commands(
             Command.OPERATION(
                 stack=a.value,
-                operator=Operator.TIMES.value,
+                operator=BinaryOperator.TIMES.value,
                 stack2=b.value
             ),
             # Command.ADD_SCORE(
@@ -147,7 +149,7 @@ class FixedNumberResource(ValueResource, ExplicitNumberProtocol):
             ),
             Command.OPERATION(
                 stack=a.value,
-                operator=Operator.DIVIDE.value,
+                operator=BinaryOperator.DIVIDE.value,
                 stack2=tmpStack
             )
         ))
@@ -169,12 +171,12 @@ class FixedNumberResource(ValueResource, ExplicitNumberProtocol):
             ),
             Command.OPERATION(
                 stack=a.value,
-                operator=Operator.TIMES.value,
+                operator=BinaryOperator.TIMES.value,
                 stack2=tmpStack
             ),
             Command.OPERATION(
                 stack=a.value,
-                operator=Operator.DIVIDE.value,
+                operator=BinaryOperator.DIVIDE.value,
                 stack2=b.value
             )
         ))
@@ -190,10 +192,30 @@ class FixedNumberResource(ValueResource, ExplicitNumberProtocol):
 
         compileState.writeline(Command.OPERATION(
             stack=a,
-            operator=Operator.MODULO.value,
+            operator=BinaryOperator.MODULO.value,
             stack2=b
         ))
         return a
+
+    def operation_negate(self, compileState: CompileState) -> Resource:
+        if self.hasStaticValue:
+            return FixedNumberResource(-self.value, True)
+
+        # else multiply this by -1
+        tmp = compileState.expressionStack.next()
+        compileState.writeline(multiple_commands(
+            Command.SET_VALUE(
+                stack=tmp,
+                value=-1
+            ),
+            Command.OPERATION(
+                stack=self.embed(),
+                operator=BinaryOperator.TIMES.value,
+                stack2=tmp
+            )
+        ))
+        compileState.expressionStack.previous()
+        return FixedNumberResource(self.value, False)
 
     def toScoreboard(self, compileState) -> FixedNumberResource:
         if not self.isStatic:
