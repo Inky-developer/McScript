@@ -9,6 +9,8 @@ class ResourceType(Enum):
     NULL = "Null"
     ADDRESS = auto()
     NBT_ADDRESS = auto()
+    STRUCT = auto()
+    STRUCT_OBJECT = auto()
     NUMBER = "Number"
     FIXED_POINT = "Fixed"
     BOOLEAN = "Boolean"
@@ -16,3 +18,5 @@ class ResourceType(Enum):
     SELECTOR = "Selector"
     ENUM = "Enum"
     FUNCTION = "Function"
+    METHOD = "Method"
+    TYPE = auto()

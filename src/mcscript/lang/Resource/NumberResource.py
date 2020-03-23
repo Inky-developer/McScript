@@ -3,23 +3,25 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptTypeError
-from src.mcscript.data.Commands import Command, BinaryOperator, multiple_commands, Struct
-from src.mcscript.lang.Protocols.binaryOperatorProtocols import BinaryOperatorProtocol
-from src.mcscript.lang.Protocols.unaryOperatorProtocols import ExplicitUnaryNumberOperationProtocol
+from src.mcscript.data.Commands import Command, BinaryOperator, multiple_commands, Struct, ExecuteCommand
 from src.mcscript.lang.Resource.AddressResource import AddressResource
 from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
+from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
 from src.mcscript.lang.Resource.ResourceBase import ValueResource, Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState
     from src.mcscript.lang.Resource.NumberVariableResource import NumberVariableResource
+    from src.mcscript.lang.Resource.BooleanResource import BooleanResource
 
 
-class NumberResource(ValueResource, BinaryOperatorProtocol, ExplicitUnaryNumberOperationProtocol):
+class NumberResource(ValueResource):
     """
     Holds a Number(int)
     """
+
+    requiresInlineFunc = False
 
     def numericOperation(self, other: ValueResource, operator: BinaryOperator,
                          compileState: CompileState) -> NumberResource:
@@ -29,7 +31,7 @@ class NumberResource(ValueResource, BinaryOperatorProtocol, ExplicitUnaryNumberO
             except TypeError:
                 raise McScriptTypeError(f"Cannot do the operation '{self} {operator.value} {other}' "
                                         f"where the second value can't be converted to a number")
-            return self._numericOperationStatic(int(self), int(other), operator)
+            return self._numericOperationStatic(int(self), value, operator)
         return self._numericOperation(other, operator, compileState)
 
     @staticmethod
@@ -59,12 +61,37 @@ class NumberResource(ValueResource, BinaryOperatorProtocol, ExplicitUnaryNumberO
         compileState.expressionStack.previous()
         return FixedNumberResource(self.value, False)
 
-    def storeToNbt(self, stack: AddressResource, compileState: CompileState) -> NumberVariableResource:
+    def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
+        """ return True if the value of this resource does not match 0"""
+        from src.mcscript.lang.Resource.BooleanResource import BooleanResource
+        if self.isStatic:
+            return BooleanResource.FALSE if self.value == 0 else BooleanResource.TRUE
+
+        stack = compileState.expressionStack.next()
+        compileState.writeline(Command.SET_VALUE(
+            stack=stack,
+            value=1
+        ))
+        compileState.writeline(Command.EXECUTE(
+            sub=ExecuteCommand.IF_SCORE_RANGE(
+                stack=self.value,
+                range=0
+            ),
+            command=Command.SET_VALUE(
+                stack=stack,
+                value=0
+            )
+        ))
+
+    def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> NumberVariableResource:
         """ Load a number from a scoreboard (NumberResource) to a scoreboard (this)"""
         from src.mcscript.lang.Resource.NumberVariableResource import NumberVariableResource
 
         if self.hasStaticValue:
-            compileState.writeline(Command.SET_VARIABLE(struct=Struct.VAR(var=stack, value=int(self))))
+            compileState.writeline(Command.SET_VARIABLE(
+                address=stack.address,
+                struct=Struct.VAR(var=stack.name, value=int(self))
+            ))
         else:
             compileState.writeline(Command.SET_VARIABLE_FROM(
                 var=stack,
@@ -126,6 +153,31 @@ class NumberResource(ValueResource, BinaryOperatorProtocol, ExplicitUnaryNumberO
         if otherStack:
             compileState.expressionStack.previous()
         return NumberResource(stack1, False)
+
+    def copy(self, target: ValueResource, compileState: CompileState) -> Resource:
+        if not isinstance(target, AddressResource):
+            if isinstance(target, NbtAddressResource):
+                # convert this to a variable at the given path
+                return self.storeToNbt(target, compileState)
+            raise RuntimeError(f"NumberResource uses AddressResource, got {repr(target)}")
+        if self.isStatic:
+            compileState.writeline(Command.SET_VALUE(
+                stack=target,
+                value=self.value
+            ))
+        else:
+            compileState.writeline(Command.SET_VALUE_FROM(
+                stack=target,
+                command=Command.GET_SCOREBOARD_VALUE(
+                    stack=self.value
+                )
+            ))
+        return NumberResource(target, False)
+
+    @classmethod
+    def createEmptyResource(cls, identifier: str, compileState: CompileState) -> Resource:
+        from src.mcscript.lang.Resource.NumberVariableResource import NumberVariableResource
+        return compileState.currentNamespace().addVar(identifier, NumberVariableResource)
 
     # noinspection PyShadowingNames
     def _numericOperationStatic(self, a: int, b: int, operator: BinaryOperator) -> NumberResource:

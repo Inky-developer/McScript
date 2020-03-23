@@ -3,17 +3,17 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from src.mcscript.data.Commands import Command, BinaryOperator
-from src.mcscript.lang.Protocols.unaryOperatorProtocols import ExplicitUnaryNumberVariableOperationProtocol
 from src.mcscript.lang.Resource.AddressResource import AddressResource
+from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
 from src.mcscript.lang.Resource.NumberResource import NumberResource
-from src.mcscript.lang.Resource.ResourceBase import ValueResource
+from src.mcscript.lang.Resource.ResourceBase import ValueResource, Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript.compiler.CompileState import CompileState
 
 
-class NumberVariableResource(ValueResource, ExplicitUnaryNumberVariableOperationProtocol):
+class NumberVariableResource(ValueResource):
     """
     Used when a number is stored as a variable
     """
@@ -30,13 +30,22 @@ class NumberVariableResource(ValueResource, ExplicitUnaryNumberVariableOperation
     def type() -> ResourceType:
         return ResourceType.NUMBER
 
-    def load(self, compileState: CompileState) -> NumberResource:
-        stack = compileState.expressionStack.next()
+    def load(self, compileState: CompileState, stack: ValueResource = None) -> NumberResource:
+        stack = stack or compileState.expressionStack.next()
         compileState.writeline(Command.LOAD_VARIABLE(
             stack=stack,
             var=self.embed()
         ))
         return NumberResource(stack, False)
+
+    def copy(self, target: ValueResource, compileState: CompileState) -> Resource:
+        if not isinstance(target, NbtAddressResource):
+            raise RuntimeError(f"NumberVariableAddressResource expected NbtAddressResource, got {repr(target)}")
+        compileState.writeline(Command.COPY_VARIABLE(
+            address=target,
+            address2=self.value
+        ))
+        return NumberVariableResource(target, False)
 
     def operation_increment_one(self, compileState: CompileState) -> NumberVariableResource:
         # 1. load self

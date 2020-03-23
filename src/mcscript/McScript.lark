@@ -9,26 +9,30 @@ statement: declaration statement_separator?
          | control_if statement_separator?
          | control_while statement_separator?
          | control_enum statement_separator?
-         | "at " ( SELECTOR  ) block statement_separator? -> at
-         | "for " ( SELECTOR ) block statement_separator? -> as_
+         | control_struct statement_separator?
+         | context_manipulator statement_separator?
 
 statement_separator: /\n|;/
 
-function_definition: "fun " IDENTIFIER parameter_list "->" DATATYPE block
+function_definition: "fun " IDENTIFIER parameter_list "->" IDENTIFIER block
 block: "{" statement* "}"
      | statement
 function_block: "{" ( function_value "," )* function_value? "->" statement+ "}"
-function_parameter: IDENTIFIER ":" DATATYPE
+function_parameter: IDENTIFIER ":" IDENTIFIER
 parameter_list: "(" (function_parameter "," )* function_parameter? ")"
 function_value: expression
 function_call: IDENTIFIER "(" (function_value "," )* function_value? ")"
 
-declaration: IDENTIFIER "=" expression
+variable_declaration: [/\bconst\b/] IDENTIFIER ":" IDENTIFIER
+declaration: IDENTIFIER ("." IDENTIFIER)* "=" expression
 const_declaration: "const " declaration
-term_ip: IDENTIFIER (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression
+term_ip: IDENTIFIER ("." IDENTIFIER)* (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression
 
 expression: comparison
           | term
+          | expression (OR expression)+ -> boolean_or
+          | expression (AND expression)+ -> boolean_and
+          | NOT expression -> boolean_not
 
 // terms like (6 + 8) * -9
 term: sum
@@ -52,9 +56,16 @@ comparison: term (VERIFY_EQUAL | VERIFY_NOT_EQUAL | VERIFY_GREATER | VERIFY_GREA
 // control flow
 control_if: "if " expression block ("else " block)?
 control_while: "while " expression block
+
 control_enum: "enum " IDENTIFIER enum_block
 enum_block: "{" ( enum_property ";" )* enum_property ";"? "}" // ToDo integrate with better assignments
 enum_property: IDENTIFIER | (IDENTIFIER "=" NUMBER)
+
+control_struct: _KEYWORD_STRUCT IDENTIFIER struct_block
+struct_block: "{" (( variable_declaration | function_definition )statement_separator?)* "}"
+
+context_manipulator: "run" ((/\bat\b/ | /\bfor\b/) SELECTOR)+ block
+
 
 NUMBER: /[0-9]+/
 DECIMAL: /[0-9]*\.[0-9]+/
@@ -65,6 +76,9 @@ MINUS: "-"
 TIMES: "*"
 DIVIDE: "/"
 MODULO: "%"
+AND: /\band\b/
+OR: /\bor\b/
+NOT: /\bnot\b/
 
 INCR_ONE: "++"
 DECR_ONE: "--"
@@ -76,16 +90,10 @@ VERIFY_GREATER_OR_EQUAL: ">="
 VERIFY_LESS: "<"
 VERIFY_LESS_OR_EQUAL: "<="
 
-DATATYPE: "Number"
-        | "Fixed"
-        | "Boolean"
-        | "String"
-        | "Function"
-        | "Enum"
-        | "Selector"
-        | "Null"
-
 IDENTIFIER.0: /[a-z_][a-z_0-9]*/i
+
+_KEYWORD_STRUCT: /\bstruct\b/
+
 COMMENT: "#" /[^\n]/*
 %ignore " " | "\n" | "\t"
 %ignore COMMENT

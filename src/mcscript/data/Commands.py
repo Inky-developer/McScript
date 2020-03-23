@@ -133,11 +133,15 @@ class Command(StringEnum):
                     "data get storage {name2}:{:Storage.NAME} {:Storage.VARS}.{var}"
 
     # sets a variable to a value
-    SET_VARIABLE = 'data modify storage {name}:{:Storage.NAME} {:Storage.VARS} merge value {struct}'
+    SET_VARIABLE = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} merge value {struct}"
+
+    COPY_VARIABLE = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} " \
+                    "set from storage {name}:{:Storage.NAME} {:Storage.VARS}.{address2}"
 
     # loads the result of another command as int into a storage
     SET_VARIABLE_FROM = \
-        "execute store result storage {name}:{:Storage.NAME} {:Storage.VARS}.{var} {type:int} {scale:1} run {command}"
+        "execute store result storage {name}:{:Storage.NAME} " \
+        "{:Storage.VARS}.{var} {type:int} {scale:1} run {command}"
     SET_VALUE_FROM = "execute store result score {stack} {name} run {command}"
 
     SET_RETURN_VALUE = "scoreboard players operation {:Config.currentConfig.RETURN_SCORE} {name} = {stack} {name}"

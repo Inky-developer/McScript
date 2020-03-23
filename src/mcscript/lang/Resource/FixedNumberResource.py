@@ -3,20 +3,20 @@ from __future__ import annotations
 from typing import Union, TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptTypeError
-from src.mcscript.data.Commands import Command, Struct, BinaryOperator, multiple_commands
-from src.mcscript.lang.Protocols.binaryOperatorProtocols import ExplicitBinaryOperatorProtocol
-from src.mcscript.lang.Protocols.unaryOperatorProtocols import ExplicitUnaryNumberOperationProtocol
+from src.mcscript.data.Commands import Command, Struct, BinaryOperator, multiple_commands, ExecuteCommand
 from src.mcscript.lang.Resource.AddressResource import AddressResource
+from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
 from src.mcscript.lang.Resource.ResourceBase import ValueResource, Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 
 if TYPE_CHECKING:
+    from src.mcscript.lang.Resource.BooleanResource import BooleanResource
     from src.mcscript.lang.Resource.NumberResource import NumberResource
     from src.mcscript import CompileState
     from src.mcscript.lang.Resource.FixedNumberVariableResource import FixedNumberVariableResource
 
 
-class FixedNumberResource(ValueResource, ExplicitBinaryOperatorProtocol, ExplicitUnaryNumberOperationProtocol):
+class FixedNumberResource(ValueResource):
     """
     A Fixed number: used for calculations with rational numbers.
     The current precision is not great (1/1024) and the number should be kept as small as possible
@@ -30,6 +30,8 @@ class FixedNumberResource(ValueResource, ExplicitBinaryOperatorProtocol, Explici
     """
 
     BASE = 1000
+
+    requiresInlineFunc = False
 
     def embed(self) -> str:
         return str("{:.8f}".format(self.value / self.BASE) if self.isStatic else self.value)
@@ -63,14 +65,38 @@ class FixedNumberResource(ValueResource, ExplicitBinaryOperatorProtocol, Explici
     def convertToFixedNumber(self, compileState: CompileState) -> FixedNumberResource:
         return self
 
-    def storeToNbt(self, stack: AddressResource, compileState: CompileState) -> FixedNumberVariableResource:
+    def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
+        """ return True if the value of this resource does not match 0"""
+        from src.mcscript.lang.Resource.BooleanResource import BooleanResource
+        if self.isStatic:
+            return BooleanResource.FALSE if self.value == 0 else BooleanResource.TRUE
+
+        stack = compileState.expressionStack.next()
+        compileState.writeline(Command.SET_VALUE(
+            stack=stack,
+            value=1
+        ))
+        compileState.writeline(Command.EXECUTE(
+            sub=ExecuteCommand.IF_SCORE_RANGE(
+                stack=self.value,
+                range=0
+            ),
+            command=Command.SET_VALUE(
+                stack=stack,
+                value=0
+            )
+        ))
+
+    def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> FixedNumberVariableResource:
         from src.mcscript.lang.Resource.FixedNumberVariableResource import FixedNumberVariableResource
 
         if self.isStatic:
-            compileState.writeline(Command.SET_VARIABLE(struct=Struct.VAR(
-                var=stack,
-                value=self.value
-            )))
+            compileState.writeline(Command.SET_VARIABLE(
+                address=stack.address,
+                struct=Struct.VAR(
+                    var=stack.name,
+                    value=self.value
+                )))
         else:
             compileState.writeline(
                 Command.SET_VARIABLE_FROM(var=stack, command=Command.GET_SCOREBOARD_VALUE(stack=self.value))
@@ -232,8 +258,33 @@ class FixedNumberResource(ValueResource, ExplicitBinaryOperatorProtocol, Explici
             return self.value
         raise TypeError
 
-    def _checkOther(self, other: ValueResource, compileState: CompileState) -> FixedNumberResource:
+    def checkOtherOperator(self, other: ValueResource, compileState: CompileState) -> FixedNumberResource:
         if hasattr(other, "convertToFixedNumber"):
             return other.convertToFixedNumber(compileState)
 
         raise McScriptTypeError(f"Expected a type that can be converted to a fixed point number but got {repr(other)}")
+
+    def copy(self, target: ValueResource, compileState: CompileState):
+        if not isinstance(target, AddressResource):
+            if isinstance(target, NbtAddressResource):
+                # convert this to a variable at the given path
+                return self.storeToNbt(target, compileState)
+            raise RuntimeError(f"FixedNumberResource uses AddressResource, got {repr(target)}")
+        if self.isStatic:
+            compileState.writeline(Command.SET_VALUE(
+                stack=target,
+                value=self.value
+            ))
+        else:
+            compileState.writeline(Command.SET_VALUE_FROM(
+                stack=target,
+                command=Command.GET_SCOREBOARD_VALUE(
+                    stack=self.value
+                )
+            ))
+        return FixedNumberResource(target, False)
+
+    @classmethod
+    def createEmptyResource(cls, identifier: str, compileState: CompileState) -> Resource:
+        from src.mcscript.lang.Resource.FixedNumberVariableResource import FixedNumberVariableResource
+        return compileState.currentNamespace().addVar(identifier, FixedNumberVariableResource)

@@ -5,9 +5,9 @@ from src.mcscript.utils.NamespaceBase import NamespaceBase
 
 class TestNamespace(unittest.TestCase):
     def setUp(self) -> None:
-        sub = NamespaceBase(None, 0)
+        sub = NamespaceBase(None)
         sub.namespace["sub"] = "yes"
-        self.namespace = NamespaceBase(sub, 1)
+        self.namespace = NamespaceBase(sub)
         self.namespace.namespace["a"] = "b"
         self.namespace.namespace["b"] = "a"
 

@@ -5,10 +5,7 @@ from lark import Tree
 from src.mcscript.compiler.Namespace import Namespace
 from src.mcscript.data.Config import Config
 from src.mcscript.lang.Resource.AddressResource import AddressResource
-from src.mcscript.lang.Resource.FixedNumberVariableResource import FixedNumberVariableResource
-from src.mcscript.lang.Resource.NumberVariableResource import NumberVariableResource
 from src.mcscript.lang.Resource.ResourceBase import Resource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
 from src.mcscript.utils.Address import Address
 from src.mcscript.utils.Datapack import Datapack
 from src.mcscript.utils.FileStructure import FileStructure
@@ -25,7 +22,7 @@ class CompileState:
         self.codeBlockStack = Address("block_{}")
         self.temporaryStorageStack = Address("temp.tmp{}")
 
-        self.stack: List[Namespace] = [Namespace(None, 0)]
+        self.stack: List[Namespace] = [Namespace()]
         self.namespaceTotal = 1
 
         self.fileStructure = self.datapack.getMainDirectory().getPath("functions").fileStructure
@@ -89,15 +86,14 @@ class CompileState:
         self.stack.pop()
 
     def pushStack(self):
-        namespace = Namespace(self.currentNamespace(), self.namespaceTotal)
-        self.namespaceTotal += 1
-        for value, resource in self.nextNamespaceDefaults:
-            # pre-calculate addresses for scoreboard numbers
-            # ToDo: remove this bullshit and add function that are compiled each time they are called
-            if resource.type() == ResourceType.NUMBER:
-                namespace[value] = NumberVariableResource(namespace.variableFmt.format(value), False)
-            elif resource.type() == ResourceType.FIXED_POINT:
-                namespace[value] = FixedNumberVariableResource(namespace.variableFmt.format(value), False)
+        namespace = Namespace(self.currentNamespace())
+        # for value, resource in self.nextNamespaceDefaults:
+        #     # pre-calculate addresses for scoreboard numbers
+        #     # ToDo: remove this bullshit and add function that are compiled each time they are called
+        #     if resource.type() == ResourceType.NUMBER:
+        #         namespace[value] = NumberVariableResource(namespace.variableFmt.format(value), False)
+        #     elif resource.type() == ResourceType.FIXED_POINT:
+        #         namespace[value] = FixedNumberVariableResource(namespace.variableFmt.format(value), False)
         self.nextNamespaceDefaults = []
         self.stack.append(namespace)
 

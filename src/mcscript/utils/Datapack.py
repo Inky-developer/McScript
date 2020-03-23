@@ -15,6 +15,7 @@ from src.mcscript.data.minecraftData.blocks import Blocks
 from src.mcscript.data.predicates.BiomePredicate import BiomePredicate
 from src.mcscript.data.predicates.FeaturePredicate import FeaturePredicate
 from src.mcscript.data.predicates.LightPredicate import LightPredicate
+from src.mcscript.data.predicates.RandomPredicate import RandomPredicate
 from src.mcscript.data.predicates.WeatherPredicate import WeatherPredicate
 from src.mcscript.utils.FileStructure import FileStructure
 
@@ -182,6 +183,7 @@ class HelperNamespace(Namespace):
         self.hasLightPredicate = False
         self.hasBiomePredicate = False
         self.hasFeaturePredicate = False
+        self.hasRandomPredicate = False
 
     # cached blockTree for later
     @cached_property
@@ -233,6 +235,14 @@ class HelperNamespace(Namespace):
         self.hasFeaturePredicate = True
         filestructure = self.getPath("predicates").fileStructure
         return FeaturePredicate().generate(filestructure)
+
+    @lru_cache()
+    def addRandomPredicate(self):
+        if self.hasRandomPredicate:
+            return
+        self.hasFeaturePredicate = True
+        filestructure = self.getPath("predicates").fileStructure
+        return RandomPredicate().generate(filestructure)
 
 
 class Datapack(Directory):

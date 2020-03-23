@@ -95,3 +95,15 @@ function {name}:main
     }}
   }}
 }}
+
+[predicate_random_even]
+{
+  "condition": "minecraft:random_chance",
+  "chance": 0.5
+}
+
+[predicate_random_chance]
+{{
+  "condition": "minecraft:random_chance",
+  "chance": {chance}
+}}

@@ -1,0 +1,82 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from src.mcscript.Exceptions import McScriptArgumentsError, McScriptAttributeError
+from src.mcscript.lang.Resource.BooleanResource import BooleanResource
+from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
+from src.mcscript.lang.Resource.ResourceBase import ObjectResource, Resource, ValueResource
+from src.mcscript.lang.Resource.ResourceType import ResourceType
+from src.mcscript.lang.Resource.StructResource import StructResource
+
+if TYPE_CHECKING:
+    from src.mcscript import CompileState
+
+
+class StructObjectResource(ObjectResource):
+    """
+    The object representation of a struct.
+    """
+
+    def __init__(self, struct: StructResource, compileState: CompileState, *parameters: Resource, **keywordParameters):
+        super().__init__()
+        self.struct = struct
+        self.build_namespace(struct, compileState, *parameters, **keywordParameters)
+
+    def build_namespace(self, struct: StructResource, compileState: CompileState, *parameters: Resource,
+                        **keywordParameters: Resource):
+        identifiers = list(struct.namespace)
+        if len(parameters) > len(identifiers):
+            raise McScriptArgumentsError(f"Invalid number of parameters for struct initialization of {struct.name}. "
+                                         f"Expected at most {len(identifiers)}")
+        for key, value in zip(identifiers[:], parameters):
+            value = compileState.toResource(value)
+            if not isinstance(value, ValueResource):
+                raise NotImplementedError
+            # value.isStatic = False
+            self.setAttribute(key, value)
+            identifiers.remove(key)
+
+        for key in keywordParameters:
+            if key not in identifiers:
+                raise McScriptArgumentsError(
+                    f"Invalid keyword parameter {key} for struct initialization of {struct.name}. "
+                    f"Expected one of: {', '.join(identifiers)}"
+                )
+            value = compileState.toResource(keywordParameters[key])
+            if not isinstance(value, ValueResource):
+                raise NotImplementedError
+            # value.isStatic = False
+            self.setAttribute(key, value)
+
+        if identifiers:
+            raise McScriptArgumentsError(
+                f"Failed to initialize struct {struct.name}: Missing parameter(s) {', '.join(str(i) for i in identifiers)}"
+            )
+
+    def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> Resource:
+        for key in self.namespace:
+            self.namespace[key] = self.namespace[key].storeToNbt(stack + NbtAddressResource(key), compileState)
+        return self
+
+    def getAttribute(self, name: str) -> Resource:
+        try:
+            return self.namespace[name]
+        except KeyError:
+            raise McScriptAttributeError(f"Invalid attribute {name} of {repr(self)}")
+
+    @staticmethod
+    def type() -> ResourceType:
+        return ResourceType.STRUCT_OBJECT
+
+    def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
+        return BooleanResource.TRUE
+
+    def toNumber(self) -> int:
+        raise TypeError
+
+    def toString(self) -> str:
+        raise TypeError
+
+    def __repr__(self):
+        return f"StructObjectResource '{self.struct.name}'"

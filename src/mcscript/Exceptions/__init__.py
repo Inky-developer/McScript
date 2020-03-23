@@ -1,6 +1,3 @@
-__all__ = "McScriptNameError", "McScriptArgumentsError", "McScriptNotImplementError", "McScriptNotStaticError", \
-          "McScriptTypeError"
-
 
 class McScriptError(Exception):
     """ base McScript error"""
@@ -14,7 +11,7 @@ class McScriptError(Exception):
 
 class McScriptNotImplementError(McScriptError):
     """
-    thrown when something is not yet implemented.
+    thrown when something is not yet implemented
     """
 
 
@@ -46,4 +43,16 @@ class McScriptIsStaticError(McScriptError):
 class McScriptTypeError(McScriptError):
     """
     Thrown when another type than expected was found
+    """
+
+
+class McScriptSyntaxError(McScriptError):
+    """
+    Thrown when invalid syntax is found that can not be validated using the grammar
+    """
+
+
+class McScriptAttributeError(McScriptError):
+    """
+    Thrown when an invalid property of an object is accessed
     """

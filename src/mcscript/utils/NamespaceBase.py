@@ -25,9 +25,14 @@ class NamespaceBase(Mapping[str, T]):
         def __iter__(self):
             return self
 
-    def __init__(self, previous: Optional[NamespaceBase], index: int):
+    def __init__(self, previous: Optional[NamespaceBase]):
         self.predecessor = previous
+        self.index = previous.index + 1 if previous else 0
         self.namespace: Dict[str, T] = {}
+
+    def setPredecessor(self, predecessor: NamespaceBase):
+        self.predecessor = predecessor
+        self.index = self.predecessor.index + 1
 
     def asDict(self):
         return {key: self[key] for key in self}

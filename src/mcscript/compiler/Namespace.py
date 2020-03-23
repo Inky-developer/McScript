@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING, Union
+from typing import Optional, TYPE_CHECKING, Union, Type
 
 from src.mcscript.data.builtins.builtins import BuiltinFunction
+from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
 from src.mcscript.lang.Resource.ResourceBase import Resource, ValueResource
 from src.mcscript.utils.NamespaceBase import NamespaceBase
 
@@ -11,19 +12,31 @@ if TYPE_CHECKING:
 
 
 class Namespace(NamespaceBase[Resource]):
-    def __init__(self, previous: Optional[NamespaceBase], index: int):
-        super().__init__(previous, index)
-        self.variableFmt = f"{index}_{{}}" if index != 0 else "{}"
+    def __init__(self, previous: Optional[NamespaceBase] = None):
+        super().__init__(previous)
+        self.variableFmt = f"{self.index}_{{}}" if self.index != 0 else "{}"
 
-    # def add(self, varName: str) -> Resource:
-    #     # if the variable already exists ina previous namespace returns its address to allow overrides
-    #     if self.predecessor and varName in self.predecessor:
-    #         return self.predecessor[varName]
-    #     address = self.variableFmt.format(varName)
-    #     self.namespace[str(varName)] = AddressResource(address, True)
-    #     return self.namespace[str(varName)]
+        self.returnedResource: Optional[Resource] = None
 
-    def setVar(self, identifier: str, var: ValueResource):
+    def setPredecessor(self, predecessor: NamespaceBase):
+        super().setPredecessor(predecessor)
+        self.variableFmt = f"{self.index}_{{}}" if self.index != 0 else "{}"
+
+    def addVar(self, identifier: str, resourceClass: Type[ValueResource]) -> ValueResource:
+        """
+        Adds a variable to the current namespace even if there exists already one in a predecessor namespace.
+        :param identifier: the identifier of the variable in code
+        :param resourceClass: the class of the resource to be added
+        :return: the resource
+        """
+        if identifier in self.namespace:
+            raise ValueError(f"Cannot add variable {identifier} to this namespace, because it already exists.")
+        stack = NbtAddressResource(self.variableFmt.format(identifier))
+        resource = resourceClass(stack, False)
+        self.namespace[identifier] = resource
+        return resource
+
+    def setVar(self, identifier: str, var: Resource):
         # if the variable already exists override the old one
         namespace = self
         while namespace:

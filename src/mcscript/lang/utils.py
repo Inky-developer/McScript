@@ -7,7 +7,7 @@ from src.mcscript.data import getDictionaryResource
 from src.mcscript.data.Commands import Command, stringFormat, Type
 from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
 from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
-from src.mcscript.lang.Resource.ResourceBase import Resource
+from src.mcscript.lang.Resource.ResourceBase import Resource, ValueResource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 
 if TYPE_CHECKING:
@@ -50,9 +50,15 @@ class TextFormatter:
                 resource = getattr(self, fName)(resource)
             handler = handlers.get(resource.type(), None)
             if handler is None:
-                handler = handlers.get(resource.value.type() if isinstance(resource.value,
-                                                                           Resource) else None, None)
-            data.append(self._getFormattedString(handler, resource.embed()))
+                try:
+                    handler = handlers.get(resource.value.type() if isinstance(resource.value,
+                                                                               Resource) else None, None)
+                except AttributeError:
+                    # the resource might not be a value resource
+                    handler = handlers[None]
+
+            stringValue = resource.embed() if isinstance(resource, ValueResource) else repr(resource)
+            data.append(self._getFormattedString(handler, stringValue))
 
         return text.format(",".join(data))
 
@@ -72,4 +78,4 @@ class TextFormatter:
             type=Type.FLOAT,
             command=Command.GET_SCOREBOARD_VALUE(stack=resource.value)
         ))
-        return NbtAddressResource(str(stack), True)
+        return NbtAddressResource(str(stack))

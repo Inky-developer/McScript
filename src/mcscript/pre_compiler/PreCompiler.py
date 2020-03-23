@@ -3,8 +3,6 @@ from typing import Dict
 from lark import Transformer, Token, v_args, Tree, Discard
 from more_itertools import partition
 
-from src.mcscript.Exceptions import McScriptNameError
-from src.mcscript.data import defaultEnums
 from src.mcscript.lang.Resource.EnumResource import EnumResource
 from src.mcscript.lang.Resource.NumberResource import NumberResource
 from src.mcscript.lang.Resource.ResourceBase import Resource
@@ -65,21 +63,21 @@ class PreCompiler(Transformer):
     def expression(self, list_):
         return list_[0]
 
-    @v_args(inline=True)
-    def property(self, object_, attribute):
-        """
-        Currently only access to an enum
-        :param object_: the enum
-        :param attribute: the enum member
-        :return: ConstantResource as the number
-        """
-        if object_ not in self.Namespace:
-            if (enum := defaultEnums.get(object_)) is not None:
-                # loadToScoreboard the enum into the resources as it is loaded now anyways
-                self.Namespace[object_] = enum
-                return self.Namespace[object_].getAttribute(attribute)
-            raise McScriptNameError(f"Unknown attribute {object_}", object_)
-        return self.Namespace[object_].getAttribute(attribute)
+    # @v_args(inline=True)
+    # def property(self, object_, attribute):
+    #     """
+    #     Currently only access to an enum
+    #     :param object_: the enum
+    #     :param attribute: the enum member
+    #     :return: ConstantResource as the number
+    #     """
+    #     if object_ not in self.Namespace:
+    #         if (enum := defaultEnums.get(object_)) is not None:
+    #             # loadToScoreboard the enum into the resources as it is loaded now anyways
+    #             self.Namespace[object_] = enum
+    #             return self.Namespace[object_].getAttribute(attribute)
+    #         raise McScriptNameError(f"Unknown attribute {object_}", object_)
+    #     return self.Namespace[object_].getAttribute(attribute)
 
     @v_args(inline=True)
     def enum_property(self, token, value=None):

@@ -371,7 +371,7 @@ fun onTick() -> Null {
                 execute("tp @s ~1 ~ ~")
             } else {
                 x = xMin
-                execute(stringFormat("tp @s ~-$ ~ ~1", size))
+                execute("tp @s ~-$size ~ ~1")
                 y += (yMax - yMin) / size
                 if y > yMax
                     shouldRun = 0
@@ -477,9 +477,117 @@ fun onTick() -> Null {
 }
 """
 
+code_mandelbrot2 = """
+const xMin = -2.0
+const xMax = 0.5
+const yMin = -1.25
+const yMax = 1.25
+
+const maxIterations = 20
+const size = 128
+
+x = xMin
+y = yMin
+shouldRun = 0
+execute("kill @e[tag=mandelbrot_worker]")
+execute("kill @e[tag=mandelbrot_start]")
+
+fun createMandelbrot() -> Null {
+    x2 = x
+    y2 = y
+    i = 0
+    abs = x2*x2 + y2*y2
+    while (i < maxIterations) * (abs < 4.0)  {
+        i += 1
+        xTemp = x2*x2 - y2*y2 + x
+        y2 = 2.0 * x2 * y2 + y
+        x2 = xTemp
+        abs = x2*x2 + y2*y2
+    }
+    if abs < 4.0 {
+        setBlock(blocks.black_wool, 0, -1, 0)
+    } else {
+        if i < 1
+            setBlock(blocks.white_concrete, 0, -1, 0)
+        else if i <= 2
+            setBlock(blocks.light_gray_concrete, 0, -1, 0)
+        else if i <= 4
+            setBlock(blocks.yellow_concrete, 0, -1, 0)
+        else if i <= 6
+            setBlock(blocks.orange_concrete, 0, -1, 0)
+        else if i <= 8
+            setBlock(blocks.lime_concrete, 0, -1, 0)
+        else if i <= 10
+            setBlock(blocks.green_concrete, 0, -1, 0)
+        else if i <= 12
+            setBlock(blocks.cyan_concrete, 0, -1, 0)
+        else if i <= 14
+            setBlock(blocks.light_blue_concrete, 0, -1, 0)
+        else if i <= 16
+            setBlock(blocks.blue_concrete, 0, -1, 0)
+        else if i <= 18
+            setBlock(blocks.red_concrete, 0, -1, 0)
+        else if i <= 20
+            setBlock(blocks.gray_concrete, 0, -1, 0)
+    }
+}
+
+workerCount = 0
+fun summonWorkers() -> Null {
+    execute("summon armor_stand ~ ~ ~ {'Tags':['mandelbrot_worker']}")
+    execute("tp @s ~ ~ ~1")
+    ++workerCount
+    if workerCount == size
+        execute("tp @s ~ ~ ~-$size")
+}
+
+fun onTick() -> Null {
+    if shouldRun {
+        run for @e[tag=mandelbrot_start] at @s {
+            if workerCount < size
+                summonWorkers()
+            else {
+                x = xMin
+                run for @e[tag=mandelbrot_worker,sort=nearest] at @s {
+                    createMandelbrot()
+                    execute("tp @s ~1 ~ ~")
+                    x += (xMax - xMin) / size
+                }
+                
+                y += (yMax - yMin) / size
+                if y >= yMax - 0.001 {
+                    run for @a actionbar("Generated mandelbrot.")
+                    execute("kill @e[tag=mandelbrot_worker]")
+                    execute("kill @e[tag=mandelbrot_start]")
+                    shouldRun = 0
+                    y = yMin
+                    x = xMin
+                    workerCount = 0
+                }
+            }
+        }
+    }
+}
+"""
+
+# ToDO: there is absolutely no system in place that checks if the types are even valid.
+code_struct = """
+struct Complex {
+    real: Fixed
+    imag: Fixed
+    
+    fun multiply(self: Complex, other: Number) -> Null {
+        self.real *= other
+    } 
+}
+
+c = Complex(1.0, 0.0)
+execute for @a print(c.real)
+"""
+
 code_temp = """
-a = -1
-a = -a
+a = 1
+run for @a print())
 """
 
 if __name__ == '__main__':
