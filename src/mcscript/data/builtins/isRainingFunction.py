@@ -14,6 +14,10 @@ if TYPE_CHECKING:
 
 
 class IsRaining(BuiltinFunction):
+    """
+    returns whether it is currently raining
+    """
+
     def name(self) -> str:
         return "isRaining"
 

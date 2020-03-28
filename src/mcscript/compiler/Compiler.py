@@ -7,6 +7,7 @@ from lark.visitors import Interpreter
 from src.mcscript.Exceptions import McScriptNameError, McScriptArgumentsError, McScriptTypeError, \
     McScriptNotStaticError, McScriptIsStaticError, McScriptSyntaxError
 from src.mcscript.compiler import CompileState
+from src.mcscript.compiler.NamespaceType import NamespaceType
 from src.mcscript.compiler.tokenConverter import convertToken
 from src.mcscript.data import defaultCode, defaultEnums
 from src.mcscript.data.Commands import Command, BinaryOperator, Relation, ExecuteCommand, UnaryOperator, \
@@ -122,14 +123,16 @@ class Compiler(Interpreter):
 
         conditions = []
         for condition in _conditions:
-            condition = self.compileState.toResource(condition).convertToBoolean(self.compileState)
+            condition = self.compileState.load(condition).convertToBoolean(self.compileState)
             if condition.isStatic:
                 if condition.value:
                     continue
+                warnings.warn(f"boolean and at {tree.line}:{tree.column} is always False.")
                 return BooleanResource.FALSE
             conditions.append(condition)
 
         if not conditions:
+            warnings.warn(f"boolean and {tree.line}:{tree.column} is always True.")
             return BooleanResource.TRUE
 
         stack = self.compileState.expressionStack.next()
@@ -166,6 +169,7 @@ class Compiler(Interpreter):
             operand2 = self.compileState.toResource(operand2).convertToBoolean(self.compileState)
 
             if (operand1.isStatic and operand1.value) or (operand2.isStatic and operand2.value):
+                warnings.warn(f"boolean or at {tree.line}:{tree.column} is always True.")
                 return BooleanResource.TRUE
 
             if operand1.isStatic and operand2.isStatic:
@@ -175,6 +179,7 @@ class Compiler(Interpreter):
             conditions.append(operand2)
 
         if not conditions:
+            warnings.warn(f"boolean or at {tree.line}:{tree.column} is always False.")
             return BooleanResource.FALSE
 
         stack = self.compileState.expressionStack.next()
@@ -492,10 +497,10 @@ class Compiler(Interpreter):
             raise McScriptTypeError(F"Inline functions are yet to be implemented")
 
         # blockName = self.compileState.codeBlockStack.next()
-        blockName = function_name if self.compileState.currentNamespace().index == 0 else \
-            self.compileState.codeBlockStack.next()
+        canBeRawName = self.compileState.currentNamespace().index == 0 and function_name.isalpha() and function_name.islower()
+        blockName = function_name if canBeRawName else self.compileState.codeBlockStack.next()
         self.compileState.fileStructure.pushFile(blockName)
-        self.compileState.pushStack()
+        self.compileState.pushStack(NamespaceType.FUNCTION)
         newNamespace = self.compileState.currentNamespace()
 
         function = Function(str(function_name), convertToken(returnType, self.compileState), parameter_list,
@@ -573,6 +578,8 @@ class Compiler(Interpreter):
 
     def function_call(self, tree):
         function_name, *parameters = tree.children
+        if function_name not in self.compileState.currentNamespace():
+            raise McScriptNameError(f"Unknown function '{function_name}'", tree)
         function = self.compileState.currentNamespace()[function_name]
         if isinstance(function, BuiltinFunction):
             return self.builtinFunction(function, *parameters)
@@ -592,7 +599,7 @@ class Compiler(Interpreter):
 
     def control_struct(self, tree):
         name, block = tree.children
-        self.compileState.pushStack()
+        self.compileState.pushStack(NamespaceType.STRUCT)
         namespace = self.compileState.currentNamespace()
 
         struct = StructResource(name, namespace, self.compileState.currentNamespace())

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
 class RandomChanceFunction(CachedFunction):
     """
+    parameter => chance: Fixed the chance that this function returns true
     Unlike the random function which generates a random value between 0 and 2**bits-1,
     this function takes a chance as an input and returns a boolean based on this chance.
     if no parameter is given the chance will be 50%.

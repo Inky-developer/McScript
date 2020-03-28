@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from src.mcscript.data.Commands import BinaryOperator, Command
+from src.mcscript.data.Commands import BinaryOperator, Command, Struct
 from src.mcscript.lang.Resource.AddressResource import AddressResource
 from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
 from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
@@ -54,7 +54,19 @@ class BooleanResource(ValueResource):
         raise TypeError
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> ValueResource:
-        return self.convertToNumber(compileState).storeToNbt(stack, compileState)
+        from src.mcscript.lang.Resource.BooleanVariableResource import BooleanVariableResource
+
+        if self.hasStaticValue:
+            compileState.writeline(Command.SET_VARIABLE(
+                address=stack.address,
+                struct=Struct.VAR(var=stack.name, value=int(self))
+            ))
+        else:
+            compileState.writeline(Command.SET_VARIABLE_FROM(
+                var=stack,
+                command=Command.GET_SCOREBOARD_VALUE(stack=str(self))
+            ))
+        return BooleanVariableResource(stack, False)
 
     def copy(self, target: ValueResource, compileState: CompileState) -> Resource:
         if not isinstance(target, AddressResource):

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING, Union, Type
 
+from src.mcscript.compiler.NamespaceType import NamespaceType
 from src.mcscript.data.builtins.builtins import BuiltinFunction
 from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
 from src.mcscript.lang.Resource.ResourceBase import Resource, ValueResource
@@ -12,10 +13,11 @@ if TYPE_CHECKING:
 
 
 class Namespace(NamespaceBase[Resource]):
-    def __init__(self, previous: Optional[NamespaceBase] = None):
+    def __init__(self, previous: Optional[NamespaceBase] = None, namespaceType: NamespaceType = NamespaceType.OTHER):
         super().__init__(previous)
         self.variableFmt = f"{self.index}_{{}}" if self.index != 0 else "{}"
 
+        self.namespaceType = namespaceType
         self.returnedResource: Optional[Resource] = None
 
     def setPredecessor(self, predecessor: NamespaceBase):

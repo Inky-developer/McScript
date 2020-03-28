@@ -13,7 +13,10 @@ if TYPE_CHECKING:
 
 
 class RandomFunction(CachedFunction):
-    """ generates a random value between 0 and 2**bits - 1"""
+    """
+    parameter => [Optional] bits: Number
+    generates a random value between 0 and 2**bits - 1
+    """
 
     def name(self) -> str:
         return "random"

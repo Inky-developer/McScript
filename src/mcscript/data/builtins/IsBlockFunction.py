@@ -15,6 +15,10 @@ if TYPE_CHECKING:
 
 class IsBlockFunction(BuiltinFunction):
     """
+    parameter => block: Number the block id
+    parameter => [Optional] x: Number a relative x coordinate
+    parameter => [Optional] y: Number a relative y coordinate
+    parameter => [Optional] <z: Number a relative z coordinate
     Tests for a specific block.
     Returns true if the block matches.
     ToDO: allow isBlock(block.dirt) and get the location from current context

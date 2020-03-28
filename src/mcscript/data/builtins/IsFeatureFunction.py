@@ -16,9 +16,8 @@ if TYPE_CHECKING:
 
 class IsFeatureFunction(CachedFunction):
     """
+    parameter => feature: Number the feature id
     returns whether the current entity is inside the bounding box of the specified feature.
-    Arguments:
-        - feature - Number: the feature id. The enum "feature" can be used.
     Example:
         "isFeature(features.village)"
         -> 1 or 0

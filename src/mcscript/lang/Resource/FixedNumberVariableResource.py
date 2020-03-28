@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from src.mcscript.data.Commands import Command
 from src.mcscript.lang.Resource.AddressResource import AddressResource
+from src.mcscript.lang.Resource.BooleanResource import BooleanResource
 from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
 from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
 from src.mcscript.lang.Resource.ResourceBase import ValueResource
@@ -28,6 +29,9 @@ class FixedNumberVariableResource(ValueResource):
     @staticmethod
     def type() -> ResourceType:
         return ResourceType.FIXED_POINT
+
+    def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
+        return self.load(compileState).convertToBoolean()
 
     def load(self, compileState: CompileState, stack: ValueResource = None) -> FixedNumberResource:
         stack = stack or compileState.expressionStack.next()

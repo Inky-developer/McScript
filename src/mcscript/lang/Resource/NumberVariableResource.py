@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from src.mcscript.data.Commands import Command, BinaryOperator
 from src.mcscript.lang.Resource.AddressResource import AddressResource
+from src.mcscript.lang.Resource.BooleanResource import BooleanResource
 from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
 from src.mcscript.lang.Resource.NumberResource import NumberResource
 from src.mcscript.lang.Resource.ResourceBase import ValueResource, Resource
@@ -29,6 +30,9 @@ class NumberVariableResource(ValueResource):
     @staticmethod
     def type() -> ResourceType:
         return ResourceType.NUMBER
+
+    def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
+        return self.load(compileState).convertToBoolean(compileState)
 
     def load(self, compileState: CompileState, stack: ValueResource = None) -> NumberResource:
         stack = stack or compileState.expressionStack.next()

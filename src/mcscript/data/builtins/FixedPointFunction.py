@@ -14,11 +14,11 @@ if TYPE_CHECKING:
 
 class FixedPointFunction(BuiltinFunction):
     """
+    parameter => value: Number
     Converts a number to a fixed-point number.
     Current behavior: a number (eg. 10) will be the value of the fixed number,
     which means that the fixed number has a value of 10/1024.
     This Behavior will change in the future (toDo)
-    Accepts exactly one parameter
     """
 
     def name(self) -> str:

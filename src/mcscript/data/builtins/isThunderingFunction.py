@@ -14,6 +14,10 @@ if TYPE_CHECKING:
 
 
 class IsThundering(BuiltinFunction):
+    """
+    returns whether it is currently thundering
+    """
+
     def name(self) -> str:
         return "isThundering"
 

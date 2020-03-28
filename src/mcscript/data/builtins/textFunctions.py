@@ -31,9 +31,8 @@ class TextFunction(BuiltinFunction, ABC):
 
 class PrintFunction(TextFunction):
     """
+    parameter => [List] values the values to print out
     Print Function.
-    Arguments:
-        *values: Strings or integers that will be printed.
     Example:
         aValue = 10
         print("Hello world! ", "The result is: ", aValue)
@@ -47,6 +46,11 @@ class PrintFunction(TextFunction):
 
 
 class TitleFunction(TextFunction):
+    """
+    parameter => [List] values the values to print out
+    prints text as title
+    """
+
     def getCommand(self) -> PrintCommand:
         return PrintCommand.TITLE
 
@@ -55,6 +59,11 @@ class TitleFunction(TextFunction):
 
 
 class SubTitleFunction(TextFunction):
+    """
+        parameter => [List] values the values to print out
+        prints text as subtitle
+        """
+
     def getCommand(self) -> PrintCommand:
         return PrintCommand.SUBTITLE
 
@@ -63,6 +72,11 @@ class SubTitleFunction(TextFunction):
 
 
 class ActionBarFunction(TextFunction):
+    """
+        parameter => [List] values the values to print out
+        prints text on the actionbar
+        """
+
     def getCommand(self) -> PrintCommand:
         return PrintCommand.ACTIONBAR
 

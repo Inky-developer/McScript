@@ -13,7 +13,7 @@ from src.mcscript.lang.Resource.AddressResource import AddressResource
 class Config:
     currentConfig: Config = None
 
-    def __init__(self, fpath: str):
+    def __init__(self, fpath: str = None):
         if Config.currentConfig:
             warnings.warn("currentConfig already exists!")
         Config.currentConfig = self
@@ -31,12 +31,14 @@ class Config:
                 "block_score": ".block"
             }
         })
-        if not exists(fpath):
-            self.config.write(open(fpath, "w+"))
-        self.config.read(fpath)
+        if fpath:
+            if not exists(fpath):
+                self.config.write(open(fpath, "w+"))
+            self.config.read(fpath)
         if "Configuration" not in self.config.sections():
             self.config.add_section("Configuration")
-            self.config.write(open(fpath, "w+"))
+            if fpath:
+                self.config.write(open(fpath, "w+"))
 
     #           legacy getters              #
     #########################################

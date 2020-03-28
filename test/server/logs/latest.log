@@ -1,1282 +1,186 @@
-[18:58:35] [main/WARN]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
-[18:58:35] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
-[18:58:35] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
-[18:58:35] [main/WARN]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
-[18:58:35] [main/WARN]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
-[18:58:35] [Server thread/INFO]: Starting minecraft server version 1.15.2
-[18:58:35] [Server thread/INFO]: Loading properties
-[18:58:35] [Server thread/INFO]: Default game type: SURVIVAL
-[18:58:35] [Server thread/INFO]: Generating keypair
-[18:58:35] [Server thread/INFO]: Starting Minecraft server on *:25565
-[18:58:35] [Server thread/INFO]: Using default channel type
-[18:58:36] [Server thread/INFO]: Preparing level "McScript"
-[18:58:36] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[18:58:37] [Server thread/INFO]: Loaded 6 recipes
-[18:58:37] [Server thread/INFO]: Loaded 10 custom command functions
-[18:58:37] [Server thread/INFO]: Loaded 825 advancements
-[18:58:38] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
-[18:58:38] [Server thread/INFO]: Preparing spawn area: 0%
-[18:58:38] [Server thread/INFO]: Preparing spawn area: 0%
-[18:58:43] [Server-Worker-1/INFO]: Preparing spawn area: 0%
-[18:58:43] [Server-Worker-1/INFO]: Preparing spawn area: 0%
-[18:58:43] [Server-Worker-1/INFO]: Preparing spawn area: 0%
-[18:58:43] [Server-Worker-1/INFO]: Preparing spawn area: 0%
-[18:58:43] [Server-Worker-1/INFO]: Preparing spawn area: 0%
-[18:58:43] [Server-Worker-1/INFO]: Preparing spawn area: 0%
-[18:58:43] [Server-Worker-1/INFO]: Preparing spawn area: 0%
-[18:58:43] [Server-Worker-1/INFO]: Preparing spawn area: 0%
-[18:58:43] [Server-Worker-1/INFO]: Preparing spawn area: 0%
-[18:58:43] [Server thread/INFO]: Preparing spawn area: 32%
-[18:58:43] [Server thread/INFO]: Time elapsed: 5600 ms
-[18:58:43] [Server thread/INFO]: Done (7.285s)! For help, type "help"
-[18:58:43] [Server thread/INFO]: Starting remote control listener
-[18:58:43] [RCON Listener #1/INFO]: RCON running on 0.0.0.0:25575
-[19:10:18] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:10:18] [Server thread/INFO]: [Rcon: Reloading!]
-[19:10:18] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:10:18] [Server thread/INFO]: Loaded 6 recipes
-[19:10:18] [Server thread/INFO]: Loaded 11 custom command functions
-[19:10:18] [Server thread/INFO]: Loaded 825 advancements
-[19:11:08] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:11:08] [Server thread/INFO]: [Rcon: Reloading!]
-[19:11:08] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:11:08] [Server thread/INFO]: Loaded 6 recipes
-[19:11:08] [Server thread/INFO]: Loaded 11 custom command functions
-[19:11:08] [Server thread/INFO]: Loaded 825 advancements
-[19:11:13] [User Authenticator #1/INFO]: UUID of player GrilloDavid91 is 3f78c5dc-2ac3-4a6c-baf2-0e6a15618d50
-[19:11:13] [Server thread/INFO]: GrilloDavid91[/127.0.0.1:53841] logged in with entity id 1 at (-271.7365681155344, 1.0, 89.00060378777339)
-[19:11:13] [Server thread/INFO]: GrilloDavid91 joined the game
-[19:11:17] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:11:17] [Server thread/INFO]: [Rcon: Reloading!]
-[19:11:17] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:11:17] [Server thread/INFO]: Loaded 6 recipes
-[19:11:17] [Server thread/INFO]: Loaded 11 custom command functions
-[19:11:17] [Server thread/INFO]: Loaded 825 advancements
-[19:15:48] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:15:48] [Server thread/INFO]: [Rcon: Reloading!]
-[19:15:48] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:15:49] [Server thread/INFO]: Loaded 6 recipes
-[19:15:49] [Server thread/INFO]: Loaded 11 custom command functions
-[19:15:49] [Server thread/INFO]: Loaded 825 advancements
-[19:15:59] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:15:59] [Server thread/INFO]: [Rcon: Reloading!]
-[19:15:59] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:15:59] [Server thread/INFO]: Loaded 6 recipes
-[19:15:59] [Server thread/INFO]: Loaded 11 custom command functions
-[19:15:59] [Server thread/INFO]: Loaded 825 advancements
-[19:16:08] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:16:08] [Server thread/INFO]: [Rcon: Reloading!]
-[19:16:08] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:16:08] [Server thread/INFO]: Loaded 6 recipes
-[19:16:08] [Server thread/INFO]: Loaded 11 custom command functions
-[19:16:08] [Server thread/INFO]: Loaded 825 advancements
-[19:16:19] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:16:19] [Server thread/INFO]: [Rcon: Reloading!]
-[19:16:19] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:16:19] [Server thread/INFO]: Loaded 6 recipes
-[19:16:19] [Server thread/INFO]: Loaded 11 custom command functions
-[19:16:19] [Server thread/INFO]: Loaded 825 advancements
-[19:16:26] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:16:26] [Server thread/INFO]: [Rcon: Reloading!]
-[19:16:26] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:16:27] [Server thread/INFO]: Loaded 6 recipes
-[19:16:27] [Server thread/INFO]: Loaded 11 custom command functions
-[19:16:27] [Server thread/INFO]: Loaded 825 advancements
-[19:16:55] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:16:55] [Server thread/INFO]: [Rcon: Reloading!]
-[19:16:55] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:16:55] [Server thread/INFO]: Loaded 6 recipes
-[19:16:55] [Server thread/INFO]: Loaded 11 custom command functions
-[19:16:55] [Server thread/INFO]: Loaded 825 advancements
-[19:17:04] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:17:04] [Server thread/INFO]: [Rcon: Reloading!]
-[19:17:04] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:17:05] [Server thread/INFO]: Loaded 6 recipes
-[19:17:05] [Server thread/INFO]: Loaded 11 custom command functions
-[19:17:05] [Server thread/INFO]: Loaded 825 advancements
-[19:17:34] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:17:34] [Server thread/INFO]: [Rcon: Reloading!]
-[19:17:34] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:17:34] [Server thread/INFO]: Loaded 6 recipes
-[19:17:34] [Server thread/INFO]: Loaded 11 custom command functions
-[19:17:34] [Server thread/INFO]: Loaded 825 advancements
-[19:41:10] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:41:10] [Server thread/INFO]: [Rcon: Reloading!]
-[19:41:10] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:41:10] [Server thread/INFO]: Loaded 6 recipes
-[19:41:10] [Server thread/INFO]: Loaded 11 custom command functions
-[19:41:10] [Server thread/INFO]: Loaded 825 advancements
-[19:54:51] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[19:54:51] [Server thread/INFO]: [Rcon: Reloading!]
-[19:54:51] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:54:51] [Server thread/INFO]: Loaded 6 recipes
-[19:54:52] [Server thread/INFO]: Loaded 11 custom command functions
-[19:54:52] [Server thread/INFO]: Loaded 825 advancements
-[19:56:46] [Server thread/INFO]: [GrilloDavid91: Reloading!]
-[19:56:46] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[19:56:46] [Server thread/INFO]: Loaded 6 recipes
-[19:56:46] [Server thread/INFO]: Loaded 11 custom command functions
-[19:56:46] [Server thread/INFO]: Loaded 825 advancements
-[20:03:00] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:03:00] [Server thread/INFO]: [Rcon: Reloading!]
-[20:03:00] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[20:03:00] [Server thread/INFO]: Loaded 6 recipes
-[20:03:00] [Server thread/INFO]: Loaded 11 custom command functions
-[20:03:00] [Server thread/INFO]: Loaded 825 advancements
-[20:03:39] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:03:39] [Server thread/INFO]: [Rcon: Reloading!]
-[20:03:39] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[20:03:39] [Server thread/INFO]: Loaded 6 recipes
-[20:03:39] [Server thread/INFO]: Loaded 11 custom command functions
-[20:03:39] [Server thread/INFO]: Loaded 825 advancements
-[20:05:53] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:06:28] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:09:33] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:10:04] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:24:52] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:24:52] [Server thread/INFO]: [Rcon: Reloading!]
-[20:24:52] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[20:24:52] [Server thread/INFO]: Loaded 6 recipes
-[20:24:52] [Server thread/INFO]: Loaded 11 custom command functions
-[20:24:52] [Server thread/INFO]: Loaded 825 advancements
-[20:26:37] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:26:37] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:37] [Server thread/INFO]: Found new data pack file/McScript_tests, loading it automatically
-[20:26:37] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:38] [Server thread/INFO]: Loaded 6 recipes
-[20:26:38] [Server thread/INFO]: Loaded 17 custom command functions
-[20:26:38] [Server thread/INFO]: Loaded 825 advancements
-[20:26:38] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:38] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:38] [Server thread/INFO]: Loaded 6 recipes
-[20:26:38] [Server thread/INFO]: Loaded 17 custom command functions
-[20:26:38] [Server thread/INFO]: Loaded 825 advancements
-[20:26:38] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:38] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:38] [Server thread/INFO]: Loaded 6 recipes
-[20:26:38] [Server thread/INFO]: Loaded 17 custom command functions
-[20:26:38] [Server thread/INFO]: Loaded 825 advancements
-[20:26:38] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:38] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:38] [Server thread/INFO]: Loaded 6 recipes
-[20:26:38] [Server thread/INFO]: Loaded 17 custom command functions
-[20:26:38] [Server thread/INFO]: Loaded 825 advancements
-[20:26:38] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:38] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:39] [Server thread/INFO]: Loaded 6 recipes
-[20:26:39] [Server thread/INFO]: Loaded 17 custom command functions
-[20:26:39] [Server thread/INFO]: Loaded 825 advancements
-[20:26:39] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:39] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:39] [Server thread/INFO]: Loaded 6 recipes
-[20:26:39] [Server thread/INFO]: Loaded 17 custom command functions
-[20:26:39] [Server thread/INFO]: Loaded 825 advancements
-[20:26:39] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:39] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:39] [Server thread/INFO]: Loaded 6 recipes
-[20:26:39] [Server thread/INFO]: Loaded 17 custom command functions
-[20:26:39] [Server thread/INFO]: Loaded 825 advancements
-[20:26:39] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:39] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:39] [Server thread/INFO]: Loaded 6 recipes
-[20:26:39] [Server thread/INFO]: Loaded 18 custom command functions
-[20:26:39] [Server thread/INFO]: Loaded 825 advancements
-[20:26:40] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:40] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:40] [Server thread/INFO]: Loaded 6 recipes
-[20:26:40] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:40] [Server thread/INFO]: Loaded 825 advancements
-[20:26:40] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:40] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:40] [Server thread/INFO]: Loaded 6 recipes
-[20:26:40] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:40] [Server thread/INFO]: Loaded 825 advancements
-[20:26:40] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:40] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:40] [Server thread/INFO]: Loaded 6 recipes
-[20:26:40] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:40] [Server thread/INFO]: Loaded 825 advancements
-[20:26:40] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:40] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:41] [Server thread/INFO]: Loaded 6 recipes
-[20:26:41] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:41] [Server thread/INFO]: Loaded 825 advancements
-[20:26:41] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:41] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:41] [Server thread/INFO]: Loaded 6 recipes
-[20:26:41] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:41] [Server thread/INFO]: Loaded 825 advancements
-[20:26:41] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:41] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:41] [Server thread/INFO]: Loaded 6 recipes
-[20:26:41] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:41] [Server thread/INFO]: Loaded 825 advancements
-[20:26:41] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:41] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:41] [Server thread/INFO]: Loaded 6 recipes
-[20:26:41] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:41] [Server thread/INFO]: Loaded 825 advancements
-[20:26:41] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:41] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:42] [Server thread/INFO]: Loaded 6 recipes
-[20:26:42] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:42] [Server thread/INFO]: Loaded 825 advancements
-[20:26:42] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:42] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:42] [Server thread/INFO]: Loaded 6 recipes
-[20:26:42] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:42] [Server thread/INFO]: Loaded 825 advancements
-[20:26:42] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:42] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:42] [Server thread/INFO]: Loaded 6 recipes
-[20:26:42] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:42] [Server thread/INFO]: Loaded 825 advancements
-[20:26:42] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:42] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:42] [Server thread/INFO]: Loaded 6 recipes
-[20:26:42] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:43] [Server thread/INFO]: Loaded 825 advancements
-[20:26:43] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:43] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:43] [Server thread/INFO]: Loaded 6 recipes
-[20:26:43] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:43] [Server thread/INFO]: Loaded 825 advancements
-[20:26:43] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:43] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:43] [Server thread/INFO]: Loaded 6 recipes
-[20:26:43] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:43] [Server thread/INFO]: Loaded 825 advancements
-[20:26:43] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:43] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:43] [Server thread/INFO]: Loaded 6 recipes
-[20:26:43] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:43] [Server thread/INFO]: Loaded 825 advancements
-[20:26:43] [Server thread/INFO]: [Rcon: Reloading!]
-[20:26:43] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:26:44] [Server thread/INFO]: Loaded 6 recipes
-[20:26:44] [Server thread/INFO]: Loaded 19 custom command functions
-[20:26:44] [Server thread/INFO]: Loaded 825 advancements
-[20:27:29] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:27:29] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:29] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:30] [Server thread/INFO]: Loaded 6 recipes
-[20:27:30] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:30] [Server thread/INFO]: Loaded 825 advancements
-[20:27:30] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:30] [Server thread/INFO]: Loaded 6 recipes
-[20:27:30] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:30] [Server thread/INFO]: Loaded 825 advancements
-[20:27:30] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:30] [Server thread/INFO]: Loaded 6 recipes
-[20:27:30] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:30] [Server thread/INFO]: Loaded 825 advancements
-[20:27:30] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:30] [Server thread/INFO]: Loaded 6 recipes
-[20:27:30] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:30] [Server thread/INFO]: Loaded 825 advancements
-[20:27:30] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:31] [Server thread/INFO]: Loaded 6 recipes
-[20:27:31] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:31] [Server thread/INFO]: Loaded 825 advancements
-[20:27:31] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:31] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:31] [Server thread/INFO]: Loaded 6 recipes
-[20:27:31] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:31] [Server thread/INFO]: Loaded 825 advancements
-[20:27:31] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:31] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:31] [Server thread/INFO]: Loaded 6 recipes
-[20:27:31] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:31] [Server thread/INFO]: Loaded 825 advancements
-[20:27:31] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:31] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:31] [Server thread/INFO]: Loaded 6 recipes
-[20:27:31] [Server thread/INFO]: Loaded 18 custom command functions
-[20:27:31] [Server thread/INFO]: Loaded 825 advancements
-[20:27:32] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:32] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:32] [Server thread/INFO]: Loaded 6 recipes
-[20:27:32] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:32] [Server thread/INFO]: Loaded 825 advancements
-[20:27:32] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:32] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:32] [Server thread/INFO]: Loaded 6 recipes
-[20:27:32] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:32] [Server thread/INFO]: Loaded 825 advancements
-[20:27:32] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:32] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:32] [Server thread/INFO]: Loaded 6 recipes
-[20:27:32] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:32] [Server thread/INFO]: Loaded 825 advancements
-[20:27:32] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:32] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:32] [Server thread/INFO]: Loaded 6 recipes
-[20:27:33] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:33] [Server thread/INFO]: Loaded 825 advancements
-[20:27:33] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:33] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:33] [Server thread/INFO]: Loaded 6 recipes
-[20:27:33] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:33] [Server thread/INFO]: Loaded 825 advancements
-[20:27:33] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:33] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:33] [Server thread/INFO]: Loaded 6 recipes
-[20:27:33] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:33] [Server thread/INFO]: Loaded 825 advancements
-[20:27:33] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:33] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:33] [Server thread/INFO]: Loaded 6 recipes
-[20:27:33] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:33] [Server thread/INFO]: Loaded 825 advancements
-[20:27:33] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:33] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:33] [Server thread/INFO]: Loaded 6 recipes
-[20:27:34] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:34] [Server thread/INFO]: Loaded 825 advancements
-[20:27:34] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:34] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:34] [Server thread/INFO]: Loaded 6 recipes
-[20:27:34] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:34] [Server thread/INFO]: Loaded 825 advancements
-[20:27:34] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:34] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:34] [Server thread/INFO]: Loaded 6 recipes
-[20:27:34] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:34] [Server thread/INFO]: Loaded 825 advancements
-[20:27:34] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:34] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:34] [Server thread/INFO]: Loaded 6 recipes
-[20:27:34] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:34] [Server thread/INFO]: Loaded 825 advancements
-[20:27:34] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:34] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:34] [Server thread/INFO]: Loaded 6 recipes
-[20:27:35] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:35] [Server thread/INFO]: Loaded 825 advancements
-[20:27:35] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:35] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:35] [Server thread/INFO]: Loaded 6 recipes
-[20:27:35] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:35] [Server thread/INFO]: Loaded 825 advancements
-[20:27:35] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:35] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:35] [Server thread/INFO]: Loaded 6 recipes
-[20:27:35] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:35] [Server thread/INFO]: Loaded 825 advancements
-[20:27:35] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:35] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:35] [Server thread/INFO]: Loaded 6 recipes
-[20:27:35] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:35] [Server thread/INFO]: Loaded 825 advancements
-[20:27:48] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:27:48] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:48] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:48] [Server thread/INFO]: Loaded 6 recipes
-[20:27:48] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:48] [Server thread/INFO]: Loaded 825 advancements
-[20:27:48] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:48] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:49] [Server thread/INFO]: Loaded 6 recipes
-[20:27:49] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:49] [Server thread/INFO]: Loaded 825 advancements
-[20:27:49] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:49] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:49] [Server thread/INFO]: Loaded 6 recipes
-[20:27:49] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:49] [Server thread/INFO]: Loaded 825 advancements
-[20:27:49] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:49] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:49] [Server thread/INFO]: Loaded 6 recipes
-[20:27:49] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:49] [Server thread/INFO]: Loaded 825 advancements
-[20:27:49] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:49] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:49] [Server thread/INFO]: Loaded 6 recipes
-[20:27:49] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:49] [Server thread/INFO]: Loaded 825 advancements
-[20:27:50] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:50] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:50] [Server thread/INFO]: Loaded 6 recipes
-[20:27:50] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:50] [Server thread/INFO]: Loaded 825 advancements
-[20:27:50] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:50] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:50] [Server thread/INFO]: Loaded 6 recipes
-[20:27:50] [Server thread/INFO]: Loaded 17 custom command functions
-[20:27:50] [Server thread/INFO]: Loaded 825 advancements
-[20:27:50] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:50] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:50] [Server thread/INFO]: Loaded 6 recipes
-[20:27:50] [Server thread/INFO]: Loaded 18 custom command functions
-[20:27:50] [Server thread/INFO]: Loaded 825 advancements
-[20:27:50] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:50] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:50] [Server thread/INFO]: Loaded 6 recipes
-[20:27:51] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:51] [Server thread/INFO]: Loaded 825 advancements
-[20:27:51] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:51] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:51] [Server thread/INFO]: Loaded 6 recipes
-[20:27:51] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:51] [Server thread/INFO]: Loaded 825 advancements
-[20:27:51] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:51] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:51] [Server thread/INFO]: Loaded 6 recipes
-[20:27:51] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:51] [Server thread/INFO]: Loaded 825 advancements
-[20:27:51] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:51] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:51] [Server thread/INFO]: Loaded 6 recipes
-[20:27:51] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:51] [Server thread/INFO]: Loaded 825 advancements
-[20:27:51] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:51] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:52] [Server thread/INFO]: Loaded 6 recipes
-[20:27:52] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:52] [Server thread/INFO]: Loaded 825 advancements
-[20:27:52] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:52] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:52] [Server thread/INFO]: Loaded 6 recipes
-[20:27:52] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:52] [Server thread/INFO]: Loaded 825 advancements
-[20:27:52] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:52] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:52] [Server thread/INFO]: Loaded 6 recipes
-[20:27:52] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:52] [Server thread/INFO]: Loaded 825 advancements
-[20:27:52] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:52] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:52] [Server thread/INFO]: Loaded 6 recipes
-[20:27:52] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:52] [Server thread/INFO]: Loaded 825 advancements
-[20:27:52] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:52] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:53] [Server thread/INFO]: Loaded 6 recipes
-[20:27:53] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:53] [Server thread/INFO]: Loaded 825 advancements
-[20:27:53] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:53] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:53] [Server thread/INFO]: Loaded 6 recipes
-[20:27:53] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:53] [Server thread/INFO]: Loaded 825 advancements
-[20:27:53] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:53] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:53] [Server thread/INFO]: Loaded 6 recipes
-[20:27:53] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:53] [Server thread/INFO]: Loaded 825 advancements
-[20:27:53] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:53] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:53] [Server thread/INFO]: Loaded 6 recipes
-[20:27:53] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:53] [Server thread/INFO]: Loaded 825 advancements
-[20:27:53] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:53] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:54] [Server thread/INFO]: Loaded 6 recipes
-[20:27:54] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:54] [Server thread/INFO]: Loaded 825 advancements
-[20:27:54] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:54] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:54] [Server thread/INFO]: Loaded 6 recipes
-[20:27:54] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:54] [Server thread/INFO]: Loaded 825 advancements
-[20:27:54] [Server thread/INFO]: [Rcon: Reloading!]
-[20:27:54] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:27:54] [Server thread/INFO]: Loaded 6 recipes
-[20:27:54] [Server thread/INFO]: Loaded 19 custom command functions
-[20:27:54] [Server thread/INFO]: Loaded 825 advancements
-[20:30:48] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:30:48] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:48] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:48] [Server thread/INFO]: Loaded 6 recipes
-[20:30:48] [Server thread/INFO]: Loaded 17 custom command functions
-[20:30:48] [Server thread/INFO]: Loaded 825 advancements
-[20:30:48] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:48] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:48] [Server thread/INFO]: Loaded 6 recipes
-[20:30:48] [Server thread/INFO]: Loaded 17 custom command functions
-[20:30:48] [Server thread/INFO]: Loaded 825 advancements
-[20:30:48] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:48] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:48] [Server thread/INFO]: Loaded 6 recipes
-[20:30:48] [Server thread/INFO]: Loaded 17 custom command functions
-[20:30:48] [Server thread/INFO]: Loaded 825 advancements
-[20:30:49] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:49] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:49] [Server thread/INFO]: Loaded 6 recipes
-[20:30:49] [Server thread/INFO]: Loaded 17 custom command functions
-[20:30:49] [Server thread/INFO]: Loaded 825 advancements
-[20:30:49] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:49] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:49] [Server thread/INFO]: Loaded 6 recipes
-[20:30:49] [Server thread/INFO]: Loaded 17 custom command functions
-[20:30:49] [Server thread/INFO]: Loaded 825 advancements
-[20:30:49] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:49] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:49] [Server thread/INFO]: Loaded 6 recipes
-[20:30:49] [Server thread/INFO]: Loaded 17 custom command functions
-[20:30:49] [Server thread/INFO]: Loaded 825 advancements
-[20:30:49] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:49] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:50] [Server thread/INFO]: Loaded 6 recipes
-[20:30:50] [Server thread/INFO]: Loaded 17 custom command functions
-[20:30:50] [Server thread/INFO]: Loaded 825 advancements
-[20:30:50] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:50] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:50] [Server thread/INFO]: Loaded 6 recipes
-[20:30:50] [Server thread/INFO]: Loaded 18 custom command functions
-[20:30:50] [Server thread/INFO]: Loaded 825 advancements
-[20:30:50] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:50] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:50] [Server thread/INFO]: Loaded 6 recipes
-[20:30:50] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:50] [Server thread/INFO]: Loaded 825 advancements
-[20:30:50] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:50] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:50] [Server thread/INFO]: Loaded 6 recipes
-[20:30:50] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:50] [Server thread/INFO]: Loaded 825 advancements
-[20:30:50] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:50] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:51] [Server thread/INFO]: Loaded 6 recipes
-[20:30:51] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:51] [Server thread/INFO]: Loaded 825 advancements
-[20:30:51] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:51] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:51] [Server thread/INFO]: Loaded 6 recipes
-[20:30:51] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:51] [Server thread/INFO]: Loaded 825 advancements
-[20:30:51] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:51] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:51] [Server thread/INFO]: Loaded 6 recipes
-[20:30:51] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:51] [Server thread/INFO]: Loaded 825 advancements
-[20:30:51] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:51] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:51] [Server thread/INFO]: Loaded 6 recipes
-[20:30:51] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:51] [Server thread/INFO]: Loaded 825 advancements
-[20:30:51] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:51] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:52] [Server thread/INFO]: Loaded 6 recipes
-[20:30:52] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:52] [Server thread/INFO]: Loaded 825 advancements
-[20:30:52] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:52] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:52] [Server thread/INFO]: Loaded 6 recipes
-[20:30:52] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:52] [Server thread/INFO]: Loaded 825 advancements
-[20:30:52] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:52] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:52] [Server thread/INFO]: Loaded 6 recipes
-[20:30:52] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:52] [Server thread/INFO]: Loaded 825 advancements
-[20:30:52] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:52] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:52] [Server thread/INFO]: Loaded 6 recipes
-[20:30:52] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:52] [Server thread/INFO]: Loaded 825 advancements
-[20:30:52] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:52] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:53] [Server thread/INFO]: Loaded 6 recipes
-[20:30:53] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:53] [Server thread/INFO]: Loaded 825 advancements
-[20:30:53] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:53] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:53] [Server thread/INFO]: Loaded 6 recipes
-[20:30:53] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:53] [Server thread/INFO]: Loaded 825 advancements
-[20:30:53] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:53] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:53] [Server thread/INFO]: Loaded 6 recipes
-[20:30:53] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:53] [Server thread/INFO]: Loaded 825 advancements
-[20:30:53] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:53] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:53] [Server thread/INFO]: Loaded 6 recipes
-[20:30:53] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:53] [Server thread/INFO]: Loaded 825 advancements
-[20:30:53] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:53] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:54] [Server thread/INFO]: Loaded 6 recipes
-[20:30:54] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:54] [Server thread/INFO]: Loaded 825 advancements
-[20:30:54] [Server thread/INFO]: [Rcon: Reloading!]
-[20:30:54] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[20:30:54] [Server thread/INFO]: Loaded 6 recipes
-[20:30:54] [Server thread/INFO]: Loaded 19 custom command functions
-[20:30:54] [Server thread/INFO]: Loaded 825 advancements
-[20:38:02] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:38:02] [Server thread/INFO]: [Rcon: Reloading!]
-[20:38:02] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[20:38:02] [Server thread/INFO]: Loaded 6 recipes
-[20:38:02] [Server thread/ERROR]: Non [a-z0-9/._-] character in path of location: mcscript:functions/createMandelbrot.mcfunction
-[20:38:02] [Server thread/ERROR]: Non [a-z0-9/._-] character in path of location: mcscript:functions/onTick.mcfunction
-[20:38:02] [Server thread/ERROR]: Non [a-z0-9/._-] character in path of location: mcscript:functions/summonWorkers.mcfunction
-[20:38:02] [Server-Worker-383/ERROR]: Couldn't load function at mcscript:functions/block_29.mcfunction
-java.util.concurrent.CompletionException: java.lang.IllegalArgumentException: Whilst parsing command on line 2: Expected whitespace to end one argument, but found trailing data at position 24: ...ipt:create<--[HERE]
-	at java.util.concurrent.CompletableFuture.encodeThrowable(Unknown Source) ~[?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture.completeThrowable(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture.uniApply(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture$UniApply.tryFire(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture$Completion.exec(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinTask.doExec(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinPool.runWorker(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinWorkerThread.run(Unknown Source) [?:1.8.0_231]
-Caused by: java.lang.IllegalArgumentException: Whilst parsing command on line 2: Expected whitespace to end one argument, but found trailing data at position 24: ...ipt:create<--[HERE]
-	at cn.a(SourceFile:61) ~[server.jar:?]
-	at sy.a(SourceFile:155) ~[server.jar:?]
-	... 7 more
-[20:38:02] [Server-Worker-381/ERROR]: Couldn't load function at mcscript:functions/block_27.mcfunction
-java.util.concurrent.CompletionException: java.lang.IllegalArgumentException: Whilst parsing command on line 2: Expected whitespace to end one argument, but found trailing data at position 24: ...ipt:summon<--[HERE]
-	at java.util.concurrent.CompletableFuture.encodeThrowable(Unknown Source) ~[?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture.completeThrowable(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture.uniApply(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture$UniApply.tryFire(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture$Completion.exec(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinTask.doExec(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinPool.runWorker(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinWorkerThread.run(Unknown Source) [?:1.8.0_231]
-Caused by: java.lang.IllegalArgumentException: Whilst parsing command on line 2: Expected whitespace to end one argument, but found trailing data at position 24: ...ipt:summon<--[HERE]
-	at cn.a(SourceFile:61) ~[server.jar:?]
-	at sy.a(SourceFile:155) ~[server.jar:?]
-	... 7 more
-[20:38:02] [Server-Worker-381/ERROR]: Couldn't load function at mcscript:functions/tick.mcfunction
-java.util.concurrent.CompletionException: java.lang.IllegalArgumentException: Whilst parsing command on line 1: Expected whitespace to end one argument, but found trailing data at position 20: ...cscript:on<--[HERE]
-	at java.util.concurrent.CompletableFuture.encodeThrowable(Unknown Source) ~[?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture.completeThrowable(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture.uniApply(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture$UniApply.tryFire(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture$Completion.exec(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinTask.doExec(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinPool.runWorker(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinWorkerThread.run(Unknown Source) [?:1.8.0_231]
-Caused by: java.lang.IllegalArgumentException: Whilst parsing command on line 1: Expected whitespace to end one argument, but found trailing data at position 20: ...cscript:on<--[HERE]
-	at cn.a(SourceFile:61) ~[server.jar:?]
-	at sy.a(SourceFile:155) ~[server.jar:?]
-	... 7 more
-[20:38:02] [Server thread/INFO]: Loaded 39 custom command functions
-[20:38:02] [Server-Worker-381/ERROR]: Couldn't read function tag list minecraft:tick from minecraft:tags/functions/tick.json in data pack McScript
-com.google.gson.JsonParseException: Unknown value 'mcscript:tick'
-	at aaz$a.c(SourceFile:146) ~[server.jar:?]
-	at java.util.Optional.orElseThrow(Unknown Source) ~[?:1.8.0_231]
-	at aaz$a.a(SourceFile:146) ~[server.jar:?]
-	at aba.a(SourceFile:98) ~[server.jar:?]
-	at java.util.concurrent.CompletableFuture$AsyncSupply.run(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.CompletableFuture$AsyncSupply.exec(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinTask.doExec(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinPool.runWorker(Unknown Source) [?:1.8.0_231]
-	at java.util.concurrent.ForkJoinWorkerThread.run(Unknown Source) [?:1.8.0_231]
-[20:38:03] [Server thread/INFO]: Loaded 825 advancements
-[20:39:18] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[20:39:18] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:18] [Server thread/INFO]: Found new data pack file/McScript_tests, loading it automatically
-[20:39:18] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:19] [Server thread/INFO]: Loaded 6 recipes
-[20:39:19] [Server thread/INFO]: Loaded 12 custom command functions
-[20:39:19] [Server thread/INFO]: Loaded 825 advancements
-[20:39:19] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:19] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:19] [Server thread/INFO]: Loaded 6 recipes
-[20:39:19] [Server thread/INFO]: Loaded 12 custom command functions
-[20:39:19] [Server thread/INFO]: Loaded 825 advancements
-[20:39:19] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:19] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:19] [Server thread/INFO]: Loaded 6 recipes
-[20:39:19] [Server thread/INFO]: Loaded 12 custom command functions
-[20:39:19] [Server thread/INFO]: Loaded 825 advancements
-[20:39:19] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:19] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:19] [Server thread/INFO]: Loaded 6 recipes
-[20:39:19] [Server thread/INFO]: Loaded 12 custom command functions
-[20:39:19] [Server thread/INFO]: Loaded 825 advancements
-[20:39:19] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:19] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:20] [Server thread/INFO]: Loaded 6 recipes
-[20:39:20] [Server thread/INFO]: Loaded 12 custom command functions
-[20:39:20] [Server thread/INFO]: Loaded 825 advancements
-[20:39:20] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:20] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:20] [Server thread/INFO]: Loaded 6 recipes
-[20:39:20] [Server thread/INFO]: Loaded 12 custom command functions
-[20:39:20] [Server thread/INFO]: Loaded 825 advancements
-[20:39:20] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:20] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:20] [Server thread/INFO]: Loaded 6 recipes
-[20:39:20] [Server thread/INFO]: Loaded 12 custom command functions
-[20:39:20] [Server thread/INFO]: Loaded 825 advancements
-[20:39:20] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:20] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:20] [Server thread/INFO]: Loaded 6 recipes
-[20:39:20] [Server thread/INFO]: Loaded 13 custom command functions
-[20:39:20] [Server thread/INFO]: Loaded 825 advancements
-[20:39:20] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:20] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:20] [Server thread/INFO]: Loaded 6 recipes
-[20:39:20] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:20] [Server thread/INFO]: Loaded 825 advancements
-[20:39:21] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:21] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:21] [Server thread/INFO]: Loaded 6 recipes
-[20:39:21] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:21] [Server thread/INFO]: Loaded 825 advancements
-[20:39:21] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:21] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:21] [Server thread/INFO]: Loaded 6 recipes
-[20:39:21] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:21] [Server thread/INFO]: Loaded 825 advancements
-[20:39:21] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:21] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:21] [Server thread/INFO]: Loaded 6 recipes
-[20:39:21] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:21] [Server thread/INFO]: Loaded 825 advancements
-[20:39:21] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:21] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:21] [Server thread/INFO]: Loaded 6 recipes
-[20:39:22] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:22] [Server thread/INFO]: Loaded 825 advancements
-[20:39:22] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:22] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:22] [Server thread/INFO]: Loaded 6 recipes
-[20:39:22] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:22] [Server thread/INFO]: Loaded 825 advancements
-[20:39:22] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:22] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:22] [Server thread/INFO]: Loaded 6 recipes
-[20:39:22] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:22] [Server thread/INFO]: Loaded 825 advancements
-[20:39:22] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:22] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:22] [Server thread/INFO]: Loaded 6 recipes
-[20:39:22] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:22] [Server thread/INFO]: Loaded 825 advancements
-[20:39:22] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:22] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:22] [Server thread/INFO]: Loaded 6 recipes
-[20:39:22] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:22] [Server thread/INFO]: Loaded 825 advancements
-[20:39:23] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:23] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:23] [Server thread/INFO]: Loaded 6 recipes
-[20:39:23] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:23] [Server thread/INFO]: Loaded 825 advancements
-[20:39:23] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:23] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:23] [Server thread/INFO]: Loaded 6 recipes
-[20:39:23] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:23] [Server thread/INFO]: Loaded 825 advancements
-[20:39:23] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:23] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:23] [Server thread/INFO]: Loaded 6 recipes
-[20:39:23] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:23] [Server thread/INFO]: Loaded 825 advancements
-[20:39:23] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:23] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:23] [Server thread/INFO]: Loaded 6 recipes
-[20:39:23] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:23] [Server thread/INFO]: Loaded 825 advancements
-[20:39:23] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:23] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:24] [Server thread/INFO]: Loaded 6 recipes
-[20:39:24] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:24] [Server thread/INFO]: Loaded 825 advancements
-[20:39:24] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:24] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:24] [Server thread/INFO]: Loaded 6 recipes
-[20:39:24] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:24] [Server thread/INFO]: Loaded 825 advancements
-[20:39:24] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:24] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:24] [Server thread/INFO]: Loaded 6 recipes
-[20:39:24] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:24] [Server thread/INFO]: Loaded 825 advancements
-[20:39:24] [Server thread/INFO]: [Rcon: Reloading!]
-[20:39:24] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript_tests
-[20:39:24] [Server thread/INFO]: Loaded 6 recipes
-[20:39:24] [Server thread/INFO]: Loaded 14 custom command functions
-[20:39:24] [Server thread/INFO]: Loaded 825 advancements
-[21:22:19] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:22:19] [Server thread/INFO]: [Rcon: Reloading!]
-[21:22:19] [Server thread/INFO]: Found new data pack file/McScript, loading it automatically
-[21:22:19] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:22:19] [Server thread/INFO]: Loaded 6 recipes
-[21:22:19] [Server thread/INFO]: Loaded 9 custom command functions
-[21:22:19] [Server thread/INFO]: Loaded 825 advancements
-[21:22:55] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:22:55] [Server thread/INFO]: [Rcon: Reloading!]
-[21:22:55] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:22:55] [Server thread/INFO]: Loaded 6 recipes
-[21:22:55] [Server thread/INFO]: Loaded 9 custom command functions
-[21:22:55] [Server thread/INFO]: Loaded 825 advancements
-[21:23:12] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:23:12] [Server thread/INFO]: [Rcon: Reloading!]
-[21:23:12] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:23:12] [Server thread/INFO]: Loaded 6 recipes
-[21:23:12] [Server thread/INFO]: Loaded 10 custom command functions
-[21:23:12] [Server thread/INFO]: Loaded 825 advancements
-[21:28:16] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:28:16] [Server thread/INFO]: [Rcon: Reloading!]
-[21:28:16] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:28:17] [Server thread/INFO]: Loaded 6 recipes
-[21:28:17] [Server thread/INFO]: Loaded 10 custom command functions
-[21:28:17] [Server thread/INFO]: Loaded 825 advancements
-[21:46:02] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:46:02] [Server thread/INFO]: [Rcon: Reloading!]
-[21:46:02] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:46:03] [Server thread/INFO]: Loaded 6 recipes
-[21:46:03] [Server thread/INFO]: Loaded 10 custom command functions
-[21:46:03] [Server thread/INFO]: Loaded 825 advancements
-[21:46:25] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:46:25] [Server thread/INFO]: [Rcon: Reloading!]
-[21:46:25] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:46:26] [Server thread/INFO]: Loaded 6 recipes
-[21:46:26] [Server thread/INFO]: Loaded 10 custom command functions
-[21:46:26] [Server thread/INFO]: Loaded 825 advancements
-[21:46:34] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:46:34] [Server thread/INFO]: [Rcon: Reloading!]
-[21:46:34] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:46:34] [Server thread/INFO]: Loaded 6 recipes
-[21:46:34] [Server thread/INFO]: Loaded 10 custom command functions
-[21:46:34] [Server thread/INFO]: Loaded 825 advancements
-[21:46:44] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:46:44] [Server thread/INFO]: [Rcon: Reloading!]
-[21:46:44] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:46:44] [Server thread/INFO]: Loaded 6 recipes
-[21:46:44] [Server thread/INFO]: Loaded 10 custom command functions
-[21:46:44] [Server thread/INFO]: Loaded 825 advancements
-[21:52:21] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:52:21] [Server thread/INFO]: [Rcon: Reloading!]
-[21:52:21] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:52:21] [Server thread/INFO]: Loaded 6 recipes
-[21:52:21] [Server thread/INFO]: Loaded 10 custom command functions
-[21:52:21] [Server thread/INFO]: Loaded 825 advancements
-[21:52:30] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:52:30] [Server thread/INFO]: [Rcon: Reloading!]
-[21:52:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:52:30] [Server thread/INFO]: Loaded 6 recipes
-[21:52:30] [Server thread/INFO]: Loaded 10 custom command functions
-[21:52:30] [Server thread/INFO]: Loaded 825 advancements
-[21:56:10] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:56:10] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:10] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:56:10] [Server thread/INFO]: Loaded 6 recipes
-[21:56:10] [Server thread/INFO]: Loaded 10 custom command functions
-[21:56:10] [Server thread/INFO]: Loaded 825 advancements
-[21:56:18] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:56:18] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:18] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:56:18] [Server thread/INFO]: Loaded 6 recipes
-[21:56:18] [Server thread/INFO]: Loaded 10 custom command functions
-[21:56:18] [Server thread/INFO]: Loaded 825 advancements
-[21:56:21] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:56:21] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:21] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript
-[21:56:22] [Server thread/INFO]: Loaded 6 recipes
-[21:56:22] [Server thread/INFO]: Loaded 10 custom command functions
-[21:56:22] [Server thread/INFO]: Loaded 825 advancements
-[21:56:29] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:56:29] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:29] [Server thread/INFO]: Found new data pack file/McScript_tests, loading it automatically
-[21:56:29] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:30] [Server thread/INFO]: Loaded 6 recipes
-[21:56:30] [Server thread/INFO]: Loaded 16 custom command functions
-[21:56:30] [Server thread/INFO]: Loaded 825 advancements
-[21:56:30] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:30] [Server thread/INFO]: Loaded 6 recipes
-[21:56:30] [Server thread/INFO]: Loaded 16 custom command functions
-[21:56:30] [Server thread/INFO]: Loaded 825 advancements
-[21:56:30] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:30] [Server thread/INFO]: Loaded 6 recipes
-[21:56:30] [Server thread/INFO]: Loaded 16 custom command functions
-[21:56:30] [Server thread/INFO]: Loaded 825 advancements
-[21:56:30] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:30] [Server thread/INFO]: Loaded 6 recipes
-[21:56:30] [Server thread/INFO]: Loaded 16 custom command functions
-[21:56:30] [Server thread/INFO]: Loaded 825 advancements
-[21:56:30] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:31] [Server thread/INFO]: Loaded 6 recipes
-[21:56:31] [Server thread/INFO]: Loaded 16 custom command functions
-[21:56:31] [Server thread/INFO]: Loaded 825 advancements
-[21:56:31] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:31] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:31] [Server thread/INFO]: Loaded 6 recipes
-[21:56:31] [Server thread/INFO]: Loaded 16 custom command functions
-[21:56:31] [Server thread/INFO]: Loaded 825 advancements
-[21:56:31] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:31] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:31] [Server thread/INFO]: Loaded 6 recipes
-[21:56:31] [Server thread/INFO]: Loaded 16 custom command functions
-[21:56:31] [Server thread/INFO]: Loaded 825 advancements
-[21:56:31] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:31] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:31] [Server thread/INFO]: Loaded 6 recipes
-[21:56:31] [Server thread/INFO]: Loaded 17 custom command functions
-[21:56:31] [Server thread/INFO]: Loaded 825 advancements
-[21:56:31] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:31] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:32] [Server thread/INFO]: Loaded 6 recipes
-[21:56:32] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:32] [Server thread/INFO]: Loaded 825 advancements
-[21:56:32] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:32] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:32] [Server thread/INFO]: Loaded 6 recipes
-[21:56:32] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:32] [Server thread/INFO]: Loaded 825 advancements
-[21:56:32] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:32] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:32] [Server thread/INFO]: Loaded 6 recipes
-[21:56:32] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:32] [Server thread/INFO]: Loaded 825 advancements
-[21:56:32] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:32] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:32] [Server thread/INFO]: Loaded 6 recipes
-[21:56:32] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:32] [Server thread/INFO]: Loaded 825 advancements
-[21:56:33] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:33] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:33] [Server thread/INFO]: Loaded 6 recipes
-[21:56:33] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:33] [Server thread/INFO]: Loaded 825 advancements
-[21:56:33] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:33] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:33] [Server thread/INFO]: Loaded 6 recipes
-[21:56:33] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:33] [Server thread/INFO]: Loaded 825 advancements
-[21:56:33] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:33] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:33] [Server thread/INFO]: Loaded 6 recipes
-[21:56:33] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:33] [Server thread/INFO]: Loaded 825 advancements
-[21:56:33] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:33] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:33] [Server thread/INFO]: Loaded 6 recipes
-[21:56:34] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:34] [Server thread/INFO]: Loaded 825 advancements
-[21:56:34] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:34] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:34] [Server thread/INFO]: Loaded 6 recipes
-[21:56:34] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:34] [Server thread/INFO]: Loaded 825 advancements
-[21:56:34] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:34] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:34] [Server thread/INFO]: Loaded 6 recipes
-[21:56:34] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:34] [Server thread/INFO]: Loaded 825 advancements
-[21:56:34] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:34] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:34] [Server thread/INFO]: Loaded 6 recipes
-[21:56:34] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:34] [Server thread/INFO]: Loaded 825 advancements
-[21:56:34] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:34] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:34] [Server thread/INFO]: Loaded 6 recipes
-[21:56:34] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:35] [Server thread/INFO]: Loaded 825 advancements
-[21:56:35] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:35] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:35] [Server thread/INFO]: Loaded 6 recipes
-[21:56:35] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:35] [Server thread/INFO]: Loaded 825 advancements
-[21:56:35] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:35] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:35] [Server thread/INFO]: Loaded 6 recipes
-[21:56:35] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:35] [Server thread/INFO]: Loaded 825 advancements
-[21:56:35] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:35] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:35] [Server thread/INFO]: Loaded 6 recipes
-[21:56:35] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:35] [Server thread/INFO]: Loaded 825 advancements
-[21:56:35] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:35] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:35] [Server thread/INFO]: Loaded 6 recipes
-[21:56:35] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:35] [Server thread/INFO]: Loaded 825 advancements
-[21:56:36] [Server thread/INFO]: [Rcon: Reloading!]
-[21:56:36] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:56:36] [Server thread/INFO]: Loaded 6 recipes
-[21:56:36] [Server thread/INFO]: Loaded 18 custom command functions
-[21:56:36] [Server thread/INFO]: Loaded 825 advancements
-[21:57:26] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:57:26] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:26] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:26] [Server thread/INFO]: Loaded 6 recipes
-[21:57:26] [Server thread/INFO]: Loaded 16 custom command functions
-[21:57:26] [Server thread/INFO]: Loaded 825 advancements
-[21:57:26] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:26] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:26] [Server thread/INFO]: Loaded 6 recipes
-[21:57:27] [Server thread/INFO]: Loaded 16 custom command functions
-[21:57:27] [Server thread/INFO]: Loaded 825 advancements
-[21:57:27] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:27] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:27] [Server thread/INFO]: Loaded 6 recipes
-[21:57:27] [Server thread/INFO]: Loaded 16 custom command functions
-[21:57:27] [Server thread/INFO]: Loaded 825 advancements
-[21:57:27] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:27] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:27] [Server thread/INFO]: Loaded 6 recipes
-[21:57:27] [Server thread/INFO]: Loaded 16 custom command functions
-[21:57:27] [Server thread/INFO]: Loaded 825 advancements
-[21:57:27] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:27] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:27] [Server thread/INFO]: Loaded 6 recipes
-[21:57:27] [Server thread/INFO]: Loaded 16 custom command functions
-[21:57:27] [Server thread/INFO]: Loaded 825 advancements
-[21:57:27] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:27] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:27] [Server thread/INFO]: Loaded 6 recipes
-[21:57:28] [Server thread/INFO]: Loaded 16 custom command functions
-[21:57:28] [Server thread/INFO]: Loaded 825 advancements
-[21:57:28] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:28] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:28] [Server thread/INFO]: Loaded 6 recipes
-[21:57:28] [Server thread/INFO]: Loaded 16 custom command functions
-[21:57:28] [Server thread/INFO]: Loaded 825 advancements
-[21:57:28] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:28] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:28] [Server thread/INFO]: Loaded 6 recipes
-[21:57:28] [Server thread/INFO]: Loaded 17 custom command functions
-[21:57:28] [Server thread/INFO]: Loaded 825 advancements
-[21:57:28] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:28] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:28] [Server thread/INFO]: Loaded 6 recipes
-[21:57:28] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:28] [Server thread/INFO]: Loaded 825 advancements
-[21:57:28] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:28] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:28] [Server thread/INFO]: Loaded 6 recipes
-[21:57:28] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:29] [Server thread/INFO]: Loaded 825 advancements
-[21:57:29] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:29] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:29] [Server thread/INFO]: Loaded 6 recipes
-[21:57:29] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:29] [Server thread/INFO]: Loaded 825 advancements
-[21:57:29] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:29] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:29] [Server thread/INFO]: Loaded 6 recipes
-[21:57:29] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:29] [Server thread/INFO]: Loaded 825 advancements
-[21:57:29] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:29] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:29] [Server thread/INFO]: Loaded 6 recipes
-[21:57:29] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:29] [Server thread/INFO]: Loaded 825 advancements
-[21:57:29] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:29] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:30] [Server thread/INFO]: Loaded 6 recipes
-[21:57:30] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:30] [Server thread/INFO]: Loaded 825 advancements
-[21:57:30] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:30] [Server thread/INFO]: Loaded 6 recipes
-[21:57:30] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:30] [Server thread/INFO]: Loaded 825 advancements
-[21:57:30] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:30] [Server thread/INFO]: Loaded 6 recipes
-[21:57:30] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:30] [Server thread/INFO]: Loaded 825 advancements
-[21:57:30] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:30] [Server thread/INFO]: Loaded 6 recipes
-[21:57:30] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:30] [Server thread/INFO]: Loaded 825 advancements
-[21:57:30] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:30] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:31] [Server thread/INFO]: Loaded 6 recipes
-[21:57:31] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:31] [Server thread/INFO]: Loaded 825 advancements
-[21:57:31] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:31] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:31] [Server thread/INFO]: Loaded 6 recipes
-[21:57:31] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:31] [Server thread/INFO]: Loaded 825 advancements
-[21:57:31] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:31] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:31] [Server thread/INFO]: Loaded 6 recipes
-[21:57:31] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:31] [Server thread/INFO]: Loaded 825 advancements
-[21:57:31] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:31] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:31] [Server thread/INFO]: Loaded 6 recipes
-[21:57:31] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:31] [Server thread/INFO]: Loaded 825 advancements
-[21:57:31] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:31] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:31] [Server thread/INFO]: Loaded 6 recipes
-[21:57:32] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:32] [Server thread/INFO]: Loaded 825 advancements
-[21:57:32] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:32] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:32] [Server thread/INFO]: Loaded 6 recipes
-[21:57:32] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:32] [Server thread/INFO]: Loaded 825 advancements
-[21:57:32] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:32] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:32] [Server thread/INFO]: Loaded 6 recipes
-[21:57:32] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:32] [Server thread/INFO]: Loaded 825 advancements
-[21:57:32] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:32] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:32] [Server thread/INFO]: Loaded 6 recipes
-[21:57:32] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:32] [Server thread/INFO]: Loaded 825 advancements
-[21:57:32] [Server thread/INFO]: [Rcon: Reloading!]
-[21:57:32] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:57:32] [Server thread/INFO]: Loaded 6 recipes
-[21:57:33] [Server thread/INFO]: Loaded 18 custom command functions
-[21:57:33] [Server thread/INFO]: Loaded 825 advancements
-[21:58:04] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
-[21:58:04] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:04] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:04] [Server thread/INFO]: Loaded 6 recipes
-[21:58:04] [Server thread/INFO]: Loaded 16 custom command functions
-[21:58:04] [Server thread/INFO]: Loaded 825 advancements
-[21:58:04] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:04] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:04] [Server thread/INFO]: Loaded 6 recipes
-[21:58:04] [Server thread/INFO]: Loaded 16 custom command functions
-[21:58:04] [Server thread/INFO]: Loaded 825 advancements
-[21:58:04] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:04] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:04] [Server thread/INFO]: Loaded 6 recipes
-[21:58:04] [Server thread/INFO]: Loaded 16 custom command functions
-[21:58:04] [Server thread/INFO]: Loaded 825 advancements
-[21:58:04] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:04] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:05] [Server thread/INFO]: Loaded 6 recipes
-[21:58:05] [Server thread/INFO]: Loaded 16 custom command functions
-[21:58:05] [Server thread/INFO]: Loaded 825 advancements
-[21:58:05] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:05] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:05] [Server thread/INFO]: Loaded 6 recipes
-[21:58:05] [Server thread/INFO]: Loaded 16 custom command functions
-[21:58:05] [Server thread/INFO]: Loaded 825 advancements
-[21:58:05] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:05] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:05] [Server thread/INFO]: Loaded 6 recipes
-[21:58:05] [Server thread/INFO]: Loaded 16 custom command functions
-[21:58:05] [Server thread/INFO]: Loaded 825 advancements
-[21:58:05] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:05] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:05] [Server thread/INFO]: Loaded 6 recipes
-[21:58:05] [Server thread/INFO]: Loaded 16 custom command functions
-[21:58:05] [Server thread/INFO]: Loaded 825 advancements
-[21:58:05] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:05] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:06] [Server thread/INFO]: Loaded 6 recipes
-[21:58:06] [Server thread/INFO]: Loaded 17 custom command functions
-[21:58:06] [Server thread/INFO]: Loaded 825 advancements
-[21:58:06] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:06] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:06] [Server thread/INFO]: Loaded 6 recipes
-[21:58:06] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:06] [Server thread/INFO]: Loaded 825 advancements
-[21:58:06] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:06] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:06] [Server thread/INFO]: Loaded 6 recipes
-[21:58:06] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:06] [Server thread/INFO]: Loaded 825 advancements
-[21:58:06] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:06] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:06] [Server thread/INFO]: Loaded 6 recipes
-[21:58:06] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:06] [Server thread/INFO]: Loaded 825 advancements
-[21:58:06] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:06] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:07] [Server thread/INFO]: Loaded 6 recipes
-[21:58:07] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:07] [Server thread/INFO]: Loaded 825 advancements
-[21:58:07] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:07] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:07] [Server thread/INFO]: Loaded 6 recipes
-[21:58:07] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:07] [Server thread/INFO]: Loaded 825 advancements
-[21:58:07] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:07] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:07] [Server thread/INFO]: Loaded 6 recipes
-[21:58:07] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:07] [Server thread/INFO]: Loaded 825 advancements
-[21:58:07] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:07] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:07] [Server thread/INFO]: Loaded 6 recipes
-[21:58:07] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:07] [Server thread/INFO]: Loaded 825 advancements
-[21:58:07] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:07] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:08] [Server thread/INFO]: Loaded 6 recipes
-[21:58:08] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:08] [Server thread/INFO]: Loaded 825 advancements
-[21:58:08] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:08] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:08] [Server thread/INFO]: Loaded 6 recipes
-[21:58:08] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:08] [Server thread/INFO]: Loaded 825 advancements
-[21:58:08] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:08] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:08] [Server thread/INFO]: Loaded 6 recipes
-[21:58:08] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:08] [Server thread/INFO]: Loaded 825 advancements
-[21:58:08] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:08] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:08] [Server thread/INFO]: Loaded 6 recipes
-[21:58:08] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:08] [Server thread/INFO]: Loaded 825 advancements
-[21:58:08] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:08] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:09] [Server thread/INFO]: Loaded 6 recipes
-[21:58:09] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:09] [Server thread/INFO]: Loaded 825 advancements
-[21:58:09] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:09] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:09] [Server thread/INFO]: Loaded 6 recipes
-[21:58:09] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:09] [Server thread/INFO]: Loaded 825 advancements
-[21:58:09] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:09] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:09] [Server thread/INFO]: Loaded 6 recipes
-[21:58:09] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:09] [Server thread/INFO]: Loaded 825 advancements
-[21:58:09] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:09] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:09] [Server thread/INFO]: Loaded 6 recipes
-[21:58:09] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:09] [Server thread/INFO]: Loaded 825 advancements
-[21:58:09] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:09] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:10] [Server thread/INFO]: Loaded 6 recipes
-[21:58:10] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:10] [Server thread/INFO]: Loaded 825 advancements
-[21:58:10] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:10] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:10] [Server thread/INFO]: Loaded 6 recipes
-[21:58:10] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:10] [Server thread/INFO]: Loaded 825 advancements
-[21:58:10] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:10] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:10] [Server thread/INFO]: Loaded 6 recipes
-[21:58:10] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:10] [Server thread/INFO]: Loaded 825 advancements
-[21:58:10] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:10] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:10] [Server thread/INFO]: Loaded 6 recipes
-[21:58:10] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:10] [Server thread/INFO]: Loaded 825 advancements
-[21:58:10] [Server thread/INFO]: [Rcon: Reloading!]
-[21:58:10] [Server thread/INFO]: Reloading ResourceManager: Default, McScriptTesting, McScript, McScript_tests
-[21:58:11] [Server thread/INFO]: Loaded 6 recipes
-[21:58:11] [Server thread/INFO]: Loaded 18 custom command functions
-[21:58:11] [Server thread/INFO]: Loaded 825 advancements
+[13:58:08] [main/WARN]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[13:58:08] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[13:58:08] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[13:58:08] [main/WARN]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[13:58:08] [main/WARN]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[13:58:08] [Server thread/INFO]: Starting minecraft server version 1.15.2
+[13:58:08] [Server thread/INFO]: Loading properties
+[13:58:08] [Server thread/INFO]: Default game type: SURVIVAL
+[13:58:08] [Server thread/INFO]: Generating keypair
+[13:58:08] [Server thread/INFO]: Starting Minecraft server on *:25565
+[13:58:08] [Server thread/INFO]: Using default channel type
+[13:58:09] [Server thread/INFO]: Preparing level "McScript2"
+[13:58:09] [Server thread/WARN]: Missing data pack file/McScript
+[13:58:09] [Server thread/INFO]: Reloading ResourceManager: Default
+[13:58:10] [Server thread/INFO]: Loaded 6 recipes
+[13:58:11] [Server thread/INFO]: Loaded 825 advancements
+[13:58:11] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[13:58:12] [Server thread/INFO]: Preparing spawn area: 0%
+[13:58:12] [Server thread/INFO]: Preparing spawn area: 0%
+[13:58:13] [Server thread/INFO]: Preparing spawn area: 0%
+[13:58:18] [Server-Worker-1/INFO]: Preparing spawn area: 0%
+[13:58:18] [Server-Worker-1/INFO]: Preparing spawn area: 0%
+[13:58:18] [Server-Worker-1/INFO]: Preparing spawn area: 0%
+[13:58:18] [Server-Worker-1/INFO]: Preparing spawn area: 0%
+[13:58:18] [Server-Worker-1/INFO]: Preparing spawn area: 0%
+[13:58:18] [Server-Worker-1/INFO]: Preparing spawn area: 0%
+[13:58:18] [Server-Worker-1/INFO]: Preparing spawn area: 0%
+[13:58:18] [Server-Worker-1/INFO]: Preparing spawn area: 0%
+[13:58:18] [Server-Worker-1/INFO]: Preparing spawn area: 0%
+[13:58:18] [Server-Worker-1/INFO]: Preparing spawn area: 0%
+[13:58:18] [Server thread/INFO]: Preparing spawn area: 30%
+[13:58:18] [Server thread/INFO]: Time elapsed: 6619 ms
+[13:58:18] [Server thread/INFO]: Done (8.718s)! For help, type "help"
+[13:58:18] [Server thread/INFO]: Starting remote control listener
+[13:58:18] [RCON Listener #1/INFO]: RCON running on 0.0.0.0:25575
+[13:58:20] [User Authenticator #1/INFO]: UUID of player GrilloDavid91 is 3f78c5dc-2ac3-4a6c-baf2-0e6a15618d50
+[13:58:20] [Server thread/INFO]: GrilloDavid91[/127.0.0.1:52323] logged in with entity id 2 at (1246.08259185174, 79.47512695811697, 75.3894909363635)
+[13:58:20] [Server thread/INFO]: GrilloDavid91 joined the game
+[13:58:29] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[13:58:37] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[13:58:37] [Server thread/INFO]: [Rcon: Reloading!]
+[13:58:37] [Server thread/INFO]: Found new data pack file/McScript, loading it automatically
+[13:58:38] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[13:58:38] [Server thread/INFO]: Loaded 6 recipes
+[13:58:38] [Server thread/INFO]: Loaded 16 custom command functions
+[13:58:38] [Server thread/INFO]: Loaded 825 advancements
+[13:58:50] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Spectator Mode]
+[13:59:58] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[14:00:21] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:00:24] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Spectator Mode]
+[14:00:27] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[14:01:14] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:01:14] [Server thread/INFO]: [Rcon: Reloading!]
+[14:01:14] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:01:14] [Server thread/INFO]: Loaded 6 recipes
+[14:01:14] [Server thread/INFO]: Loaded 17 custom command functions
+[14:01:14] [Server thread/INFO]: Loaded 825 advancements
+[14:01:42] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:03:14] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:03:14] [Server thread/INFO]: [Rcon: Reloading!]
+[14:03:14] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:03:15] [Server thread/INFO]: Loaded 6 recipes
+[14:03:15] [Server thread/INFO]: Loaded 18 custom command functions
+[14:03:15] [Server thread/INFO]: Loaded 825 advancements
+[14:03:18] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:03:28] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Spectator Mode]
+[14:03:30] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[14:03:34] [Server thread/INFO]: [GrilloDavid91] Bee, GrilloDavid91, Brown Mushroom, Brown Mushroom, Zombie Pigman, Red Mushroom, Red Mushroom, Red Mushroom, Red Mushroom, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Wither Skeleton, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Ghast, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Ghast, Blaze, Blaze, Wither Skeleton, Wither Skeleton, Zombie Pigman, Zombie Pigman, Zombie Pigman, Blaze, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Magma Cube, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman
+[14:03:49] [Server thread/INFO]: [GrilloDavid91: Killed 78 entities]
+[14:04:07] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:04:07] [Server thread/INFO]: [Rcon: Reloading!]
+[14:04:07] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:04:08] [Server thread/INFO]: Loaded 6 recipes
+[14:04:08] [Server thread/INFO]: Loaded 18 custom command functions
+[14:04:08] [Server thread/INFO]: Loaded 825 advancements
+[14:04:27] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:04:27] [Server thread/INFO]: [Rcon: Reloading!]
+[14:04:27] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:04:27] [Server thread/INFO]: Loaded 6 recipes
+[14:04:27] [Server thread/INFO]: Loaded 19 custom command functions
+[14:04:27] [Server thread/INFO]: Loaded 825 advancements
+[14:04:32] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:05:41] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:05:41] [Server thread/INFO]: [Rcon: Reloading!]
+[14:05:41] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:05:41] [Server thread/INFO]: Loaded 6 recipes
+[14:05:41] [Server thread/INFO]: Loaded 19 custom command functions
+[14:05:41] [Server thread/INFO]: Loaded 825 advancements
+[14:05:44] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:05:56] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:05:56] [Server thread/INFO]: [Rcon: Reloading!]
+[14:05:56] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:05:56] [Server thread/INFO]: Loaded 6 recipes
+[14:05:56] [Server thread/INFO]: Loaded 20 custom command functions
+[14:05:56] [Server thread/INFO]: Loaded 825 advancements
+[14:05:59] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:06:22] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:06:22] [Server thread/INFO]: [Rcon: Reloading!]
+[14:06:22] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:06:22] [Server thread/INFO]: Loaded 6 recipes
+[14:06:22] [Server thread/INFO]: Loaded 21 custom command functions
+[14:06:22] [Server thread/INFO]: Loaded 825 advancements
+[14:06:24] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:06:37] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:06:37] [Server thread/INFO]: [Rcon: Reloading!]
+[14:06:37] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:06:37] [Server thread/INFO]: Loaded 6 recipes
+[14:06:37] [Server thread/INFO]: Loaded 21 custom command functions
+[14:06:37] [Server thread/INFO]: Loaded 825 advancements
+[14:06:39] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:06:55] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:06:55] [Server thread/INFO]: [Rcon: Reloading!]
+[14:06:55] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:06:55] [Server thread/INFO]: Loaded 6 recipes
+[14:06:55] [Server thread/INFO]: Loaded 21 custom command functions
+[14:06:55] [Server thread/INFO]: Loaded 825 advancements
+[14:06:57] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:07:16] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:07:16] [Server thread/INFO]: [Rcon: Reloading!]
+[14:07:16] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:07:17] [Server thread/INFO]: Loaded 6 recipes
+[14:07:17] [Server thread/INFO]: Loaded 21 custom command functions
+[14:07:17] [Server thread/INFO]: Loaded 825 advancements
+[14:07:18] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:07:49] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:07:49] [Server thread/INFO]: [Rcon: Reloading!]
+[14:07:49] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:07:50] [Server thread/INFO]: Loaded 6 recipes
+[14:07:50] [Server thread/INFO]: Loaded 21 custom command functions
+[14:07:50] [Server thread/INFO]: Loaded 825 advancements
+[14:07:56] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:08:02] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Spectator Mode]
+[14:08:05] [Server thread/WARN]: GrilloDavid91 moved too quickly! 9.280305894755088,0.0,4.721739386681747
+[14:08:11] [Server thread/WARN]: GrilloDavid91 moved too quickly! 10.148198286390084,0.0,1.52965514769312
+[14:08:22] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:08:22] [Server thread/INFO]: [Rcon: Reloading!]
+[14:08:22] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:08:22] [Server thread/INFO]: Loaded 6 recipes
+[14:08:22] [Server thread/INFO]: Loaded 21 custom command functions
+[14:08:22] [Server thread/INFO]: Loaded 825 advancements
+[14:08:28] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:08:54] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[14:09:00] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Spectator Mode]
+[14:09:05] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[14:09:11] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Spectator Mode]
+[14:09:35] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[14:09:52] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:09:52] [Server thread/INFO]: [Rcon: Reloading!]
+[14:09:52] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:09:52] [Server thread/INFO]: Loaded 6 recipes
+[14:09:52] [Server thread/INFO]: Loaded 21 custom command functions
+[14:09:52] [Server thread/INFO]: Loaded 825 advancements
+[14:09:55] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:11:11] [RCON Listener #1/INFO]: Rcon connection from: /127.0.0.1
+[14:11:11] [Server thread/INFO]: [Rcon: Reloading!]
+[14:11:11] [Server thread/INFO]: Reloading ResourceManager: Default, McScript
+[14:11:11] [Server thread/INFO]: Loaded 6 recipes
+[14:11:11] [Server thread/INFO]: Loaded 21 custom command functions
+[14:11:11] [Server thread/INFO]: Loaded 825 advancements
+[14:11:16] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:11:18] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Spectator Mode]
+[14:11:33] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:11:53] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[14:11:56] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:11:58] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Spectator Mode]
+[14:13:19] [Server thread/WARN]: GrilloDavid91 moved too quickly! 2.3173515218492753,0.0,-9.777798953004549
+[14:13:41] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[14:13:43] [Server thread/INFO]: [GrilloDavid91: Modified storage mcscript:main]
+[14:13:44] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Spectator Mode]
+[14:14:54] [Server thread/INFO]: [GrilloDavid91] GrilloDavid91, Blaze, Blaze, Wither Skeleton, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Wither Skeleton, Zombie Pigman, Zombie Pigman, Enderman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Blaze, Red Mushroom, Brown Mushroom, Brown Mushroom, Red Mushroom, Brown Mushroom, Brown Mushroom, Red Mushroom, Nether Wart, Nether Wart, Obsidian, Flint and Steel, Obsidian, Saddle, Golden Chestplate, Saddle, Gold Ingot, Gold Ingot, Golden Horse Armor, Flint and Steel, Iron Horse Armor, Gold Ingot, Golden Sword, Brown Mushroom, Brown Mushroom, Brown Mushroom, Nether Wart, Gold Ingot, Saddle, Golden Horse Armor, Golden Horse Armor, Golden Horse Armor, Iron Ingot, Gold Ingot, Iron Horse Armor, Gold Ingot, Nether Wart, Iron Horse Armor, Nether Wart, Golden Horse Armor, Brown Mushroom, Zombie Pigman, Zombie Pigman, Zombie Pigman, Skeleton, Skeleton, Blaze, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Magma Cube, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Wither Skeleton, Zombie Pigman, Zombie Pigman, Zombie Pigman, Zombie Pigman, Golden Chestplate, Flint and Steel, Golden Chestplate, Obsidian
+[14:15:04] [Server thread/INFO]: [GrilloDavid91: Set own game mode to Creative Mode]
+[14:15:05] [Server thread/INFO]: GrilloDavid91 lost connection: Disconnected
+[14:15:05] [Server thread/INFO]: GrilloDavid91 left the game
+[14:15:10] [Server thread/INFO]: Stopping the server
+[14:15:11] [Server thread/INFO]: Stopping server
+[14:15:11] [Server thread/INFO]: Saving players
+[14:15:11] [Server thread/INFO]: Saving worlds
+[14:15:11] [Server thread/INFO]: Saving chunks for level 'McScript2'/minecraft:overworld
+[14:15:11] [Server thread/INFO]: ThreadedAnvilChunkStorage (McScript2): All chunks are saved
+[14:15:11] [Server thread/INFO]: Saving chunks for level 'McScript2'/minecraft:the_end
+[14:15:11] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[14:15:11] [Server thread/INFO]: Saving chunks for level 'McScript2'/minecraft:the_nether
+[14:15:11] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[14:15:11] [Server thread/INFO]: ThreadedAnvilChunkStorage (McScript2): All chunks are saved
+[14:15:11] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[14:15:11] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved

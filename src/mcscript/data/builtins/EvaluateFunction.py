@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 class EvaluateFunction(BuiltinFunction):
     """
+    parameter => string: String the string to evaluate
     runs a minecraft function directly and returns the result
     """
 

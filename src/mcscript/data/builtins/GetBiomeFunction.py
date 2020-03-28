@@ -13,6 +13,10 @@ if TYPE_CHECKING:
 
 
 class GetBiomeFunction(CachedFunction):
+    """
+    returns the biome id of the current biome the executor is in.
+    """
+
     def name(self) -> str:
         return "getBiome"
 

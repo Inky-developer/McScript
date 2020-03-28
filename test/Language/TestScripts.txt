@@ -28,6 +28,24 @@ return 25 % 5 == 0
 [Modulo]
 return 27 % 5 == 2
 
+[Boolean_and]
+a = 1
+b = 2
+return a == 1 and b == 2
+
+[Boolean_and]
+a = 1
+return not (a == 2) and 2 == 2
+
+[Boolean_or]
+a = 1
+b = 2
+return a == 2 or b == 2
+
+[Boolean_or]
+a = 1
+return not (a == 2)
+
 [Function]
 fun sum_and_square(a: Number, b: Number) -> Number {
     myFancyVar = a + b
@@ -79,14 +97,6 @@ fun fac(n: Number) -> Number {
 }
 
 return fac(5) == 120
-
-[SetBlock]
-const block = blocks.player_head
-setBlock(blocks.air)
-isAir = isBlock(blocks.air)
-setBlock(block)
-isTheBlock = isBlock(block)
-return isAir * isTheBlock == 1
 
 [static_fixed_point_sum]
 const a = 1.5
@@ -143,11 +153,28 @@ b = 2
 
 return a / b == 0.625
 
-[evaluate]
+[function_setBlock]
+const block = blocks.player_head
+setBlock(blocks.air)
+isAir = isBlock(blocks.air)
+setBlock(block)
+isTheBlock = isBlock(block)
+return isAir and isTheBlock
+
+[function_evaluate]
 const score = ".ret"
 const namespace = "mcscript_tests"
 execute(stringFormat("scoreboard players set $ $ 1", score, namespace))
-return evaluate(stringFormat("scoreboard players get $ $", score, namespace)) == 1
+return evaluate("scoreboard players get $score $namespace") == 1
+
+[function_random_chance]
+i = 0
+allOne = boolean(1)
+while i < 1000 {
+    ++i
+    allOne = allOne and randomChance(1)
+}
+return allOne
 
 [unary_minus]
 return -(5*5) == -25

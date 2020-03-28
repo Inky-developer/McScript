@@ -16,12 +16,10 @@ if TYPE_CHECKING:
 
 class GetBlockFunction(BuiltinFunction):
     """
+    parameter => [Optional] x: Number the relative x coordinate
+    parameter => [Optional] y: Number the relative y coordinate
+    parameter => [Optional] z: Number the relative z coordinate
     returns an id for the current block (block at ~ ~ ~ relative to the executor)
-    Params:
-        - x: a relative x
-        - y: a relative y
-        - z: a relative z
-        because it does not work otherwise yet :)
     """
 
     def name(self) -> str:

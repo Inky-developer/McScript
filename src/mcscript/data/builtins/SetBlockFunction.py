@@ -17,6 +17,13 @@ if TYPE_CHECKING:
 
 
 class SetBlockFunction(BuiltinFunction):
+    """
+    parameter => block: Number the block to place
+    parameter => [Optional] x: Number the relative x coordinate
+    parameter => [Optional] y: Number the relative y coordinate
+    parameter => [Optional] z: Number the relative z coordinate
+    """
+
     def __init__(self):
         super().__init__()
         self.shouldGenerate = False

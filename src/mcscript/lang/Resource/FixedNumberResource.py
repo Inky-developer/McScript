@@ -86,6 +86,7 @@ class FixedNumberResource(ValueResource):
                 value=0
             )
         ))
+        return BooleanResource(stack, False)
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> FixedNumberVariableResource:
         from src.mcscript.lang.Resource.FixedNumberVariableResource import FixedNumberVariableResource

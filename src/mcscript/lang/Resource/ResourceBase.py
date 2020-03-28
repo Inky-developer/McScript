@@ -5,6 +5,7 @@ from inspect import isabstract
 from typing import TYPE_CHECKING, Type
 
 from src.mcscript.Exceptions import McScriptNameError
+from src.mcscript.compiler.NamespaceType import NamespaceType
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 
 if TYPE_CHECKING:
@@ -261,7 +262,8 @@ class ValueResource(Resource, ABC):
 class ObjectResource(Resource, ABC):
     def __init__(self, namespace: Namespace = None):
         from src.mcscript.compiler.Namespace import Namespace
-        self.namespace = namespace or Namespace()
+        # ToDo: is this correct?
+        self.namespace = namespace or Namespace(namespaceType=NamespaceType.STRUCT)
 
     def getAttribute(self, name: str) -> Resource:
         """

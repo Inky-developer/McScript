@@ -82,6 +82,7 @@ class NumberResource(ValueResource):
                 value=0
             )
         ))
+        return BooleanResource(stack, False)
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> NumberVariableResource:
         """ Load a number from a scoreboard (NumberResource) to a scoreboard (this)"""

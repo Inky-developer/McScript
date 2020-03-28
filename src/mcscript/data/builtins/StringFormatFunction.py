@@ -14,6 +14,8 @@ if TYPE_CHECKING:
 
 class StringFormatFunction(BuiltinFunction):
     """
+    parameter => string: String the string to format
+    parameter => [List] args the values to substitute into this string
     Used so format strings can be store normally and replaced later using this function.
     example:
         const template = "setblock $ $ $ $"

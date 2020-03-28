@@ -12,6 +12,10 @@ if TYPE_CHECKING:
 
 
 class BooleanFunction(BuiltinFunction):
+    """
+    parameter => value
+    """
+
     def name(self) -> str:
         return "boolean"
 

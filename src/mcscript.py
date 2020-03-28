@@ -1,19 +1,20 @@
 from argparse import ArgumentParser
 from functools import partial
-from os.path import join, exists
+from os.path import join, exists, normpath
+from pathlib import Path
 from time import perf_counter
 
 from src.mcscript import compileMcScript, generateFiles
 from src.mcscript.data.Config import Config
 from src.mcscript.utils.cmdHelper import MCPATH, getWorld
+from src.mcscript.utils.precompileInstructions import getPrecompileInstructions
 
 
 def main():
     parser = ArgumentParser(prog="McScript")
 
     parser.add_argument(
-        "-i", "--input",
-        dest="input",
+        "input",
         help="Set the input file",
     )
 
@@ -48,6 +49,13 @@ def main():
     )
 
     parser.add_argument(
+        "-c", "--config",
+        dest="config",
+        nargs="?",
+        help="Set the path to the configuration file"
+    )
+
+    parser.add_argument(
         "-v", "--verbose",
         dest="verbose",
         action="store_true",
@@ -57,21 +65,26 @@ def main():
     args = parser.parse_args()
 
     input_ = args.input
-    output = args.dir
-    world = None
-    mcpath = join(args.mcdir, "saves") if args.mcdir else MCPATH
 
-    # ToDo add config as an argument
-    config = Config(".config.ini")
+    with open(input_) as f:
+        precompile_instructions = getPrecompileInstructions(f.read())
+
+    output = args.dir or precompile_instructions.get("outpath", None)
+    world = None
+    mcpath = join(args.mcdir, "saves") if args.mcdir else normpath(precompile_instructions.get("mcpath", MCPATH))
+
+    # ToDo add default config that does not create a file
+    config = Config(args.config or ".config.ini")
 
     starttime = perf_counter()
 
     if not output:  # if no directory is given, save as a datapack
-        if not args.world:
+        worldPath = args.world or precompile_instructions.get("world", None)
+        if not worldPath:
             print("[ERROR] A World must be specified!")
             return False
 
-        world = getWorld(args.world, mcpath)
+        world = getWorld(worldPath, mcpath)
 
         if world is None:
             print(f"[ERROR] Could not find World '{args.world}'")
@@ -89,7 +102,7 @@ def main():
     print(f"Compiled in {perf_counter() - starttime} seconds")
 
     if output:
-        datapack.write(args.name, output)
+        datapack.write(args.name, Path(output))
     else:
         generateFiles(world, datapack, args.name)
 

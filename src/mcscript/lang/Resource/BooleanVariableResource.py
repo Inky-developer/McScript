@@ -30,6 +30,9 @@ class BooleanVariableResource(ValueResource):
     def type() -> ResourceType:
         return ResourceType.BOOLEAN
 
+    def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
+        return self.load(compileState)
+
     def load(self, compileState: CompileState, stack: ValueResource = None) -> BooleanResource:
         stack = stack or compileState.expressionStack.next()
         compileState.writeline(Command.LOAD_VARIABLE(

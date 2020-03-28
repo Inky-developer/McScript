@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 class ExecuteFunction(BuiltinFunction):
     """
+    parameter => string: String the string to execute
     runs a minecraft function directly and returns null
     """
 
