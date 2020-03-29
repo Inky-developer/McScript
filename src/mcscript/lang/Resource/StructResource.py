@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple, List
 
 from src.mcscript.compiler import Namespace
 from src.mcscript.lang.Resource.BooleanResource import BooleanResource
 from src.mcscript.lang.Resource.ResourceBase import ObjectResource, Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
+from src.mcscript.lang.Resource.TypeResource import TypeResource
 
 if TYPE_CHECKING:
     from src.mcscript.compiler.CompileState import CompileState
@@ -16,9 +17,8 @@ class StructResource(ObjectResource):
     The resource for a struct. The namespace should only contain TypeResources
     """
 
-    def __init__(self, name: str, ownNamespace: Namespace, outerNamespace: Namespace):
+    def __init__(self, name: str, ownNamespace: Namespace):
         super().__init__(ownNamespace)
-        self.outerNamespace = outerNamespace
         self.name = name
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
@@ -45,3 +45,8 @@ class StructResource(ObjectResource):
 
     def toString(self) -> str:
         raise TypeError
+
+    def getDeclaredVariables(self) -> List[Tuple[str, TypeResource]]:
+        """ Returns all declared type resources """
+        return [(i, self.namespace[i]) for i in self.namespace.namespace if
+                self.namespace[i].type() == ResourceType.TYPE]

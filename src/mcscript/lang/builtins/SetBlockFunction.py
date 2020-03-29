@@ -5,12 +5,12 @@ from typing import Union, TYPE_CHECKING
 from src.mcscript.Exceptions import McScriptArgumentsError
 from src.mcscript.data.Commands import multiple_commands, Command, ExecuteCommand
 from src.mcscript.data.Config import Config
-from src.mcscript.data.builtins.builtins import BuiltinFunction, FunctionResult
 from src.mcscript.data.minecraftData.blocks import Blocks
 from src.mcscript.lang.Resource.NumberResource import NumberResource
 from src.mcscript.lang.Resource.ResourceBase import Resource, ValueResource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 from src.mcscript.lang.Resource.StringResource import StringResource
+from src.mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState

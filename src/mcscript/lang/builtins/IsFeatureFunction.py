@@ -4,11 +4,11 @@ from typing import Union, TYPE_CHECKING, Dict
 
 from src.mcscript.Exceptions import McScriptArgumentsError
 from src.mcscript.data.Commands import Command, ExecuteCommand, multiple_commands
-from src.mcscript.data.builtins.builtins import CachedFunction, FunctionResult
 from src.mcscript.data.minecraftData import features
 from src.mcscript.data.minecraftData.features import Feature
 from src.mcscript.lang.Resource.ResourceBase import Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
+from src.mcscript.lang.builtins.builtins import CachedFunction, FunctionResult
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState

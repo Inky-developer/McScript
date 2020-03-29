@@ -272,7 +272,7 @@ class ObjectResource(Resource, ABC):
         """
         raise McScriptNameError(f"Property {name} does not exist for {type(self)}.")
 
-    def setAttribute(self, name: str, value: Resource) -> Resource:
+    def setAttribute(self, compileState: CompileState, name: str, value: Resource) -> Resource:
         self.namespace[name] = value
         return value
 

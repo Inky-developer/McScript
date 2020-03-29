@@ -4,9 +4,9 @@ from typing import List, TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptArgumentsError
 from src.mcscript.data.Commands import multiple_commands, Command, ExecuteCommand
-from src.mcscript.data.builtins.builtins import CachedFunction
 from src.mcscript.lang.Resource.ResourceBase import Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
+from src.mcscript.lang.builtins.builtins import CachedFunction
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState

@@ -2,7 +2,7 @@ import re
 from typing import Dict, List
 
 from src.mcscript.data import Config
-from src.mcscript.data.builtins.builtins import BuiltinFunction
+from src.mcscript.lang.builtins import BuiltinFunction
 
 """
 used to generated autodoc for the vscode extension. 

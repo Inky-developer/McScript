@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptArgumentsError
 from src.mcscript.data.Commands import Command, ExecuteCommand
-from src.mcscript.data.builtins.builtins import BuiltinFunction
 from src.mcscript.lang.Resource.NumberResource import NumberResource
 from src.mcscript.lang.Resource.ResourceBase import Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 from src.mcscript.lang.Resource.StringResource import StringResource
+from src.mcscript.lang.builtins.builtins import BuiltinFunction
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState

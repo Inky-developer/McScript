@@ -4,7 +4,7 @@ A command line interface
 from __future__ import annotations
 
 from os import getenv, listdir, makedirs, mkdir
-from os.path import join, isdir, exists, isfile, dirname
+from os.path import join, isdir, exists, isfile, dirname, abspath, normpath
 from pathlib import Path
 from typing import List, Optional
 
@@ -35,7 +35,7 @@ def getWorld(name, path=MCPATH) -> Optional[MCWorld]:
     for world in getWorlds(path):
         if world.levelName == name:
             return world
-    return None
+    raise ValueError(f"Could not detect world '{name}' in '{abspath(normpath(path))}'")
 
 
 def isMcWorld(folder):

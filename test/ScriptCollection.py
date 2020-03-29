@@ -1,7 +1,6 @@
 from src.mcscript import compileMcScript, generateFiles
 from src.mcscript.data.Config import Config
 from src.mcscript.utils.cmdHelper import getWorld
-from test.scripts import getScript
 from test.server import rcon
 
 code_struct = """
@@ -19,14 +18,14 @@ run for @a print(c.real)
 """
 
 code_temp = """
-a = isBlock(blocks.air)
-print(a and not 1==1)
+a = blocks.stone
+blocks.test = 1
 """
 
 if __name__ == '__main__':
-    world = getWorld("McScript2", r"D:\Dokumente\Informatik\Python\McScript\test\server")
+    world = getWorld("McScript", r"D:\Dokumente\Informatik\Python\McScript\test\server")
     config = Config("config.ini")
     config.get("name")
-    datapack = compileMcScript(getScript("bounding_box_detector"), lambda a, b, c: print(f"{a}: {b * 100}%"), config)
+    datapack = compileMcScript(code_temp, lambda a, b, c: print(f"{a}: {b * 100}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

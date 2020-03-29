@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING, Union, Type
 
 from src.mcscript.compiler.NamespaceType import NamespaceType
-from src.mcscript.data.builtins.builtins import BuiltinFunction
 from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
 from src.mcscript.lang.Resource.ResourceBase import Resource, ValueResource
+from src.mcscript.lang.builtins.builtins import BuiltinFunction
 from src.mcscript.utils.NamespaceBase import NamespaceBase
 
 if TYPE_CHECKING:

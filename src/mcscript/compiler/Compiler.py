@@ -13,7 +13,6 @@ from src.mcscript.data import defaultCode, defaultEnums
 from src.mcscript.data.Commands import Command, BinaryOperator, Relation, ExecuteCommand, UnaryOperator, \
     multiple_commands
 from src.mcscript.data.Config import Config
-from src.mcscript.data.builtins.builtins import BuiltinFunction
 from src.mcscript.lang.Resource.AddressResource import AddressResource
 from src.mcscript.lang.Resource.BooleanResource import BooleanResource
 from src.mcscript.lang.Resource.FunctionResource import Function
@@ -22,6 +21,7 @@ from src.mcscript.lang.Resource.NullResource import NullResource
 from src.mcscript.lang.Resource.ResourceBase import Resource, ValueResource, ObjectResource
 from src.mcscript.lang.Resource.StructResource import StructResource
 from src.mcscript.lang.Resource.TypeResource import TypeResource
+from src.mcscript.lang.builtins.builtins import BuiltinFunction
 from src.mcscript.utils.Datapack import Datapack
 
 
@@ -38,13 +38,20 @@ class Compiler(Interpreter):
         self.visit(tree)
         return self.compileState.datapack
 
+    #######################
+    #  builtin functions  #
+    #######################
     def compileBuiltins(self):
         BuiltinFunction.load(self)
 
     def loadFunction(self, function: BuiltinFunction):
         self.compileState.currentNamespace().addFunction(function)
 
+    #######################
+    #    tree handlers    #
+    #######################
     def value(self, tree):
+        """ a value is a simple token or expression that can be converted to a resource"""
         value = tree.children[0]
         if isinstance(value, Tree):
             return self.visit(value)
@@ -52,39 +59,43 @@ class Compiler(Interpreter):
             return convertToken(value, self.compileState)
         raise McScriptNameError(f"Invalid value: {value}", value)
 
-    def variable(self, tree):
-        varName = tree.children[0]
-        if varName not in self.compileState.currentNamespace():
-            raise McScriptNameError(f"Unknown variable: {varName}", varName)
-        if isinstance(var := self.compileState.currentNamespace()[varName], ValueResource) and var.isStatic:
-            return var
-        # stack = self.compileState.expressionStack.next()
-        # self.compileState.writeline(Command.LOAD_VARIABLE(
-        #     stack=stack,
-        #     var=self.compileState.currentNamespace()[varName].value
-        # ))
-        # return stack
-        var = self.compileState.currentNamespace()[varName]
-        return var
+    def accessor(self, tree):
+        """
+        a variable or a list of dot separated names like a.b.c will be loaded here.
+        """
+        ret, *values = tree.children
+        if ret not in self.compileState.currentNamespace():
+            if result := defaultEnums.get(ret):
+                self.compileState.stack[0][ret] = result
+            else:
+                raise McScriptNameError(f"Unknown variable: {ret}", ret)
+        ret = self.compileState.currentNamespace()[ret]
+        for value in values:
+            if not isinstance(ret, ObjectResource):
+                raise McScriptTypeError(f"Cannot access property {value} of {type(ret)}", tree)
+            ret = ret.getAttribute(value)
+        return ret
 
-    def property(self, tree):
-        obj, *properties = tree.children
+    def propertySetter(self, tree):
+        identifier, value = tree.children
+        obj, *rest = identifier.children
 
         if obj not in self.compileState.currentNamespace():
-            # check if a default enum is accessed and, if yes, load it
-            if str(obj) in defaultEnums.ENUMS:
-                self.compileState.stack[0][obj] = defaultEnums.ENUMS[obj]()
-            else:
-                raise McScriptNameError(f"Unknown object: {obj}", tree)
-
+            raise McScriptNameError(f"Unknwon variable {obj}")
         obj = self.compileState.currentNamespace()[obj]
-        if not isinstance(obj, ObjectResource):
-            raise McScriptTypeError(f"Resource {obj} is not an object.", tree)
 
-        value = None
-        for prop in properties:
-            value = obj.getAttribute(prop)
-        return value.load(self.compileState)
+        for i in rest[:-1]:
+            if not isinstance(obj, ObjectResource):
+                raise McScriptTypeError(f"Resource {obj} must be an object!", tree)
+            obj = obj.getAttribute(i)
+
+        attribute = rest[-1]
+        if not isinstance(obj, ObjectResource):
+            raise McScriptTypeError(f"Resource {obj} must be an object!", tree)
+
+        value = self.compileState.load(value)
+        obj.setAttribute(self.compileState, attribute, value)
+        return value
 
     def unary_operation(self, tree):
         # noinspection PyShadowingNames
@@ -251,16 +262,12 @@ class Compiler(Interpreter):
         return number1
 
     def term(self, tree):
-        # todo refactor this
         term = tree.children[0]
-        if term.data in (
-                "value", "function_call", "variable", "comparison",
-                "control_execute", "property"):  # this term does not contain operands
-            return self.visit(term)
-        return self.binaryOperation(*self.visit_children(tree.children[0]))
+        if term.data in ("sum", "product"):  # this term does not contain operands
+            return self.binaryOperation(*self.visit_children(tree.children[0]))
+        return self.visit(term)
 
     def comparison(self, tree):
-        # ToDO: implement execute if matches
         left, operator, right = tree.children
         addr_left = self.compileState.load(left)
         if not isinstance(addr_left, ValueResource):
@@ -327,6 +334,9 @@ class Compiler(Interpreter):
 
     def declaration(self, tree):
         identifier, value = tree.children
+        if len(identifier.children) != 1:
+            return self.propertySetter(tree)
+        identifier, = identifier.children
         value = self.compileState.toResource(value)
 
         if identifier in self.compileState.currentNamespace():
@@ -354,6 +364,9 @@ class Compiler(Interpreter):
     def const_declaration(self, tree):
         declaration = tree.children[0]
         identifier, value = declaration.children
+        if len(identifier.children) > 1:
+            raise McScriptSyntaxError(f"Cannot set a const value on an object.", tree)
+        identifier, = identifier.children
         value = self.compileState.toResource(value)
 
         if not isinstance(value, ValueResource):
@@ -578,9 +591,7 @@ class Compiler(Interpreter):
 
     def function_call(self, tree):
         function_name, *parameters = tree.children
-        if function_name not in self.compileState.currentNamespace():
-            raise McScriptNameError(f"Unknown function '{function_name}'", tree)
-        function = self.compileState.currentNamespace()[function_name]
+        function = self.visit(function_name)
         if isinstance(function, BuiltinFunction):
             return self.builtinFunction(function, *parameters)
         if isinstance(function, Function):
@@ -602,11 +613,15 @@ class Compiler(Interpreter):
         self.compileState.pushStack(NamespaceType.STRUCT)
         namespace = self.compileState.currentNamespace()
 
-        struct = StructResource(name, namespace, self.compileState.currentNamespace())
+        struct = StructResource(name, namespace)
+
+        # this is not nice, but the struct must be referencable within itself
         self.compileState.currentNamespace().setVar(name, struct)
 
         for declaration in block.children:
             self.visit(declaration)
+        self.compileState.popStack()
+        self.compileState.currentNamespace().setVar(name, struct)
 
     def context_manipulator(self, tree):
         command_table = {

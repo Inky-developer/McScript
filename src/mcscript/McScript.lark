@@ -21,18 +21,18 @@ function_block: "{" ( function_value "," )* function_value? "->" statement+ "}"
 function_parameter: IDENTIFIER ":" IDENTIFIER
 parameter_list: "(" (function_parameter "," )* function_parameter? ")"
 function_value: expression
-function_call: IDENTIFIER "(" (function_value "," )* function_value? ")"
+function_call: accessor "(" (function_value "," )* function_value? ")"
 
 variable_declaration: [/\bconst\b/] IDENTIFIER ":" IDENTIFIER
-declaration: IDENTIFIER ("." IDENTIFIER)* "=" expression
+declaration: accessor "=" expression //Todo
 const_declaration: "const " declaration
-term_ip: IDENTIFIER ("." IDENTIFIER)* (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression
+term_ip: IDENTIFIER ("." IDENTIFIER)* (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression //ToDo
 
 expression: comparison
           | term
+          | NOT expression -> boolean_not
           | expression (OR expression)+ -> boolean_or
           | expression (AND expression)+ -> boolean_and
-          | NOT expression -> boolean_not
 
 // terms like (6 + 8) * -9
 term: sum
@@ -43,9 +43,10 @@ value: NUMBER
      | STRING
      | unary_operation
      | "(" expression ")"
-     | IDENTIFIER -> variable
+     | accessor
      | function_call
-     | IDENTIFIER ("." IDENTIFIER)+ -> property
+
+accessor: IDENTIFIER ("." IDENTIFIER)*
 
 unary_operation: MINUS value
                | INCR_ONE value

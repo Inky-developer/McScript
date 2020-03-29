@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from src.mcscript.Exceptions import McScriptArgumentsError, McScriptAttributeError
 from src.mcscript.lang.Resource.BooleanResource import BooleanResource
@@ -20,44 +20,60 @@ class StructObjectResource(ObjectResource):
 
     def __init__(self, struct: StructResource, compileState: CompileState, *parameters: Resource, **keywordParameters):
         super().__init__()
+        # the nbtPath specifies where in the data storage this enum is located. it gets set when storeToNbt is called.
+        self.nbtPath: Optional[NbtAddressResource] = None
         self.struct = struct
         self.build_namespace(struct, compileState, *parameters, **keywordParameters)
 
     def build_namespace(self, struct: StructResource, compileState: CompileState, *parameters: Resource,
                         **keywordParameters: Resource):
-        identifiers = list(struct.namespace)
-        if len(parameters) > len(identifiers):
+        variables = struct.getDeclaredVariables()
+        if len(parameters) > len(variables):
             raise McScriptArgumentsError(f"Invalid number of parameters for struct initialization of {struct.name}. "
-                                         f"Expected at most {len(identifiers)}")
-        for key, value in zip(identifiers[:], parameters):
-            value = compileState.toResource(value)
+                                         f"Expected at most {len(variables)}")
+        for var, value in zip(variables[:], parameters):
+            key, varType = var
+            value = compileState.load(value)
+            if not isinstance(value, varType.value):
+                raise McScriptArgumentsError(
+                    f"Struct object {struct.name} got identifier {key} with invalid type {type(value)}, "
+                    f"expected type {varType.value}"
+                )
             if not isinstance(value, ValueResource):
                 raise NotImplementedError
-            # value.isStatic = False
-            self.setAttribute(key, value)
-            identifiers.remove(key)
+            self.namespace[key] = value
+            variables.remove(var)
 
+        identifierKeys = [key for key, varType in variables]
         for key in keywordParameters:
-            if key not in identifiers:
+            if key not in identifierKeys:
                 raise McScriptArgumentsError(
                     f"Invalid keyword parameter {key} for struct initialization of {struct.name}. "
-                    f"Expected one of: {', '.join(identifiers)}"
+                    f"Expected one of: {', '.join(identifierKeys)}"
                 )
-            value = compileState.toResource(keywordParameters[key])
+            value = compileState.load(keywordParameters[key])
             if not isinstance(value, ValueResource):
                 raise NotImplementedError
             # value.isStatic = False
-            self.setAttribute(key, value)
+            self.namespace[key] = value
 
-        if identifiers:
+        if variables:
             raise McScriptArgumentsError(
-                f"Failed to initialize struct {struct.name}: Missing parameter(s) {', '.join(str(i) for i in identifiers)}"
+                f"Failed to initialize struct {struct.name}: Missing parameter(s) "
+                f"{', '.join(str(key) for key, varType in variables)}"
             )
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> Resource:
+        self.nbtPath = stack
         for key in self.namespace:
             self.namespace[key] = self.namespace[key].storeToNbt(stack + NbtAddressResource(key), compileState)
         return self
+
+    def setAttribute(self, compileState: CompileState, name: str, value: Resource) -> Resource:
+        if not self.nbtPath:
+            raise ReferenceError("Trying to set an attribute for an enum that has no nbtPath")
+        self.namespace[name] = value.storeToNbt(self.nbtPath + NbtAddressResource(name), compileState)
+        return value
 
     def getAttribute(self, name: str) -> Resource:
         try:

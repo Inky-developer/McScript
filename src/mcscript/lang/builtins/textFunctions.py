@@ -3,11 +3,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from src.mcscript.data.builtins.builtins import BuiltinFunction, FunctionResult
 from src.mcscript.lang.Resource.NullResource import NullResource
 from src.mcscript.lang.Resource.ResourceBase import Resource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
-from src.mcscript.lang.utils import PrintCommand, TextFormatter
+from src.mcscript.lang.ResourceTextFormatter import PrintCommand, ResourceTextFormatter
+from src.mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState
@@ -23,7 +23,7 @@ class TextFunction(BuiltinFunction, ABC):
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
         return FunctionResult(
-            TextFormatter(compileState).createCommandFromResources(self.getCommand(), *parameters),
+            ResourceTextFormatter(compileState).createCommandFromResources(self.getCommand(), *parameters),
             resource=NullResource(),
             inline=True
         )

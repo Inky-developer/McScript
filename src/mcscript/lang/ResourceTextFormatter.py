@@ -21,7 +21,7 @@ class PrintCommand(Enum):
     ACTIONBAR = Command.ACTIONBAR
 
 
-class TextFormatter:
+class ResourceTextFormatter:
     handler = getDictionaryResource("TextFormatter.txt")
 
     def __init__(self, compileState: CompileState):

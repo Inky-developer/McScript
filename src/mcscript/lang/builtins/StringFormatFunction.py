@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptArgumentsError, McScriptTypeError
-from src.mcscript.data.builtins.builtins import BuiltinFunction, FunctionResult
 from src.mcscript.lang.Resource.ResourceBase import Resource, ValueResource
 from src.mcscript.lang.Resource.ResourceType import ResourceType
 from src.mcscript.lang.Resource.StringResource import StringResource
+from src.mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState
