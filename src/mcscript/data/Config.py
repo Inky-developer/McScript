@@ -5,9 +5,10 @@ import configparser
 import warnings
 from functools import lru_cache
 from os.path import exists
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from src.mcscript.lang.resource.AddressResource import AddressResource
+if TYPE_CHECKING:
+    from src.mcscript.lang.resource.AddressResource import AddressResource
 
 
 class Config:
@@ -70,6 +71,7 @@ class Config:
         return self.config["Configuration"][key]
 
     def _addressFormat(self, name: str) -> AddressResource:
+        from src.mcscript.lang.resource.AddressResource import AddressResource
         return AddressResource(name, True)
 
     def __setitem__(self, key, value):
