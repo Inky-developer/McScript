@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from src.mcscript.data.Commands import BinaryOperator, Command, Struct
-from src.mcscript.lang.Resource.AddressResource import AddressResource
-from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
-from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
-from src.mcscript.lang.Resource.NumberResource import NumberResource
-from src.mcscript.lang.Resource.ResourceBase import ValueResource, Resource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
+from src.mcscript.lang.resource.AddressResource import AddressResource
+from src.mcscript.lang.resource.FixedNumberResource import FixedNumberResource
+from src.mcscript.lang.resource.NbtAddressResource import NbtAddressResource
+from src.mcscript.lang.resource.NumberResource import NumberResource
+from src.mcscript.lang.resource.base.ResourceBase import ValueResource, Resource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 from src.mcscript.utils.utils import deprecated
 
 if TYPE_CHECKING:
@@ -54,7 +54,7 @@ class BooleanResource(ValueResource):
         raise TypeError
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> ValueResource:
-        from src.mcscript.lang.Resource.BooleanVariableResource import BooleanVariableResource
+        from src.mcscript.lang.resource.BooleanVariableResource import BooleanVariableResource
 
         if self.hasStaticValue:
             compileState.writeline(Command.SET_VARIABLE(
@@ -90,7 +90,7 @@ class BooleanResource(ValueResource):
 
     @classmethod
     def createEmptyResource(cls, identifier: str, compileState: CompileState) -> Resource:
-        from src.mcscript.lang.Resource.BooleanVariableResource import BooleanVariableResource
+        from src.mcscript.lang.resource.BooleanVariableResource import BooleanVariableResource
         return compileState.currentNamespace().addVar(identifier, BooleanVariableResource)
 
 

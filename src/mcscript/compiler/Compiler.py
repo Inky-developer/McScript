@@ -1,5 +1,5 @@
 import warnings
-from typing import Dict
+from typing import Dict, List
 
 from lark import Tree, Token
 from lark.visitors import Interpreter
@@ -13,15 +13,17 @@ from src.mcscript.data import defaultCode, defaultEnums
 from src.mcscript.data.Commands import Command, BinaryOperator, Relation, ExecuteCommand, UnaryOperator, \
     multiple_commands
 from src.mcscript.data.Config import Config
-from src.mcscript.lang.Resource.AddressResource import AddressResource
-from src.mcscript.lang.Resource.BooleanResource import BooleanResource
-from src.mcscript.lang.Resource.FunctionResource import Function
-from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
-from src.mcscript.lang.Resource.NullResource import NullResource
-from src.mcscript.lang.Resource.ResourceBase import Resource, ValueResource, ObjectResource
-from src.mcscript.lang.Resource.StructResource import StructResource
-from src.mcscript.lang.Resource.TypeResource import TypeResource
 from src.mcscript.lang.builtins.builtins import BuiltinFunction
+from src.mcscript.lang.resource.AddressResource import AddressResource
+from src.mcscript.lang.resource.BooleanResource import BooleanResource
+from src.mcscript.lang.resource.DefaultFunctionResource import DefaultFunctionResource
+from src.mcscript.lang.resource.InlineFunctionResource import InlineFunctionResource
+from src.mcscript.lang.resource.NbtAddressResource import NbtAddressResource
+from src.mcscript.lang.resource.NullResource import NullResource
+from src.mcscript.lang.resource.StructResource import StructResource
+from src.mcscript.lang.resource.TypeResource import TypeResource
+from src.mcscript.lang.resource.base.FunctionResource import Parameter
+from src.mcscript.lang.resource.base.ResourceBase import Resource, ValueResource, ObjectResource
 from src.mcscript.utils.Datapack import Datapack
 
 
@@ -86,12 +88,12 @@ class Compiler(Interpreter):
 
         for i in rest[:-1]:
             if not isinstance(obj, ObjectResource):
-                raise McScriptTypeError(f"Resource {obj} must be an object!", tree)
+                raise McScriptTypeError(f"resource {obj} must be an object!", tree)
             obj = obj.getAttribute(i)
 
         attribute = rest[-1]
         if not isinstance(obj, ObjectResource):
-            raise McScriptTypeError(f"Resource {obj} must be an object!", tree)
+            raise McScriptTypeError(f"resource {obj} must be an object!", tree)
 
         value = self.compileState.load(value)
         obj.setAttribute(self.compileState, attribute, value)
@@ -354,7 +356,7 @@ class Compiler(Interpreter):
         except TypeError as e:
             var = value
             warnings.warn(
-                "Every Resource should implement the storeToNbt function if it can be on both scoreboard and storage\n"
+                "Every resource should implement the storeToNbt function if it can be on both scoreboard and storage\n"
                 f"({e})"
             )
 
@@ -379,7 +381,7 @@ class Compiler(Interpreter):
     def term_ip(self, tree):
         variable, operator, resource = tree.children
         resource = self.compileState.load(resource)
-        varResource = self.compileState.currentNamespace()[variable]
+        varResource = self.visit(variable)
         var = varResource.load(self.compileState)
         if var.isStatic:
             raise McScriptIsStaticError("Cannot modify a static variable", tree)
@@ -492,52 +494,50 @@ class Compiler(Interpreter):
 
     def return_(self, tree):
         resource = self.compileState.toResource(tree.children[0])
-        if self.compileState.currentNamespace().returnedResource:
+        if not isinstance(self.compileState.currentNamespace().returnedResource, NullResource):
             raise McScriptSyntaxError("Cannot set the return value twice.", tree)
         self.compileState.currentNamespace().returnedResource = resource
 
     def function_parameter(self, tree):
         identifier, datatype = tree.children
         datatype = convertToken(datatype, self.compileState)
-        return identifier, datatype
+        return identifier, TypeResource(datatype, True)
 
     def function_definition(self, tree):
-        function_name, parameter_list, returnType, block = tree.children
-        is_special = function_name in defaultCode.MAGIC_FUNCTIONS
+        *inline, _, function_name, parameter_list, return_type, block = tree.children
+        inline = bool(inline)
 
         parameter_list = [self.visit(i) for i in parameter_list.children]
-        if any(parameter.requiresInlineFunc for _, parameter in parameter_list):
-            raise McScriptTypeError(F"Inline functions are yet to be implemented")
+        return_type = TypeResource(convertToken(return_type, self.compileState), True)
+        if any(parameter.value.requiresInlineFunc for _, parameter in parameter_list) and not inline:
+            raise McScriptTypeError(f"Some parameters can only be used in an inline context. "
+                                    f"Consider declaring this function using 'inline fun'.", tree)
 
-        # blockName = self.compileState.codeBlockStack.next()
-        canBeRawName = self.compileState.currentNamespace().index == 0 and function_name.isalpha() and function_name.islower()
-        blockName = function_name if canBeRawName else self.compileState.codeBlockStack.next()
-        self.compileState.fileStructure.pushFile(blockName)
-        self.compileState.pushStack(NamespaceType.FUNCTION)
-        newNamespace = self.compileState.currentNamespace()
+        if not inline:
+            return self.function_definition_normal(function_name, parameter_list, return_type, block)
 
-        function = Function(str(function_name), convertToken(returnType, self.compileState), parameter_list,
-                            newNamespace, blockName)
+        return self.function_definition_inline(function_name, parameter_list, return_type, block)
 
-        # set the parameters
-        for identifier, resource in function.parameters:
-            newNamespace[identifier] = resource.createEmptyResource(identifier, self.compileState)
+    def function_definition_inline(self, function_name: str, parameter_list: List[Parameter], return_type: TypeResource,
+                                   block: Tree):
+        if function_name in defaultCode.MAGIC_FUNCTIONS:
+            raise McScriptSyntaxError("Special functions must not be inlined")
+        function = InlineFunctionResource(function_name, parameter_list, return_type, block)
+        self.compileState.currentNamespace().addFunction(function)
 
+    def function_definition_normal(self, function_name: str, parameter_list: List[Parameter], return_type: TypeResource,
+                                   block: Tree):
+        function = DefaultFunctionResource(function_name, parameter_list, return_type, block)
+        function.compile(self.compileState)
+        self.compileState.currentNamespace().addFunction(function)
+
+        is_special = function_name in defaultCode.MAGIC_FUNCTIONS
         if is_special:
             param_count = defaultCode.MAGIC_FUNCTIONS[function_name]
             if param_count != len(function.parameters):
                 raise McScriptArgumentsError(
                     f"Magic method {function.name()} must accept exactly {param_count} parameters")
             self.compileState.fileStructure.setPoi(function)
-
-        # compile the function body
-        self.visit_children(block)
-
-        self.compileState.popStack()
-        self.compileState.fileStructure.popFile()
-
-        # add the function to the current namespace
-        self.compileState.currentNamespace().addFunction(function)
 
     def function_value(self, tree):
         value, = tree.children
@@ -560,46 +560,14 @@ class Compiler(Interpreter):
 
         return result.resource
 
-    def userFunction(self, function: Function, *parameters):
-        if len(parameters) != len(function.parameters):
-            raise McScriptArgumentsError(
-                f"Invalid arguments: required {len(function.parameters)} but got {len(parameters)}")
-
-        for parameter, p_data in zip(parameters, function.parameters):
-            param_name, param_type = p_data
-
-            p_address = function.namespace[param_name]
-            parameter = self.compileState.toResource(parameter)
-
-            if parameter.type() != param_type.type():
-                raise McScriptArgumentsError(
-                    f"{repr(function)} got argument {parameter} with invalid type {parameter.type().value}, "
-                    f"expected {param_type.type().value}"
-                )
-
-            try:
-                parameter.copy(p_address.value, self.compileState)
-            except TypeError:
-                parameter.load(self.compileState).copy(p_address.value, self.compileState)
-        self.compileState.writeline(Command.RUN_FUNCTION(function=function.blockName))
-
-        returnValue = function.namespace.returnedResource or NullResource()
-        if returnValue.type() != function.returnType.type():
-            raise McScriptTypeError(f"{repr(function)} should return {function.returnType.type().value} "
-                                    f"but returned {returnValue.type().value}")
-        return returnValue
-
     def function_call(self, tree):
         function_name, *parameters = tree.children
         function = self.visit(function_name)
         if isinstance(function, BuiltinFunction):
             return self.builtinFunction(function, *parameters)
-        if isinstance(function, Function):
-            return self.userFunction(function, *parameters)
-        # if the function is neither a builtin function nor a user function
-        # the given resource might implement the operation_call method
+        # any object that implements the call operator can be called. This of course includes function resources.
         try:
-            return function.operation_call(self.compileState, *parameters)
+            return function.operation_call(self.compileState, *[self.visit(i) for i in parameters])
         except TypeError:
             raise McScriptTypeError(f"The resource {repr(function)} can not be treated like a function")
 
@@ -645,7 +613,7 @@ class Compiler(Interpreter):
         return self.visit(tree.children[0])
 
     def statement(self, tree):
-        self.compileState.writeline(f"# {self.compileState.getDebugLines(tree.line, tree.end_line)}")
+        self.compileState.writeline(f"# {self.compileState.getDebugLines(tree.meta.line, tree.meta.end_line)}")
         res = self.visit_children(tree)
         # # now clear up the expression counter geht doch nicht so einfach
         # self.compileState.expressionStack.reset()

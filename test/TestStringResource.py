@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from src.mcscript.lang.Resource.StringResource import StringResource
+from src.mcscript.lang.resource.StringResource import StringResource
 
 
 class TestStringResource(TestCase):

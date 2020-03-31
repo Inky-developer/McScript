@@ -7,7 +7,7 @@ from functools import lru_cache
 from os.path import exists
 from typing import Any
 
-from src.mcscript.lang.Resource.AddressResource import AddressResource
+from src.mcscript.lang.resource.AddressResource import AddressResource
 
 
 class Config:

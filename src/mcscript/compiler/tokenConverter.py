@@ -8,20 +8,20 @@ from typing import Type, TYPE_CHECKING, Union
 from lark import Token
 
 from src.mcscript.Exceptions import McScriptTypeError
-from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
-from src.mcscript.lang.Resource.NumberResource import NumberResource
-from src.mcscript.lang.Resource.ResourceBase import Resource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
-from src.mcscript.lang.Resource.SelectorResource import SelectorResource
-from src.mcscript.lang.Resource.StringResource import StringResource
-from src.mcscript.lang.Resource.StructResource import StructResource
+from src.mcscript.lang.resource.FixedNumberResource import FixedNumberResource
+from src.mcscript.lang.resource.NumberResource import NumberResource
+from src.mcscript.lang.resource.SelectorResource import SelectorResource
+from src.mcscript.lang.resource.StringResource import StringResource
+from src.mcscript.lang.resource.StructResource import StructResource
+from src.mcscript.lang.resource.base.ResourceBase import Resource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState
 
 
 # ToDo: custom resource to hold resource types
-def convertToken(token: Token, compileState: CompileState) -> Union[Resource, Type[Resource]]:
+def convertToken(token: Union[Token, str], compileState: CompileState) -> Union[Resource, Type[Resource]]:
     if token.type in globals():
         return globals()[token.type](token, compileState)
     try:

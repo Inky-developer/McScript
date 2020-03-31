@@ -5,8 +5,8 @@ from lark import Tree
 from src.mcscript.compiler.Namespace import Namespace
 from src.mcscript.compiler.NamespaceType import NamespaceType
 from src.mcscript.data.Config import Config
-from src.mcscript.lang.Resource.AddressResource import AddressResource
-from src.mcscript.lang.Resource.ResourceBase import Resource
+from src.mcscript.lang.resource.AddressResource import AddressResource
+from src.mcscript.lang.resource.base.ResourceBase import Resource
 from src.mcscript.utils.Address import Address
 from src.mcscript.utils.Datapack import Datapack
 from src.mcscript.utils.FileStructure import FileStructure
@@ -48,11 +48,11 @@ class CompileState:
             return value
         return self.toResource(self.compileFunction(value))
 
-    def pushBlock(self) -> AddressResource:
+    def pushBlock(self, blockName: str = None, namespaceType: NamespaceType = NamespaceType.BLOCK) -> AddressResource:
         """ creates a new file and namespace and returns the block id."""
-        blockName = self.codeBlockStack.next()
+        blockName = blockName or self.codeBlockStack.next()
         self.fileStructure.pushFile(blockName)
-        self.pushStack(NamespaceType.BLOCK)
+        self.pushStack(namespaceType)
         return blockName
 
     def popBlock(self):
@@ -87,6 +87,7 @@ class CompileState:
     def pushStack(self, namespaceType: NamespaceType):
         namespace = Namespace(self.currentNamespace(), namespaceType)
         self.stack.append(namespace)
+        return namespace
 
     def getDebugLines(self, a, b):
         return self.code[a - 1].strip()

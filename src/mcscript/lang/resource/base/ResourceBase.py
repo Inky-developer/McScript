@@ -4,15 +4,16 @@ from abc import ABC, abstractmethod
 from inspect import isabstract
 from typing import TYPE_CHECKING, Type
 
-from src.mcscript.Exceptions import McScriptNameError
+from src.mcscript.Exceptions import McScriptNameError, McScriptTypeError
 from src.mcscript.compiler.NamespaceType import NamespaceType
-from src.mcscript.lang.Resource.ResourceType import ResourceType
+from src.mcscript.data.Commands import BinaryOperator
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
-    from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
-    from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
-    from src.mcscript.lang.Resource.NumberResource import NumberResource
-    from src.mcscript.lang.Resource.BooleanResource import BooleanResource
+    from src.mcscript.lang.resource.NbtAddressResource import NbtAddressResource
+    from src.mcscript.lang.resource.FixedNumberResource import FixedNumberResource
+    from src.mcscript.lang.resource.NumberResource import NumberResource
+    from src.mcscript.lang.resource.BooleanResource import BooleanResource
     from src.mcscript.compiler.CompileState import CompileState
 
 
@@ -45,7 +46,7 @@ class Resource(ABC):
                     cls.copy == Resource.copy
             ):
                 raise NotImplementedError(
-                    F"every subclass of Resource that does not require an inline function "
+                    F"every subclass of resource that does not require an inline function "
                     F"must implement 'createEmptyResource' and 'copy', {cls.__name__} does not."
                 )
             Resource._reference[cls.type()] = cls
@@ -195,11 +196,11 @@ class Resource(ABC):
 
     @abstractmethod
     def toNumber(self) -> int:
-        """ This Resource as a number. If not supported raise a TypeError."""
+        """ This resource as a number. If not supported raise a TypeError."""
 
     @abstractmethod
     def toString(self) -> str:
-        """ This Resource as a string. If not supported raise a TypeError"""
+        """ This resource as a string. If not supported raise a TypeError"""
 
 
 class ValueResource(Resource, ABC):
@@ -241,7 +242,7 @@ class ValueResource(Resource, ABC):
 
     @abstractmethod
     def typeCheck(self) -> bool:
-        """ return whether this is a legal value for this Resource"""
+        """ return whether this is a legal value for this resource"""
 
     def __eq__(self, other):
         return self.value == other.value
@@ -270,7 +271,9 @@ class ObjectResource(Resource, ABC):
         Returns the attribute with the given name
         @raises: McScriptNameError when the property does not exist
         """
-        raise McScriptNameError(f"Property {name} does not exist for {type(self)}.")
+        if name not in self.namespace:
+            raise McScriptNameError(f"Property {name} does not exist for {type(self)}.")
+        return self.namespace[name]
 
     def setAttribute(self, compileState: CompileState, name: str, value: Resource) -> Resource:
         self.namespace[name] = value

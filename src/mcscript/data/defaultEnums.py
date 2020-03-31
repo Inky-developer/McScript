@@ -2,8 +2,8 @@ from typing import Optional
 
 from src.mcscript.data.minecraftData import biomes, features
 from src.mcscript.data.minecraftData.blocks import Blocks
-from src.mcscript.lang.Resource.EnumResource import EnumResource
-from src.mcscript.lang.Resource.NumberResource import NumberResource
+from src.mcscript.lang.resource.EnumResource import EnumResource
+from src.mcscript.lang.resource.NumberResource import NumberResource
 
 
 def makeBlocks() -> EnumResource:

@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptArgumentsError
-from src.mcscript.lang.Resource.ResourceBase import Resource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
 from src.mcscript.lang.builtins.builtins import BuiltinFunction
+from src.mcscript.lang.resource.base.ResourceBase import Resource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState

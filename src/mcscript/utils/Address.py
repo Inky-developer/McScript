@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from src.mcscript.lang.Resource.AddressResource import AddressResource
+from src.mcscript.lang.resource.AddressResource import AddressResource
 
 
 class Address:

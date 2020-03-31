@@ -1,9 +1,9 @@
 from src.mcscript import CompileState
 from src.mcscript.compiler import Namespace
-from src.mcscript.lang.Resource.BooleanResource import BooleanResource
-from src.mcscript.lang.Resource.FunctionResource import Function
-from src.mcscript.lang.Resource.ResourceBase import ObjectResource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
+from src.mcscript.lang.resource.BooleanResource import BooleanResource
+from src.mcscript.lang.resource.base.FunctionResource import FunctionResource
+from src.mcscript.lang.resource.base.ResourceBase import ObjectResource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 
 class MethodResource(ObjectResource):
@@ -11,7 +11,7 @@ class MethodResource(ObjectResource):
     A bound function
     """
 
-    def __init__(self, function: Function):
+    def __init__(self, function: FunctionResource):
         super().__init__()
         self.function = function
 

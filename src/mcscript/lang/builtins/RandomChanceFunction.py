@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptArgumentsError, McScriptTypeError
 from src.mcscript.data.Commands import Command, ExecuteCommand, multiple_commands
 from src.mcscript.data.predicates.RandomChancePredicate import RandomChancePredicate
-from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
-from src.mcscript.lang.Resource.ResourceBase import Resource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
-from src.mcscript.lang.builtins.builtins import CachedFunction, FunctionResult
+from src.mcscript.lang.builtins.builtins import CachedFunction
+from src.mcscript.lang.resource.FixedNumberResource import FixedNumberResource
+from src.mcscript.lang.resource.base.ResourceBase import Resource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState
@@ -37,7 +37,7 @@ class RandomChanceFunction(CachedFunction):
     def returnType(self) -> ResourceType:
         return ResourceType.BOOLEAN
 
-    def generate(self, compileState: CompileState, *parameters: Resource) -> Union[str, FunctionResult]:
+    def generate(self, compileState: CompileState, *parameters: Resource) -> str:
         if len(parameters) > 1:
             raise McScriptArgumentsError(f"Function randomChance expected exactly one argument, got {len(parameters)}")
 
@@ -64,13 +64,14 @@ class RandomChanceFunction(CachedFunction):
         predicate, = RandomChancePredicate(number).generate(filestructure)
 
         # execute if the predicate succeeds
+        stack = compileState.config.RETURN_SCORE
         return multiple_commands(
             Command.SET_VALUE(
-                stack=compileState.config.RETURN_SCORE,
+                stack=stack,
                 value=0
             ),
             Command.EXECUTE(
                 sub=ExecuteCommand.IF_PREDICATE(predicate=predicate),
-                command=Command.SET_VALUE(stack=compileState.config.RETURN_SCORE, value=1)
+                command=Command.SET_VALUE(stack=stack, value=1)
             )
         )

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import Union, Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptArgumentsError
 from src.mcscript.data.Commands import Command, ExecuteCommand, multiple_commands
-from src.mcscript.lang.Resource.ResourceBase import Resource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
-from src.mcscript.lang.builtins.builtins import CachedFunction, FunctionResult
+from src.mcscript.lang.builtins.builtins import CachedFunction
+from src.mcscript.lang.resource.base.ResourceBase import Resource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState
@@ -23,7 +23,7 @@ class GetBiomeFunction(CachedFunction):
     def returnType(self) -> ResourceType:
         return ResourceType.NUMBER
 
-    def generate(self, compileState: CompileState, *parameters: Resource) -> Union[str, FunctionResult]:
+    def generate(self, compileState: CompileState, *parameters: Resource) -> str:
         if parameters:
             raise McScriptArgumentsError("Function getBiome expected no arguments.")
 

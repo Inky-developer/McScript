@@ -144,8 +144,6 @@ class Command(StringEnum):
         "{:Storage.VARS}.{var} {type:int} {scale:1} run {command}"
     SET_VALUE_FROM = "execute store result score {stack} {name} run {command}"
 
-    SET_RETURN_VALUE = "scoreboard players operation {:Config.currentConfig.RETURN_SCORE} {name} = {stack} {name}"
-
     # calls a function
     RUN_FUNCTION = "function {name}:{function}"
 

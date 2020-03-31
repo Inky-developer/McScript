@@ -18,8 +18,19 @@ run for @a print(c.real)
 """
 
 code_temp = """
-a = blocks.stone
-blocks.test = 1
+struct Modifiable {
+    a: Number
+}
+
+inline fun doSomething(a: Number, b: Modifiable) -> Null {
+    ++a
+    b.a += 1
+}
+
+m = Modifiable(1)
+a = 1
+doSomething(a, m)
+run for @a print(a, m.a)
 """
 
 if __name__ == '__main__':

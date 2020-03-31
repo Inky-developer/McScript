@@ -14,7 +14,8 @@ statement: declaration statement_separator?
 
 statement_separator: /\n|;/
 
-function_definition: "fun " IDENTIFIER parameter_list "->" IDENTIFIER block
+function_definition: [ /\binline\b/ ] /\bfun\b/ IDENTIFIER parameter_list "->" IDENTIFIER block
+
 block: "{" statement* "}"
      | statement
 function_block: "{" ( function_value "," )* function_value? "->" statement+ "}"
@@ -26,7 +27,7 @@ function_call: accessor "(" (function_value "," )* function_value? ")"
 variable_declaration: [/\bconst\b/] IDENTIFIER ":" IDENTIFIER
 declaration: accessor "=" expression //Todo
 const_declaration: "const " declaration
-term_ip: IDENTIFIER ("." IDENTIFIER)* (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression //ToDo
+term_ip: accessor (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression //ToDo
 
 expression: comparison
           | term

@@ -4,16 +4,16 @@ from typing import TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptTypeError
 from src.mcscript.data.Commands import Command, BinaryOperator, multiple_commands, Struct, ExecuteCommand
-from src.mcscript.lang.Resource.AddressResource import AddressResource
-from src.mcscript.lang.Resource.FixedNumberResource import FixedNumberResource
-from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
-from src.mcscript.lang.Resource.ResourceBase import ValueResource, Resource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
+from src.mcscript.lang.resource.AddressResource import AddressResource
+from src.mcscript.lang.resource.FixedNumberResource import FixedNumberResource
+from src.mcscript.lang.resource.NbtAddressResource import NbtAddressResource
+from src.mcscript.lang.resource.base.ResourceBase import ValueResource, Resource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState
-    from src.mcscript.lang.Resource.NumberVariableResource import NumberVariableResource
-    from src.mcscript.lang.Resource.BooleanResource import BooleanResource
+    from src.mcscript.lang.resource.NumberVariableResource import NumberVariableResource
+    from src.mcscript.lang.resource.BooleanResource import BooleanResource
 
 
 class NumberResource(ValueResource):
@@ -63,7 +63,7 @@ class NumberResource(ValueResource):
 
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         """ return True if the value of this resource does not match 0"""
-        from src.mcscript.lang.Resource.BooleanResource import BooleanResource
+        from src.mcscript.lang.resource.BooleanResource import BooleanResource
         if self.isStatic:
             return BooleanResource.FALSE if self.value == 0 else BooleanResource.TRUE
 
@@ -86,7 +86,7 @@ class NumberResource(ValueResource):
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> NumberVariableResource:
         """ Load a number from a scoreboard (NumberResource) to a scoreboard (this)"""
-        from src.mcscript.lang.Resource.NumberVariableResource import NumberVariableResource
+        from src.mcscript.lang.resource.NumberVariableResource import NumberVariableResource
 
         if self.hasStaticValue:
             compileState.writeline(Command.SET_VARIABLE(
@@ -177,7 +177,7 @@ class NumberResource(ValueResource):
 
     @classmethod
     def createEmptyResource(cls, identifier: str, compileState: CompileState) -> Resource:
-        from src.mcscript.lang.Resource.NumberVariableResource import NumberVariableResource
+        from src.mcscript.lang.resource.NumberVariableResource import NumberVariableResource
         return compileState.currentNamespace().addVar(identifier, NumberVariableResource)
 
     # noinspection PyShadowingNames

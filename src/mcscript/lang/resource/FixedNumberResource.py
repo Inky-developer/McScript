@@ -4,16 +4,16 @@ from typing import Union, TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptTypeError
 from src.mcscript.data.Commands import Command, Struct, BinaryOperator, multiple_commands, ExecuteCommand
-from src.mcscript.lang.Resource.AddressResource import AddressResource
-from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
-from src.mcscript.lang.Resource.ResourceBase import ValueResource, Resource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
+from src.mcscript.lang.resource.AddressResource import AddressResource
+from src.mcscript.lang.resource.NbtAddressResource import NbtAddressResource
+from src.mcscript.lang.resource.base.ResourceBase import ValueResource, Resource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
-    from src.mcscript.lang.Resource.BooleanResource import BooleanResource
-    from src.mcscript.lang.Resource.NumberResource import NumberResource
+    from src.mcscript.lang.resource.BooleanResource import BooleanResource
+    from src.mcscript.lang.resource.NumberResource import NumberResource
     from src.mcscript import CompileState
-    from src.mcscript.lang.Resource.FixedNumberVariableResource import FixedNumberVariableResource
+    from src.mcscript.lang.resource.FixedNumberVariableResource import FixedNumberVariableResource
 
 
 class FixedNumberResource(ValueResource):
@@ -48,7 +48,7 @@ class FixedNumberResource(ValueResource):
         return FixedNumberResource(int(round(number * cls.BASE)), True)
 
     def convertToNumber(self, compileState: CompileState) -> NumberResource:
-        from src.mcscript.lang.Resource.NumberResource import NumberResource
+        from src.mcscript.lang.resource.NumberResource import NumberResource
         if self.isStatic:
             return NumberResource(self.value // self.BASE, True)
 
@@ -67,7 +67,7 @@ class FixedNumberResource(ValueResource):
 
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         """ return True if the value of this resource does not match 0"""
-        from src.mcscript.lang.Resource.BooleanResource import BooleanResource
+        from src.mcscript.lang.resource.BooleanResource import BooleanResource
         if self.isStatic:
             return BooleanResource.FALSE if self.value == 0 else BooleanResource.TRUE
 
@@ -89,7 +89,7 @@ class FixedNumberResource(ValueResource):
         return BooleanResource(stack, False)
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> FixedNumberVariableResource:
-        from src.mcscript.lang.Resource.FixedNumberVariableResource import FixedNumberVariableResource
+        from src.mcscript.lang.resource.FixedNumberVariableResource import FixedNumberVariableResource
 
         if self.isStatic:
             compileState.writeline(Command.SET_VARIABLE(
@@ -287,5 +287,5 @@ class FixedNumberResource(ValueResource):
 
     @classmethod
     def createEmptyResource(cls, identifier: str, compileState: CompileState) -> Resource:
-        from src.mcscript.lang.Resource.FixedNumberVariableResource import FixedNumberVariableResource
+        from src.mcscript.lang.resource.FixedNumberVariableResource import FixedNumberVariableResource
         return compileState.currentNamespace().addVar(identifier, FixedNumberVariableResource)

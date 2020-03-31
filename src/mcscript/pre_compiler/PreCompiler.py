@@ -3,9 +3,9 @@ from typing import Dict
 from lark import Transformer, Token, v_args, Tree, Discard
 from more_itertools import partition
 
-from src.mcscript.lang.Resource.EnumResource import EnumResource
-from src.mcscript.lang.Resource.NumberResource import NumberResource
-from src.mcscript.lang.Resource.ResourceBase import Resource
+from src.mcscript.lang.resource.EnumResource import EnumResource
+from src.mcscript.lang.resource.NumberResource import NumberResource
+from src.mcscript.lang.resource.base.ResourceBase import Resource
 
 
 class PreCompiler(Transformer):
@@ -29,7 +29,7 @@ class PreCompiler(Transformer):
     #     return StringResource(str(token)[1:-1], True)
     #
     # def DATATYPE(self, token):
-    #     return Resource.getResourceClass(ResourceType(token.value))
+    #     return resource.getResourceClass(ResourceType(token.value))
 
     # def signed_value(self, token):
     #     sign, token = token
@@ -49,7 +49,7 @@ class PreCompiler(Transformer):
     #         raise McScriptTypeError("Unknown type of value", token)
     #     elif isinstance(token, numbers.Number):
     #         return NumberResource(token, True)
-    #     elif isinstance(token, Resource):
+    #     elif isinstance(token, resource):
     #         return token
     #     return self.transform(token)
 

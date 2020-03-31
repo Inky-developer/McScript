@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptNameError, McScriptArgumentsError
-from src.mcscript.lang.Resource.BooleanResource import BooleanResource
-from src.mcscript.lang.Resource.NumberResource import NumberResource
-from src.mcscript.lang.Resource.ResourceBase import ObjectResource, Resource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
-from src.mcscript.lang.Resource.StringResource import StringResource
+from src.mcscript.lang.resource.BooleanResource import BooleanResource
+from src.mcscript.lang.resource.NumberResource import NumberResource
+from src.mcscript.lang.resource.StringResource import StringResource
+from src.mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState

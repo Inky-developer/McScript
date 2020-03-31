@@ -4,13 +4,13 @@ from typing import Union, TYPE_CHECKING
 
 from src.mcscript.Exceptions import McScriptArgumentsError
 from src.mcscript.data.Commands import multiple_commands, Command, ExecuteCommand
-from src.mcscript.data.Config import Config
 from src.mcscript.data.minecraftData.blocks import Blocks
-from src.mcscript.lang.Resource.NumberResource import NumberResource
-from src.mcscript.lang.Resource.ResourceBase import Resource, ValueResource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
-from src.mcscript.lang.Resource.StringResource import StringResource
 from src.mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
+from src.mcscript.lang.resource.BooleanResource import BooleanResource
+from src.mcscript.lang.resource.NumberResource import NumberResource
+from src.mcscript.lang.resource.StringResource import StringResource
+from src.mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState
@@ -52,40 +52,50 @@ class SetBlockFunction(BuiltinFunction):
 
         if isinstance(block, ValueResource) and block.hasStaticValue:
             try:
-                return self.generate_static(compileState.config, block.toNumber(), x, y, z)
+                return self.generate_static(compileState, block.toNumber(), x, y, z)
             except TypeError:
                 pass
         self.shouldGenerate = True
-        return self.generate_dynamic(compileState.config, block.load(compileState), x, y, z)
+        return self.generate_dynamic(compileState, block.load(compileState), x, y, z)
 
-    def generate_dynamic(self, config: Config, block: Resource, x: str, y: str, z: str) -> str:
-        return multiple_commands(
-            Command.SET_VALUE_EQUAL(
-                stack=config.BLOCK_SCORE,
-                stack2=block
-            ),
-            Command.EXECUTE(
-                sub=ExecuteCommand.POSITIONED(
-                    x=x,
-                    y=y,
-                    z=z
+    def generate_dynamic(self, compileState: CompileState, block: Resource, x: str, y: str, z: str) -> FunctionResult:
+        stack = compileState.expressionStack.next()
+        return FunctionResult(
+            multiple_commands(
+                Command.SET_VALUE_EQUAL(
+                    stack=compileState.config.BLOCK_SCORE,
+                    stack2=block
                 ),
-                command=Command.RUN_FUNCTION(
-                    name=config.UTILS,
-                    function="set_block.0"
+                Command.EXECUTE(
+                    sub=ExecuteCommand.POSITIONED(
+                        x=x,
+                        y=y,
+                        z=z
+                    ),
+                    command=Command.RUN_FUNCTION(
+                        name=compileState.config.UTILS,
+                        function="set_block.0"
+                    )
+                ),
+                Command.SET_VALUE_FROM(
+                    stack=stack,
+                    command=Command.GET_SCOREBOARD_VALUE(stack=compileState.config.RETURN_SCORE)
                 )
-            )
+            ), BooleanResource(stack, False)
         )
 
-    def generate_static(self, config: Config, block: int, x: str, y: str, z: str) -> str:
-        return multiple_commands(
-            Command.SET_VALUE_FROM(
-                stack=config.RETURN_SCORE,
-                command=Command.SET_BLOCK(
-                    x=x,
-                    y=y,
-                    z=z,
-                    block=Blocks.getBlockstateIndexed(block).getMinecraftName()
+    def generate_static(self, compileState: CompileState, block: int, x: str, y: str, z: str) -> FunctionResult:
+        stack = compileState.expressionStack.next()
+        return FunctionResult(
+            multiple_commands(
+                Command.SET_VALUE_FROM(
+                    stack=stack,
+                    command=Command.SET_BLOCK(
+                        x=x,
+                        y=y,
+                        z=z,
+                        block=Blocks.getBlockstateIndexed(block).getMinecraftName()
+                    )
                 )
-            )
+            ), BooleanResource(stack, False)
         )

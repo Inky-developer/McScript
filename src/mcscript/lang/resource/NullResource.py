@@ -1,7 +1,7 @@
 from typing import Any
 
-from src.mcscript.lang.Resource.ResourceBase import ValueResource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
+from src.mcscript.lang.resource.base.ResourceBase import ValueResource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 
 class NullResource(ValueResource):

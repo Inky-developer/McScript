@@ -3,11 +3,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from src.mcscript.lang.Resource.NullResource import NullResource
-from src.mcscript.lang.Resource.ResourceBase import Resource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
 from src.mcscript.lang.ResourceTextFormatter import PrintCommand, ResourceTextFormatter
 from src.mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
+from src.mcscript.lang.resource.NullResource import NullResource
+from src.mcscript.lang.resource.base.ResourceBase import Resource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState

@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import Union, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict
 
 from src.mcscript.Exceptions import McScriptArgumentsError
 from src.mcscript.data.Commands import Command, ExecuteCommand, multiple_commands
 from src.mcscript.data.minecraftData import features
 from src.mcscript.data.minecraftData.features import Feature
-from src.mcscript.lang.Resource.ResourceBase import Resource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
-from src.mcscript.lang.builtins.builtins import CachedFunction, FunctionResult
+from src.mcscript.lang.builtins.builtins import CachedFunction
+from src.mcscript.lang.resource.base.ResourceBase import Resource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState
@@ -29,7 +29,7 @@ class IsFeatureFunction(CachedFunction):
     def returnType(self) -> ResourceType:
         return ResourceType.BOOLEAN
 
-    def generate(self, compileState: CompileState, *parameters: Resource) -> Union[str, FunctionResult]:
+    def generate(self, compileState: CompileState, *parameters: Resource) -> str:
         if len(parameters) != 1:
             raise McScriptArgumentsError("Function getBiome expected exactly one argument.")
         try:

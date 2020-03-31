@@ -5,9 +5,9 @@ from string import Formatter
 from typing import Tuple, TYPE_CHECKING, Optional
 
 from src.mcscript.compiler import Namespace
-from src.mcscript.lang.Resource.BooleanResource import BooleanResource
-from src.mcscript.lang.Resource.ResourceBase import ValueResource
-from src.mcscript.lang.Resource.ResourceType import ResourceType
+from src.mcscript.lang.resource.BooleanResource import BooleanResource
+from src.mcscript.lang.resource.base.ResourceBase import ValueResource
+from src.mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from src.mcscript import CompileState

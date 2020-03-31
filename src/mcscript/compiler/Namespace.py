@@ -3,13 +3,17 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING, Union, Type
 
 from src.mcscript.compiler.NamespaceType import NamespaceType
-from src.mcscript.lang.Resource.NbtAddressResource import NbtAddressResource
-from src.mcscript.lang.Resource.ResourceBase import Resource, ValueResource
 from src.mcscript.lang.builtins.builtins import BuiltinFunction
+from src.mcscript.lang.resource.NbtAddressResource import NbtAddressResource
+from src.mcscript.lang.resource.NullResource import NullResource
+from src.mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from src.mcscript.utils.NamespaceBase import NamespaceBase
 
 if TYPE_CHECKING:
-    from src.mcscript.lang.Resource.FunctionResource import Function
+    pass
+from src.mcscript.lang.resource.base.FunctionResource import FunctionResource
+
+AnyFunction = Union[FunctionResource, BuiltinFunction]
 
 
 class Namespace(NamespaceBase[Resource]):
@@ -18,7 +22,7 @@ class Namespace(NamespaceBase[Resource]):
         self.variableFmt = f"{self.index}_{{}}" if self.index != 0 else "{}"
 
         self.namespaceType = namespaceType
-        self.returnedResource: Optional[Resource] = None
+        self.returnedResource: Resource = NullResource()
 
     def setPredecessor(self, predecessor: NamespaceBase):
         super().setPredecessor(predecessor)
@@ -51,5 +55,5 @@ class Namespace(NamespaceBase[Resource]):
     def __setitem__(self, key, value):
         self.namespace[key] = value
 
-    def addFunction(self, function: Union[Function, BuiltinFunction]):
+    def addFunction(self, function: AnyFunction):
         self.namespace[function.name()] = function
