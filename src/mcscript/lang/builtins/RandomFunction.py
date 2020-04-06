@@ -29,8 +29,8 @@ class RandomFunction(CachedFunction):
             raise McScriptArgumentsError("Invalid number of arguments: Expected <[bits]>")
         # noinspection PyTypeChecker
         bits = int(parameters[0]) if parameters else 31
-        if 0 >= bits > 31:
-            raise McScriptArgumentsError("Invalid value for parameter <bits>: Must be 1 <= <bits> <= 31")
+        if not 0 <= bits < 32:
+            raise McScriptArgumentsError("Invalid value for parameter <bits>: Must be 0 <= <bits> <= 31")
         statements: List[str] = []
 
         stack = compileState.config.RETURN_SCORE

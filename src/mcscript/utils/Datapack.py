@@ -82,7 +82,7 @@ class Directory:
         base.mkdir(exist_ok=True)
         for file in self.fileStructure.subFiles:
             # noinspection PyTypeChecker
-            with open(base.joinpath(self.getFileName(name, file)), "w") as f:
+            with open(base.joinpath(self.getFileName(name, file)), "w", encoding="utf-8") as f:
                 f.write(self.fileStructure.subFiles[file].getvalue())
 
         for directory in self.subDirectories:

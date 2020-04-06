@@ -21,6 +21,9 @@ class TextFunction(BuiltinFunction, ABC):
     def returnType(self) -> ResourceType:
         return ResourceType.NULL
 
+    def requireRawParameters(self) -> bool:
+        return True
+
     def generate(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
         return FunctionResult(
             ResourceTextFormatter(compileState).createCommandFromResources(self.getCommand(), *parameters),

@@ -42,9 +42,9 @@ class InlineFunctionResource(FunctionResource):
         for child in self.block.children:
             compileState.compileFunction(child)
 
-        if namespace.returnedResource.type() != self.returnType.value.type():
-            raise McScriptTypeError(f"Function {self.name()} should return {self.returnType.type().value}, "
-                                    f"but returned {namespace.returnedResource.type().value}")
+        if not compareTypes(namespace.returnedResource, self.returnType.value):
+            raise McScriptTypeError(f"Function {self.name()} should return {self.returnType.type().name}, "
+                                    f"but returned {namespace.returnedResource.type().name}")
 
         compileState.popStack()
         return namespace.returnedResource

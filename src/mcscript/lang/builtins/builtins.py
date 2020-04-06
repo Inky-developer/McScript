@@ -44,6 +44,13 @@ class BuiltinFunction(ABC):
         result = self._makeResult(self.generate(compileState, *parameters), compileState)
         return result
 
+    def requireRawParameters(self) -> bool:
+        """
+        Whether this builtin requires "raw" parameters. Raw parameters are not getting loaded and can be variables.
+        (lvalues)
+        """
+        return False
+
     @classmethod
     def load(cls, compiler: Compiler):
         for function in cls.functions:

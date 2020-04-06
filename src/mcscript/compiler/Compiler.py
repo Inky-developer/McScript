@@ -20,6 +20,7 @@ from src.mcscript.lang.resource.DefaultFunctionResource import DefaultFunctionRe
 from src.mcscript.lang.resource.InlineFunctionResource import InlineFunctionResource
 from src.mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from src.mcscript.lang.resource.NullResource import NullResource
+from src.mcscript.lang.resource.StructMethodResource import StructMethodResource
 from src.mcscript.lang.resource.StructResource import StructResource
 from src.mcscript.lang.resource.TypeResource import TypeResource
 from src.mcscript.lang.resource.base.FunctionResource import Parameter
@@ -55,8 +56,12 @@ class Compiler(Interpreter):
     def value(self, tree):
         """ a value is a simple token or expression that can be converted to a resource"""
         value = tree.children[0]
+
         if isinstance(value, Tree):
-            return self.visit(value)
+            ret = self.visit(value)
+            if value.data == "accessor":
+                return ret[-1]
+            return ret
         elif isinstance(value, Token):
             return convertToken(value, self.compileState)
         raise McScriptNameError(f"Invalid value: {value}", value)
@@ -64,6 +69,7 @@ class Compiler(Interpreter):
     def accessor(self, tree):
         """
         a variable or a list of dot separated names like a.b.c will be loaded here.
+        :returns: a list of all objects that were accessed
         """
         ret, *values = tree.children
         if ret not in self.compileState.currentNamespace():
@@ -71,12 +77,13 @@ class Compiler(Interpreter):
                 self.compileState.stack[0][ret] = result
             else:
                 raise McScriptNameError(f"Unknown variable: {ret}", ret)
-        ret = self.compileState.currentNamespace()[ret]
+
+        accessed = [self.compileState.currentNamespace()[ret]]
         for value in values:
-            if not isinstance(ret, ObjectResource):
-                raise McScriptTypeError(f"Cannot access property {value} of {type(ret)}", tree)
-            ret = ret.getAttribute(value)
-        return ret
+            if not isinstance(accessed[-1], ObjectResource):
+                raise McScriptTypeError(f"Cannot access property {value} of {accessed[-1].type().name}", tree)
+            accessed.append(accessed[-1].getAttribute(value))
+        return accessed
 
     def propertySetter(self, tree):
         identifier, value = tree.children
@@ -89,6 +96,7 @@ class Compiler(Interpreter):
         for i in rest[:-1]:
             if not isinstance(obj, ObjectResource):
                 raise McScriptTypeError(f"resource {obj} must be an object!", tree)
+
             obj = obj.getAttribute(i)
 
         attribute = rest[-1]
@@ -270,11 +278,14 @@ class Compiler(Interpreter):
         return self.visit(term)
 
     def comparison(self, tree):
+        # ToDo: comparison code is awful currently.
+        # ToDo: Also it must be more efficient (double copying of values)
         left, operator, right = tree.children
-        addr_left = self.compileState.load(left)
+        addr_left = self.compileState.load(left).copyUnlessStatic(AddressResource(".compLeft", True), self.compileState)
         if not isinstance(addr_left, ValueResource):
             raise McScriptTypeError("left comparison term must be a valueResource", tree)
-        addr_right = self.compileState.load(right)
+        addr_right = self.compileState.load(right).copyUnlessStatic(AddressResource(".compRight", True),
+                                                                    self.compileState)
         if not isinstance(addr_right, ValueResource):
             raise McScriptTypeError("right comparison term must be a valueResource", tree)
         relation = Relation.get(operator.type)
@@ -347,12 +358,18 @@ class Compiler(Interpreter):
             # create a new stack value
             stack = NbtAddressResource(self.compileState.currentNamespace().variableFmt.format(identifier))
         try:
-            # if the value is a variable, they cannot share the same stack
-            if not isinstance(stack, (NbtAddressResource, AddressResource)):
-                # if a variable is replaced, copy the resource to the variable
-                var = value.copy(stack.value, self.compileState)
-            else:
-                var = value.load(self.compileState).storeToNbt(stack, self.compileState)
+            # if isinstance(value, ObjectResource):
+            #     var = value
+            # elif not isinstance(stack, (NbtAddressResource, AddressResource)):
+            #     # if a variable is replaced, copy the resource to the variable
+            #     var = value.copy(stack.value, self.compileState)
+            # else:
+            if not isinstance(stack, (AddressResource, NbtAddressResource)):
+                if isinstance(stack, ValueResource):
+                    stack = stack.value
+                else:
+                    raise Exception("Why did this happen?")
+            var = value.load(self.compileState).storeToNbt(stack, self.compileState)
         except TypeError as e:
             var = value
             warnings.warn(
@@ -381,7 +398,7 @@ class Compiler(Interpreter):
     def term_ip(self, tree):
         variable, operator, resource = tree.children
         resource = self.compileState.load(resource)
-        varResource = self.visit(variable)
+        *_, varResource = self.visit(variable)
         var = varResource.load(self.compileState)
         if var.isStatic:
             raise McScriptIsStaticError("Cannot modify a static variable", tree)
@@ -505,7 +522,9 @@ class Compiler(Interpreter):
 
     def function_definition(self, tree):
         *inline, _, function_name, parameter_list, return_type, block = tree.children
-        inline = bool(inline)
+        # a function will be inlined if so specified or if it is declared in a struct scope.
+        isMethod = self.compileState.currentNamespace().namespaceType == NamespaceType.STRUCT
+        inline = bool(inline) or isMethod
 
         parameter_list = [self.visit(i) for i in parameter_list.children]
         return_type = TypeResource(convertToken(return_type, self.compileState), True)
@@ -516,13 +535,16 @@ class Compiler(Interpreter):
         if not inline:
             return self.function_definition_normal(function_name, parameter_list, return_type, block)
 
-        return self.function_definition_inline(function_name, parameter_list, return_type, block)
+        return self.function_definition_inline(function_name, parameter_list, return_type, block, isMethod)
 
     def function_definition_inline(self, function_name: str, parameter_list: List[Parameter], return_type: TypeResource,
-                                   block: Tree):
+                                   block: Tree, isMethod: bool):
         if function_name in defaultCode.MAGIC_FUNCTIONS:
             raise McScriptSyntaxError("Special functions must not be inlined")
-        function = InlineFunctionResource(function_name, parameter_list, return_type, block)
+
+        FunctionCls = StructMethodResource if isMethod else InlineFunctionResource
+
+        function = FunctionCls(function_name, parameter_list, return_type, block)
         self.compileState.currentNamespace().addFunction(function)
 
     def function_definition_normal(self, function_name: str, parameter_list: List[Parameter], return_type: TypeResource,
@@ -544,7 +566,8 @@ class Compiler(Interpreter):
         return self.compileState.toResource(value)
 
     def builtinFunction(self, function: BuiltinFunction, *parameters: Resource):
-        parameters = [self.compileState.load(i) for i in parameters]
+        loadFunction = self.compileState.load if not function.requireRawParameters() else self.compileState.toResource
+        parameters = [loadFunction(i) for i in parameters]
         try:
             result = function.create(self.compileState, *parameters)
             if result.code:
@@ -562,12 +585,18 @@ class Compiler(Interpreter):
 
     def function_call(self, tree):
         function_name, *parameters = tree.children
-        function = self.visit(function_name)
+        *accessed_objects, function = self.visit(function_name)
         if isinstance(function, BuiltinFunction):
             return self.builtinFunction(function, *parameters)
+
+        visited_params = [self.visit(i) for i in parameters]
+
+        # a method will get the object as an argument
+        if isinstance(function, StructMethodResource):
+            return function.operation_call(self.compileState, accessed_objects[-1], *visited_params)
         # any object that implements the call operator can be called. This of course includes function resources.
         try:
-            return function.operation_call(self.compileState, *[self.visit(i) for i in parameters])
+            return function.operation_call(self.compileState, *visited_params)
         except TypeError:
             raise McScriptTypeError(f"The resource {repr(function)} can not be treated like a function")
 
@@ -616,7 +645,7 @@ class Compiler(Interpreter):
         self.compileState.writeline(f"# {self.compileState.getDebugLines(tree.meta.line, tree.meta.end_line)}")
         res = self.visit_children(tree)
         # # now clear up the expression counter geht doch nicht so einfach
-        # self.compileState.expressionStack.reset()
+        self.compileState.expressionStack.reset()
         # for readability
         self.compileState.writeline()
         return res

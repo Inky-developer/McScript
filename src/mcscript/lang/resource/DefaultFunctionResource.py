@@ -29,8 +29,9 @@ class DefaultFunctionResource(FunctionResource):
         super().__init__(name, parameters, returnType, block)
         self.blockName: Optional[str] = None
         self.parameterStack: Dict[str, AddressResource] = {}
+        self.stackName = 0
         # the actual resource pointing to the result of this function
-        self.returnValue: Resource = NullResource()
+        self.returnValue: ValueResource = NullResource()
 
     def compile(self, compileState: CompileState):
         blockName = self.blockName = self.name() if self.canUseOwnName(compileState) else \
@@ -44,8 +45,8 @@ class DefaultFunctionResource(FunctionResource):
 
         self.returnValue = compileState.currentNamespace().returnedResource
         if self.returnValue.type() != self.returnType.value.type():
-            raise McScriptTypeError(f"{repr(self)} should return {self.returnType.type().value} "
-                                    f"but returned {self.returnValue.type().value}")
+            raise McScriptTypeError(f"{repr(self)} should return {self.returnType.value.type().name} "
+                                    f"but returned {self.returnValue.type().name}")
 
         # leave the signature as a comment
         signature = f"# fun {self.name()}({{}}) -> {{}}"
@@ -70,8 +71,8 @@ class DefaultFunctionResource(FunctionResource):
 
             if parameter.type() != pType.value.type():
                 raise McScriptArgumentsError(
-                    f"{repr(self)} got argument {parameter} with invalid type {parameter.type().value}, "
-                    f"expected {pType.type().value}"
+                    f"{repr(self)} got argument {parameter} with invalid type {parameter.type().name}, "
+                    f"expected {pType.value.type().name}"
                 )
 
             # copy the parameters value to the namespace
@@ -86,7 +87,14 @@ class DefaultFunctionResource(FunctionResource):
         # run the function
         compileState.writeline(Command.RUN_FUNCTION(function=self.blockName))
 
-        return self.returnValue
+        if self.returnValue.isStatic:
+            return self.returnValue
+
+        # make sure to use a correct stack. Otherwise values could be overridden accidentally
+        # if a function has return stack .exp0 it should be transferred to whatever is in the current context
+        # the stack value
+        stack = compileState.expressionStack.next()
+        return self.returnValue.copy(stack, compileState) if self.returnValue.value != stack else self.returnValue
 
     def canUseOwnName(self, compileState: CompileState) -> bool:
         """

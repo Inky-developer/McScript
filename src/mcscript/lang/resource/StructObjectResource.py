@@ -36,8 +36,8 @@ class StructObjectResource(ObjectResource):
             value = compileState.load(value)
             if not isinstance(value, varType.value):
                 raise McScriptArgumentsError(
-                    f"Struct object {struct.name} got identifier {key} with invalid type {type(value)}, "
-                    f"expected type {varType.value}"
+                    f"Struct object {struct.name} got identifier {key} with invalid type {value.type().name}, "
+                    f"expected type {varType.value.type().name}"
                 )
             if not isinstance(value, ValueResource):
                 raise NotImplementedError
@@ -79,7 +79,10 @@ class StructObjectResource(ObjectResource):
         try:
             return self.namespace[name]
         except KeyError:
-            raise McScriptAttributeError(f"Invalid attribute {name} of {repr(self)}")
+            try:
+                return self.struct.getAttribute(name)
+            except KeyError:
+                raise McScriptAttributeError(f"Invalid attribute {name} of {repr(self)}")
 
     @staticmethod
     def type() -> ResourceType:

@@ -265,7 +265,7 @@ class FixedNumberResource(ValueResource):
 
         raise McScriptTypeError(f"Expected a type that can be converted to a fixed point number but got {repr(other)}")
 
-    def copy(self, target: ValueResource, compileState: CompileState):
+    def copy(self, target: ValueResource, compileState: CompileState) -> ValueResource:
         if not isinstance(target, AddressResource):
             if isinstance(target, NbtAddressResource):
                 # convert this to a variable at the given path

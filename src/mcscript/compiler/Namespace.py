@@ -7,6 +7,7 @@ from src.mcscript.lang.builtins.builtins import BuiltinFunction
 from src.mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from src.mcscript.lang.resource.NullResource import NullResource
 from src.mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
+from src.mcscript.utils.Address import Address
 from src.mcscript.utils.NamespaceBase import NamespaceBase
 
 if TYPE_CHECKING:
@@ -17,14 +18,19 @@ AnyFunction = Union[FunctionResource, BuiltinFunction]
 
 
 class Namespace(NamespaceBase[Resource]):
-    def __init__(self, previous: Optional[NamespaceBase] = None, namespaceType: NamespaceType = NamespaceType.OTHER):
+    def __init__(self, id: int, previous: Optional[Namespace] = None,
+                 namespaceType: NamespaceType = NamespaceType.OTHER):
         super().__init__(previous)
-        self.variableFmt = f"{self.index}_{{}}" if self.index != 0 else "{}"
+        self.id = id
+
+        self.variableFmt = f"{self.id}_{{}}" if self.id != 0 else "{}"
+
+        self.expressionStack = Address(f".exp_{self.id}_{{}}", previous.expressionStack.value if previous else 0)
 
         self.namespaceType = namespaceType
         self.returnedResource: Resource = NullResource()
 
-    def setPredecessor(self, predecessor: NamespaceBase):
+    def setPredecessor(self, predecessor: Namespace):
         super().setPredecessor(predecessor)
         self.variableFmt = f"{self.index}_{{}}" if self.index != 0 else "{}"
 

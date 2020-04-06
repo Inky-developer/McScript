@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from src.mcscript.lang.resource.NumberResource import NumberResource
     from src.mcscript.lang.resource.BooleanResource import BooleanResource
     from src.mcscript.compiler.CompileState import CompileState
+    from src.mcscript.compiler.Namespace import Namespace
 
 
 class Resource(ABC):
@@ -236,6 +237,9 @@ class ValueResource(Resource, ABC):
     def toString(self) -> str:
         return self.embed()
 
+    def copyUnlessStatic(self, target: ValueResource, compileState: CompileState):
+        return self if self.isStatic else self.copy(target, compileState)
+
     @abstractmethod
     def embed(self) -> str:
         """ return a string that can be embedded into a mc function"""
@@ -245,7 +249,7 @@ class ValueResource(Resource, ABC):
         """ return whether this is a legal value for this resource"""
 
     def __eq__(self, other):
-        return self.value == other.value
+        return isinstance(other, type(self)) and self.value == other.value
 
     def __hash__(self):
         return hash(self.value)
@@ -264,7 +268,7 @@ class ObjectResource(Resource, ABC):
     def __init__(self, namespace: Namespace = None):
         from src.mcscript.compiler.Namespace import Namespace
         # ToDo: is this correct?
-        self.namespace = namespace or Namespace(namespaceType=NamespaceType.STRUCT)
+        self.namespace = namespace or Namespace(0, namespaceType=NamespaceType.STRUCT)
 
     def getAttribute(self, name: str) -> Resource:
         """

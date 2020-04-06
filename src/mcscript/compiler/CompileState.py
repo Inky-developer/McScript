@@ -19,15 +19,24 @@ class CompileState:
         self.config = config
         self.datapack = Datapack(config)
 
-        self.expressionStack = Address(".exp{}")
         self.codeBlockStack = Address("block_{}")
         self.temporaryStorageStack = Address("temp.tmp{}")
 
-        self.stack: List[Namespace] = [Namespace(namespaceType=NamespaceType.GLOBAL)]
+        self.stack: List[Namespace] = [Namespace(0, namespaceType=NamespaceType.GLOBAL)]
+        self._namespaceId = 1
+
         self.namespaceTotal = 1
 
         self.fileStructure = self.datapack.getMainDirectory().getPath("functions").fileStructure
         self.lineCount = 0
+
+    @property
+    def expressionStack(self):
+        """
+        shortcut for expressionStack.currentNamespace().expressionStack.
+        Used by a lot of old code.
+        """
+        return self.currentNamespace().expressionStack
 
     def load(self, value: Resource) -> Resource:
         """
@@ -85,7 +94,11 @@ class CompileState:
         self.stack.pop()
 
     def pushStack(self, namespaceType: NamespaceType):
-        namespace = Namespace(self.currentNamespace(), namespaceType)
+        index = 0
+        if namespaceType in (NamespaceType.FUNCTION, NamespaceType.METHOD):
+            index = self._namespaceId
+            self._namespaceId += 1
+        namespace = Namespace(index, self.currentNamespace(), namespaceType)
         self.stack.append(namespace)
         return namespace
 

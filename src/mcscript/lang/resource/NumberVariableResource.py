@@ -44,6 +44,8 @@ class NumberVariableResource(ValueResource):
 
     def copy(self, target: ValueResource, compileState: CompileState) -> Resource:
         if not isinstance(target, NbtAddressResource):
+            if isinstance(target, AddressResource):
+                return self.load(compileState, target)
             raise RuntimeError(f"NumberVariableAddressResource expected NbtAddressResource, got {repr(target)}")
         compileState.writeline(Command.COPY_VARIABLE(
             address=target,
