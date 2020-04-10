@@ -1,0 +1,187 @@
+from __future__ import annotations
+
+from enum import Enum
+from inspect import isclass
+
+from mcscript.data.Config import Config
+from mcscript.utils.CommandFormatter import CommandFormatter
+
+
+class Storage(Enum):
+    NAME = "main"
+    VARS = "state.vars"
+    TEMP = "state.tempVal"
+
+    def __str__(self):
+        return self.value
+
+
+class Type(Enum):
+    BYTE = "byte"
+    DOUBLE = "double"
+    FLOAT = "float"
+    INT = "int"
+    LONG = "long"
+    SHORT = "short"
+
+    def __str__(self):
+        return self.value
+
+
+class StringEnum(Enum):
+    def __call__(self, **kwargs):
+        return stringFormat(self.value, **kwargs)
+
+
+class Selector(StringEnum):
+    CURRENT_ENTITY = "@s{filter}"
+    ALL_PLAYERS = "@a{filter}"
+    NEAREST_PLAYER = "@p{filter}"
+    ALL_ENTITIES = "@e{filter}"
+    RANDOM_PLAYER = "@r{filter}"
+
+    def filter(self, **kwargs) -> str:
+        ret = []
+        for key in kwargs:
+            ret.append(f"{key}={kwargs[key]}")
+        return self(filter=f"[{','.join(ret)}]")
+
+
+class Struct(StringEnum):
+    VAR = '{{"{var}":{value}}}'
+
+
+class ExecuteCommand(StringEnum):
+    """ Allows to create an execute command"""
+    AS = "as {target} {command}"
+    AT = "at {target} {command}"
+    POSITIONED = "positioned {x} {y} {z} {command}"
+    IF_SCORE_RANGE = "if score {stack} {name} matches {range} {command}"
+    IF_SCORE = "if score {stack} {name} {relation} {stack2} {name2} {command}"
+    UNLESS_SCORE = "unless score {stack} {name} {relation} {stack2} {name2} {command}"
+    UNLESS_SCORE_RANGE = "unless score {stack} {name} matches {range} {command}"
+    IF_BLOCK = "if block {x:~} {y:~} {z:~} {block} {command}"
+    IF_ENTITY = "if entity {target} {command}"
+    IF_PREDICATE = "if predicate {:Config.currentConfig.UTILS}:{predicate} {command}"
+
+
+class Relation(StringEnum):
+    EQUAL = "=", lambda a, b: a == b, lambda v: f"{v}"
+    NOT_EQUAL = "!=", lambda a, b: a != b, lambda v: f"{v}"
+    GREATER = ">", lambda a, b: a > b, lambda v: f"{v + 1}.."
+    GREATER_OR_EQUAL = ">=", lambda a, b: a >= b, lambda v: f"{v}.."
+    LESS = "<", lambda a, b: a < b, lambda v: f"..{v - 1}"
+    LESS_OR_EQUAL = "<=", lambda a, b: a <= b, lambda v: f"..{v}"
+
+    def __new__(cls, value, func, getRange):
+        obj = object.__new__(cls)
+        obj._value_ = value
+        obj.testRelation = func
+        obj.getRange = getRange
+        return obj
+
+    def swap(self) -> Relation:
+        """
+        swaps both values and returns the relation that is required to keep the value.
+
+        Examples:
+            a == b (=) b == a => Relation.EQUAL == Relation.EQUAL.swap()
+
+            a <= b (=) b >= a => Relation.GREATER_OR_EQUAL == Relation.LESS_OR_EQUAL.swap()
+        """
+        if self == Relation.EQUAL:
+            return Relation.EQUAL
+        elif self == Relation.NOT_EQUAL:
+            return Relation.NOT_EQUAL
+        elif self == Relation.LESS:
+            return Relation.GREATER
+        elif self == Relation.LESS_OR_EQUAL:
+            return Relation.GREATER_OR_EQUAL
+        elif self == Relation.GREATER:
+            return Relation.LESS
+        elif self == Relation.GREATER_OR_EQUAL:
+            return Relation.LESS_OR_EQUAL
+        raise ValueError("What am I?")
+
+    @classmethod
+    def get(cls, string):
+        """ In the grammar relations have the format VERIFY_..."""
+        return cls[string.split("VERIFY_")[-1]]
+
+
+class BinaryOperator(StringEnum):
+    PLUS = "+"
+    MINUS = "-"
+    TIMES = "*"
+    DIVIDE = "/"
+    MODULO = "%"
+
+
+class UnaryOperator(StringEnum):
+    MINUS = "-"
+    INCREMENT_ONE = "++"
+    DECREMENT_ONE = "--"
+
+
+class Command(StringEnum):
+    # sets a value to a scoreboard stack
+    SET_VALUE = "scoreboard players set {stack} {name} {value}"
+    SET_VALUE_EQUAL = "scoreboard players operation {stack} {name} = {stack2} {name2}"
+    # return a value from a scoreboard
+    GET_SCOREBOARD_VALUE = "scoreboard players get {stack} {name}"
+
+    # Does a binary operation with two scoreboard values
+    OPERATION = "scoreboard players operation {stack} {name} {operator}= {stack2} {name2}"
+    # simpler than OPERATION, can only add values
+    ADD_SCORE = "scoreboard players add {stack} {name} {value}"
+    REMOVE_SCORE = "scoreboard players remove {stack} {name} {value}"
+
+    # loads a variable from storage to a scoreboard
+    LOAD_VARIABLE = "execute store result score {stack} {name} run " \
+                    "data get storage {name2}:{:Storage.NAME} {:Storage.VARS}.{var} {scale:1}"
+
+    # sets a variable to a value
+    SET_VARIABLE = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} merge value {struct}"
+
+    COPY_VARIABLE = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} " \
+                    "set from storage {name}:{:Storage.NAME} {:Storage.VARS}.{address2}"
+
+    # loads the result of another command as int into a storage
+    SET_VARIABLE_FROM = \
+        "execute store result storage {name}:{:Storage.NAME} " \
+        "{:Storage.VARS}.{var} {type:int} {scale:1} run {command}"
+    SET_VALUE_FROM = "execute store result score {stack} {name} run {command}"
+
+    # calls a function
+    RUN_FUNCTION = "function {name}:{function}"
+
+    EXECUTE = "execute {sub}run {command}"
+
+    TELLRAW = "tellraw {target:@s} {text}"
+    TITLE = "title {target:@s} title {text}"
+    SUBTITLE = "title {target:@s} subtitle {text}"
+    ACTIONBAR = "title {target:@s} actionbar {text}"
+
+    SET_BLOCK = "setblock {x:~} {y:~} {z:~} {block}{blockstate}{nbt}"
+
+    # summons an entity
+    SUMMON_ENTITY = "summon {entity} {x:~} {y:~} {z:~} {nbt}"
+    KILL_ENTITY = "kill {target}"
+
+
+def multiple_commands(*commands):
+    return "\n".join(commands)
+
+
+def stringFormat(string, **kwargs):
+    kwargs.setdefault("name", Config.currentConfig.NAME)
+    kwargs.setdefault("name2", Config.currentConfig.NAME)
+    kwargs.setdefault("utils", Config.currentConfig.UTILS)
+    kwargs.setdefault("ret", Config.currentConfig.RETURN_SCORE)
+    kwargs.setdefault("block", Config.currentConfig.BLOCK_SCORE)
+    return Formatter.format(string, **kwargs)
+
+
+context = {name: obj for name, obj in globals().items() if isclass(obj) and issubclass(obj, Enum)}
+context.update(Config=Config)
+Formatter = CommandFormatter(context)

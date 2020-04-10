@@ -1,0 +1,102 @@
+start: statement*
+
+statement: declaration _STATEMENT_SEPARATOR
+         | const_declaration _STATEMENT_SEPARATOR
+         | term_ip _STATEMENT_SEPARATOR
+         | expression _STATEMENT_SEPARATOR
+         | function_definition
+         | "return " expression _STATEMENT_SEPARATOR -> return_
+         | control_if
+         | control_while
+         | control_enum
+         | control_struct
+         | context_manipulator
+         | COMMENT -> comment
+
+block: "{" statement* "}"
+     | statement
+
+function_parameter: IDENTIFIER ":" IDENTIFIER
+parameter_list: "(" (function_parameter "," )* function_parameter? ")"
+function_definition: [ /\binline\b/ ] /\bfun\b/ IDENTIFIER parameter_list "->" IDENTIFIER block
+
+function_call: accessor "(" (expression "," )* expression? ")"
+
+variable_declaration: [/\bconst\b/] IDENTIFIER ":" IDENTIFIER
+
+declaration: accessor "=" expression
+const_declaration: "const " declaration
+
+term_ip: accessor (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression
+
+expression: comparison
+          | term
+          | expression (AND expression)+ -> boolean_and
+          | expression (OR expression)+ -> boolean_or
+          | NOT expression -> boolean_not
+
+// terms like (6 + 8) * -9
+term: sum
+?sum: product ((PLUS | MINUS) product)*
+?product: value ((TIMES | DIVIDE | MODULO) value)*
+value: NUMBER
+     | DECIMAL
+     | STRING
+     | (/\b(True|False)\b/) -> boolean_constant
+     | unary_operation
+     | "(" expression ")"
+     | accessor
+     | function_call
+
+accessor: IDENTIFIER ("." IDENTIFIER)*
+
+unary_operation: MINUS value
+               | INCR_ONE value
+               | DECR_ONE value
+
+comparison: term (VERIFY_EQUAL | VERIFY_NOT_EQUAL | VERIFY_GREATER | VERIFY_GREATER_OR_EQUAL | VERIFY_LESS | VERIFY_LESS_OR_EQUAL) term
+
+// control flow
+control_if: /\bif/ "(" expression ")" block (/\belse\b/ block)?
+control_while: /\bwhile/ "(" expression ")" block
+
+control_enum: /\benum\b/ IDENTIFIER enum_block
+enum_block: "{" ( enum_property _STATEMENT_SEPARATOR )* enum_property _STATEMENT_SEPARATOR "}"
+enum_property: IDENTIFIER | (IDENTIFIER "=" NUMBER)
+
+control_struct: _KEYWORD_STRUCT IDENTIFIER struct_block
+struct_block: "{" ( (variable_declaration _STATEMENT_SEPARATOR) | function_definition )* "}"
+
+context_manipulator: /\brun\b/ ((/\bat\b/ | /\bfor\b/) SELECTOR)+ block
+
+
+NUMBER: /[0-9]+/
+DECIMAL: /[0-9]*\.[0-9]+/
+STRING: /".*?"/ | /'.*?'/
+SELECTOR: /@[parse](\[\w+=!?.+\])?/
+PLUS: "+"
+MINUS: "-"
+TIMES: "*"
+DIVIDE: "/"
+MODULO: "%"
+AND: /\band\b/
+OR: /\bor\b/
+NOT: /\bnot\b/
+
+INCR_ONE: "++"
+DECR_ONE: "--"
+
+VERIFY_EQUAL: "=="
+VERIFY_NOT_EQUAL: "!="
+VERIFY_GREATER: ">"
+VERIFY_GREATER_OR_EQUAL: ">="
+VERIFY_LESS: "<"
+VERIFY_LESS_OR_EQUAL: "<="
+
+IDENTIFIER.0: /[a-z_][a-z_0-9]*/i
+
+_KEYWORD_STRUCT: /\bstruct\b/
+
+_STATEMENT_SEPARATOR: /\n|;\n?/
+COMMENT: "#" /[^\n]/*
+%ignore " " | "\n" | "\t"
