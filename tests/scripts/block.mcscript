@@ -1,0 +1,12 @@
+const me = @s[tag=hi]
+
+tickCount = 0
+fun onTick() -> Null {
+    run for @a at me {
+        if (tickCount % 20 == 0)
+            actionbar(me, " Sekunde: ", tickCount / 20)
+    }
+    ++tickCount
+}
+
+

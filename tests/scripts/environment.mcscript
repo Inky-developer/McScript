@@ -1,0 +1,13 @@
+fun onTick() -> Null {
+    run for @a {
+        lightlevel = getLightLevel()
+        biome = getBiome()
+        if (isThundering()) {
+            actionbar("Thunder, biomeId: ", biome, ", lightlevel: ", lightlevel)
+        } else if (isRaining()) {
+            actionbar("Rain, biomeId: ", biome, ", lightlevel: ", lightlevel)
+        } else {
+            actionbar("Clear Weather, biomeId: ", biome, ", lightlevel: ", lightlevel)
+        }
+    }
+}
