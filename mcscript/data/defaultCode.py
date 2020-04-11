@@ -30,6 +30,7 @@ MAGIC_FUNCTIONS = {
 A lookup table for the compiler. Keys are all magic functions and the values are the number of required parameters.
 """
 
+# noinspection SpellCheckingInspection
 DEFAULTS = {
     "tick": lambda pois: "function {NAME}:{block}".format(NAME=Config.currentConfig.NAME, block=pois["onTick"][1])
 }

@@ -33,6 +33,7 @@ class Resource(ABC):
     when this is set to False, an implementation of createEmptyResource is required.
     """
 
+    # noinspection PyUnresolvedReferences
     def __init_subclass__(cls, **kwargs):
         if not isabstract(cls):
             if cls.type() in Resource._reference:
@@ -176,6 +177,11 @@ class Resource(ABC):
 
     @classmethod
     def getResourceClass(cls, resourceType: ResourceType) -> Type[Resource]:
+        if resourceType == ResourceType.RESOURCE:
+            return Resource
+        elif resourceType == ResourceType.VALUE_RESOURCE:
+            return ValueResource
+
         return cls._reference[resourceType]
 
     @classmethod
@@ -191,9 +197,9 @@ class Resource(ABC):
         raise TypeError
 
     @staticmethod
-    @abstractmethod
     def type() -> ResourceType:
         """ return the type of resource that is represented by this object"""
+        return ResourceType.RESOURCE
 
     @abstractmethod
     def toNumber(self) -> int:
@@ -240,6 +246,10 @@ class ValueResource(Resource, ABC):
     def copyUnlessStatic(self, target: ValueResource, compileState: CompileState):
         return self if self.isStatic else self.copy(target, compileState)
 
+    @staticmethod
+    def type() -> ResourceType:
+        return ResourceType.VALUE_RESOURCE
+
     @abstractmethod
     def embed(self) -> str:
         """ return a string that can be embedded into a mc function"""
@@ -269,6 +279,11 @@ class ObjectResource(Resource, ABC):
         from mcscript.compiler.Namespace import Namespace
         # ToDo: is this correct?
         self.namespace = namespace or Namespace(0, namespaceType=NamespaceType.STRUCT)
+
+    @staticmethod
+    @abstractmethod
+    def type() -> ResourceType:
+        pass
 
     def getBasePath(self) -> NbtAddressResource:
         """ Returns the base path which contains the attributes of this object. """

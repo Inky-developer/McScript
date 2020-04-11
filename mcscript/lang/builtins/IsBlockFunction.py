@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
-from mcscript.data.commands import multiple_commands, Command, ExecuteCommand
+from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.data.minecraftData.blocks import Blocks
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.BooleanResource import BooleanResource
@@ -16,10 +15,10 @@ if TYPE_CHECKING:
 
 class IsBlockFunction(BuiltinFunction):
     """
-    parameter => block: Number the block id
-    parameter => [Optional] x: Number a relative x coordinate
-    parameter => [Optional] y: Number a relative y coordinate
-    parameter => [Optional] <z: Number a relative z coordinate
+    parameter => [Static] block: Number the block id
+    parameter => [Optional=0] [Static] x: Number a relative x coordinate
+    parameter => [Optional=0] [Static] y: Number a relative y coordinate
+    parameter => [Optional=0] [Static] z: Number a relative z coordinate
     Tests for a specific block.
     Returns true if the block matches.
 
@@ -33,17 +32,10 @@ class IsBlockFunction(BuiltinFunction):
     def returnType(self) -> ResourceType:
         return ResourceType.BOOLEAN
 
+    # noinspection PyUnresolvedReferences
     def generate(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
-        """
-        ToDO: Create System for managing relative and absolute coordinates (1, ~1, ^1)
-        """
-        x = y = z = "~"
         block, *rest = parameters
-        if rest:
-            # use current coordinates
-            x, y, z = ["~" + str(i) if int(str(i)) != 0 else "~" for i in rest]
-        if block.type() != ResourceType.NUMBER:
-            raise McScriptArgumentsError("All arguments must be static for function 'isBlock'")
+        x, y, z = ["~" + str(i) if int(str(i)) != 0 else "~" for i in rest]
 
         stack = compileState.expressionStack.next()
         return FunctionResult(

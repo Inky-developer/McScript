@@ -4,12 +4,12 @@ import io
 import re
 from functools import cached_property, lru_cache
 from pathlib import Path
-from typing import Dict, Union, List, Optional
+from typing import Dict, List, Optional, Union
 
 from mcscript.data import getDictionaryResource
 from mcscript.data.Config import Config
 from mcscript.data.blockStorage.BlockTree import BlockTree
-from mcscript.data.blockStorage.Generator import BlockTagGenerator, BlockFunctionGenerator, IdToBlockGenerator
+from mcscript.data.blockStorage.Generator import BlockFunctionGenerator, BlockTagGenerator, IdToBlockGenerator
 from mcscript.data.commands import stringFormat
 from mcscript.data.minecraftData.blocks import Blocks
 from mcscript.data.predicates.BiomePredicate import BiomePredicate
@@ -70,7 +70,7 @@ class Directory:
             return self
 
         try:
-            return self.fileStructure._subFiles[file]
+            return self.fileStructure[file]
         except KeyError:
             raise AttributeError(f"Non-existing file {file}")
 
@@ -80,10 +80,10 @@ class Directory:
         # if base.exists():
         #     shutil.rmtree(base)
         base.mkdir(exist_ok=True)
-        for file in self.fileStructure._subFiles:
+        for file in self.fileStructure.subFiles:
             # noinspection PyTypeChecker
             with open(base.joinpath(self.getFileName(name, file)), "w", encoding="utf-8") as f:
-                f.write(self.fileStructure._subFiles[file].getvalue())
+                f.write(self.fileStructure[file].getvalue())
 
         for directory in self.subDirectories:
             self.subDirectories[directory].write(directory, base)
@@ -105,6 +105,7 @@ class Directory:
         for filename in structure:
             value = structure[filename]
             function = getattr(self, f"on_{filename.replace('.', '_')}", None)
+            # noinspection PyUnusedLocal wtf?
             file = None
             if value is None:
                 if "." in filename:

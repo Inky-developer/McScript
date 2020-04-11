@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING, Optional, Dict
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 from lark import Tree
 
@@ -61,22 +61,10 @@ class DefaultFunctionResource(FunctionResource):
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keywordParameters: Resource) -> Resource:
         assert not keywordParameters
-
-        if len(parameters) != len(self.parameters):
-            raise McScriptArgumentsError(
-                f"Invalid arguments: required {len(self.parameters)} but got {len(parameters)}",
-                compileState
-            )
+        parameters = self.signature.matchParameters(compileState, parameters)
 
         for parameter, pData in zip(parameters, self.parameters):
             pName, pType = pData
-
-            if parameter.type() != pType.value.type():
-                raise McScriptArgumentsError(
-                    f"{repr(self)} got argument {parameter} with invalid type {parameter.type().name}, "
-                    f"expected {pType.value.type().name}",
-                    compileState
-                )
 
             # copy the parameters value to the namespace
             try:
@@ -101,7 +89,7 @@ class DefaultFunctionResource(FunctionResource):
 
     def canUseOwnName(self, compileState: CompileState) -> bool:
         """
-        :return: whether this function can use its own name as a filename for the function file
+        returns whether this function can use its own name as a filename for the function file
         """
         return (
                 compileState.currentNamespace().index == 0 and

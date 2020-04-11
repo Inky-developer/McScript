@@ -4,6 +4,7 @@ from mcscript.lang.resource.base.ResourceBase import ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 
+# noinspection PyUnusedLocal
 class NullResource(ValueResource):
     def __init__(self, value: Any = None, isStatic: bool = True):
         """

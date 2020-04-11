@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.data.commands import Command
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.NumberResource import NumberResource
@@ -15,7 +14,7 @@ if TYPE_CHECKING:
 
 class EvaluateFunction(BuiltinFunction):
     """
-    parameter => string: String the string to evaluate
+    parameter => [Static] string: String the string to evaluate
     runs a minecraft function directly and returns the result
     """
 
@@ -26,11 +25,7 @@ class EvaluateFunction(BuiltinFunction):
         return ResourceType.NUMBER
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
-        if len(parameters) != 1:
-            raise McScriptArgumentsError(f"Function evaluate expected exactly one argument but got {len(parameters)}.")
-        string = parameters[0]
-        if string.type() != ResourceType.STRING or not string.hasStaticValue:
-            raise McScriptArgumentsError(f"Function evaluate expected a string but got {repr(string)}")
+        string, = parameters
 
         stack = compileState.expressionStack.next()
         return FunctionResult(

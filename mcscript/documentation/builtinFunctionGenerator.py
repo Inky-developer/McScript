@@ -11,7 +11,7 @@ used to generated autodoc for the vscode extension.
 pParameter = re.compile(r"\W*parameter\W*=>(\W*\[(Optional|List)\])?\W*(\w+)((:)\W*(\w+))?\W*(.*)")
 
 
-def generate(config: Config) -> List[Dict]:
+def generate(_: Config) -> List[Dict]:
     ret = []
     for builtinFunction in BuiltinFunction.functions:
         name = builtinFunction.name()

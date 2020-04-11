@@ -1,15 +1,23 @@
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from functools import cached_property
 from inspect import isabstract
-from typing import List, TYPE_CHECKING, Any, Dict, Tuple, Optional, Union
+from textwrap import dedent
+from typing import Any, Dict, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union
 
 from mcscript.data.commands import Command
 from mcscript.lang.resource.AddressResource import AddressResource
+from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.NullResource import NullResource
+from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.resource.StringResource import StringResource
+from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.lang.resource.base.functionSignature import FunctionParameter, FunctionSignature
 
 if TYPE_CHECKING:
     from mcscript import Compiler
@@ -32,6 +40,9 @@ class BuiltinFunction(ABC):
     """
     functions: List[BuiltinFunction] = []
 
+    _PATTERN_PARAMETER = re.compile(r"parameter *=> *((?:\[[\w=.]+\] *)*) *([*+]?)(\w+): (\w+)+ *(.*)$")
+    _PATTERN_MODIFIERS = re.compile(r"\[([\w=.]+)\]")
+
     def __init_subclass__(cls, hide=False):
         if not hide and not isabstract(cls):
             BuiltinFunction.functions.append(cls())
@@ -40,9 +51,13 @@ class BuiltinFunction(ABC):
         self.used = False
 
     def create(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
+        parameters = self.check_parameters(compileState, parameters)
         self._checkUsed(compileState)
         result = self._makeResult(self.generate(compileState, *parameters), compileState)
         return result
+
+    def check_parameters(self, compileState: CompileState, parameters: Sequence[Resource]) -> List[Resource]:
+        return self.getFunctionSignature.matchParameters(compileState, parameters)
 
     def requireRawParameters(self) -> bool:
         """
@@ -63,6 +78,70 @@ class BuiltinFunction(ABC):
     @abstractmethod
     def returnType(self) -> ResourceType:
         pass
+
+    @staticmethod
+    def inline() -> bool:
+        return True
+
+    @cached_property
+    def getFunctionSignature(self):
+        """
+        Parses the docstring and builds a function signature.
+        """
+        doc = dedent(self.__doc__.strip())
+        parameters = []
+        real_doc = []
+
+        for line in doc.split("\n"):
+            if match := self._PATTERN_PARAMETER.match(line.strip()):
+                modifiers, *count, name, type_, doc = match.groups()
+                is_optional = False
+                mode = FunctionParameter.ResourceMode.STATIC | FunctionParameter.ResourceMode.NON_STATIC
+
+                if not count[0]:
+                    count = FunctionParameter.ParameterCount.ONCE
+                else:
+                    count = FunctionParameter.ParameterCount.ONE_OR_MORE if count[0] == "+" else \
+                        FunctionParameter.ParameterCount.ARBITRARY
+                default = None
+
+                for mod_match in self._PATTERN_MODIFIERS.findall(modifiers):
+                    if mod_match.lower().startswith("optional"):
+                        raw: str = mod_match.split("=")[1]
+                        if raw.isdecimal():
+                            default = NumberResource(int(raw), True)
+                        elif all(i in "0123456789." for i in raw):
+                            default = FixedNumberResource.fromNumber(float(raw))
+                        else:
+                            default = StringResource(raw, True)
+                    elif mod_match.lower() == "static":
+                        mode = FunctionParameter.ResourceMode.STATIC
+                    elif mod_match.lower() == "non_static":
+                        mode = FunctionParameter.ResourceMode.NON_STATIC
+
+                if type_ == "Resource":
+                    resourceType = Resource
+                elif type == "ValueResource":
+                    resourceType = ValueResource
+                else:
+                    resourceType = Resource.getResourceClass(ResourceType(type_))
+                parameters.append(FunctionParameter(
+                    name,
+                    TypeResource(resourceType),
+                    count=count,
+                    defaultValue=default,
+                    accepts=mode
+                ))
+            else:
+                real_doc.append(line)
+
+        return FunctionSignature(
+            self,
+            parameters,
+            self.returnType(),
+            inline=self.inline(),
+            documentation="\n".join(real_doc)
+        )
 
     @abstractmethod
     def generate(self, compileState: CompileState, *parameters: Resource) -> Union[str, FunctionResult]:
@@ -107,6 +186,7 @@ class CachedFunction(BuiltinFunction, ABC):
         self._cache: Dict[Tuple[Resource], AddressResource] = {}
 
     def create(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
+        parameters = tuple(self.check_parameters(compileState, parameters))
         isStatic = all(isinstance(i, ValueResource) and i.hasStaticValue for i in parameters)
         if isStatic:
             if parameters not in self._cache:
@@ -122,13 +202,20 @@ class CachedFunction(BuiltinFunction, ABC):
             cmd = Command.RUN_FUNCTION(function=function)
             if self.returnType() != NullResource:
                 cmd += "\n" + Command.SET_VALUE_EQUAL(stack=stack, stack2=compileState.config.RETURN_SCORE)
-                resource = Resource.getResourceClass(self.returnType())(stack, False)
+                resourceCls = Resource.getResourceClass(self.returnType())
+                if not issubclass(resourceCls, ValueResource):
+                    raise TypeError(f"Function {self} returned invalid resource type '{resourceCls.__name__}'")
+                resource = resourceCls(stack, False)
             else:
                 resource = NullResource()
 
             return FunctionResult(cmd, inline=True, resource=resource)
         # if any of the parameters is dynamic just use the normal behavior
         return super().create(compileState, *parameters)
+
+    @staticmethod
+    def inline() -> bool:
+        return False
 
     @abstractmethod
     def generate(self, compileState: CompileState, *parameters: Resource) -> str:

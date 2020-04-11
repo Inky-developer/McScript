@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from string import Formatter
-from typing import Tuple, TYPE_CHECKING, Optional
+from typing import Optional, TYPE_CHECKING, Tuple
 
 from mcscript.compiler.Namespace import Namespace
 from mcscript.lang.resource.BooleanResource import BooleanResource
@@ -60,7 +60,7 @@ class StringResource(ValueResource):
         return BooleanResource.TRUE if self.value else BooleanResource.FALSE
 
     def format(self, *args, **kwargs) -> StringResource:
-        """
+        r"""
         Stringformat. used to insert variables into the string
         each '$' symbol gets replaced by an argument; the first $ will be replaced by the first argument and so on.
         all occurrences of '$(name)' will be replaced with the name value in kwargs.

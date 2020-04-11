@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Optional
+from typing import Optional, TYPE_CHECKING
 
-from Exceptions.compileExceptions import McScriptNameError
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
+from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptNameError
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.StructResource import StructResource

@@ -20,3 +20,6 @@ class ResourceType(Enum):
     FUNCTION = "Function"
     METHOD = "Method"
     TYPE = auto()
+
+    RESOURCE = "Resource"
+    VALUE_RESOURCE = "ValueResource"

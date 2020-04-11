@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.lang.builtins.builtins import CachedFunction
 from mcscript.lang.resource.base.ResourceBase import Resource
@@ -24,9 +23,6 @@ class GetBiomeFunction(CachedFunction):
         return ResourceType.NUMBER
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> str:
-        if parameters:
-            raise McScriptArgumentsError("Function getBiome expected no arguments.")
-
         commands = [Command.EXECUTE(
             sub=ExecuteCommand.IF_PREDICATE(predicate=predicate),
             command=Command.SET_VALUE(

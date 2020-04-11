@@ -10,4 +10,4 @@ def compareTypes(a: Resource, b: Resource) -> bool:
 
     if isinstance(a, StructObjectResource):
         return isinstance(b, StructResource) and a.struct == b
-    return a.type() == b.type()
+    return a.type() == b.type() or b == Resource

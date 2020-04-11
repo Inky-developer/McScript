@@ -4,7 +4,7 @@ from typing import List, TYPE_CHECKING
 
 from lark import Tree
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptTypeError
+from mcscript.Exceptions.compileExceptions import McScriptTypeError
 from mcscript.compiler.Namespace import NamespaceType
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.TypeResource import TypeResource
@@ -24,21 +24,12 @@ class InlineFunctionResource(FunctionResource):
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keywordParameters: Resource) -> Resource:
-        if len(self.parameters) != len(parameters):
-            raise McScriptArgumentsError(
-                f"Invalid function call: expected {len(self.parameters)} arguments, but got {len(parameters)}",
-                compileState
-            )
-
+        parameters = self.signature.matchParameters(compileState, parameters)
         namespace = compileState.pushStack(NamespaceType.FUNCTION)
 
         for pTemplate, parameter in zip(self.parameters, parameters):
             pName, pType = pTemplate
             parameter = self._loadParameter(parameter, pName, pType, compileState)
-            if not compareTypes(parameter, pType.value):
-                raise McScriptArgumentsError(f"Function call {self.name()}: expected type {pType.value.value} "
-                                             f"for argument {pName}, but got type {parameter.type().value}",
-                                             compileState)
             namespace[pName] = parameter
 
         # execute the body
@@ -51,6 +42,10 @@ class InlineFunctionResource(FunctionResource):
 
         compileState.popStack()
         return namespace.returnedResource
+
+    @staticmethod
+    def inline() -> bool:
+        return True
 
     def _loadParameter(self, parameter: Resource, pName: str, pType: TypeResource,
                        compileState: CompileState) -> Resource:

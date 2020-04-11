@@ -172,7 +172,7 @@ i = 0;
 allOne = boolean(1);
 while (i < 1000) {
     ++i;
-    allOne = allOne and randomChance(1);
+    allOne = allOne and randomChance(1.0);
 }
 return allOne;
 

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from functools import cached_property
 from tkinter.tix import Tree
-from typing import List, Tuple, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Tuple
 
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.lang.resource.base.functionSignature import FunctionParameter, FunctionSignature
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -27,6 +29,26 @@ class FunctionResource(ObjectResource):
         self.parameters = parameters
         self.block = block
 
+    @cached_property
+    def signature(self) -> FunctionSignature:
+        parameters = []
+        for name, type_ in self.parameters:
+            parameters.append(FunctionParameter(
+                name,
+                type_
+            ))
+
+        return FunctionSignature(
+            self,
+            parameters,
+            self.returnType.value.type(),
+            inline=self.inline()
+        )
+
+    @staticmethod
+    def inline() -> bool:
+        return False
+
     @staticmethod
     def type() -> ResourceType:
         return ResourceType.FUNCTION
@@ -44,4 +66,4 @@ class FunctionResource(ObjectResource):
         return self.name()
 
     def __repr__(self):
-        return f"fun {self.name()}({', '.join(f'{name}: {res.value.type().value}' for name, res in self.parameters)})"
+        return self.signature.signature_string()

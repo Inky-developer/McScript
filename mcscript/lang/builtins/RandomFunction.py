@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List, TYPE_CHECKING
 
 from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
-from mcscript.data.commands import multiple_commands, Command, ExecuteCommand
+from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.lang.builtins.builtins import CachedFunction
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class RandomFunction(CachedFunction):
     """
-    parameter => [Optional] bits: Number
+    parameter => [Optional=31] [Static] bits: Number
     generates a random value between 0 and 2**bits - 1
     """
 
@@ -25,12 +25,10 @@ class RandomFunction(CachedFunction):
         return ResourceType.NUMBER
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> str:
-        if len(parameters) > 1:
-            raise McScriptArgumentsError("Invalid number of arguments: Expected <[bits]>")
         # noinspection PyTypeChecker
-        bits = int(parameters[0]) if parameters else 31
+        bits = int(parameters[0])
         if not 0 <= bits < 32:
-            raise McScriptArgumentsError("Invalid value for parameter <bits>: Must be 0 <= <bits> <= 31")
+            raise McScriptArgumentsError("Invalid value for parameter <bits>: Must be 0 <= <bits> <= 31", compileState)
         statements: List[str] = []
 
         stack = compileState.config.RETURN_SCORE

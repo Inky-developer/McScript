@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.lang.builtins.builtins import CachedFunction
 from mcscript.lang.resource.base.ResourceBase import Resource
@@ -25,9 +24,6 @@ class GetLightLevel(CachedFunction):
         return ResourceType.NUMBER
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> str:
-        if len(parameters) != 0:
-            raise McScriptArgumentsError("Function getLightLevel expected no arguments.")
-
         stack = compileState.config.RETURN_SCORE
         commands = [Command.EXECUTE(
             sub=ExecuteCommand.IF_PREDICATE(predicate=predicate),

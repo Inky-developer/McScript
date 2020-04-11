@@ -33,7 +33,7 @@ Grammar = Lark(
     maybe_placeholders=True
 )
 
-Compiler = _Compiler(Grammar)
+Compiler = _Compiler()
 
 Logger.info("Grammar loaded")
 

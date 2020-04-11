@@ -2,11 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.data.commands import Command, ExecuteCommand
 from mcscript.lang.builtins.builtins import BuiltinFunction
-from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
@@ -16,9 +13,9 @@ if TYPE_CHECKING:
 
 class GetBlockFunction(BuiltinFunction):
     """
-    parameter => [Optional] x: Number the relative x coordinate
-    parameter => [Optional] y: Number the relative y coordinate
-    parameter => [Optional] z: Number the relative z coordinate
+    parameter => [Optional=0] [Static] x: Number the relative x coordinate
+    parameter => [Optional=0] [Static] y: Number the relative y coordinate
+    parameter => [Optional=0] [Static] z: Number the relative z coordinate
     returns an id for the current block (block at ~ ~ ~ relative to the executor)
     """
 
@@ -31,15 +28,9 @@ class GetBlockFunction(BuiltinFunction):
     def include(self, compileState: CompileState):
         compileState.datapack.getUtilsDirectory().addGetBlockFunction()
 
+    # noinspection PyUnresolvedReferences
     def generate(self, compileState: CompileState, *parameters: Resource) -> str:
-        # accept either no arguments or three numbers
-        x = y = z = "~"
-        if parameters and len(parameters) != 3:
-            raise McScriptArgumentsError("Invalid number of arguments: expected <None> or <x, y, z>.")
-        if not all(isinstance(resource, (NumberResource, StringResource)) for resource in parameters):
-            raise McScriptArgumentsError("Invalid arguments: must be all of type Number or String")
-        if parameters:
-            x, y, z = [f"~{resource.value if resource.value != 0 else ''}" for resource in parameters]
+        x, y, z = [f"~{resource.value if resource.value != 0 else ''}" for resource in parameters]
 
         return Command.EXECUTE(
             sub=ExecuteCommand.POSITIONED(

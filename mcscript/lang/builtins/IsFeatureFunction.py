@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
+from typing import Dict, TYPE_CHECKING
 
 from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 class IsFeatureFunction(CachedFunction):
     """
-    parameter => feature: Number the feature id
+    parameter => [Static] feature: Number the feature id
     returns whether the current entity is inside the bounding box of the specified feature.
     Example:
         "isFeature(features.village)"
@@ -29,17 +29,12 @@ class IsFeatureFunction(CachedFunction):
     def returnType(self) -> ResourceType:
         return ResourceType.BOOLEAN
 
+    # noinspection PyTypeChecker
     def generate(self, compileState: CompileState, *parameters: Resource) -> str:
-        if len(parameters) != 1:
-            raise McScriptArgumentsError("Function getBiome expected exactly one argument.")
-        try:
-            parameter = parameters[0].toNumber()
-        except TypeError:
-            raise McScriptArgumentsError("The argument <feature> could not be converted to a number.")
-
-        feature = features.getWithProtocolId(parameter)
+        parameter, = parameters
+        feature = features.getWithProtocolId(int(parameter))
         if not feature:
-            raise McScriptArgumentsError(f"Could not find feature with protocol id {parameter}.")
+            raise McScriptArgumentsError(f"Could not find feature with protocol id {parameter}.", compileState)
 
         return multiple_commands(
             Command.SET_VALUE(

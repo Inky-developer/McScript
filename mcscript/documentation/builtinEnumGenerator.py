@@ -1,9 +1,9 @@
 from typing import List
 
-from mcscript.data import defaultEnums, Config
+from mcscript.data import Config, defaultEnums
 
 
-def generate(config: Config) -> List:
+def generate(_: Config) -> List:
     ret = []
     for enumName in defaultEnums.ENUMS:
         enum = defaultEnums.ENUMS[enumName]()

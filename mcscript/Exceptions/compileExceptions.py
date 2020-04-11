@@ -13,11 +13,12 @@ class McScriptError(McScriptException):
 
     def __init__(self, message, compileState: CompileState):
         tree = compileState.currentTree
-        code = compileState.code[tree.line - 1]
-        message = f"At line {tree.line} column {tree.column}\n" \
-                  f"{code}\n" \
-                  f"{' ' * max(tree.column - 1, 0)}{'^' * max(tree.end_column - tree.column, 0)}\n" \
-                  f"{message}"
+        if tree:
+            code = compileState.code[tree.line - 1]
+            message = f"At line {tree.line} column {tree.column}\n" \
+                      f"{code}\n" \
+                      f"{' ' * max(tree.column - 1, 0)}{'^' * max(tree.end_column - tree.column, 0)}\n" \
+                      f"{message}"
         super().__init__(message)
         self.tree = tree
 

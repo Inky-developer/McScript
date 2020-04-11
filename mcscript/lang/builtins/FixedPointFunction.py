@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptTypeError
-from mcscript.lang.builtins.builtins import FunctionResult, BuiltinFunction
+from mcscript.Exceptions.compileExceptions import McScriptTypeError
+from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -28,8 +28,6 @@ class FixedPointFunction(BuiltinFunction):
         return ResourceType.FIXED_POINT
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
-        if len(parameters) != 1:
-            raise McScriptArgumentsError("Function fixed accepts exactly one argument")
         parameter, = parameters
         if isinstance(parameter, ValueResource):
             if parameter.hasStaticValue:
@@ -37,15 +35,10 @@ class FixedPointFunction(BuiltinFunction):
                     value = parameter.toNumber()
                 except TypeError:
                     raise McScriptTypeError(
-                        f"Parameter {parameter} could not be converted to a number for function fixed")
+                        f"Parameter {parameter} could not be converted to a number for function fixed", compileState)
                 return FunctionResult(None, resource=FixedNumberResource(value, True))
             else:
                 stack = parameter.load(compileState)
                 return FunctionResult(None, resource=FixedNumberResource(stack, False))
 
-        # if the parameter is not a value resource, try to convert it to a fixed point number
-        try:
-            resource = parameter.convertToFixedNumber(compileState)
-        except TypeError:
-            raise McScriptTypeError(f"Parameter {parameter} for function fixed cannot be converted.")
-        return FunctionResult(None, resource)
+        raise NotImplementedError()

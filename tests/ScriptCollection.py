@@ -4,7 +4,7 @@ from os.path import join
 from mcscript import Logger
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
-from mcscript.utils.cmdHelper import getWorld, generateFiles
+from mcscript.utils.cmdHelper import generateFiles, getWorld
 from tests.server import rcon
 
 code_struct = """
@@ -22,13 +22,11 @@ run for @a print(c.real)
 """
 
 code_temp = """
-struct Test {
-    a: Number;
-    b: Number;
+fun test(a: Number, b: Number) -> Number {
+    return a * b;
 }
-t = Test(1, 2)
 
-return t.a == 1 and t.b == 2;
+run for @a print(test);
 """
 
 if __name__ == '__main__':

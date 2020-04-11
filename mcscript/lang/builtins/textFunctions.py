@@ -34,7 +34,7 @@ class TextFunction(BuiltinFunction, ABC):
 
 class PrintFunction(TextFunction):
     """
-    parameter => [List] values the values to print out
+    parameter => *values: Resource the values to print out
     Print Function.
     Example:
         aValue = 10
@@ -50,7 +50,7 @@ class PrintFunction(TextFunction):
 
 class TitleFunction(TextFunction):
     """
-    parameter => [List] values the values to print out
+    parameter => *values: Resource the values to print out
     prints text as title
     """
 
@@ -63,7 +63,7 @@ class TitleFunction(TextFunction):
 
 class SubTitleFunction(TextFunction):
     """
-        parameter => [List] values the values to print out
+        parameter => *values: Resource the values to print out
         prints text as subtitle
         """
 
@@ -76,7 +76,7 @@ class SubTitleFunction(TextFunction):
 
 class ActionBarFunction(TextFunction):
     """
-        parameter => [List] values the values to print out
+        parameter => *values: Resource the values to print out
         prints text on the actionbar
         """
 

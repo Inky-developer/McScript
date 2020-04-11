@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import Union, TYPE_CHECKING, Any
+from typing import Any, TYPE_CHECKING, Union
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
-from mcscript.data.commands import multiple_commands, Command, ExecuteCommand
+from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.data.predicates.WeatherPredicate import WeatherPredicate
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.BooleanResource import BooleanResource
@@ -26,9 +25,6 @@ class IsRaining(BuiltinFunction):
         return ResourceType.BOOLEAN
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> Union[str, FunctionResult]:
-        if len(parameters) != 0:
-            raise McScriptArgumentsError("Function isRaining expected no arguments.")
-
         stack = compileState.expressionStack.next()
         return FunctionResult(
             multiple_commands(

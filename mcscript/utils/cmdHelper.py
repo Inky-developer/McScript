@@ -4,7 +4,7 @@ Utilities for the command line interface.
 from __future__ import annotations
 
 from os import getenv, listdir, mkdir
-from os.path import join, isdir, exists, isfile, dirname, abspath, normpath
+from os.path import abspath, dirname, exists, isdir, isfile, join, normpath
 from pathlib import Path
 from typing import List, Optional
 

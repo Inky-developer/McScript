@@ -1,9 +1,9 @@
-from typing import Callable, Any
+from typing import Any, Callable
 
 import lark
 from lark import Tree
 
-from mcscript import Grammar, Compiler, Logger
+from mcscript import Compiler, Grammar, Logger
 from mcscript.Exceptions.parseExceptions import McScriptParseException
 from mcscript.data.Config import Config
 from mcscript.data.defaultCode import addDefaults
@@ -26,7 +26,7 @@ def compileMcScript(text: str, callback: eventCallback, config: Config) -> Datap
     """
     steps = (
         (lambda string: _parseCode(string), "Parsing"),
-        (lambda arg: Compiler.compile(arg, text, config), "Compiling"),
+        (lambda tree: Compiler.compile(tree, text, config), "Compiling"),
         (lambda datapack: addDefaults(datapack), "post processing")
     )
 

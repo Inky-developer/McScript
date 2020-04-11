@@ -1,17 +1,17 @@
 import warnings
 from typing import List
 
-from lark import Tree, Token
+from lark import Token, Tree
 from lark.visitors import Interpreter
 
-from mcscript.Exceptions.compileExceptions import McScriptNameError, McScriptArgumentsError, McScriptNotStaticError, \
-    McScriptIsStaticError, McScriptTypeError, McScriptSyntaxError
+from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptIsStaticError, McScriptNameError, \
+    McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.compiler.tokenConverter import convertToken
 from mcscript.data import defaultCode, defaultEnums
 from mcscript.data.Config import Config
-from mcscript.data.commands import UnaryOperator, ExecuteCommand, Command, multiple_commands, BinaryOperator, Relation
+from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Relation, UnaryOperator, multiple_commands
 from mcscript.lang.builtins.builtins import BuiltinFunction
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.DefaultFunctionResource import DefaultFunctionResource
@@ -23,22 +23,25 @@ from mcscript.lang.resource.StructMethodResource import StructMethodResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.FunctionResource import Parameter
-from mcscript.lang.resource.base.ResourceBase import Resource, ObjectResource, ValueResource
+from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 from mcscript.utils.Datapack import Datapack
 
 
 class Compiler(Interpreter):
-    def __init__(self, grammar):
+    def __init__(self):
         # noinspection PyTypeChecker
         self.compileState: CompileState = None
 
     def visit(self, tree):
+        previous = self.compileState.currentTree
         try:
             self.compileState.currentTree = tree
         except AttributeError:
             raise ValueError("Cannot visit without a compile state. Use ´compile´ instead.")
 
-        return super().visit(tree)
+        result = super().visit(tree)
+        self.compileState.currentTree = previous
+        return result
 
     def compile(self, tree: Tree, code: str, config: Config) -> Datapack:
         self.compileState = CompileState(code, self.visit, config)
@@ -517,6 +520,8 @@ class Compiler(Interpreter):
         blockName = self.compileState.pushBlock()
         self.visit_children(block)
         infinite_loop = False
+        if not isinstance(condition, ValueResource):
+            raise McScriptTypeError(f"invalid condition {condition}", self.compileState)
         if condition.hasStaticValue:
             infinite_loop = bool(condition.value)
             if infinite_loop:
@@ -609,19 +614,16 @@ class Compiler(Interpreter):
     def builtinFunction(self, function: BuiltinFunction, *parameters: Resource):
         loadFunction = self.compileState.load if not function.requireRawParameters() else self.compileState.toResource
         parameters = [loadFunction(i) for i in parameters]
-        try:
-            result = function.create(self.compileState, *parameters)
-            if result.code:
-                if result.inline:
-                    self.compileState.writeline(result.code)
-                else:
-                    addr = self.compileState.pushBlock()
-                    self.compileState.writeline(result.code)
-                    self.compileState.popBlock()
-                    self.compileState.writeline(Command.RUN_FUNCTION(function=addr))
-        except TypeError:
-            raise McScriptArgumentsError(f"Invalid number of arguments for function '{function.name()}'",
-                                         self.compileState)
+
+        result = function.create(self.compileState, *parameters)
+        if result.code:
+            if result.inline:
+                self.compileState.writeline(result.code)
+            else:
+                addr = self.compileState.pushBlock()
+                self.compileState.writeline(result.code)
+                self.compileState.popBlock()
+                self.compileState.writeline(Command.RUN_FUNCTION(function=addr))
 
         return result.resource
 
@@ -688,7 +690,7 @@ class Compiler(Interpreter):
     def statement(self, tree):
         self.compileState.writeline(f"# {self.compileState.getDebugLines(tree.meta.line, tree.meta.end_line)}")
         res = self.visit_children(tree)
-        # # now clear up the expression counter geht doch nicht so einfach
+        # # now clear up the expression counter
         self.compileState.expressionStack.reset()
         # for readability
         self.compileState.writeline()

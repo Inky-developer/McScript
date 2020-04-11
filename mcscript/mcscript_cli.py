@@ -1,13 +1,13 @@
 from argparse import ArgumentParser
 from functools import partial
-from os.path import join, exists, normpath, isfile
+from os.path import exists, isfile, join, normpath
 from pathlib import Path
 from time import perf_counter
 
 from mcscript import Logger
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
-from mcscript.utils.cmdHelper import getWorld, generateFiles, MCPATH
+from mcscript.utils.cmdHelper import MCPATH, generateFiles, getWorld
 from mcscript.utils.precompileInstructions import getPrecompileInstructions
 
 """
@@ -131,11 +131,12 @@ def main():
     return True
 
 
-def on_compile_status(args, msg, progress, interim_result):
+def on_compile_status(_, msg, progress, interim_result):
     Logger.info(f"{msg}... {progress * 100}%")
     Logger.debug(interim_result if hasattr(interim_result, "pretty") else interim_result)
 
 
+# noinspection PyUnusedLocal
 def testDocstrings(a: int, b):
     """
     *italic*

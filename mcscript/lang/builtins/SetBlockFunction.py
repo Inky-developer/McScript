@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
-from mcscript.data.commands import multiple_commands, Command, ExecuteCommand
+from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.data.minecraftData.blocks import Blocks
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.BooleanResource import BooleanResource
-from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
@@ -19,9 +16,9 @@ if TYPE_CHECKING:
 class SetBlockFunction(BuiltinFunction):
     """
     parameter => block: Number the block to place
-    parameter => [Optional] x: Number the relative x coordinate
-    parameter => [Optional] y: Number the relative y coordinate
-    parameter => [Optional] z: Number the relative z coordinate
+    parameter => [Optional=0] [static] x: Number the relative x coordinate
+    parameter => [Optional=0] [Static] y: Number the relative y coordinate
+    parameter => [Optional=0] [Static] z: Number the relative z coordinate
     """
 
     def __init__(self):
@@ -35,26 +32,16 @@ class SetBlockFunction(BuiltinFunction):
         return ResourceType.BOOLEAN
 
     def include(self, compileState: CompileState):
-        # ToDo: only do this when generate_dynamic is used
         if self.shouldGenerate:
             compileState.datapack.getUtilsDirectory().addSetBlockFunction()
         return False
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> Union[str, FunctionResult]:
-        if len(parameters) not in (1, 4):
-            raise McScriptArgumentsError("Invalid number of arguments: expected <block> or <block, x, y, z>.")
-        x = y = z = "~"
-        block, *rest = parameters
-        if rest:
-            if not all(isinstance(i, (NumberResource, StringResource)) for i in rest):
-                raise McScriptArgumentsError("Arguments <x, y, z> must be static and of type Number or String")
-            x, y, z = [f"~{i if float(str(i)) != 0 else ''}" for i in rest]
+        block, *pos = parameters
+        x, y, z = [f"~{i if float(str(i)) != 0 else ''}" for i in pos]
 
         if isinstance(block, ValueResource) and block.hasStaticValue:
-            try:
-                return self.generate_static(compileState, block.toNumber(), x, y, z)
-            except TypeError:
-                pass
+            return self.generate_static(compileState, block.toNumber(), x, y, z)
         self.shouldGenerate = True
         return self.generate_dynamic(compileState, block.load(compileState), x, y, z)
 

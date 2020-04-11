@@ -1,10 +1,10 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from typing import List
 
 from mcscript.data import getDictionaryResource
 from mcscript.data.blockStorage import BlockTree
-from mcscript.data.commands import Command, ExecuteCommand, Config, multiple_commands
-from mcscript.data.minecraftData.blocks import Block, BlockstateValue, Blockstate, Blocks
+from mcscript.data.commands import Command, Config, ExecuteCommand, multiple_commands
+from mcscript.data.minecraftData.blocks import Block, Blocks, Blockstate, BlockstateValue
 from mcscript.utils.FileStructure import FileStructure
 
 
@@ -79,7 +79,6 @@ class BlockFunctionGenerator(Generator):
 
         # filestructure.pushFile(name.format(0))
         # filestructure.get().write(self.resetToZero())
-        tree = None
         isFirst = True
         for left, right, tree in self.tree.walk():
             filestructure.pushFile(name.format(tree.reverse_index))

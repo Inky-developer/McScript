@@ -46,7 +46,7 @@ class FixedNumberVariableResource(ValueResource):
         if not isinstance(target, NbtAddressResource):
             if isinstance(target, AddressResource):
                 return self.load(compileState, target)
-            raise ValueResource(f"FixedNumberVariableAddressResource expected NbtAddressResource, got {repr(target)}")
+            raise ValueError(f"FixedNumberVariableAddressResource expected NbtAddressResource, got {repr(target)}")
         compileState.writeline(Command.COPY_VARIABLE(
             address=target,
             address2=self.value

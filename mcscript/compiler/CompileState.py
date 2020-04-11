@@ -1,9 +1,8 @@
-from typing import List, Callable, Optional
+from typing import Callable, List, Optional
 
 from lark import Tree
 
-from mcscript.compiler.Namespace import Namespace
-from mcscript.compiler.Namespace import NamespaceType
+from mcscript.compiler.Namespace import Namespace, NamespaceType
 from mcscript.data.Config import Config
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource
@@ -62,7 +61,7 @@ class CompileState:
             raise ValueError(
                 f"Cannot load resource of type {type(value)}. It cannot be converted to a Number.")
 
-    def toResource(self, value) -> Resource:
+    def toResource(self, value: Resource) -> Resource:
         """
         Converts a value to a resource. similar to ´load´ but does not actually load the resource.
 
@@ -116,5 +115,5 @@ class CompileState:
         self.stack.append(namespace)
         return namespace
 
-    def getDebugLines(self, a, b):
+    def getDebugLines(self, a, _):
         return self.code[a - 1].strip()
