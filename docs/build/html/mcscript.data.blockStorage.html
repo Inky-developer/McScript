@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>mcscript.data.blockStorage package &#8212; McScript 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css"/>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
+
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="search" title="Search" href="search.html"/>
+    <link rel="next" title="mcscript.data.minecraftData package" href="mcscript.data.minecraftData.html"/>
+    <link rel="prev" title="mcscript.data package" href="mcscript.data.html"/>
+</head>
+<body>
+<div class="related" role="navigation" aria-label="related navigation">
+    <h3>Navigation</h3>
+    <ul>
+        <li class="right" style="margin-right: 10px">
+            <a href="genindex.html" title="General Index"
+               accesskey="I">index</a></li>
+        <li class="right">
+            <a href="py-modindex.html" title="Python Module Index"
+            >modules</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.data.minecraftData.html" title="mcscript.data.minecraftData package"
+               accesskey="N">next</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.data.html" title="mcscript.data package"
+               accesskey="P">previous</a> |
+        </li>
+        <li class="nav-item nav-item-0"><a href="index.html">McScript 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-1"><a href="mcscript.html">mcscript package</a> &#187;</li>
+        <li class="nav-item nav-item-2"><a href="mcscript.data.html" accesskey="U">mcscript.data package</a> &#187;</li>
+    </ul>
+</div>
+
+<div class="document">
+    <div class="documentwrapper">
+        <div class="bodywrapper">
+            <div class="body" role="main">
+
+                <div class="section" id="mcscript-data-blockstorage-package">
+                    <h1>mcscript.data.blockStorage package<a class="headerlink"
+                                                             href="#mcscript-data-blockstorage-package"
+                                                             title="Permalink to this headline">¶</a></h1>
+                    <div class="section" id="submodules">
+                        <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a>
+                        </h2>
+                    </div>
+                    <div class="section" id="module-mcscript.data.blockStorage.BlockTree">
+                        <span id="mcscript-data-blockstorage-blocktree-module"></span>
+                        <h2>mcscript.data.blockStorage.BlockTree module<a class="headerlink"
+                                                                          href="#module-mcscript.data.blockStorage.BlockTree"
+                                                                          title="Permalink to this headline">¶</a></h2>
+                        <dl class="py class">
+                            <dt id="mcscript.data.blockStorage.BlockTree.BlockTree">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.blockStorage.BlockTree.</code><code
+                                    class="sig-name descname">BlockTree</code><span class="sig-paren">(</span><em
+                                    class="sig-param"><span class="n">values</span><span class="p">:</span> <span
+                                    class="n">‘List[Block]’</span></em>, <em class="sig-param"><span
+                                    class="n">left</span><span class="p">:</span> <span
+                                    class="n">‘Optional[BlockTree]’</span></em>, <em class="sig-param"><span class="n">right</span><span
+                                    class="p">:</span> <span class="n">‘Optional[BlockTree]’</span></em>, <em
+                                    class="sig-param"><span class="n">index</span><span class="p">:</span> <span
+                                    class="n">‘int’</span></em>, <em class="sig-param"><span
+                                    class="n">reverse_index</span><span class="p">:</span> <span class="n">‘int’</span></em><span
+                                    class="sig-paren">)</span><a class="headerlink"
+                                                                 href="#mcscript.data.blockStorage.BlockTree.BlockTree"
+                                                                 title="Permalink to this definition">¶</a></dt>
+                            <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>
+                            </p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.BlockTree.BlockTree.fromList">
+                                        <em class="property">static </em><code class="sig-name descname">fromList</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span
+                                            class="n">blocks</span><span class="p">:</span> <span class="n">List<span
+                                            class="p">[</span><a class="reference internal"
+                                                                 href="mcscript.data.minecraftData.html#mcscript.data.minecraftData.blocks.Block"
+                                                                 title="mcscript.data.minecraftData.blocks.Block">mcscript.data.minecraftData.blocks.Block</a><span
+                                            class="p">]</span></span></em>, <em class="sig-param"><span
+                                            class="n">index</span><span class="o">=</span><span
+                                            class="default_value">0</span></em><span class="sig-paren">)</span> &#x2192;
+                                        <a class="reference internal"
+                                           href="#mcscript.data.blockStorage.BlockTree.BlockTree"
+                                           title="mcscript.data.blockStorage.BlockTree.BlockTree">mcscript.data.blockStorage.BlockTree.BlockTree</a><a
+                                            class="headerlink"
+                                            href="#mcscript.data.blockStorage.BlockTree.BlockTree.fromList"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd><p>splits the list recursively and creates a BlockTree from it.
+                                        :param index: the index
+                                        :param blocks: A list of the blocks
+                                        :return: a BlockTree object</p>
+                                    </dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.blockStorage.BlockTree.BlockTree.index">
+                                        <code class="sig-name descname">index</code><em class="property">: int</em><em
+                                            class="property"> = None</em><a class="headerlink"
+                                                                            href="#mcscript.data.blockStorage.BlockTree.BlockTree.index"
+                                                                            title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.blockStorage.BlockTree.BlockTree.left">
+                                        <code class="sig-name descname">left</code><em class="property">:
+                                        Optional[BlockTree]</em><em class="property"> = None</em><a class="headerlink"
+                                                                                                    href="#mcscript.data.blockStorage.BlockTree.BlockTree.left"
+                                                                                                    title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.blockStorage.BlockTree.BlockTree.reverse_index">
+                                        <code class="sig-name descname">reverse_index</code><em class="property">:
+                                        int</em><em class="property"> = None</em><a class="headerlink"
+                                                                                    href="#mcscript.data.blockStorage.BlockTree.BlockTree.reverse_index"
+                                                                                    title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.blockStorage.BlockTree.BlockTree.right">
+                                        <code class="sig-name descname">right</code><em class="property">:
+                                        Optional[BlockTree]</em><em class="property"> = None</em><a class="headerlink"
+                                                                                                    href="#mcscript.data.blockStorage.BlockTree.BlockTree.right"
+                                                                                                    title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.blockStorage.BlockTree.BlockTree.values">
+                                        <code class="sig-name descname">values</code><em class="property">:
+                                        List[Block]</em><em class="property"> = None</em><a class="headerlink"
+                                                                                            href="#mcscript.data.blockStorage.BlockTree.BlockTree.values"
+                                                                                            title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.BlockTree.BlockTree.walk">
+                                        <code class="sig-name descname">walk</code><span class="sig-paren">(</span><span
+                                            class="sig-paren">)</span><a class="headerlink"
+                                                                         href="#mcscript.data.blockStorage.BlockTree.BlockTree.walk"
+                                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.blockStorage.Generator">
+                        <span id="mcscript-data-blockstorage-generator-module"></span>
+                        <h2>mcscript.data.blockStorage.Generator module<a class="headerlink"
+                                                                          href="#module-mcscript.data.blockStorage.Generator"
+                                                                          title="Permalink to this headline">¶</a></h2>
+                        <dl class="py class">
+                            <dt id="mcscript.data.blockStorage.Generator.BlockFunctionGenerator">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.blockStorage.Generator.</code><code
+                                    class="sig-name descname">BlockFunctionGenerator</code><span
+                                    class="sig-paren">(</span><em class="sig-param">tree: &lt;module
+                                'mcscript.data.blockStorage.BlockTree' from
+                                'D:\\Dokumente\\Informatik\\Python\\McScript\\mcscript\\data\\blockStorage\\BlockTree.py'&gt;</em><span
+                                    class="sig-paren">)</span><a class="headerlink"
+                                                                 href="#mcscript.data.blockStorage.Generator.BlockFunctionGenerator"
+                                                                 title="Permalink to this definition">¶</a></dt>
+                            <dd><p>Bases: <a class="reference internal"
+                                             href="#mcscript.data.blockStorage.Generator.Generator"
+                                             title="mcscript.data.blockStorage.Generator.Generator"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.blockStorage.Generator.Generator</span></code></a>
+                            </p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.BlockFunctionGenerator.checkBlockTag">
+                                        <em class="property">static </em><code
+                                            class="sig-name descname">checkBlockTag</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span class="n">index</span><span
+                                            class="p">:</span> <span class="n">int</span></em>, <em
+                                            class="sig-param"><span class="n">function</span><span class="p">:</span>
+                                        <span class="n">str</span></em><span class="sig-paren">)</span><a
+                                            class="headerlink"
+                                            href="#mcscript.data.blockStorage.Generator.BlockFunctionGenerator.checkBlockTag"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.BlockFunctionGenerator.generate">
+                                        <code class="sig-name descname">generate</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span class="n">filestructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em>,
+                                        <em class="sig-param"><span class="o">*</span><span class="n">_</span></em><span
+                                            class="sig-paren">)</span><a class="headerlink"
+                                                                         href="#mcscript.data.blockStorage.Generator.BlockFunctionGenerator.generate"
+                                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.blockStorage.Generator.BlockStateFunctionGenerator">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.blockStorage.Generator.</code><code
+                                    class="sig-name descname">BlockStateFunctionGenerator</code><span class="sig-paren">(</span><em
+                                    class="sig-param"><span class="n">block</span><span class="p">:</span> <span
+                                    class="n"><a class="reference internal"
+                                                 href="mcscript.data.minecraftData.html#mcscript.data.minecraftData.blocks.Block"
+                                                 title="mcscript.data.minecraftData.blocks.Block">mcscript.data.minecraftData.blocks.Block</a></span></em><span
+                                    class="sig-paren">)</span><a class="headerlink"
+                                                                 href="#mcscript.data.blockStorage.Generator.BlockStateFunctionGenerator"
+                                                                 title="Permalink to this definition">¶</a></dt>
+                            <dd><p>Bases: <a class="reference internal"
+                                             href="#mcscript.data.blockStorage.Generator.BlockStateGenerator"
+                                             title="mcscript.data.blockStorage.Generator.BlockStateGenerator"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.blockStorage.Generator.BlockStateGenerator</span></code></a>
+                            </p>
+                                <p>Tests for all blockstates of a block. Currently o(n) performance.</p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.BlockStateFunctionGenerator.checkBlock">
+                                        <code class="sig-name descname">checkBlock</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span
+                                            class="n">perm</span><span class="p">:</span> <span class="n">List<span
+                                            class="p">[</span><a class="reference internal"
+                                                                 href="mcscript.data.minecraftData.html#mcscript.data.minecraftData.blocks.BlockstateValue"
+                                                                 title="mcscript.data.minecraftData.blocks.BlockstateValue">mcscript.data.minecraftData.blocks.BlockstateValue</a><span
+                                            class="p">]</span></span></em>, <em class="sig-param"><span class="n">permIndex</span><span
+                                            class="p">:</span> <span class="n">int</span></em><span
+                                            class="sig-paren">)</span><a class="headerlink"
+                                                                         href="#mcscript.data.blockStorage.Generator.BlockStateFunctionGenerator.checkBlock"
+                                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.BlockStateFunctionGenerator.generate">
+                                        <code class="sig-name descname">generate</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span class="n">filestructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em><span
+                                            class="sig-paren">)</span><a class="headerlink"
+                                                                         href="#mcscript.data.blockStorage.Generator.BlockStateFunctionGenerator.generate"
+                                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.blockStorage.Generator.BlockStateGenerator">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.blockStorage.Generator.</code><code
+                                    class="sig-name descname">BlockStateGenerator</code><span class="sig-paren">(</span><em
+                                    class="sig-param"><span class="n">block</span><span class="p">:</span> <span
+                                    class="n"><a class="reference internal"
+                                                 href="mcscript.data.minecraftData.html#mcscript.data.minecraftData.blocks.Block"
+                                                 title="mcscript.data.minecraftData.blocks.Block">mcscript.data.minecraftData.blocks.Block</a></span></em><span
+                                    class="sig-paren">)</span><a class="headerlink"
+                                                                 href="#mcscript.data.blockStorage.Generator.BlockStateGenerator"
+                                                                 title="Permalink to this definition">¶</a></dt>
+                            <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code>
+                            </p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.BlockStateGenerator.generate">
+                                        <em class="property">abstract </em><code
+                                            class="sig-name descname">generate</code><span class="sig-paren">(</span><em
+                                            class="sig-param"><span class="n">filestructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em><span
+                                            class="sig-paren">)</span><a class="headerlink"
+                                                                         href="#mcscript.data.blockStorage.Generator.BlockStateGenerator.generate"
+                                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.blockStorage.Generator.BlockTagGenerator">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.blockStorage.Generator.</code><code
+                                    class="sig-name descname">BlockTagGenerator</code><span
+                                    class="sig-paren">(</span><em class="sig-param">tree: &lt;module
+                                'mcscript.data.blockStorage.BlockTree' from
+                                'D:\\Dokumente\\Informatik\\Python\\McScript\\mcscript\\data\\blockStorage\\BlockTree.py'&gt;</em><span
+                                    class="sig-paren">)</span><a class="headerlink"
+                                                                 href="#mcscript.data.blockStorage.Generator.BlockTagGenerator"
+                                                                 title="Permalink to this definition">¶</a></dt>
+                            <dd><p>Bases: <a class="reference internal"
+                                             href="#mcscript.data.blockStorage.Generator.Generator"
+                                             title="mcscript.data.blockStorage.Generator.Generator"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.blockStorage.Generator.Generator</span></code></a>
+                            </p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.BlockTagGenerator.format_blocks">
+                                        <em class="property">static </em><code
+                                            class="sig-name descname">format_blocks</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span
+                                            class="n">blocks</span><span class="p">:</span> <span class="n">List<span
+                                            class="p">[</span><a class="reference internal"
+                                                                 href="mcscript.data.minecraftData.html#mcscript.data.minecraftData.blocks.Block"
+                                                                 title="mcscript.data.minecraftData.blocks.Block">mcscript.data.minecraftData.blocks.Block</a><span
+                                            class="p">]</span></span></em><span class="sig-paren">)</span><a
+                                            class="headerlink"
+                                            href="#mcscript.data.blockStorage.Generator.BlockTagGenerator.format_blocks"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.BlockTagGenerator.generate">
+                                        <code class="sig-name descname">generate</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span class="n">filestructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em>,
+                                        <em class="sig-param"><span class="o">*</span><span class="n">_</span></em><span
+                                            class="sig-paren">)</span><a class="headerlink"
+                                                                         href="#mcscript.data.blockStorage.Generator.BlockTagGenerator.generate"
+                                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.blockStorage.Generator.Generator">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.blockStorage.Generator.</code><code
+                                    class="sig-name descname">Generator</code><span class="sig-paren">(</span><em
+                                    class="sig-param">tree: &lt;module 'mcscript.data.blockStorage.BlockTree' from
+                                'D:\\Dokumente\\Informatik\\Python\\McScript\\mcscript\\data\\blockStorage\\BlockTree.py'&gt;</em><span
+                                    class="sig-paren">)</span><a class="headerlink"
+                                                                 href="#mcscript.data.blockStorage.Generator.Generator"
+                                                                 title="Permalink to this definition">¶</a></dt>
+                            <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code>
+                            </p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.Generator.generate">
+                                        <em class="property">abstract </em><code
+                                            class="sig-name descname">generate</code><span class="sig-paren">(</span><em
+                                            class="sig-param"><span class="n">filestructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em>,
+                                        <em class="sig-param"><span class="o">*</span><span
+                                                class="n">data</span></em><span class="sig-paren">)</span><a
+                                            class="headerlink"
+                                            href="#mcscript.data.blockStorage.Generator.Generator.generate"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.blockStorage.Generator.IdToBlockGenerator">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.blockStorage.Generator.</code><code
+                                    class="sig-name descname">IdToBlockGenerator</code><a class="headerlink"
+                                                                                          href="#mcscript.data.blockStorage.Generator.IdToBlockGenerator"
+                                                                                          title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>
+                            </p>
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.blockStorage.Generator.IdToBlockGenerator.FUNCTION_NAME_TEMPLATE">
+                                        <code class="sig-name descname">FUNCTION_NAME_TEMPLATE</code><em
+                                            class="property"> = 'set_block.{}'</em><a class="headerlink"
+                                                                                      href="#mcscript.data.blockStorage.Generator.IdToBlockGenerator.FUNCTION_NAME_TEMPLATE"
+                                                                                      title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.IdToBlockGenerator.checkBlock">
+                                        <code class="sig-name descname">checkBlock</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span
+                                            class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>,
+                                        <em class="sig-param"><span class="n">value</span></em><span
+                                            class="sig-paren">)</span><a class="headerlink"
+                                                                         href="#mcscript.data.blockStorage.Generator.IdToBlockGenerator.checkBlock"
+                                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.IdToBlockGenerator.checkRange">
+                                        <code class="sig-name descname">checkRange</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span
+                                            class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>,
+                                        <em class="sig-param"><span class="n">range_</span></em>, <em class="sig-param"><span
+                                            class="n">function</span></em><span class="sig-paren">)</span><a
+                                            class="headerlink"
+                                            href="#mcscript.data.blockStorage.Generator.IdToBlockGenerator.checkRange"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.IdToBlockGenerator.checkRangeLess">
+                                        <code class="sig-name descname">checkRangeLess</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span
+                                            class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>,
+                                        <em class="sig-param"><span class="n">value</span></em>, <em
+                                            class="sig-param"><span class="n">function</span></em><span
+                                            class="sig-paren">)</span><a class="headerlink"
+                                                                         href="#mcscript.data.blockStorage.Generator.IdToBlockGenerator.checkRangeLess"
+                                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.IdToBlockGenerator.checkRangeMoreOrEqual">
+                                        <code class="sig-name descname">checkRangeMoreOrEqual</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span
+                                            class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>,
+                                        <em class="sig-param"><span class="n">value</span></em>, <em
+                                            class="sig-param"><span class="n">function</span></em><span
+                                            class="sig-paren">)</span><a class="headerlink"
+                                                                         href="#mcscript.data.blockStorage.Generator.IdToBlockGenerator.checkRangeMoreOrEqual"
+                                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.IdToBlockGenerator.generate">
+                                        <code class="sig-name descname">generate</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span class="n">filestructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em>,
+                                        <em class="sig-param"><span class="o">*</span><span
+                                                class="n">data</span></em><span class="sig-paren">)</span><a
+                                            class="headerlink"
+                                            href="#mcscript.data.blockStorage.Generator.IdToBlockGenerator.generate"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.blockStorage.Generator.IdToBlockGenerator.generateRecursive">
+                                        <code class="sig-name descname">generateRecursive</code><span class="sig-paren">(</span><em
+                                            class="sig-param"><span class="n">var1</span></em>, <em
+                                            class="sig-param"><span class="n">var2</span></em>, <em
+                                            class="sig-param"><span class="n">filestructure</span></em>, <em
+                                            class="sig-param"><span class="n">count</span></em>, <em
+                                            class="sig-param"><span class="n">start</span><span class="o">=</span><span
+                                            class="default_value">0</span></em>, <em class="sig-param"><span class="n">index</span><span
+                                            class="o">=</span><span class="default_value">0</span></em><span
+                                            class="sig-paren">)</span><a class="headerlink"
+                                                                         href="#mcscript.data.blockStorage.Generator.IdToBlockGenerator.generateRecursive"
+                                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.blockStorage.Generator.resetToZero">
+                                <code class="sig-prename descclassname">mcscript.data.blockStorage.Generator.</code><code
+                                    class="sig-name descname">resetToZero</code><span class="sig-paren">(</span><span
+                                    class="sig-paren">)</span><a class="headerlink"
+                                                                 href="#mcscript.data.blockStorage.Generator.resetToZero"
+                                                                 title="Permalink to this definition">¶</a></dt>
+                            <dd></dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.blockStorage">
+                        <span id="module-contents"></span>
+                        <h2>Module contents<a class="headerlink" href="#module-mcscript.data.blockStorage"
+                                              title="Permalink to this headline">¶</a></h2>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table of Contents</a></h3>
+            <ul>
+                <li><a class="reference internal" href="#">mcscript.data.blockStorage package</a>
+                    <ul>
+                        <li><a class="reference internal" href="#submodules">Submodules</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.blockStorage.BlockTree">mcscript.data.blockStorage.BlockTree
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.blockStorage.Generator">mcscript.data.blockStorage.Generator
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.blockStorage">Module contents</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="mcscript.data.html"
+                                  title="previous chapter">mcscript.data package</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="mcscript.data.minecraftData.html"
+                                  title="next chapter">mcscript.data.minecraftData package</a></p>
+            <div role="note" aria-label="source link">
+                <h3>This Page</h3>
+                <ul class="this-page-menu">
+                    <li><a href="_sources/mcscript.data.blockStorage.rst.txt"
+                           rel="nofollow">Show Source</a></li>
+                </ul>
+            </div>
+            <div id="searchbox" style="display: none" role="search">
+                <h3 id="searchlabel">Quick search</h3>
+                <div class="searchformwrapper">
+                    <form class="search" action="search.html" method="get">
+                        <input type="text" name="q" aria-labelledby="searchlabel"/>
+                        <input type="submit" value="Go"/>
+                    </form>
+                </div>
+            </div>
+            <script>$('#searchbox').show(0);</script>
+        </div>
+    </div>
+    <div class="clearer"></div>
+</div>
+<div class="related" role="navigation" aria-label="related navigation">
+    <h3>Navigation</h3>
+    <ul>
+        <li class="right" style="margin-right: 10px">
+            <a href="genindex.html" title="General Index"
+            >index</a></li>
+        <li class="right">
+            <a href="py-modindex.html" title="Python Module Index"
+            >modules</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.data.minecraftData.html" title="mcscript.data.minecraftData package"
+            >next</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.data.html" title="mcscript.data package"
+            >previous</a> |
+        </li>
+        <li class="nav-item nav-item-0"><a href="index.html">McScript 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-1"><a href="mcscript.html">mcscript package</a> &#187;</li>
+        <li class="nav-item nav-item-2"><a href="mcscript.data.html">mcscript.data package</a> &#187;</li>
+    </ul>
+</div>
+<div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Inky.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.
+</div>
+</body>
+</html>

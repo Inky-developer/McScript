@@ -1,12 +1,12 @@
 from setuptools import find_packages, setup
 
-with open("README.md", "utf-8") as f:
+with open("README.md") as f:
     readme = f.read()
 
-with open("LICENSE", "utf-8") as f:
+with open("LICENSE") as f:
     license_ = f.read()
 
-with open("requirements.txt", "utf-8") as f:
+with open("requirements.txt") as f:
     requirements = f.read().split("\n")
 
 setup(

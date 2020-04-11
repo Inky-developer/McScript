@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>mcscript.data.predicates package &#8212; McScript 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css"/>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
+
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="search" title="Search" href="search.html"/>
+    <link rel="next" title="mcscript.data.templates package" href="mcscript.data.templates.html"/>
+    <link rel="prev" title="mcscript.data.minecraftData package" href="mcscript.data.minecraftData.html"/>
+</head>
+<body>
+<div class="related" role="navigation" aria-label="related navigation">
+    <h3>Navigation</h3>
+    <ul>
+        <li class="right" style="margin-right: 10px">
+            <a href="genindex.html" title="General Index"
+               accesskey="I">index</a></li>
+        <li class="right">
+            <a href="py-modindex.html" title="Python Module Index"
+            >modules</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.data.templates.html" title="mcscript.data.templates package"
+               accesskey="N">next</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.data.minecraftData.html" title="mcscript.data.minecraftData package"
+               accesskey="P">previous</a> |
+        </li>
+        <li class="nav-item nav-item-0"><a href="index.html">McScript 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-1"><a href="mcscript.html">mcscript package</a> &#187;</li>
+        <li class="nav-item nav-item-2"><a href="mcscript.data.html" accesskey="U">mcscript.data package</a> &#187;</li>
+    </ul>
+</div>
+
+<div class="document">
+    <div class="documentwrapper">
+        <div class="bodywrapper">
+            <div class="body" role="main">
+
+                <div class="section" id="mcscript-data-predicates-package">
+                    <h1>mcscript.data.predicates package<a class="headerlink" href="#mcscript-data-predicates-package"
+                                                           title="Permalink to this headline">¶</a></h1>
+                    <div class="section" id="submodules">
+                        <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a>
+                        </h2>
+                    </div>
+                    <div class="section" id="module-mcscript.data.predicates.BiomePredicate">
+                        <span id="mcscript-data-predicates-biomepredicate-module"></span>
+                        <h2>mcscript.data.predicates.BiomePredicate module<a class="headerlink"
+                                                                             href="#module-mcscript.data.predicates.BiomePredicate"
+                                                                             title="Permalink to this headline">¶</a>
+                        </h2>
+                        <dl class="py class">
+                            <dt id="mcscript.data.predicates.BiomePredicate.BiomePredicate">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.predicates.BiomePredicate.</code><code
+                                    class="sig-name descname">BiomePredicate</code><a class="headerlink"
+                                                                                      href="#mcscript.data.predicates.BiomePredicate.BiomePredicate"
+                                                                                      title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal"
+                                             href="#mcscript.data.predicates.predicateGenerator.PredicateGenerator"
+                                             title="mcscript.data.predicates.predicateGenerator.PredicateGenerator"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.predicates.predicateGenerator.PredicateGenerator</span></code></a>
+                            </p>
+                                <p>generates predicates to identify each biome in minecraft (biomes are read from
+                                    config/biome_list_path)</p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.predicates.BiomePredicate.BiomePredicate.generate">
+                                        <code class="sig-name descname">generate</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span class="n">fileStructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em><span
+                                            class="sig-paren">)</span> &#x2192; Tuple[str, …]<a class="headerlink"
+                                                                                                href="#mcscript.data.predicates.BiomePredicate.BiomePredicate.generate"
+                                                                                                title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd><p>Generates the predicate files in the fileStructure object.
+                                        :param fileStructure: the FileStructure
+                                        :return: a list of the names of the predicate functions, without extension</p>
+                                    </dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.predicates.FeaturePredicate">
+                        <span id="mcscript-data-predicates-featurepredicate-module"></span>
+                        <h2>mcscript.data.predicates.FeaturePredicate module<a class="headerlink"
+                                                                               href="#module-mcscript.data.predicates.FeaturePredicate"
+                                                                               title="Permalink to this headline">¶</a>
+                        </h2>
+                        <dl class="py class">
+                            <dt id="mcscript.data.predicates.FeaturePredicate.FeaturePredicate">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.predicates.FeaturePredicate.</code><code
+                                    class="sig-name descname">FeaturePredicate</code><a class="headerlink"
+                                                                                        href="#mcscript.data.predicates.FeaturePredicate.FeaturePredicate"
+                                                                                        title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal"
+                                             href="#mcscript.data.predicates.predicateGenerator.PredicateGenerator"
+                                             title="mcscript.data.predicates.predicateGenerator.PredicateGenerator"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.predicates.predicateGenerator.PredicateGenerator</span></code></a>
+                            </p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.predicates.FeaturePredicate.FeaturePredicate.generate">
+                                        <code class="sig-name descname">generate</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span class="n">fileStructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em><span
+                                            class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span><a
+                                            class="reference internal"
+                                            href="mcscript.data.minecraftData.html#mcscript.data.minecraftData.features.Feature"
+                                            title="mcscript.data.minecraftData.features.Feature">mcscript.data.minecraftData.features.Feature</a><span
+                                            class="p">, </span>str<span class="p">]</span><a class="headerlink"
+                                                                                             href="#mcscript.data.predicates.FeaturePredicate.FeaturePredicate.generate"
+                                                                                             title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd><p>Generates the predicate files in the fileStructure object.
+                                        :param fileStructure: the FileStructure
+                                        :return: a list of the names of the predicate functions, without extension</p>
+                                    </dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.predicates.LightPredicate">
+                        <span id="mcscript-data-predicates-lightpredicate-module"></span>
+                        <h2>mcscript.data.predicates.LightPredicate module<a class="headerlink"
+                                                                             href="#module-mcscript.data.predicates.LightPredicate"
+                                                                             title="Permalink to this headline">¶</a>
+                        </h2>
+                        <dl class="py class">
+                            <dt id="mcscript.data.predicates.LightPredicate.LightPredicate">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.predicates.LightPredicate.</code><code
+                                    class="sig-name descname">LightPredicate</code><a class="headerlink"
+                                                                                      href="#mcscript.data.predicates.LightPredicate.LightPredicate"
+                                                                                      title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal"
+                                             href="#mcscript.data.predicates.predicateGenerator.PredicateGenerator"
+                                             title="mcscript.data.predicates.predicateGenerator.PredicateGenerator"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.predicates.predicateGenerator.PredicateGenerator</span></code></a>
+                            </p>
+                                <p>Generates Predicates to test for the light level.
+                                    This is done by a simple linear search (so that only one function file is
+                                    necessary)</p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.predicates.LightPredicate.LightPredicate.generate">
+                                        <code class="sig-name descname">generate</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span class="n">fileStructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em><span
+                                            class="sig-paren">)</span> &#x2192; Tuple[str, …]<a class="headerlink"
+                                                                                                href="#mcscript.data.predicates.LightPredicate.LightPredicate.generate"
+                                                                                                title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd><p>Generates the predicate files in the fileStructure object.
+                                        :param fileStructure: the FileStructure
+                                        :return: a list of the names of the predicate functions, without extension</p>
+                                    </dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.predicates.RandomChancePredicate">
+                        <span id="mcscript-data-predicates-randomchancepredicate-module"></span>
+                        <h2>mcscript.data.predicates.RandomChancePredicate module<a class="headerlink"
+                                                                                    href="#module-mcscript.data.predicates.RandomChancePredicate"
+                                                                                    title="Permalink to this headline">¶</a>
+                        </h2>
+                        <dl class="py class">
+                            <dt id="mcscript.data.predicates.RandomChancePredicate.RandomChancePredicate">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.predicates.RandomChancePredicate.</code><code
+                                    class="sig-name descname">RandomChancePredicate</code><span
+                                    class="sig-paren">(</span><em class="sig-param"><span class="n">chance</span><span
+                                    class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a
+                                    class="headerlink"
+                                    href="#mcscript.data.predicates.RandomChancePredicate.RandomChancePredicate"
+                                    title="Permalink to this definition">¶</a></dt>
+                            <dd><p>Bases: <a class="reference internal"
+                                             href="#mcscript.data.predicates.predicateGenerator.PredicateGenerator"
+                                             title="mcscript.data.predicates.predicateGenerator.PredicateGenerator"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.predicates.predicateGenerator.PredicateGenerator</span></code></a>
+                            </p>
+                                <p>This default dynamic predicates that return true with a custom chance.</p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.predicates.RandomChancePredicate.RandomChancePredicate.generate">
+                                        <code class="sig-name descname">generate</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span class="n">fileStructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em><span
+                                            class="sig-paren">)</span> &#x2192; Tuple[str, …]<a class="headerlink"
+                                                                                                href="#mcscript.data.predicates.RandomChancePredicate.RandomChancePredicate.generate"
+                                                                                                title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd><p>Generates the predicate files in the fileStructure object.
+                                        :param fileStructure: the FileStructure
+                                        :return: a list of the names of the predicate functions, without extension</p>
+                                    </dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.predicates.RandomPredicate">
+                        <span id="mcscript-data-predicates-randompredicate-module"></span>
+                        <h2>mcscript.data.predicates.RandomPredicate module<a class="headerlink"
+                                                                              href="#module-mcscript.data.predicates.RandomPredicate"
+                                                                              title="Permalink to this headline">¶</a>
+                        </h2>
+                        <dl class="py class">
+                            <dt id="mcscript.data.predicates.RandomPredicate.RandomPredicate">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.predicates.RandomPredicate.</code><code
+                                    class="sig-name descname">RandomPredicate</code><a class="headerlink"
+                                                                                       href="#mcscript.data.predicates.RandomPredicate.RandomPredicate"
+                                                                                       title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal"
+                                             href="#mcscript.data.predicates.predicateGenerator.SimplePredicateGenerator"
+                                             title="mcscript.data.predicates.predicateGenerator.SimplePredicateGenerator"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.predicates.predicateGenerator.SimplePredicateGenerator</span></code></a>
+                            </p>
+                            </dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.predicates.WeatherPredicate">
+                        <span id="mcscript-data-predicates-weatherpredicate-module"></span>
+                        <h2>mcscript.data.predicates.WeatherPredicate module<a class="headerlink"
+                                                                               href="#module-mcscript.data.predicates.WeatherPredicate"
+                                                                               title="Permalink to this headline">¶</a>
+                        </h2>
+                        <dl class="py class">
+                            <dt id="mcscript.data.predicates.WeatherPredicate.WeatherPredicate">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.predicates.WeatherPredicate.</code><code
+                                    class="sig-name descname">WeatherPredicate</code><a class="headerlink"
+                                                                                        href="#mcscript.data.predicates.WeatherPredicate.WeatherPredicate"
+                                                                                        title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal"
+                                             href="#mcscript.data.predicates.predicateGenerator.SimplePredicateGenerator"
+                                             title="mcscript.data.predicates.predicateGenerator.SimplePredicateGenerator"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.predicates.predicateGenerator.SimplePredicateGenerator</span></code></a>
+                            </p>
+                            </dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.predicates.predicateGenerator">
+                        <span id="mcscript-data-predicates-predicategenerator-module"></span>
+                        <h2>mcscript.data.predicates.predicateGenerator module<a class="headerlink"
+                                                                                 href="#module-mcscript.data.predicates.predicateGenerator"
+                                                                                 title="Permalink to this headline">¶</a>
+                        </h2>
+                        <dl class="py class">
+                            <dt id="mcscript.data.predicates.predicateGenerator.PredicateGenerator">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.predicates.predicateGenerator.</code><code
+                                    class="sig-name descname">PredicateGenerator</code><a class="headerlink"
+                                                                                          href="#mcscript.data.predicates.predicateGenerator.PredicateGenerator"
+                                                                                          title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code>
+                            </p>
+                                <p>base class for predicate generators.</p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.predicates.predicateGenerator.PredicateGenerator.generate">
+                                        <em class="property">abstract </em><code
+                                            class="sig-name descname">generate</code><span class="sig-paren">(</span><em
+                                            class="sig-param"><span class="n">fileStructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em><span
+                                            class="sig-paren">)</span> &#x2192; Tuple[str, …]<a class="headerlink"
+                                                                                                href="#mcscript.data.predicates.predicateGenerator.PredicateGenerator.generate"
+                                                                                                title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd><p>Generates the predicate files in the fileStructure object.
+                                        :param fileStructure: the FileStructure
+                                        :return: a list of the names of the predicate functions, without extension</p>
+                                    </dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.predicates.predicateGenerator.SimplePredicateGenerator">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.predicates.predicateGenerator.</code><code
+                                    class="sig-name descname">SimplePredicateGenerator</code><span
+                                    class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span
+                                    class="n">keys</span></em><span class="sig-paren">)</span><a class="headerlink"
+                                                                                                 href="#mcscript.data.predicates.predicateGenerator.SimplePredicateGenerator"
+                                                                                                 title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal"
+                                             href="#mcscript.data.predicates.predicateGenerator.PredicateGenerator"
+                                             title="mcscript.data.predicates.predicateGenerator.PredicateGenerator"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.predicates.predicateGenerator.PredicateGenerator</span></code></a>
+                            </p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.predicates.predicateGenerator.SimplePredicateGenerator.generate">
+                                        <code class="sig-name descname">generate</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span class="n">fileStructure</span><span
+                                            class="p">:</span> <span class="n"><a class="reference internal"
+                                                                                  href="mcscript.utils.html#mcscript.utils.FileStructure.FileStructure"
+                                                                                  title="mcscript.utils.FileStructure.FileStructure">mcscript.utils.FileStructure.FileStructure</a></span></em><span
+                                            class="sig-paren">)</span> &#x2192; Tuple[str, …]<a class="headerlink"
+                                                                                                href="#mcscript.data.predicates.predicateGenerator.SimplePredicateGenerator.generate"
+                                                                                                title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd><p>Generates the predicate files in the fileStructure object.
+                                        :param fileStructure: the FileStructure
+                                        :return: a list of the names of the predicate functions, without extension</p>
+                                    </dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.predicates">
+                        <span id="module-contents"></span>
+                        <h2>Module contents<a class="headerlink" href="#module-mcscript.data.predicates"
+                                              title="Permalink to this headline">¶</a></h2>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table of Contents</a></h3>
+            <ul>
+                <li><a class="reference internal" href="#">mcscript.data.predicates package</a>
+                    <ul>
+                        <li><a class="reference internal" href="#submodules">Submodules</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.predicates.BiomePredicate">mcscript.data.predicates.BiomePredicate
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.predicates.FeaturePredicate">mcscript.data.predicates.FeaturePredicate
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.predicates.LightPredicate">mcscript.data.predicates.LightPredicate
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.predicates.RandomChancePredicate">mcscript.data.predicates.RandomChancePredicate
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.predicates.RandomPredicate">mcscript.data.predicates.RandomPredicate
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.predicates.WeatherPredicate">mcscript.data.predicates.WeatherPredicate
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.predicates.predicateGenerator">mcscript.data.predicates.predicateGenerator
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.predicates">Module contents</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="mcscript.data.minecraftData.html"
+                                  title="previous chapter">mcscript.data.minecraftData package</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="mcscript.data.templates.html"
+                                  title="next chapter">mcscript.data.templates package</a></p>
+            <div role="note" aria-label="source link">
+                <h3>This Page</h3>
+                <ul class="this-page-menu">
+                    <li><a href="_sources/mcscript.data.predicates.rst.txt"
+                           rel="nofollow">Show Source</a></li>
+                </ul>
+            </div>
+            <div id="searchbox" style="display: none" role="search">
+                <h3 id="searchlabel">Quick search</h3>
+                <div class="searchformwrapper">
+                    <form class="search" action="search.html" method="get">
+                        <input type="text" name="q" aria-labelledby="searchlabel"/>
+                        <input type="submit" value="Go"/>
+                    </form>
+                </div>
+            </div>
+            <script>$('#searchbox').show(0);</script>
+        </div>
+    </div>
+    <div class="clearer"></div>
+</div>
+<div class="related" role="navigation" aria-label="related navigation">
+    <h3>Navigation</h3>
+    <ul>
+        <li class="right" style="margin-right: 10px">
+            <a href="genindex.html" title="General Index"
+            >index</a></li>
+        <li class="right">
+            <a href="py-modindex.html" title="Python Module Index"
+            >modules</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.data.templates.html" title="mcscript.data.templates package"
+            >next</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.data.minecraftData.html" title="mcscript.data.minecraftData package"
+            >previous</a> |
+        </li>
+        <li class="nav-item nav-item-0"><a href="index.html">McScript 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-1"><a href="mcscript.html">mcscript package</a> &#187;</li>
+        <li class="nav-item nav-item-2"><a href="mcscript.data.html">mcscript.data package</a> &#187;</li>
+    </ul>
+</div>
+<div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Inky.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.
+</div>
+</body>
+</html>

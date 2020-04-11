@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>mcscript.data package &#8212; McScript 0.1.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css"/>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
+
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+
+    <link rel="index" title="Index" href="genindex.html"/>
+    <link rel="search" title="Search" href="search.html"/>
+    <link rel="next" title="mcscript.data.blockStorage package" href="mcscript.data.blockStorage.html"/>
+    <link rel="prev" title="mcscript.compiler package" href="mcscript.compiler.html"/>
+</head>
+<body>
+<div class="related" role="navigation" aria-label="related navigation">
+    <h3>Navigation</h3>
+    <ul>
+        <li class="right" style="margin-right: 10px">
+            <a href="genindex.html" title="General Index"
+               accesskey="I">index</a></li>
+        <li class="right">
+            <a href="py-modindex.html" title="Python Module Index"
+            >modules</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.data.blockStorage.html" title="mcscript.data.blockStorage package"
+               accesskey="N">next</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.compiler.html" title="mcscript.compiler package"
+               accesskey="P">previous</a> |
+        </li>
+        <li class="nav-item nav-item-0"><a href="index.html">McScript 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-1"><a href="mcscript.html" accesskey="U">mcscript package</a> &#187;</li>
+    </ul>
+</div>
+
+<div class="document">
+    <div class="documentwrapper">
+        <div class="bodywrapper">
+            <div class="body" role="main">
+
+                <div class="section" id="mcscript-data-package">
+                    <h1>mcscript.data package<a class="headerlink" href="#mcscript-data-package"
+                                                title="Permalink to this headline">¶</a></h1>
+                    <div class="section" id="subpackages">
+                        <h2>Subpackages<a class="headerlink" href="#subpackages"
+                                          title="Permalink to this headline">¶</a></h2>
+                        <div class="toctree-wrapper compound">
+                            <ul>
+                                <li class="toctree-l1"><a class="reference internal"
+                                                          href="mcscript.data.blockStorage.html">mcscript.data.blockStorage
+                                    package</a>
+                                    <ul>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.blockStorage.html#submodules">Submodules</a>
+                                        </li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.blockStorage.html#module-mcscript.data.blockStorage.BlockTree">mcscript.data.blockStorage.BlockTree
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.blockStorage.html#module-mcscript.data.blockStorage.Generator">mcscript.data.blockStorage.Generator
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.blockStorage.html#module-mcscript.data.blockStorage">Module
+                                            contents</a></li>
+                                    </ul>
+                                </li>
+                                <li class="toctree-l1"><a class="reference internal"
+                                                          href="mcscript.data.minecraftData.html">mcscript.data.minecraftData
+                                    package</a>
+                                    <ul>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.minecraftData.html#submodules">Submodules</a>
+                                        </li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.minecraftData.html#module-mcscript.data.minecraftData.biomes">mcscript.data.minecraftData.biomes
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.minecraftData.html#module-mcscript.data.minecraftData.blocks">mcscript.data.minecraftData.blocks
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.minecraftData.html#module-mcscript.data.minecraftData.features">mcscript.data.minecraftData.features
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.minecraftData.html#module-mcscript.data.minecraftData">Module
+                                            contents</a></li>
+                                    </ul>
+                                </li>
+                                <li class="toctree-l1"><a class="reference internal"
+                                                          href="mcscript.data.predicates.html">mcscript.data.predicates
+                                    package</a>
+                                    <ul>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.predicates.html#submodules">Submodules</a>
+                                        </li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.predicates.html#module-mcscript.data.predicates.BiomePredicate">mcscript.data.predicates.BiomePredicate
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.predicates.html#module-mcscript.data.predicates.FeaturePredicate">mcscript.data.predicates.FeaturePredicate
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.predicates.html#module-mcscript.data.predicates.LightPredicate">mcscript.data.predicates.LightPredicate
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.predicates.html#module-mcscript.data.predicates.RandomChancePredicate">mcscript.data.predicates.RandomChancePredicate
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.predicates.html#module-mcscript.data.predicates.RandomPredicate">mcscript.data.predicates.RandomPredicate
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.predicates.html#module-mcscript.data.predicates.WeatherPredicate">mcscript.data.predicates.WeatherPredicate
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.predicates.html#module-mcscript.data.predicates.predicateGenerator">mcscript.data.predicates.predicateGenerator
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.predicates.html#module-mcscript.data.predicates">Module
+                                            contents</a></li>
+                                    </ul>
+                                </li>
+                                <li class="toctree-l1"><a class="reference internal"
+                                                          href="mcscript.data.templates.html">mcscript.data.templates
+                                    package</a>
+                                    <ul>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.templates.html#submodules">Submodules</a>
+                                        </li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.templates.html#module-mcscript.data.templates.DataReader">mcscript.data.templates.DataReader
+                                            module</a></li>
+                                        <li class="toctree-l2"><a class="reference internal"
+                                                                  href="mcscript.data.templates.html#module-mcscript.data.templates">Module
+                                            contents</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="section" id="submodules">
+                        <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a>
+                        </h2>
+                    </div>
+                    <div class="section" id="module-mcscript.data.Config">
+                        <span id="mcscript-data-config-module"></span>
+                        <h2>mcscript.data.Config module<a class="headerlink" href="#module-mcscript.data.Config"
+                                                          title="Permalink to this headline">¶</a></h2>
+                        <dl class="py class">
+                            <dt id="mcscript.data.Config.Config">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.Config.</code><code
+                                    class="sig-name descname">Config</code><span class="sig-paren">(</span><em
+                                    class="sig-param"><span class="n">path</span><span class="p">:</span> <span
+                                    class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span
+                                    class="o">=</span> <span class="default_value">None</span></em><span
+                                    class="sig-paren">)</span><a class="headerlink" href="#mcscript.data.Config.Config"
+                                                                 title="Permalink to this definition">¶</a></dt>
+                            <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code>
+                            </p>
+                                <dl class="py method">
+                                    <dt id="mcscript.data.Config.Config.BLOCK_SCORE">
+                                        <em class="property">property </em><code
+                                            class="sig-name descname">BLOCK_SCORE</code><a class="headerlink"
+                                                                                           href="#mcscript.data.Config.Config.BLOCK_SCORE"
+                                                                                           title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.Config.Config.NAME">
+                                        <em class="property">property </em><code class="sig-name descname">NAME</code><a
+                                            class="headerlink" href="#mcscript.data.Config.Config.NAME"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.Config.Config.RETURN_SCORE">
+                                        <em class="property">property </em><code
+                                            class="sig-name descname">RETURN_SCORE</code><a class="headerlink"
+                                                                                            href="#mcscript.data.Config.Config.RETURN_SCORE"
+                                                                                            title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.Config.Config.UTILS">
+                                        <em class="property">property </em><code
+                                            class="sig-name descname">UTILS</code><a class="headerlink"
+                                                                                     href="#mcscript.data.Config.Config.UTILS"
+                                                                                     title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.Config.Config.currentConfig">
+                                        <code class="sig-name descname">currentConfig</code><em class="property">:
+                                        Config</em><em class="property"> = None</em><a class="headerlink"
+                                                                                       href="#mcscript.data.Config.Config.currentConfig"
+                                                                                       title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.Config.Config.get_compiler">
+                                        <code class="sig-name descname">get_compiler</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span
+                                            class="n">key</span></em><span class="sig-paren">)</span> &#x2192; str<a
+                                            class="headerlink" href="#mcscript.data.Config.Config.get_compiler"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.Config.Config.get_data">
+                                        <code class="sig-name descname">get_data</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span
+                                            class="n">key</span></em><span class="sig-paren">)</span> &#x2192; str<a
+                                            class="headerlink" href="#mcscript.data.Config.Config.get_data"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.commands">
+                        <span id="mcscript-data-commands-module"></span>
+                        <h2>mcscript.data.commands module<a class="headerlink" href="#module-mcscript.data.commands"
+                                                            title="Permalink to this headline">¶</a></h2>
+                        <dl class="py class">
+                            <dt id="mcscript.data.commands.BinaryOperator">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">BinaryOperator</code><a class="headerlink"
+                                                                                      href="#mcscript.data.commands.BinaryOperator"
+                                                                                      title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal" href="#mcscript.data.commands.StringEnum"
+                                             title="mcscript.data.commands.StringEnum"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.commands.StringEnum</span></code></a>
+                            </p>
+                                <p>An enumeration.</p>
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.BinaryOperator.DIVIDE">
+                                        <code class="sig-name descname">DIVIDE</code><em class="property"> = '/'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.BinaryOperator.DIVIDE"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.BinaryOperator.MINUS">
+                                        <code class="sig-name descname">MINUS</code><em class="property"> = '-'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.BinaryOperator.MINUS"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.BinaryOperator.MODULO">
+                                        <code class="sig-name descname">MODULO</code><em class="property"> = '%'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.BinaryOperator.MODULO"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.BinaryOperator.PLUS">
+                                        <code class="sig-name descname">PLUS</code><em class="property"> = '+'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.BinaryOperator.PLUS"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.BinaryOperator.TIMES">
+                                        <code class="sig-name descname">TIMES</code><em class="property"> = '*'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.BinaryOperator.TIMES"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.commands.Command">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">Command</code><a class="headerlink"
+                                                                               href="#mcscript.data.commands.Command"
+                                                                               title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal" href="#mcscript.data.commands.StringEnum"
+                                             title="mcscript.data.commands.StringEnum"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.commands.StringEnum</span></code></a>
+                            </p>
+                                <p>An enumeration.</p>
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.ACTIONBAR">
+                                        <code class="sig-name descname">ACTIONBAR</code><em class="property"> = 'title
+                                        {target:&#64;s} actionbar {text}'</em><a class="headerlink"
+                                                                                 href="#mcscript.data.commands.Command.ACTIONBAR"
+                                                                                 title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.ADD_SCORE">
+                                        <code class="sig-name descname">ADD_SCORE</code><em class="property"> =
+                                        'scoreboard players add {stack} {name} {value}'</em><a class="headerlink"
+                                                                                               href="#mcscript.data.commands.Command.ADD_SCORE"
+                                                                                               title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.COPY_VARIABLE">
+                                        <code class="sig-name descname">COPY_VARIABLE</code><em class="property"> =
+                                        'data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} set from
+                                        storage {name}:{:Storage.NAME} {:Storage.VARS}.{address2}'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Command.COPY_VARIABLE"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.EXECUTE">
+                                        <code class="sig-name descname">EXECUTE</code><em class="property"> = 'execute
+                                        {sub}run {command}'</em><a class="headerlink"
+                                                                   href="#mcscript.data.commands.Command.EXECUTE"
+                                                                   title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.GET_SCOREBOARD_VALUE">
+                                        <code class="sig-name descname">GET_SCOREBOARD_VALUE</code><em class="property">
+                                        = 'scoreboard players get {stack} {name}'</em><a class="headerlink"
+                                                                                         href="#mcscript.data.commands.Command.GET_SCOREBOARD_VALUE"
+                                                                                         title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.KILL_ENTITY">
+                                        <code class="sig-name descname">KILL_ENTITY</code><em class="property"> = 'kill
+                                        {target}'</em><a class="headerlink"
+                                                         href="#mcscript.data.commands.Command.KILL_ENTITY"
+                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.LOAD_VARIABLE">
+                                        <code class="sig-name descname">LOAD_VARIABLE</code><em class="property"> =
+                                        'execute store result score {stack} {name} run data get storage
+                                        {name2}:{:Storage.NAME} {:Storage.VARS}.{var} {scale:1}'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Command.LOAD_VARIABLE"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.OPERATION">
+                                        <code class="sig-name descname">OPERATION</code><em class="property"> =
+                                        'scoreboard players operation {stack} {name} {operator}= {stack2}
+                                        {name2}'</em><a class="headerlink"
+                                                        href="#mcscript.data.commands.Command.OPERATION"
+                                                        title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.REMOVE_SCORE">
+                                        <code class="sig-name descname">REMOVE_SCORE</code><em class="property"> =
+                                        'scoreboard players remove {stack} {name} {value}'</em><a class="headerlink"
+                                                                                                  href="#mcscript.data.commands.Command.REMOVE_SCORE"
+                                                                                                  title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.RUN_FUNCTION">
+                                        <code class="sig-name descname">RUN_FUNCTION</code><em class="property"> =
+                                        'function {name}:{function}'</em><a class="headerlink"
+                                                                            href="#mcscript.data.commands.Command.RUN_FUNCTION"
+                                                                            title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.SET_BLOCK">
+                                        <code class="sig-name descname">SET_BLOCK</code><em class="property"> =
+                                        'setblock {x:~} {y:~} {z:~} {block}{blockstate}{nbt}'</em><a class="headerlink"
+                                                                                                     href="#mcscript.data.commands.Command.SET_BLOCK"
+                                                                                                     title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.SET_VALUE">
+                                        <code class="sig-name descname">SET_VALUE</code><em class="property"> =
+                                        'scoreboard players set {stack} {name} {value}'</em><a class="headerlink"
+                                                                                               href="#mcscript.data.commands.Command.SET_VALUE"
+                                                                                               title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.SET_VALUE_EQUAL">
+                                        <code class="sig-name descname">SET_VALUE_EQUAL</code><em class="property"> =
+                                        'scoreboard players operation {stack} {name} = {stack2} {name2}'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Command.SET_VALUE_EQUAL"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.SET_VALUE_FROM">
+                                        <code class="sig-name descname">SET_VALUE_FROM</code><em class="property"> =
+                                        'execute store result score {stack} {name} run {command}'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Command.SET_VALUE_FROM"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.SET_VARIABLE">
+                                        <code class="sig-name descname">SET_VARIABLE</code><em class="property"> = 'data
+                                        modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} merge value
+                                        {struct}'</em><a class="headerlink"
+                                                         href="#mcscript.data.commands.Command.SET_VARIABLE"
+                                                         title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.SET_VARIABLE_FROM">
+                                        <code class="sig-name descname">SET_VARIABLE_FROM</code><em class="property"> =
+                                        'execute store result storage {name}:{:Storage.NAME} {:Storage.VARS}.{var}
+                                        {type:int} {scale:1} run {command}'</em><a class="headerlink"
+                                                                                   href="#mcscript.data.commands.Command.SET_VARIABLE_FROM"
+                                                                                   title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.SUBTITLE">
+                                        <code class="sig-name descname">SUBTITLE</code><em class="property"> = 'title
+                                        {target:&#64;s} subtitle {text}'</em><a class="headerlink"
+                                                                                href="#mcscript.data.commands.Command.SUBTITLE"
+                                                                                title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.SUMMON_ENTITY">
+                                        <code class="sig-name descname">SUMMON_ENTITY</code><em class="property"> =
+                                        'summon {entity} {x:~} {y:~} {z:~} {nbt}'</em><a class="headerlink"
+                                                                                         href="#mcscript.data.commands.Command.SUMMON_ENTITY"
+                                                                                         title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.TELLRAW">
+                                        <code class="sig-name descname">TELLRAW</code><em class="property"> = 'tellraw
+                                        {target:&#64;s} {text}'</em><a class="headerlink"
+                                                                       href="#mcscript.data.commands.Command.TELLRAW"
+                                                                       title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Command.TITLE">
+                                        <code class="sig-name descname">TITLE</code><em class="property"> = 'title
+                                        {target:&#64;s} title {text}'</em><a class="headerlink"
+                                                                             href="#mcscript.data.commands.Command.TITLE"
+                                                                             title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.commands.ExecuteCommand">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">ExecuteCommand</code><a class="headerlink"
+                                                                                      href="#mcscript.data.commands.ExecuteCommand"
+                                                                                      title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal" href="#mcscript.data.commands.StringEnum"
+                                             title="mcscript.data.commands.StringEnum"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.commands.StringEnum</span></code></a>
+                            </p>
+                                <p>Allows to create an execute command</p>
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.ExecuteCommand.AS">
+                                        <code class="sig-name descname">AS</code><em class="property"> = 'as {target}
+                                        {command}'</em><a class="headerlink"
+                                                          href="#mcscript.data.commands.ExecuteCommand.AS"
+                                                          title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.ExecuteCommand.AT">
+                                        <code class="sig-name descname">AT</code><em class="property"> = 'at {target}
+                                        {command}'</em><a class="headerlink"
+                                                          href="#mcscript.data.commands.ExecuteCommand.AT"
+                                                          title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.ExecuteCommand.IF_BLOCK">
+                                        <code class="sig-name descname">IF_BLOCK</code><em class="property"> = 'if block
+                                        {x:~} {y:~} {z:~} {block} {command}'</em><a class="headerlink"
+                                                                                    href="#mcscript.data.commands.ExecuteCommand.IF_BLOCK"
+                                                                                    title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.ExecuteCommand.IF_ENTITY">
+                                        <code class="sig-name descname">IF_ENTITY</code><em class="property"> = 'if
+                                        entity {target} {command}'</em><a class="headerlink"
+                                                                          href="#mcscript.data.commands.ExecuteCommand.IF_ENTITY"
+                                                                          title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.ExecuteCommand.IF_PREDICATE">
+                                        <code class="sig-name descname">IF_PREDICATE</code><em class="property"> = 'if
+                                        predicate {:Config.currentConfig.UTILS}:{predicate} {command}'</em><a
+                                            class="headerlink"
+                                            href="#mcscript.data.commands.ExecuteCommand.IF_PREDICATE"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.ExecuteCommand.IF_SCORE">
+                                        <code class="sig-name descname">IF_SCORE</code><em class="property"> = 'if score
+                                        {stack} {name} {relation} {stack2} {name2} {command}'</em><a class="headerlink"
+                                                                                                     href="#mcscript.data.commands.ExecuteCommand.IF_SCORE"
+                                                                                                     title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.ExecuteCommand.IF_SCORE_RANGE">
+                                        <code class="sig-name descname">IF_SCORE_RANGE</code><em class="property"> = 'if
+                                        score {stack} {name} matches {range} {command}'</em><a class="headerlink"
+                                                                                               href="#mcscript.data.commands.ExecuteCommand.IF_SCORE_RANGE"
+                                                                                               title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.ExecuteCommand.POSITIONED">
+                                        <code class="sig-name descname">POSITIONED</code><em class="property"> =
+                                        'positioned {x} {y} {z} {command}'</em><a class="headerlink"
+                                                                                  href="#mcscript.data.commands.ExecuteCommand.POSITIONED"
+                                                                                  title="Permalink to this definition">¶</a>
+                                    </dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.ExecuteCommand.UNLESS_SCORE">
+                                        <code class="sig-name descname">UNLESS_SCORE</code><em class="property"> =
+                                        'unless score {stack} {name} {relation} {stack2} {name2} {command}'</em><a
+                                            class="headerlink"
+                                            href="#mcscript.data.commands.ExecuteCommand.UNLESS_SCORE"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.ExecuteCommand.UNLESS_SCORE_RANGE">
+                                        <code class="sig-name descname">UNLESS_SCORE_RANGE</code><em class="property"> =
+                                        'unless score {stack} {name} matches {range} {command}'</em><a
+                                            class="headerlink"
+                                            href="#mcscript.data.commands.ExecuteCommand.UNLESS_SCORE_RANGE"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.commands.Relation">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">Relation</code><a class="headerlink"
+                                                                                href="#mcscript.data.commands.Relation"
+                                                                                title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal" href="#mcscript.data.commands.StringEnum"
+                                             title="mcscript.data.commands.StringEnum"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.commands.StringEnum</span></code></a>
+                            </p>
+                                <p>An enumeration.</p>
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Relation.EQUAL">
+                                        <code class="sig-name descname">EQUAL</code><em class="property"> = '='</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Relation.EQUAL"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Relation.GREATER">
+                                        <code class="sig-name descname">GREATER</code><em class="property"> =
+                                        '&gt;'</em><a class="headerlink" href="#mcscript.data.commands.Relation.GREATER"
+                                                      title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Relation.GREATER_OR_EQUAL">
+                                        <code class="sig-name descname">GREATER_OR_EQUAL</code><em class="property"> = '&gt;='</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Relation.GREATER_OR_EQUAL"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Relation.LESS">
+                                        <code class="sig-name descname">LESS</code><em class="property"> = '&lt;'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Relation.LESS"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Relation.LESS_OR_EQUAL">
+                                        <code class="sig-name descname">LESS_OR_EQUAL</code><em class="property"> = '&lt;='</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Relation.LESS_OR_EQUAL"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Relation.NOT_EQUAL">
+                                        <code class="sig-name descname">NOT_EQUAL</code><em class="property"> =
+                                        '!='</em><a class="headerlink" href="#mcscript.data.commands.Relation.NOT_EQUAL"
+                                                    title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.commands.Relation.get">
+                                        <em class="property">classmethod </em><code class="sig-name descname">get</code><span
+                                            class="sig-paren">(</span><em class="sig-param"><span
+                                            class="n">string</span></em><span class="sig-paren">)</span><a
+                                            class="headerlink" href="#mcscript.data.commands.Relation.get"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd><p>In the grammar relations have the format <a href="#id1"><span
+                                            class="problematic" id="id2">VERIFY_</span></a>…</p>
+                                    </dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.commands.Relation.swap">
+                                        <code class="sig-name descname">swap</code><span class="sig-paren">(</span><span
+                                            class="sig-paren">)</span> &#x2192; <a class="reference internal"
+                                                                                   href="#mcscript.data.commands.Relation"
+                                                                                   title="mcscript.data.commands.Relation">mcscript.data.commands.Relation</a><a
+                                            class="headerlink" href="#mcscript.data.commands.Relation.swap"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd><p>swaps both values and returns the relation that is required to keep the
+                                        value.</p>
+                                        <p class="rubric">Examples</p>
+                                        <p>a == b (=) b == a =&gt; Relation.EQUAL == Relation.EQUAL.swap()</p>
+                                        <p>a &lt;= b (=) b &gt;= a =&gt; Relation.GREATER_OR_EQUAL ==
+                                            Relation.LESS_OR_EQUAL.swap()</p>
+                                    </dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.commands.Selector">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">Selector</code><a class="headerlink"
+                                                                                href="#mcscript.data.commands.Selector"
+                                                                                title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal" href="#mcscript.data.commands.StringEnum"
+                                             title="mcscript.data.commands.StringEnum"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.commands.StringEnum</span></code></a>
+                            </p>
+                                <p>An enumeration.</p>
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Selector.ALL_ENTITIES">
+                                        <code class="sig-name descname">ALL_ENTITIES</code><em class="property"> = '&#64;e{filter}'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Selector.ALL_ENTITIES"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Selector.ALL_PLAYERS">
+                                        <code class="sig-name descname">ALL_PLAYERS</code><em class="property"> = '&#64;a{filter}'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Selector.ALL_PLAYERS"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Selector.CURRENT_ENTITY">
+                                        <code class="sig-name descname">CURRENT_ENTITY</code><em class="property"> = '&#64;s{filter}'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Selector.CURRENT_ENTITY"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Selector.NEAREST_PLAYER">
+                                        <code class="sig-name descname">NEAREST_PLAYER</code><em class="property"> = '&#64;p{filter}'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Selector.NEAREST_PLAYER"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Selector.RANDOM_PLAYER">
+                                        <code class="sig-name descname">RANDOM_PLAYER</code><em class="property"> = '&#64;r{filter}'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Selector.RANDOM_PLAYER"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py method">
+                                    <dt id="mcscript.data.commands.Selector.filter">
+                                        <code class="sig-name descname">filter</code><span class="sig-paren">(</span><em
+                                            class="sig-param"><span class="o">**</span><span
+                                            class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; str<a
+                                            class="headerlink" href="#mcscript.data.commands.Selector.filter"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.commands.Storage">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">Storage</code><a class="headerlink"
+                                                                               href="#mcscript.data.commands.Storage"
+                                                                               title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code>
+                            </p>
+                                <p>An enumeration.</p>
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Storage.NAME">
+                                        <code class="sig-name descname">NAME</code><em class="property"> = 'main'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Storage.NAME"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Storage.TEMP">
+                                        <code class="sig-name descname">TEMP</code><em class="property"> =
+                                        'state.tempVal'</em><a class="headerlink"
+                                                               href="#mcscript.data.commands.Storage.TEMP"
+                                                               title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Storage.VARS">
+                                        <code class="sig-name descname">VARS</code><em class="property"> =
+                                        'state.vars'</em><a class="headerlink"
+                                                            href="#mcscript.data.commands.Storage.VARS"
+                                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.commands.StringEnum">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">StringEnum</code><a class="headerlink"
+                                                                                  href="#mcscript.data.commands.StringEnum"
+                                                                                  title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code>
+                            </p>
+                                <p>An enumeration.</p>
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.commands.Struct">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">Struct</code><a class="headerlink"
+                                                                              href="#mcscript.data.commands.Struct"
+                                                                              title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal" href="#mcscript.data.commands.StringEnum"
+                                             title="mcscript.data.commands.StringEnum"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.commands.StringEnum</span></code></a>
+                            </p>
+                                <p>An enumeration.</p>
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Struct.VAR">
+                                        <code class="sig-name descname">VAR</code><em class="property"> = '{{&quot;{var}&quot;:{value}}}'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Struct.VAR"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.commands.Type">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">Type</code><a class="headerlink"
+                                                                            href="#mcscript.data.commands.Type"
+                                                                            title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code>
+                            </p>
+                                <p>An enumeration.</p>
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Type.BYTE">
+                                        <code class="sig-name descname">BYTE</code><em class="property"> = 'byte'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Type.BYTE"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Type.DOUBLE">
+                                        <code class="sig-name descname">DOUBLE</code><em class="property"> =
+                                        'double'</em><a class="headerlink" href="#mcscript.data.commands.Type.DOUBLE"
+                                                        title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Type.FLOAT">
+                                        <code class="sig-name descname">FLOAT</code><em class="property"> = 'float'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Type.FLOAT"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Type.INT">
+                                        <code class="sig-name descname">INT</code><em class="property"> = 'int'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Type.INT"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Type.LONG">
+                                        <code class="sig-name descname">LONG</code><em class="property"> = 'long'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Type.LONG"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.Type.SHORT">
+                                        <code class="sig-name descname">SHORT</code><em class="property"> = 'short'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.Type.SHORT"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py class">
+                            <dt id="mcscript.data.commands.UnaryOperator">
+                                <em class="property">class </em><code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">UnaryOperator</code><a class="headerlink"
+                                                                                     href="#mcscript.data.commands.UnaryOperator"
+                                                                                     title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd><p>Bases: <a class="reference internal" href="#mcscript.data.commands.StringEnum"
+                                             title="mcscript.data.commands.StringEnum"><code
+                                    class="xref py py-class docutils literal notranslate"><span class="pre">mcscript.data.commands.StringEnum</span></code></a>
+                            </p>
+                                <p>An enumeration.</p>
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.UnaryOperator.DECREMENT_ONE">
+                                        <code class="sig-name descname">DECREMENT_ONE</code><em class="property"> =
+                                        '--'</em><a class="headerlink"
+                                                    href="#mcscript.data.commands.UnaryOperator.DECREMENT_ONE"
+                                                    title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.UnaryOperator.INCREMENT_ONE">
+                                        <code class="sig-name descname">INCREMENT_ONE</code><em class="property"> =
+                                        '++'</em><a class="headerlink"
+                                                    href="#mcscript.data.commands.UnaryOperator.INCREMENT_ONE"
+                                                    title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                                <dl class="py attribute">
+                                    <dt id="mcscript.data.commands.UnaryOperator.MINUS">
+                                        <code class="sig-name descname">MINUS</code><em class="property"> = '-'</em><a
+                                            class="headerlink" href="#mcscript.data.commands.UnaryOperator.MINUS"
+                                            title="Permalink to this definition">¶</a></dt>
+                                    <dd></dd>
+                                </dl>
+
+                            </dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.commands.multiple_commands">
+                                <code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">multiple_commands</code><span
+                                    class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span
+                                    class="n">commands</span></em><span class="sig-paren">)</span><a class="headerlink"
+                                                                                                     href="#mcscript.data.commands.multiple_commands"
+                                                                                                     title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd></dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.commands.stringFormat">
+                                <code class="sig-prename descclassname">mcscript.data.commands.</code><code
+                                    class="sig-name descname">stringFormat</code><span class="sig-paren">(</span><em
+                                    class="sig-param"><span class="n">string</span></em>, <em class="sig-param"><span
+                                    class="o">**</span><span class="n">kwargs</span></em><span
+                                    class="sig-paren">)</span><a class="headerlink"
+                                                                 href="#mcscript.data.commands.stringFormat"
+                                                                 title="Permalink to this definition">¶</a></dt>
+                            <dd></dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.defaultCode">
+                        <span id="mcscript-data-defaultcode-module"></span>
+                        <h2>mcscript.data.defaultCode module<a class="headerlink"
+                                                               href="#module-mcscript.data.defaultCode"
+                                                               title="Permalink to this headline">¶</a></h2>
+                        <dl class="py data">
+                            <dt id="mcscript.data.defaultCode.MAGIC_FUNCTIONS">
+                                <code class="sig-prename descclassname">mcscript.data.defaultCode.</code><code
+                                    class="sig-name descname">MAGIC_FUNCTIONS</code><em class="property"> = {'onTick':
+                                0}</em><a class="headerlink" href="#mcscript.data.defaultCode.MAGIC_FUNCTIONS"
+                                          title="Permalink to this definition">¶</a></dt>
+                            <dd><p>A lookup table for the compiler. Keys are all magic functions and the values are the
+                                number of required parameters.</p>
+                            </dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.defaultCode.addDefaults">
+                                <code class="sig-prename descclassname">mcscript.data.defaultCode.</code><code
+                                    class="sig-name descname">addDefaults</code><span class="sig-paren">(</span><em
+                                    class="sig-param"><span class="n">datapack</span><span class="p">:</span> <span
+                                    class="n"><a class="reference internal"
+                                                 href="mcscript.utils.html#mcscript.utils.Datapack.Datapack"
+                                                 title="mcscript.utils.Datapack.Datapack">mcscript.utils.Datapack.Datapack</a></span></em><span
+                                    class="sig-paren">)</span> &#x2192; <a class="reference internal"
+                                                                           href="mcscript.utils.html#mcscript.utils.Datapack.Datapack"
+                                                                           title="mcscript.utils.Datapack.Datapack">mcscript.utils.Datapack.Datapack</a><a
+                                    class="headerlink" href="#mcscript.data.defaultCode.addDefaults"
+                                    title="Permalink to this definition">¶</a></dt>
+                            <dd></dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.defaultCode.addDynamicDefaults">
+                                <code class="sig-prename descclassname">mcscript.data.defaultCode.</code><code
+                                    class="sig-name descname">addDynamicDefaults</code><span
+                                    class="sig-paren">(</span><em class="sig-param"><span class="n">datapack</span><span
+                                    class="p">:</span> <span class="n"><a class="reference internal"
+                                                                          href="mcscript.utils.html#mcscript.utils.Datapack.Datapack"
+                                                                          title="mcscript.utils.Datapack.Datapack">mcscript.utils.Datapack.Datapack</a></span></em><span
+                                    class="sig-paren">)</span> &#x2192; <a class="reference internal"
+                                                                           href="mcscript.utils.html#mcscript.utils.Datapack.Datapack"
+                                                                           title="mcscript.utils.Datapack.Datapack">mcscript.utils.Datapack.Datapack</a><a
+                                    class="headerlink" href="#mcscript.data.defaultCode.addDynamicDefaults"
+                                    title="Permalink to this definition">¶</a></dt>
+                            <dd></dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data.defaultEnums">
+                        <span id="mcscript-data-defaultenums-module"></span>
+                        <h2>mcscript.data.defaultEnums module<a class="headerlink"
+                                                                href="#module-mcscript.data.defaultEnums"
+                                                                title="Permalink to this headline">¶</a></h2>
+                        <dl class="py function">
+                            <dt id="mcscript.data.defaultEnums.get">
+                                <code class="sig-prename descclassname">mcscript.data.defaultEnums.</code><code
+                                    class="sig-name descname">get</code><span class="sig-paren">(</span><em
+                                    class="sig-param"><span class="n">value</span><span class="p">:</span> <span
+                                    class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Optional<span
+                                    class="p">[</span><a class="reference internal"
+                                                         href="mcscript.lang.resource.html#mcscript.lang.resource.EnumResource.EnumResource"
+                                                         title="mcscript.lang.resource.EnumResource.EnumResource">mcscript.lang.resource.EnumResource.EnumResource</a><span
+                                    class="p">]</span><a class="headerlink" href="#mcscript.data.defaultEnums.get"
+                                                         title="Permalink to this definition">¶</a></dt>
+                            <dd></dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.defaultEnums.makeBiomes">
+                                <code class="sig-prename descclassname">mcscript.data.defaultEnums.</code><code
+                                    class="sig-name descname">makeBiomes</code><span class="sig-paren">(</span><span
+                                    class="sig-paren">)</span> &#x2192; <a class="reference internal"
+                                                                           href="mcscript.lang.resource.html#mcscript.lang.resource.EnumResource.EnumResource"
+                                                                           title="mcscript.lang.resource.EnumResource.EnumResource">mcscript.lang.resource.EnumResource.EnumResource</a><a
+                                    class="headerlink" href="#mcscript.data.defaultEnums.makeBiomes"
+                                    title="Permalink to this definition">¶</a></dt>
+                            <dd></dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.defaultEnums.makeBlocks">
+                                <code class="sig-prename descclassname">mcscript.data.defaultEnums.</code><code
+                                    class="sig-name descname">makeBlocks</code><span class="sig-paren">(</span><span
+                                    class="sig-paren">)</span> &#x2192; <a class="reference internal"
+                                                                           href="mcscript.lang.resource.html#mcscript.lang.resource.EnumResource.EnumResource"
+                                                                           title="mcscript.lang.resource.EnumResource.EnumResource">mcscript.lang.resource.EnumResource.EnumResource</a><a
+                                    class="headerlink" href="#mcscript.data.defaultEnums.makeBlocks"
+                                    title="Permalink to this definition">¶</a></dt>
+                            <dd></dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.defaultEnums.makeFeatures">
+                                <code class="sig-prename descclassname">mcscript.data.defaultEnums.</code><code
+                                    class="sig-name descname">makeFeatures</code><span class="sig-paren">(</span><span
+                                    class="sig-paren">)</span> &#x2192; <a class="reference internal"
+                                                                           href="mcscript.lang.resource.html#mcscript.lang.resource.EnumResource.EnumResource"
+                                                                           title="mcscript.lang.resource.EnumResource.EnumResource">mcscript.lang.resource.EnumResource.EnumResource</a><a
+                                    class="headerlink" href="#mcscript.data.defaultEnums.makeFeatures"
+                                    title="Permalink to this definition">¶</a></dt>
+                            <dd></dd>
+                        </dl>
+
+                    </div>
+                    <div class="section" id="module-mcscript.data">
+                        <span id="module-contents"></span>
+                        <h2>Module contents<a class="headerlink" href="#module-mcscript.data"
+                                              title="Permalink to this headline">¶</a></h2>
+                        <dl class="py function">
+                            <dt id="mcscript.data.getBiomes">
+                                <code class="sig-prename descclassname">mcscript.data.</code><code
+                                    class="sig-name descname">getBiomes</code><span class="sig-paren">(</span><span
+                                    class="sig-paren">)</span> &#x2192; str<a class="headerlink"
+                                                                              href="#mcscript.data.getBiomes"
+                                                                              title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd></dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.getBlocks">
+                                <code class="sig-prename descclassname">mcscript.data.</code><code
+                                    class="sig-name descname">getBlocks</code><span class="sig-paren">(</span><span
+                                    class="sig-paren">)</span> &#x2192; str<a class="headerlink"
+                                                                              href="#mcscript.data.getBlocks"
+                                                                              title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd></dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.getDictionaryResource">
+                                <code class="sig-prename descclassname">mcscript.data.</code><code
+                                    class="sig-name descname">getDictionaryResource</code><span
+                                    class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span
+                                    class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span>
+                                &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>str<span
+                                    class="p">]</span><a class="headerlink" href="#mcscript.data.getDictionaryResource"
+                                                         title="Permalink to this definition">¶</a></dt>
+                            <dd></dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.getFeatures">
+                                <code class="sig-prename descclassname">mcscript.data.</code><code
+                                    class="sig-name descname">getFeatures</code><span class="sig-paren">(</span><span
+                                    class="sig-paren">)</span> &#x2192; str<a class="headerlink"
+                                                                              href="#mcscript.data.getFeatures"
+                                                                              title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd></dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.getItems">
+                                <code class="sig-prename descclassname">mcscript.data.</code><code
+                                    class="sig-name descname">getItems</code><span class="sig-paren">(</span><span
+                                    class="sig-paren">)</span> &#x2192; str<a class="headerlink"
+                                                                              href="#mcscript.data.getItems"
+                                                                              title="Permalink to this definition">¶</a>
+                            </dt>
+                            <dd></dd>
+                        </dl>
+
+                        <dl class="py function">
+                            <dt id="mcscript.data.getResource">
+                                <code class="sig-prename descclassname">mcscript.data.</code><code
+                                    class="sig-name descname">getResource</code><span class="sig-paren">(</span><em
+                                    class="sig-param"><span class="n">name</span><span class="p">:</span> <span
+                                    class="n">str</span></em><span class="sig-paren">)</span> &#x2192; str<a
+                                    class="headerlink" href="#mcscript.data.getResource"
+                                    title="Permalink to this definition">¶</a></dt>
+                            <dd></dd>
+                        </dl>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="index.html">Table of Contents</a></h3>
+            <ul>
+                <li><a class="reference internal" href="#">mcscript.data package</a>
+                    <ul>
+                        <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+                        <li><a class="reference internal" href="#submodules">Submodules</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.Config">mcscript.data.Config
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.commands">mcscript.data.commands
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.defaultCode">mcscript.data.defaultCode
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data.defaultEnums">mcscript.data.defaultEnums
+                            module</a></li>
+                        <li><a class="reference internal" href="#module-mcscript.data">Module contents</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="mcscript.compiler.html"
+                                  title="previous chapter">mcscript.compiler package</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="mcscript.data.blockStorage.html"
+                                  title="next chapter">mcscript.data.blockStorage package</a></p>
+            <div role="note" aria-label="source link">
+                <h3>This Page</h3>
+                <ul class="this-page-menu">
+                    <li><a href="_sources/mcscript.data.rst.txt"
+                           rel="nofollow">Show Source</a></li>
+                </ul>
+            </div>
+            <div id="searchbox" style="display: none" role="search">
+                <h3 id="searchlabel">Quick search</h3>
+                <div class="searchformwrapper">
+                    <form class="search" action="search.html" method="get">
+                        <input type="text" name="q" aria-labelledby="searchlabel"/>
+                        <input type="submit" value="Go"/>
+                    </form>
+                </div>
+            </div>
+            <script>$('#searchbox').show(0);</script>
+        </div>
+    </div>
+    <div class="clearer"></div>
+</div>
+<div class="related" role="navigation" aria-label="related navigation">
+    <h3>Navigation</h3>
+    <ul>
+        <li class="right" style="margin-right: 10px">
+            <a href="genindex.html" title="General Index"
+            >index</a></li>
+        <li class="right">
+            <a href="py-modindex.html" title="Python Module Index"
+            >modules</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.data.blockStorage.html" title="mcscript.data.blockStorage package"
+            >next</a> |
+        </li>
+        <li class="right">
+            <a href="mcscript.compiler.html" title="mcscript.compiler package"
+            >previous</a> |
+        </li>
+        <li class="nav-item nav-item-0"><a href="index.html">McScript 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-1"><a href="mcscript.html">mcscript package</a> &#187;</li>
+    </ul>
+</div>
+<div class="footer" role="contentinfo">
+    &#169; Copyright 2020, Inky.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.
+</div>
+</body>
+</html>
