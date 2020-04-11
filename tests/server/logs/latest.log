@@ -1625,3 +1625,87 @@
 [18:23:37] [Server thread/WARN]: The save is being accessed from another location, aborting
 [18:23:37] [Server thread/WARN]: The save is being accessed from another location, aborting
 [18:23:37] [Server thread/WARN]: The save is being accessed from another location, aborting
+[18:27:41] [Server thread/INFO]: Stopping the server
+[18:27:41] [Server thread/INFO]: Stopping server
+[18:27:41] [Server thread/INFO]: Saving players
+[18:27:41] [Server thread/INFO]: GrilloDavid91 lost connection: Disconnected
+[18:27:41] [Server thread/INFO]: GrilloDavid91 left the game
+[18:27:41] [Server thread/INFO]: Saving worlds
+[18:27:41] [Server thread/INFO]: Saving chunks for level 'McScript'/minecraft:the_end
+[18:27:41] [Server thread/WARN]: The save is being accessed from another location, aborting
+[18:27:41] [Server thread/INFO]: Saving chunks for level 'McScript'/minecraft:overworld
+[18:27:41] [Server thread/WARN]: The save is being accessed from another location, aborting
+[18:27:41] [Server thread/INFO]: Saving chunks for level 'McScript'/minecraft:the_nether
+[18:27:41] [Server thread/WARN]: The save is being accessed from another location, aborting
+[18:27:41] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[18:27:41] [Server thread/ERROR]: Couldn't save chunk; already in use by another instance of Minecraft?
+bjy: The save is being accessed from another location, aborting
+	at crn.b(SourceFile:109) ~[server.jar:?]
+	at xd.v(SourceFile:1213) ~[server.jar:?]
+	at wp.a(SourceFile:678) ~[server.jar:?]
+	at java.util.stream.ReferencePipeline$2$1.accept(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ReferencePipeline$2$1.accept(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ReferencePipeline$3$1.accept(Unknown Source) [?:1.8.0_231]
+	at java.util.ArrayList$ArrayListSpliterator.forEachRemaining(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.AbstractPipeline.copyInto(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ForEachOps$ForEachOp.evaluateSequential(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.AbstractPipeline.evaluate(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ReferencePipeline.forEach(Unknown Source) [?:1.8.0_231]
+	at wp.a(SourceFile:366) [server.jar:?]
+	at xb.a(SourceFile:324) [server.jar:?]
+	at xb.close(SourceFile:329) [server.jar:?]
+	at bjw.close(SourceFile:795) [server.jar:?]
+	at net.minecraft.server.MinecraftServer.s(SourceFile:591) [server.jar:?]
+	at wd.s(SourceFile:597) [server.jar:?]
+	at net.minecraft.server.MinecraftServer.run(SourceFile:689) [server.jar:?]
+	at java.lang.Thread.run(Unknown Source) [?:1.8.0_231]
+[18:27:41] [Server thread/ERROR]: Couldn't save chunk; already in use by another instance of Minecraft?
+bjy: The save is being accessed from another location, aborting
+	at crn.b(SourceFile:109) ~[server.jar:?]
+	at xd.v(SourceFile:1213) ~[server.jar:?]
+	at wp.a(SourceFile:678) ~[server.jar:?]
+	at java.util.stream.ReferencePipeline$2$1.accept(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ReferencePipeline$2$1.accept(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ReferencePipeline$3$1.accept(Unknown Source) [?:1.8.0_231]
+	at java.util.ArrayList$ArrayListSpliterator.forEachRemaining(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.AbstractPipeline.copyInto(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ForEachOps$ForEachOp.evaluateSequential(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.AbstractPipeline.evaluate(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ReferencePipeline.forEach(Unknown Source) [?:1.8.0_231]
+	at wp.a(SourceFile:366) [server.jar:?]
+	at xb.a(SourceFile:324) [server.jar:?]
+	at xb.close(SourceFile:329) [server.jar:?]
+	at bjw.close(SourceFile:795) [server.jar:?]
+	at net.minecraft.server.MinecraftServer.s(SourceFile:591) [server.jar:?]
+	at wd.s(SourceFile:597) [server.jar:?]
+	at net.minecraft.server.MinecraftServer.run(SourceFile:689) [server.jar:?]
+	at java.lang.Thread.run(Unknown Source) [?:1.8.0_231]
+[18:27:41] [Server thread/ERROR]: Couldn't save chunk; already in use by another instance of Minecraft?
+bjy: The save is being accessed from another location, aborting
+	at crn.b(SourceFile:109) ~[server.jar:?]
+	at xd.v(SourceFile:1213) ~[server.jar:?]
+	at wp.a(SourceFile:678) ~[server.jar:?]
+	at java.util.stream.ReferencePipeline$2$1.accept(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ReferencePipeline$2$1.accept(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ReferencePipeline$3$1.accept(Unknown Source) [?:1.8.0_231]
+	at java.util.ArrayList$ArrayListSpliterator.forEachRemaining(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.AbstractPipeline.copyInto(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ForEachOps$ForEachOp.evaluateSequential(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.AbstractPipeline.evaluate(Unknown Source) [?:1.8.0_231]
+	at java.util.stream.ReferencePipeline.forEach(Unknown Source) [?:1.8.0_231]
+	at wp.a(SourceFile:366) [server.jar:?]
+	at xb.a(SourceFile:324) [server.jar:?]
+	at xb.close(SourceFile:329) [server.jar:?]
+	at bjw.close(SourceFile:795) [server.jar:?]
+	at net.minecraft.server.MinecraftServer.s(SourceFile:591) [server.jar:?]
+	at wd.s(SourceFile:597) [server.jar:?]
+	at net.minecraft.server.MinecraftServer.run(SourceFile:689) [server.jar:?]
+	at java.lang.Thread.run(Unknown Source) [?:1.8.0_231]
+[18:27:41] [Server thread/INFO]: ThreadedAnvilChunkStorage (McScript): All chunks are saved
+[18:27:42] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
