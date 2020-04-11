@@ -17,7 +17,7 @@ setup(
     license=license_,
     author='inky',
     author_email='developerinky@gmail.com',
-    description='A Simple and powerfull datapck generator for minecraft',
+    description='A Simple and powerful datapack generator for minecraft',
     long_description=readme,
     install_requires=requirements
 )
