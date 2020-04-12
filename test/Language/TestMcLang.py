@@ -7,9 +7,9 @@ from mcscript import Logger
 from mcscript.Exceptions.McScriptException import McScriptException
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
+from mcscript.utils import rcon
 from mcscript.utils.cmdHelper import generateFiles, getWorld
 from test.Language.loadScripts import loadScripts
-from test.server import rcon
 
 TELLRAW_SUCCESS = \
     '/tellraw @a ["",{"text":"["},{"text":"McScript","color":"gold"},{"text":"] "},' \

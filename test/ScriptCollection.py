@@ -4,8 +4,8 @@ from os.path import join
 from mcscript import Logger
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
+from mcscript.utils import rcon
 from mcscript.utils.cmdHelper import generateFiles, getWorld
-from test.server import rcon
 
 # test to see if this is tracked
 code_struct = """
