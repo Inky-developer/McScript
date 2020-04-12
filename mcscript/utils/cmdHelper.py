@@ -3,8 +3,9 @@ Utilities for the command line interface.
 """
 from __future__ import annotations
 
+import sys
 from os import getenv, listdir, mkdir
-from os.path import abspath, dirname, exists, isdir, isfile, join, normpath
+from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join, normpath
 from pathlib import Path
 from typing import Iterator, Optional
 
@@ -14,7 +15,14 @@ from nbt.nbt import NBTFile
 from mcscript import Logger
 from mcscript.utils.Datapack import Datapack
 
-MCPATH = join(getenv("APPDATA"), ".minecraft", "saves")
+# try to determine the default minecraft path
+# resource: https://minecraft.gamepedia.com/.minecraft
+if sys.platform.startswith("win"):
+    MCPATH = join(getenv("APPDATA"), ".minecraft", "saves")
+elif sys.platform.startswith("darwin"):
+    MCPATH = join(expanduser("~"), "Library", "Application Support", "minecraft")
+else:  # try to load the linux path
+    MCPATH = join(expanduser("~"), ".minecraft")
 
 # Any world that is below Version 1.15 can't be supported
 MINIMUM_VERSION = 2225
