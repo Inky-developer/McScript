@@ -5,7 +5,7 @@ from mcscript.data.templates.DataReader import DataReader
 
 
 # noinspection SpellCheckingInspection
-class MyTestCase(unittest.TestCase):
+class TestDataReader(unittest.TestCase):
     def setUp(self) -> None:
         self.reader = DataReader()
 
