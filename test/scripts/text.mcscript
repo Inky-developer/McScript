@@ -1,0 +1,7 @@
+player = @p
+run for player {
+    print("Hallo ", player, ", 1+1=", 1+1)
+    title("Hallo ", player, ", 1+1=", 1+1)
+    subtitle("Hallo ", player, ", 1+1=", 1+1)
+    actionbar("Hallo ", player, ", 1+1=", 1+1)
+}

@@ -1,0 +1,24 @@
+const distance = 150
+active = 0
+i = 0
+
+run for @p at @s {
+    execute("execute align xz positioned ~.5 ~ ~.5 run tp @s ~ ~ ~")
+    execute("tp @s ~ 1 ~")
+}
+
+
+fun onTick() -> Null {
+    if (active) {
+        run for @p at @s {
+            setBlock(blocks.dirt, 0, -1, 0)
+            setBlock(i)
+            if (i % (distance + 1) == 0) {
+                print("back")
+                execute("tp @s ~-$distance ~ ~1")
+            }
+            ++i
+            execute("tp @s ~1 ~ ~")
+        }
+    }
+}

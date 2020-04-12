@@ -1,0 +1,12 @@
+fun fac(n: Number) -> Number {
+    ret = 1
+    while (n > 1) {
+        ret *= n
+        run for @a print("Zwischenergebnis: ", ret)
+        --n
+    }
+    return ret
+}
+
+ergebnis = fac(3)
+run for @a print("Ergebnis: ", ergebnis)

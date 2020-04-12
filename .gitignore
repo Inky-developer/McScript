@@ -4,6 +4,7 @@ build/build
 build/dist
 build/freeze.cmd
 docs/build
+test/server
 venv/
 
 docs/update_doc.cmd
