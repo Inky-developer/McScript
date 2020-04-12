@@ -1,23 +1,32 @@
+import re
+import sys
 from argparse import ArgumentParser
 from functools import partial
-from os.path import exists, isfile, join, normpath
+from os import makedirs
+from os.path import exists, isfile, normpath, split
 from pathlib import Path
 from time import perf_counter
 
 from mcscript import Logger
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
+from mcscript.documentation import generate_json
 from mcscript.utils.cmdHelper import MCPATH, generateFiles, getWorld
 from mcscript.utils.precompileInstructions import getPrecompileInstructions
 
 """
-A command line interface for mcscript. WIP.
+A command line interface for mcscript.
 """
 
 
 def main():
     """
-    A command line interface for mcscript. Work in progress.
+    A command line interface for mcscript.
+
+    There are currently three methods to specify what should happen with the input file:
+        - The config file, lowest priority
+        - The call arguments, medium priority
+        - precompile instructions, highest priority
 
     Command line Parameters:
         The first argument must be the mcscript input file.
@@ -32,10 +41,17 @@ def main():
     parser = ArgumentParser(prog="McScript")
 
     parser.add_argument(
-        "input",
-        help="Set the input file",
+        "action",
+        help="what action to execute",
+        choices=["build", "gen_data"]
     )
 
+    parser.add_argument(
+        "input",
+        help="Set the input file (output file if gen_data)",
+    )
+
+    # arguments only for build
     parser.add_argument(
         "-m", "--mcdir",
         dest="mcdir",
@@ -62,7 +78,7 @@ def main():
         "-n", "--name",
         dest="name",
         nargs="?",
-        default="McScript",
+        default="mcscript",
         help="Set the name for the datapack. Defaults to 'McScript'"
     )
 
@@ -73,41 +89,76 @@ def main():
         help="Set the path to the configuration file"
     )
 
-    parser.add_argument(
-        "-v", "--verbose",
-        dest="verbose",
-        action="store_true",
-        help="Switch to verbose mode"
-    )
-
     args = parser.parse_args()
+    if args.action == "build":
+        return run_build(args)
+    if args.action == "gen_data":
+        return run_gen_data(args)
 
+    Logger.critical("Could not determine what action to execute")
+    return False
+
+
+def run_gen_data(args):
+    output = args.input  # yeah
+
+    start_time = perf_counter()
+    json = generate_json(Config(args.config or None))
+    Logger.info(f"Generated json in {perf_counter() - start_time:.4f} seconds")
+
+    path, file = split(output)
+    if not exists(path):
+        makedirs(path)
+
+    with open(output, "w+", encoding="utf-8") as f:
+        Logger.debug(f"writing {len(json) / 1024:.2f} kbytes.")
+        f.write(json)
+
+    Logger.debug("Generated:\n" + json)
+
+    return True
+
+
+def run_build(args):
+    # read input file for custom instructions
     input_ = args.input
     if not exists(input_) or not isfile(input_):
-        Logger.critical("Could not open the input file", input_)
+        Logger.critical(f"Could not open the input file {input_}")
         return 0
     with open(input_) as f:
         precompile_instructions = getPrecompileInstructions(f.read())
 
-    output = args.dir or precompile_instructions.get("outpath", None)
-    world = None
-    mcpath = join(args.mcdir, "saves") if args.mcdir else normpath(precompile_instructions.get("mcpath", MCPATH))
+    # the output directory will be used if no world is specified
+    output = precompile_instructions.get("outpath", None) or args.dir
 
-    # ToDo add default config that does not create a file
-    config = Config(args.config or ".config.ini")
+    world = None
+    # first try to get the path from the input file, then from the call parameters, last use default directory
+    mcpath = normpath(precompile_instructions.get("mcpath", args.mcdir or MCPATH))
+
+    if output and ("mcpath" in precompile_instructions or args.mcdir):
+        Logger.critical("Outpath and mcpath are mutually exclusive but both specified.")
+        return False
+
+    config = Config(args.config or None)
+    name = precompile_instructions.get("name", args.name)
+    if name is not None:
+        if not re.match(r"^[a-z_]+$", name):
+            Logger.critical(f"Invalid name '{name}': May only contain letters and underscores.")
+            return False
+        config["compiler"]["name"] = name
 
     start_time = perf_counter()
 
     if not output:  # if no directory is given, save as a datapack
-        worldPath = args.world or precompile_instructions.get("world", None)
+        worldPath = precompile_instructions.get("world", None) or args.world
         if not worldPath:
             Logger.critical("A World must be specified!")
             return False
 
-        world = getWorld(worldPath, mcpath)
-
-        if world is None:
-            Logger.critical(f"Could not find World '{args.world}'")
+        try:
+            world = getWorld(worldPath, mcpath)
+        except ValueError:
+            Logger.critical(f"Could not find World '{worldPath}'")
             return False
 
     if not exists(input_):
@@ -119,9 +170,12 @@ def main():
         # noinspection PyTypeChecker
         datapack = compileMcScript(f.read(), partial(on_compile_status, args), config)
 
-    Logger.info(f"Compiled in {perf_counter() - start_time} seconds")
+    Logger.info(f"Compiled in {perf_counter() - start_time:.3f} seconds")
 
     if output:
+        # make output dir if not exists
+        if not exists(output):
+            makedirs(output, exist_ok=True)
         datapack.write(args.name, Path(output))
     else:
         generateFiles(world, datapack, args.name)
@@ -133,80 +187,9 @@ def main():
 
 def on_compile_status(_, msg, progress, interim_result):
     Logger.info(f"{msg}... {progress * 100}%")
-    Logger.debug(interim_result if hasattr(interim_result, "pretty") else interim_result)
-
-
-# noinspection PyUnusedLocal
-def testDocstrings(a: int, b):
-    """
-    *italic*
-    **bold**
-    ``monospace``
-    link_
-    example_
-
-    A reference to `variable`
-
-    bullet list:
-
-    - item 1
-    - item 2
-    - item 3
-
-    enumerated list
-
-    1. first element
-    2. seconds element
-    3. third element
-    #. Auto - enumerated
-
-    Grid table:
-
-    +------------+------------+-----------+
-    | Header 1   | Header 2   | Header 3  |
-    +============+============+===========+
-    | body row 1 | column 2   | column 3  |
-    +------------+------------+-----------+
-    | body row 2 | Cells may span columns.|
-    +------------+------------+-----------+
-    | body row 3 | Cells may  | - Cells   |
-    +------------+ span rows. | - contain |
-    | body row 4 |            | - blocks. |
-    +------------+------------+-----------+
-
-    ------------
-
-    Simple table:
-
-    =====  =====  ======
-       Inputs     Output
-    ------------  ------
-      A      B    A or B
-    =====  =====  ======
-    False  False  False
-    True   False  True
-    False  True   True
-    True   True   True
-    =====  =====  ======
-
-    -a            command-line option "a"
-    -b file       options can have arguments
-                  and long descriptions
-    --long        options can be long also
-    --input=file  long options can also have
-                  arguments
-    /V            DOS/VMS-s
-
-    .. _link: https://www.google.de
-    .. _example:
-        Example crossreference target
-
-    Parameters:
-        a: a Parameter
-        b: another Parameter
-    """
 
 
 if __name__ == '__main__':
     if not main():
-        quit(-1)
+        Logger.critical("Quitting..")
+        sys.exit(1)

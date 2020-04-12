@@ -1,3 +1,4 @@
+from time import perf_counter
 from typing import Any, Callable
 
 import lark
@@ -35,7 +36,9 @@ def compileMcScript(text: str, callback: eventCallback, config: Config) -> Datap
     arg = text
     for index, step in enumerate(steps):
         callback(step[1], index / len(steps), arg)
+        start_time = perf_counter()
         arg = step[0](arg)
+        Logger.debug(f"{step[1]} finished in {perf_counter() - start_time:.4f} seconds")
         if isinstance(arg, Tree):
             _debug_log_tree(arg)
 

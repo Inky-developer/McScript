@@ -6,7 +6,7 @@ from __future__ import annotations
 from os import getenv, listdir, mkdir
 from os.path import abspath, dirname, exists, isdir, isfile, join, normpath
 from pathlib import Path
-from typing import List, Optional
+from typing import Iterator, Optional
 
 from nbt.nbt import NBTFile
 
@@ -38,7 +38,7 @@ def generateFiles(world: MCWorld, datapack: Datapack, name="McScript"):
     datapack.write(name, Path(world.getDatapackPath()))
 
 
-def getWorlds(path=MCPATH) -> List[MCWorld]:
+def getWorlds(path=MCPATH) -> Iterator[MCWorld]:
     """
     Returns all worlds in `path`
 
@@ -48,9 +48,9 @@ def getWorlds(path=MCPATH) -> List[MCWorld]:
     Returns:
         A List of MCWorld objects
     """
-    return [world for world in
+    return (world for world in
             (MCWorld(join(path, f)) for f in listdir(path) if isMcWorld(join(path, f)))
-            if world.satisfiesVersion(MINIMUM_VERSION)]
+            if world.satisfiesVersion(MINIMUM_VERSION))
 
 
 def getWorld(name, path=MCPATH) -> Optional[MCWorld]:

@@ -42,6 +42,7 @@ class FunctionParameter:
     count: FunctionParameter.ParameterCount = ParameterCount.ONCE
     defaultValue: Optional[Resource] = None
     accepts: FunctionParameter.ResourceMode = ResourceMode.STATIC | ResourceMode.NON_STATIC
+    documentation: str = field(default="")
 
     def matchAgainst(self, parameters: Sequence[Resource]) -> FunctionParameterMatch:
         """

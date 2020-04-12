@@ -9,7 +9,7 @@ Logger.setLevel(logging.DEBUG)
 
 # clear logging file
 open("../latest.log", "w+").close()
-_fh = logging.FileHandler("../latest.log")
+_fh = logging.FileHandler("../latest.log", encoding="utf-8")
 _fh.setLevel(logging.DEBUG)
 
 _ch = logging.StreamHandler()

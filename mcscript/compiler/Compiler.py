@@ -1,9 +1,9 @@
-import warnings
 from typing import List
 
 from lark import Token, Tree
 from lark.visitors import Interpreter
 
+from mcscript import Logger
 from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptIsStaticError, McScriptNameError, \
     McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
 from mcscript.compiler.CompileState import CompileState
@@ -191,12 +191,12 @@ class Compiler(Interpreter):
             if condition.isStatic:
                 if condition.value:
                     continue
-                warnings.warn(f"boolean and at {tree.line}:{tree.column} is always False.")
+                Logger.warn(f"[Compiler] boolean and at {tree.line}:{tree.column} is always False.")
                 return BooleanResource.FALSE
             conditions.append(condition)
 
         if not conditions:
-            warnings.warn(f"boolean and {tree.line}:{tree.column} is always True.")
+            Logger.warn(f"[Compiler] boolean and {tree.line}:{tree.column} is always True.")
             return BooleanResource.TRUE
 
         stack = self.compileState.expressionStack.next()
@@ -233,7 +233,7 @@ class Compiler(Interpreter):
             operand2 = self.compileState.toResource(operand2).convertToBoolean(self.compileState)
 
             if (operand1.isStatic and operand1.value) or (operand2.isStatic and operand2.value):
-                warnings.warn(f"boolean or at {tree.line}:{tree.column} is always True.")
+                Logger.warn(f"[Compiler] boolean or at {tree.line}:{tree.column} is always True.")
                 return BooleanResource.TRUE
 
             if operand1.isStatic and operand2.isStatic:
@@ -243,7 +243,7 @@ class Compiler(Interpreter):
             conditions.append(operand2)
 
         if not conditions:
-            warnings.warn(f"boolean or at {tree.line}:{tree.column} is always False.")
+            Logger.warn(f"[Compiler] boolean or at {tree.line}:{tree.column} is always False.")
             return BooleanResource.FALSE
 
         stack = self.compileState.expressionStack.next()
@@ -337,7 +337,7 @@ class Compiler(Interpreter):
 
         if addr_left.isStatic and addr_right.isStatic:
             result = relation.testRelation(addr_left.value, addr_right.value)
-            warnings.warn(f"comparison at {tree.line}:{tree.column} is always {result}.")
+            Logger.warn(f"[Compiler] comparison at {tree.line}:{tree.column} is always {result}.")
             return BooleanResource(result, True)
         addr_result = self.compileState.expressionStack.next()
         self.compileState.writeline(Command.SET_VALUE(
@@ -414,9 +414,9 @@ class Compiler(Interpreter):
             var = value
             # The null resource is kinda special because it only ever has one value
             if not isinstance(value, NullResource):
-                warnings.warn(
-                    "Every resource should implement storeToNbt if it can be on both scoreboard and storage\n"
-                    f"({e})"
+                Logger.warn(
+                    "[Compiler] Every resource should implement storeToNbt if it can be on both scoreboard and storage"
+                    f"\n({e})"
                 )
 
         self.compileState.currentNamespace().setVar(identifier, var)
@@ -474,12 +474,17 @@ class Compiler(Interpreter):
     def control_if(self, tree):
         # ToDO: reduce to one mcfunction statement
         _, condition, block, *block_else = tree.children
+
+        if not block.children:
+            Logger.debug(f"[Compiler] skipping if-statement line {tree.line}: empty block")
+            return None
+
         addr_condition = self.compileState.load(condition)
         if not isinstance(addr_condition, ValueResource):
             raise McScriptTypeError("comparison result must be a valueResource", self.compileState)
 
         if addr_condition.hasStaticValue:
-            warnings.warn(f"If-statement at {tree.line}:{tree.column} is always {bool(int(addr_condition))}")
+            Logger.warn(f"[Compiler] If-statement at {tree.line}:{tree.column} is always {bool(int(addr_condition))}")
             if int(addr_condition):
                 run = block
             else:
@@ -525,9 +530,9 @@ class Compiler(Interpreter):
         if condition.hasStaticValue:
             infinite_loop = bool(condition.value)
             if infinite_loop:
-                warnings.warn(f"Infinite loop at {tree.line}:{tree.column}")
+                Logger.warn(f"[Compiler] Infinite loop at {tree.line}:{tree.column}")
             else:
-                warnings.warn(f"Loop will never run at {tree.line}:{tree.column}")
+                Logger.warn(f"[Compiler] Loop will never run at {tree.line}:{tree.column}")
                 return
 
         if not infinite_loop:

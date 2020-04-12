@@ -94,7 +94,7 @@ class BuiltinFunction(ABC):
 
         for line in doc.split("\n"):
             if match := self._PATTERN_PARAMETER.match(line.strip()):
-                modifiers, *count, name, type_, doc = match.groups()
+                modifiers, *count, name, type_, parameter_doc = match.groups()
                 is_optional = False
                 mode = FunctionParameter.ResourceMode.STATIC | FunctionParameter.ResourceMode.NON_STATIC
 
@@ -130,7 +130,8 @@ class BuiltinFunction(ABC):
                     TypeResource(resourceType),
                     count=count,
                     defaultValue=default,
-                    accepts=mode
+                    accepts=mode,
+                    documentation=parameter_doc
                 ))
             else:
                 real_doc.append(line)
