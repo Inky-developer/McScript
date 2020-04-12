@@ -1,7 +1,11 @@
-venv/
-docs/update_doc.cmd
+.idea/
+.github/
+build/build
+build/dist
+build/freeze.cmd
 docs/build
 tests/server
-latest.log
-.idea/
+venv/
 
+docs/update_doc.cmd
+latest.log
