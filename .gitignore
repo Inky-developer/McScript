@@ -3,6 +3,7 @@
 build/build
 build/dist
 build/freeze.cmd
+config.ini
 docs/build
 test/server
 venv/
