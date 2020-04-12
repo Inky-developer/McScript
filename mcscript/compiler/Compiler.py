@@ -196,7 +196,7 @@ class Compiler(Interpreter):
             conditions.append(condition)
 
         if not conditions:
-            Logger.warn(f"[Compiler] boolean and {tree.line}:{tree.column} is always True.")
+            Logger.warning(f"[Compiler] boolean and {tree.line}:{tree.column} is always True.")
             return BooleanResource.TRUE
 
         stack = self.compileState.expressionStack.next()

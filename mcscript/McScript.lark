@@ -36,7 +36,7 @@ expression: comparison
           | NOT expression -> boolean_not
 
 // terms like (6 + 8) * -9
-?term: sum
+term: sum
 ?sum: product ((PLUS | MINUS) product)*
 ?product: value ((TIMES | DIVIDE | MODULO) value)*
 value: NUMBER

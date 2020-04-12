@@ -1,6 +1,0 @@
-enum block {
-    dirt = 1;
-    coblestone;
-}
-
-run for @a print(block.dirt)
