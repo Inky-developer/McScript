@@ -42,5 +42,4 @@ def getFeatures() -> str:
     if path := Config.currentConfig.get_data("feature_list_path"):
         with open(path) as f:
             return f.read()
-    return getResource("FeatureDump.json")
-
+    return getResource("featureDump.json")
