@@ -27,3 +27,8 @@ class NbtAddressResource(ValueResource):
         if not isinstance(other, NbtAddressResource):
             return NotImplemented
         return NbtAddressResource(f"{self.embed()}.{other.embed()}")
+
+    def __getitem__(self, item):
+        if not isinstance(item, int):
+            return NotImplemented
+        return NbtAddressResource(f"{self.embed()}[{item}]")

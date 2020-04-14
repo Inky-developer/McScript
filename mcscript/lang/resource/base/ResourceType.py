@@ -10,7 +10,7 @@ class ResourceType(Enum):
     ADDRESS = auto()
     NBT_ADDRESS = auto()
     STRUCT = auto()
-    STRUCT_OBJECT = auto()
+    STRUCT_OBJECT = "Object"
     NUMBER = "Number"
     FIXED_POINT = "Fixed"
     BOOLEAN = "Boolean"
@@ -23,3 +23,4 @@ class ResourceType(Enum):
 
     RESOURCE = "Resource"
     VALUE_RESOURCE = "ValueResource"
+    ARRAY = "Array"

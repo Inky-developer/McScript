@@ -4,6 +4,7 @@ import warnings
 from typing import Optional, TYPE_CHECKING
 
 from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptNameError
+from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.StructResource import StructResource
@@ -83,12 +84,12 @@ class StructObjectResource(ObjectResource):
         self.namespace[name] = value.storeToNbt(self.nbtPath + NbtAddressResource(name), compileState)
         return value
 
-    def getAttribute(self, name: str) -> Resource:
+    def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         try:
             return self.namespace[name]
         except KeyError:
             try:
-                return self.struct.getAttribute(name)
+                return self.struct.getAttribute(compileState, name)
             except KeyError:
                 raise AttributeError(f"Invalid attribute '{name}' of {repr(self)}")
 
@@ -104,6 +105,19 @@ class StructObjectResource(ObjectResource):
 
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         return BooleanResource.TRUE
+
+    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+        def resourceString(key):
+            return [key + ": ", self.namespace[key]]
+
+        variables = self.struct.getDeclaredVariables()
+        resources = resourceString(variables[0][0])
+
+        for variable, _ in variables[1:]:
+            resources.append(", ")
+            resources.extend(resourceString(variable))
+
+        return formatter.createFromResources(self.struct.name + "(", *resources, ")")
 
     def toNumber(self) -> int:
         raise TypeError

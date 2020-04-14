@@ -11,4 +11,5 @@ class NamespaceType(Enum):
     STRUCT = auto()
     METHOD = auto()
     BLOCK = auto()
+    LOOP = auto()
     OTHER = auto()

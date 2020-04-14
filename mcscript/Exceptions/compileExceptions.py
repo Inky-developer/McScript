@@ -15,9 +15,12 @@ class McScriptError(McScriptException):
         tree = compileState.currentTree
         if tree:
             code = compileState.code[tree.line - 1]
+            start_error_code = max(tree.column - 1, 0)
+            error_code = max(tree.end_column - tree.column, 0) if tree.line == tree.end_line else len(
+                code) - start_error_code
             message = f"At line {tree.line} column {tree.column}\n" \
                       f"{code}\n" \
-                      f"{' ' * max(tree.column - 1, 0)}{'^' * max(tree.end_column - tree.column, 0)}\n" \
+                      f"{' ' * start_error_code}{'^' * error_code}\n" \
                       f"{message}"
         super().__init__(message)
         self.tree = tree
@@ -70,3 +73,21 @@ class McScriptAttributeError(McScriptError):
     """
     Thrown when an invalid property of an object is accessed
     """
+
+
+class McScriptIndexError(McScriptError):
+    """
+    Thrown when an invalid index of a sequence is accessed
+    """
+
+    def __init__(self, index: int, compileState: CompileState, maxIndex: int = None, customMessage: str = ""):
+        if maxIndex is not None:
+            if maxIndex > 0:
+                message = f"Trying to access index {index}, while the maximum allowed index is {maxIndex}."
+            else:
+                message = f"Trying access element on an empty array"
+        else:
+            message = f"Invalid index: {index}"
+        if customMessage:
+            message += "\n" + customMessage
+        super().__init__(message, compileState)

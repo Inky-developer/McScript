@@ -22,8 +22,58 @@ c = Complex(1.0, 0.0)
 run for @a print(c.real)
 """
 
+code_array = """
+struct Vec3 {
+    x: Number
+    y: Number
+    z: Number
+}
+
+run for @a at @s {
+    a = array(2)
+    print(a[0])
+    print(a[1])
+    
+    a[0] = 1
+    a[1] = 2
+    
+    print(a[0])
+    print(a[1])
+    
+    for (i in a) {
+        print(i)
+    }
+    
+    nonStatic = 4
+    for (i in arrayOf("This", "is", "an", "example", "array!", nonStatic)) {
+        print(i)
+    }
+    
+    a = 1
+    b = 2
+    c = 3
+    array = arrayOf(a, b, c)
+    c = 4
+    print("Array: ", array)
+    
+    pos = Vec3(10, 12, 14)
+    print(pos);
+}
+
+fun make_disk() -> Null {
+    const r = 100
+    for (x in range(-r, r+1)) {
+        for (z in range(-r, r+1)) {
+            if (x*x + z*z < r*r) {
+                setBlock(blocks.red_stained_glass, x, 0, z);
+            }
+        }
+    }
+}
+"""
+
 code_temp = """
-a = "this is a test string";
+
 """
 
 if __name__ == '__main__':
