@@ -29,11 +29,12 @@ class VariableResource(ValueResource, ABC):
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> Resource:
         return self.copy(stack, compileState)
 
-    def _load(self, compileState: CompileState, stack: Optional[AddressResource]) -> AddressResource:
+    def _load(self, compileState: CompileState, stack: Optional[AddressResource], scale=1) -> AddressResource:
         stack = stack or compileState.expressionStack.next()
         compileState.writeline(Command.LOAD_SCORE(
             stack=stack,
-            var=self.embed()
+            var=self.embed(),
+            scale=scale
         ))
         return stack
 

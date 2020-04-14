@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
+from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.base.VariableResource import VariableResource
@@ -25,11 +26,13 @@ class FixedNumberVariableResource(VariableResource):
         return self.load(compileState).convertToBoolean(compileState)
 
     def load(self, compileState: CompileState, stack: ValueResource = None) -> FixedNumberResource:
-        stack = self._load(compileState, stack)
+        stack = self._load(compileState, stack, FixedNumberResource.BASE)
         return FixedNumberResource(stack, False)
 
     def copy(self, target: ValueResource, compileState: CompileState) -> Resource:
         target = self._copy(compileState, target)
+        if not isinstance(target, NbtAddressResource):
+            return target
         return FixedNumberVariableResource(target, False)
 
     def operation_increment_one(self, compileState: CompileState) -> FixedNumberVariableResource:

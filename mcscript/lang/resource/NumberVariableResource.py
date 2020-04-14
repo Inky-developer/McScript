@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from mcscript.data.commands import BinaryOperator
 from mcscript.lang.resource.BooleanResource import BooleanResource
+from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -31,6 +32,8 @@ class NumberVariableResource(VariableResource):
 
     def copy(self, target: ValueResource, compileState: CompileState) -> Resource:
         stack = self._copy(compileState, target)
+        if not isinstance(stack, NbtAddressResource):
+            return stack
         return NumberVariableResource(target, False)
 
     def operation_increment_one(self, compileState: CompileState) -> NumberVariableResource:

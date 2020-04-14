@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.BooleanResource import BooleanResource
+from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.base.VariableResource import VariableResource
@@ -30,4 +31,6 @@ class BooleanVariableResource(VariableResource):
 
     def copy(self, target: ValueResource, compileState: CompileState) -> Resource:
         target = self._copy(compileState, target)
+        if not isinstance(target, NbtAddressResource):
+            return target
         return BooleanVariableResource(target, False)

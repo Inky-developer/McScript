@@ -74,30 +74,41 @@ fun make_disk() -> Null {
 
 code_temp = """
 string = "hello :)";
+execute("say This is a testring $string")
+
+fun test() -> Number {
+    a = 1
+    return a
+}
+
 run for @a {
-    print(string);
-    print(string.length);
-    if (string) {
-        print("String has value!");
-    } else {
-        print("String has no value!");
-    }
+    # print(string);
+    # print(string.length);
+    # if (string) {
+    #     print("String has value!");
+    # } else {
+    #     print("String has no value!");
+    # }
+    # 
+    # for (i in range(string.length)) {
+    #     print(string[i]);
+    # }
+    # 
+    # 
+    # a = "abc: "
+    # b = a + 1
+    # print(a)
+    # print(b)
+    # 
+    # # ToDo: String comparison
+    # print(b + string)
+    # 
+    # for (char in string) {
+    #     print(char);
+    # }
     
-    for (i in range(string.length)) {
-        print(string[i]);
-    }
-    
-    
-    a = "abc: "
-    b = a + 1
-    print(a)
-    print(b)
-    
-    print(b + string)
-    
-    for (char in string) {
-        print(char);
-    }
+    result = test()
+    print(result)
 }
 """
 

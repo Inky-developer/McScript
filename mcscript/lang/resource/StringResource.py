@@ -66,7 +66,7 @@ class StringResource(ValueResource):
         return ResourceType.STRING
 
     def embed(self) -> str:
-        return self.value if self.isStatic else self.value.embed()
+        return self.value if self.isStatic else str(self.value)
 
     def typeCheck(self) -> bool:
         return isinstance(self.value, str)
@@ -83,7 +83,7 @@ class StringResource(ValueResource):
         if not number.isStatic:
             raise McScriptTypeError("Index access for string must be static", compileState)
         if self.isStatic:
-            return StringResource(self.value[number], True)
+            return StringResource(self.value[number.toNumber()], True)
 
         return StringResource(self.value[number.toNumber()], False, length=1)
 
