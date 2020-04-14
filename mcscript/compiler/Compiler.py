@@ -115,11 +115,37 @@ class Compiler(Interpreter):
 
         accessed = [self.compileState.currentNamespace()[ret]]
         for value in values:
-            if not isinstance(accessed[-1], ObjectResource):
-                raise McScriptTypeError(f"Cannot access property '{value}' of {accessed[-1].type().name}",
+            try:
+                accessed.append(accessed[-1].getAttribute(self.compileState, value))
+            except TypeError:
+                raise McScriptTypeError(f"Cannot access property '{value}' of {accessed[-1].type().value}",
                                         self.compileState)
-            accessed.append(accessed[-1].getAttribute(value))
         return accessed
+
+    def array_accessor(self, tree):
+        """ Accesses an element on an array"""
+        accessor_, index_ = tree.children
+
+        accessor, = self.visit(accessor_)
+        index = self.compileState.toResource(index_)
+
+        try:
+            self.compileState.currentTree = index_
+            return accessor.operation_get_element(self.compileState, index)
+        except TypeError:
+            raise McScriptTypeError(f"Cannot access array element on type {accessor.type().value}", self.compileState)
+
+    def index_setter(self, tree):
+        accessor, index, value = tree.children
+
+        accessor, = self.visit(accessor)
+        index = self.compileState.toResource(index)
+        value = self.compileState.toResource(value)
+
+        try:
+            return accessor.operation_set_element(self.compileState, index, value)
+        except TypeError:
+            raise McScriptTypeError(f"{accessor.type().value} does not support index access", self.compileState)
 
     def propertySetter(self, tree):
         identifier, value = tree.children
@@ -561,6 +587,15 @@ class Compiler(Interpreter):
             ))
         else:
             self.compileState.writeline(Command.RUN_FUNCTION(function=blockName))
+
+    def control_for(self, tree):
+        _, var_name, _, expression, block = tree.children
+
+        resource = self.compileState.toResource(expression)
+        try:
+            resource.iterate(self.compileState, var_name, block)
+        except TypeError:
+            raise McScriptTypeError(f"type {resource.type().value} does not support iteration", self.compileState)
 
     def return_(self, tree):
         resource = self.compileState.toResource(tree.children[0])

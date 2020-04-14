@@ -8,6 +8,7 @@ from inspect import isabstract
 from textwrap import dedent
 from typing import Any, Dict, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union
 
+from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.data.commands import Command
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
@@ -66,6 +67,13 @@ class BuiltinFunction(ABC):
         """
         return False
 
+    def ArgumentsError(self, arguments: List[Resource], msg: str, compileState: CompileState) -> McScriptArgumentsError:
+        """ Creates a McScriptArgumentsError with some more error information"""
+        return McScriptArgumentsError(self.getFunctionSignature.format_string.format(
+            self.getFunctionSignature.arguments_format(arguments),
+            msg
+        ), compileState)
+
     @classmethod
     def load(cls, compiler: Compiler):
         for function in cls.functions:
@@ -84,7 +92,7 @@ class BuiltinFunction(ABC):
         return True
 
     @cached_property
-    def getFunctionSignature(self):
+    def getFunctionSignature(self) -> FunctionSignature:
         """
         Parses the docstring and builds a function signature.
         """
@@ -112,6 +120,8 @@ class BuiltinFunction(ABC):
                             default = NumberResource(int(raw), True)
                         elif all(i in "0123456789." for i in raw):
                             default = FixedNumberResource.fromNumber(float(raw))
+                        elif raw.lower() == "null":
+                            default = NullResource()
                         else:
                             default = StringResource(raw, True)
                     elif mod_match.lower() == "static":

@@ -1,10 +1,12 @@
 .idea/
 .github/
+.coverage
 build/build
 build/dist
 build/freeze.cmd
 config.ini
 docs/build
+htmlcov/
 test/server
 venv/
 

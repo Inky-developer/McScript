@@ -9,8 +9,6 @@ class NullResource(ValueResource):
     def __init__(self, value: Any = None, isStatic: bool = True):
         """
         parameters are discarded
-        :param value: ignored
-        :param isStatic: ignored
         """
         super().__init__(None, True)
 

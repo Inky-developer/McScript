@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from enum import Enum, auto
 from inspect import isabstract
 from typing import TYPE_CHECKING, Type
+
+from lark import Tree
 
 from mcscript.Exceptions.compileExceptions import McScriptTypeError
 from mcscript.compiler.Namespace import NamespaceType
@@ -10,6 +13,7 @@ from mcscript.data.commands import BinaryOperator
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
+    from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
     from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
     from mcscript.lang.resource.NumberResource import NumberResource
@@ -18,12 +22,20 @@ if TYPE_CHECKING:
     from mcscript.compiler.Namespace import Namespace
 
 
+class MinecraftDataStorage(Enum):
+    SCOREBOARD = auto()
+    STORAGE = auto()
+    NONE = auto()
+
+
 class Resource(ABC):
     _reference = {}
     isDefault: bool = True
     """
     whether this class is the default implementation of all resources that have the same ResourceType.
     """
+
+    storage: MinecraftDataStorage = MinecraftDataStorage.NONE
 
     requiresInlineFunc: bool = True
     """ 
@@ -53,6 +65,22 @@ class Resource(ABC):
                 )
             Resource._reference[cls.type()] = cls
 
+    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+        """
+        Creates a string that can be used as a minecraft tellraw or title string.
+
+        Args:
+            compileState: the compile state
+            formatter: A formatter that can be used to format this resource
+
+        Returns:
+            A minecraft json string
+
+        Raises:
+            TypeError: if this method should not be called.
+        """
+        raise TypeError()
+
     def convertToNumber(self, compileState: CompileState) -> NumberResource:
         """ Convert this to a number resource"""
         raise TypeError(f"{repr(self)} cannot be converted to a number.")
@@ -70,9 +98,10 @@ class Resource(ABC):
         Default: just return this and do nothing
         loads this resource. A NumberVariableResource would load to a scoreboard, A StringResource would check
         for variables.
-        :param compileState: the compile state
-        :param stack: an optional stack to load this variable to
-        :return: self
+
+        Args:
+            compileState: the compile state
+            stack: an optional stack to load this variable to
         """
         return self
 
@@ -80,9 +109,10 @@ class Resource(ABC):
         """
         Called when this resource should be stored in a variable
         stores this variable to nbt.
-        :param stack:
-        :param compileState:
-        :return:
+
+        Args:
+            stack: the stack on the data storage this resource should be stored to
+            compileState: the Compile state
         """
         raise TypeError(f"{repr(self)} does not support this operation")
 
@@ -91,9 +121,65 @@ class Resource(ABC):
         Non-static operation. Must be implemented if this resource does not require inline-functions.
         Move the value of this resource to the target resource and return the new resource
         Default implementation raises TypeError
-        :param target: the target resource one of AddressResource and NbtAddressResource
-        :param compileState: the compile state
-        :return: the new resource
+
+        Args:
+            target: the target resource one of AddressResource and NbtAddressResource
+            compileState: the compile state
+
+        Returns:
+            the new resource
+        """
+        raise TypeError
+
+    def getAttribute(self, compileState: CompileState, name: str) -> Resource:
+        """
+        Returns the attribute with `name`.
+
+        This is usually invoked by ``a.dot.between.objects``
+
+        Args:
+            compileState: the compile state
+            name: the name
+
+        Returns:
+            the resource
+
+        Raises:
+            TypeError: if the operation is not supported
+        """
+        raise TypeError()
+
+    def setAttribute(self, compileState: CompileState, name: str, value: Resource):
+        """
+        Sets the attribute with name `name`.
+
+        Args:
+            compileState: the compile state
+            name: the name
+            value: the value
+
+        Raises:
+            TypeError: if the operation is not supported
+        """
+        raise TypeError()
+
+    def iterate(self, compileState: CompileState, varName: str, block: Tree):
+        """
+        If this resource supports iterations, this method is called to iterate over.
+
+        it is expected that `block` is execute for every element.
+        `varName` should have the value of each element, respectively.
+
+        It may be used a recursive function loop to iterate over the elements or just an "unrolled" loop if the
+        number of elements is known at compile time.
+
+        Args:
+            compileState: the compile state
+            varName: the name of the iteration variable
+            block: the tree that is the loop body
+
+        Raises:
+            TypeError: if this operation is not supported
         """
         raise TypeError
 
@@ -120,8 +206,10 @@ class Resource(ABC):
     def checkOtherOperator(self, other: ValueResource, compileState: CompileState) -> ValueResource:
         """
         Called before an operation to convert the operator to a more fitting type
-        :param other: the other value
-        :param compileState: the compile state
+
+        Args:
+            other: the other value
+            compileState: the compile state
         """
         return other
 
@@ -143,24 +231,36 @@ class Resource(ABC):
     def operation_negate(self, compileState: CompileState) -> Resource:
         """
         Returns a resource whose value negated is the value of this resource
-        :param compileState: the compileState
-        :return: the new resource
+
+        Args:
+            compileState: the compileState
+
+        Returns:
+            the new resource
         """
         raise TypeError
 
     def operation_increment_one(self, compileState: CompileState) -> Resource:
         """
         Returns a resource which has the value +1 of this resource
-        :param compileState: the compileState
-        :return: the new resource
+
+        Args:
+            compileState: the compileState
+
+        Returns:
+            the new resource
         """
         raise TypeError
 
     def operation_decrement_one(self, compileState: CompileState) -> Resource:
         """
         Returns a resource which has the value of -1 of this resource
-        :param compileState: the compileState
-        :return: the new resource
+
+        Args:
+            compileState: the compileState
+
+        Returns:
+            the new resource
         """
         raise TypeError
 
@@ -168,12 +268,52 @@ class Resource(ABC):
                        **keywordParameters: Resource) -> Resource:
         """
         If this method is implemented, the resource can be treated like a function
-        :param compileState: the compile state
-        :param parameters: a list of parameters
-        :param keywordParameters: a list of keyword parameters, currently they are not yet supported
-        :return: a new resource
+
+        Args:
+            compileState: the compile state
+            parameters: a list of parameters
+            keywordParameters: a list of keyword parameters, currently they are not yet supported
+
+        Returns:
+            a new resource
         """
         raise TypeError
+
+    def operation_get_element(self, compileState: CompileState, index: Resource) -> Resource:
+        """
+        If this resource supports array-like operations, this method should be implemented.
+
+        Accesses the element `index` of this resource
+
+        Args:
+            compileState: the compile state
+            index: a resource that can be converted to an integer
+
+        Returns:
+            the element at the index
+
+        Raises:
+            TypeError: if this operation is not supported
+            McScriptIndexError: if the index is invalid
+        """
+        raise TypeError()
+
+    def operation_set_element(self, compileState: CompileState, index: Resource, value: Resource):
+        """
+        If this resource supports array-like operations, this method should be implemented.
+
+        Sets the resource ´value´ at the index ´index´
+
+        Args:
+            compileState: the compile state
+            index: a resource that can be converted to an integer
+            value: any resource
+
+        Raises:
+            NotImplementedError: if this operation is not supported
+            TypeError: if the index is invalid
+        """
+        raise TypeError()
 
     @classmethod
     def getResourceClass(cls, resourceType: ResourceType) -> Type[Resource]:
@@ -189,10 +329,14 @@ class Resource(ABC):
         """
         Creates an empty resources which is not static and has static address assigned to it.
         This is used in not-inline functions to generate the function before it is called
-        :param identifier: the identifier of the resource in the code
-        :param compileState: the compile state
-        :return: the generated resource
-        :raises TypeError: if this operation is not supported by this class (default implementation)
+
+        Args:
+            identifier: the identifier of the resource in the code
+            compileState: the compile state
+            the generated resource
+
+        Raises:
+            TypeError: if this operation is not supported by this class (default implementation)
         """
         raise TypeError
 
@@ -217,6 +361,8 @@ class ValueResource(Resource, ABC):
 
     # whether this resource has a static value like a number - False for AddressResource
     _hasStaticValue = True
+
+    storage = MinecraftDataStorage.SCOREBOARD
 
     def __init__(self, value, isStatic):
         self.value = None
@@ -275,6 +421,8 @@ class ValueResource(Resource, ABC):
 
 
 class ObjectResource(Resource, ABC):
+    storage = MinecraftDataStorage.STORAGE
+
     def __init__(self, namespace: Namespace = None):
         from mcscript.compiler.Namespace import Namespace
         # ToDo: is this correct?
@@ -289,11 +437,7 @@ class ObjectResource(Resource, ABC):
         """ Returns the base path which contains the attributes of this object. """
         raise TypeError
 
-    def getAttribute(self, name: str) -> Resource:
-        """
-        Returns the attribute with the given name
-        @raises: McScriptNameError when the property does not exist
-        """
+    def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         if name not in self.namespace:
             raise AttributeError(f"Property {name} does not exist for {type(self)}.")
         return self.namespace[name]

@@ -31,7 +31,7 @@ class EnumResource(ObjectResource):
     def type() -> ResourceType:
         return ResourceType.ENUM
 
-    def getAttribute(self, name: str) -> Resource:
+    def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         try:
             return self.namespace[name]
         except KeyError:
