@@ -414,11 +414,8 @@ class Compiler(Interpreter):
             var = value
             # The null resource is kinda special because it only ever has one value
             if not isinstance(value, NullResource):
-                Logger.warn(
-                    "[Compiler] Every resource should implement storeToNbt if it can be on both scoreboard and storage"
-                    f"\n({e})"
-                )
-
+                raise McScriptTypeError(f"Could not assign type {value.type().value} to a variable because "
+                                        f"it does not support this operation", self.compileState)
         self.compileState.currentNamespace().setVar(identifier, var)
         return var
 

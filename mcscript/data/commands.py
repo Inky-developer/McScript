@@ -137,8 +137,8 @@ class Command(StringEnum):
     REMOVE_SCORE = "scoreboard players remove {stack} {name} {value}"
 
     # loads a variable from storage to a scoreboard
-    LOAD_VARIABLE = "execute store result score {stack} {name} run " \
-                    "data get storage {name2}:{:Storage.NAME} {:Storage.VARS}.{var} {scale:1}"
+    LOAD_SCORE = "execute store result score {stack} {name} run " \
+                 "data get storage {name2}:{:Storage.NAME} {:Storage.VARS}.{var} {scale:1}"
 
     # sets a variable to a value
     SET_VARIABLE = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} merge value {struct}"

@@ -5,6 +5,7 @@ from string import Formatter
 from typing import Optional, TYPE_CHECKING, Tuple
 
 from mcscript.compiler.Namespace import Namespace
+from mcscript.data.commands import Command, ExecuteCommand
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.base.ResourceBase import ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -43,6 +44,7 @@ class StringResource(ValueResource):
     def __init__(self, value, isStatic, namespace: Optional[Namespace] = None):
         super().__init__(value, isStatic)
 
+
         if namespace is not None:
             self.setValue(self.formatter.format(self.embed(), **namespace.asDict()), self.isStatic)
 
@@ -56,8 +58,20 @@ class StringResource(ValueResource):
     def typeCheck(self) -> bool:
         return isinstance(self.value, str)
 
+    def getA
+
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
-        return BooleanResource.TRUE if self.value else BooleanResource.FALSE
+        if self.isStatic:
+            return BooleanResource.TRUE if self.value else BooleanResource.FALSE
+        boolean = compileState.expressionStack.next()
+        tmpStack = compileState.expressionStack.next()
+        compileState.writeline(Command.LOAD_SCORE(
+            stack=tmpStack,
+            var=self.value
+        ))
+        compileState.writeline(Command.EXECUTE(
+            ExecuteCommand.IF_SCORE()
+        ))
 
     def format(self, *args, **kwargs) -> StringResource:
         r"""

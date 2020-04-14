@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import Command, BinaryOperator
+from mcscript.data.commands import BinaryOperator, Command
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.base.ResourceBase import ValueResource, Resource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
@@ -36,7 +36,7 @@ class NumberVariableResource(ValueResource):
 
     def load(self, compileState: CompileState, stack: ValueResource = None) -> NumberResource:
         stack = stack or compileState.expressionStack.next()
-        compileState.writeline(Command.LOAD_VARIABLE(
+        compileState.writeline(Command.LOAD_SCORE(
             stack=stack,
             var=self.embed()
         ))

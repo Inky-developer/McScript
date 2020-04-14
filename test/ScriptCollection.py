@@ -23,11 +23,7 @@ run for @a print(c.real)
 """
 
 code_temp = """
-fun test(a: Number, b: Number) -> Number {
-    return a * b;
-}
-
-run for @a print(test);
+a = "this is a test string";
 """
 
 if __name__ == '__main__':

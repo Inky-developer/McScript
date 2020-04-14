@@ -35,7 +35,7 @@ class FixedNumberVariableResource(ValueResource):
 
     def load(self, compileState: CompileState, stack: ValueResource = None) -> FixedNumberResource:
         stack = stack or compileState.expressionStack.next()
-        compileState.writeline(Command.LOAD_VARIABLE(
+        compileState.writeline(Command.LOAD_SCORE(
             stack=stack,
             scale=FixedNumberResource.BASE,
             var=self.embed()
