@@ -200,7 +200,7 @@ class Resource(ABC):
             elif operator == BinaryOperator.MODULO:
                 return self.operation_modulo(other, compileState)
         except TypeError:
-            raise McScriptTypeError(f"{repr(self)} does not support the binary operation {operator.name}")
+            raise McScriptTypeError(f"{repr(self)} does not support the binary operation {operator.name}", compileState)
         raise ValueError("Unknown operator: " + repr(operator))
 
     def checkOtherOperator(self, other: ValueResource, compileState: CompileState) -> ValueResource:

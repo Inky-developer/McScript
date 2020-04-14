@@ -48,6 +48,11 @@ class Compiler(Interpreter):
         self.compileState.fileStructure.pushFile("main.mcfunction")
         BuiltinFunction.load(self)
         self.visit(tree)
+
+        # create file with all constants
+        self.compileState.fileStructure.pushFile("init_constants.mcfunction")
+        self.compileState.compilerConstants.write_constants(self.compileState)
+
         return self.compileState.datapack
 
     #  called by every registered builtin function
@@ -319,7 +324,10 @@ class Compiler(Interpreter):
         return BooleanResource(stack, False)
 
     def binaryOperation(self, *args):
+        # ToDO: optimization for operations like a*a
+        # for this there must be an option that the number1 loads number1 and number2 manually
         number1, *values = args
+
         # the first number can also be a list. Then just do a binary operation with it
         if isinstance(number1, list):
             number1 = self.binaryOperation(*number1)

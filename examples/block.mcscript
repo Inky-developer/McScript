@@ -1,0 +1,11 @@
+tickCount = 0
+
+fun onTick() -> Null {
+    run for @a at @s {
+        if (tickCount % 20 == 0)
+            actionbar(@s, " Second: ", tickCount / 20)
+    }
+    ++tickCount
+}
+
+

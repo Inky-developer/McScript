@@ -2,6 +2,7 @@ from typing import Callable, List, Optional
 
 from lark import Tree
 
+from mcscript.compiler.CompilerConstants import CompilerConstants
 from mcscript.compiler.Namespace import Namespace, NamespaceType
 from mcscript.data.Config import Config
 from mcscript.lang.resource.AddressResource import AddressResource
@@ -26,6 +27,7 @@ class CompileState:
 
         self.codeBlockStack = Address("block_{}")
         self.temporaryStorageStack = Address("temp.tmp{}")
+        self.compilerConstants = CompilerConstants()
 
         self.stack: List[Namespace] = [Namespace(0, namespaceType=NamespaceType.GLOBAL)]
         self._namespaceId = 1
@@ -34,6 +36,10 @@ class CompileState:
 
         self.fileStructure = self.datapack.getMainDirectory().getPath("functions").fileStructure
         self.lineCount = 0
+
+    def getConstant(self, constant: int) -> AddressResource:
+        """ Wrapper for compilerConstant"""
+        return AddressResource(self.compilerConstants.getConstant(constant), True)
 
     @property
     def expressionStack(self):

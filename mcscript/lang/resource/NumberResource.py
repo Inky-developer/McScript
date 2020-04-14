@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from mcscript.Exceptions.compileExceptions import McScriptTypeError
-from mcscript.data.commands import Command, BinaryOperator, multiple_commands, Struct, ExecuteCommand
+from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Struct, multiple_commands
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
-from mcscript.lang.resource.base.ResourceBase import ValueResource, Resource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
@@ -50,15 +50,14 @@ class NumberResource(ValueResource):
     def convertToFixedNumber(self, compileState: CompileState) -> FixedNumberResource:
         if self.isStatic:
             return FixedNumberResource.fromNumber(self.value)
-        # else multiply this value by the factor
-        stack = compileState.expressionStack.next()
+
         compileState.writeline(multiple_commands(
-            Command.SET_VALUE(stack=stack, value=FixedNumberResource.BASE),
-            Command.OPERATION(stack=self.value, operator=BinaryOperator.TIMES.value, stack2=stack)
+            Command.OPERATION(
+                stack=self.value,
+                operator=BinaryOperator.TIMES.value,
+                stack2=compileState.getConstant(FixedNumberResource.BASE))
         ))
 
-        # remove the previous stack
-        compileState.expressionStack.previous()
         return FixedNumberResource(self.value, False)
 
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
@@ -104,19 +103,14 @@ class NumberResource(ValueResource):
         if self.isStatic:
             return NumberResource(-self.value, True)
 
-        tmp = compileState.expressionStack.next()
         compileState.writeline(multiple_commands(
-            Command.SET_VALUE(
-                stack=tmp,
-                value=-1
-            ),
             Command.OPERATION(
                 stack=self.value,
                 operator=BinaryOperator.TIMES.value,
-                stack2=tmp
+                stack2=compileState.getConstant(-1)
             )
         ))
-        compileState.expressionStack.previous()
+
         return NumberResource(self.value, False)
 
     def _numericOperation(self, other: ValueResource, operator: BinaryOperator,
@@ -137,11 +131,8 @@ class NumberResource(ValueResource):
         else:
             stack1 = self.value
 
-        otherStack = False
         if other.isStatic:
-            stack2 = compileState.expressionStack.next()
-            compileState.writeline(Command.SET_VALUE(stack=stack2, value=int(other)))
-            otherStack = True
+            stack2 = compileState.compilerConstants.getConstant(other.value)
         else:
             stack2 = other.value
 
@@ -151,9 +142,6 @@ class NumberResource(ValueResource):
             stack2=stack2
         ))
 
-        # the last expression is not needed anymore
-        if otherStack:
-            compileState.expressionStack.previous()
         return NumberResource(stack1, False)
 
     def copy(self, target: ValueResource, compileState: CompileState) -> Resource:

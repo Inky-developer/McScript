@@ -7,20 +7,11 @@ from mcscript.data.Config import Config
 from mcscript.utils import rcon
 from mcscript.utils.cmdHelper import generateFiles, getWorld
 
-# test to see if this is tracked
-code_struct = """
-struct Complex {
-    real: Fixed
-    imag: Fixed
-    
-    fun multiply(self: Complex, other: Number) -> Null {
-        self.real *= other
-    } 
-}
 
-c = Complex(1.0, 0.0)
-run for @a print(c.real)
-"""
+def getScript(name: str) -> str:
+    with open(join("../examples/", name + ".mcscript")) as f:
+        return f.read()
+
 
 code_array = """
 struct Vec3 {
@@ -73,43 +64,11 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-string = "hello :)";
-execute("say This is a testring $string")
-
-fun test() -> Number {
-    a = 1
-    return a
+sum = 0;
+for (i in range(5)) {
+    if (i % 2) sum += i;
 }
-
-run for @a {
-    # print(string);
-    # print(string.length);
-    # if (string) {
-    #     print("String has value!");
-    # } else {
-    #     print("String has no value!");
-    # }
-    # 
-    # for (i in range(string.length)) {
-    #     print(string[i]);
-    # }
-    # 
-    # 
-    # a = "abc: "
-    # b = a + 1
-    # print(a)
-    # print(b)
-    # 
-    # # ToDo: String comparison
-    # print(b + string)
-    # 
-    # for (char in string) {
-    #     print(char);
-    # }
-    
-    result = test()
-    print(result)
-}
+run for @a print(sum);
 """
 
 if __name__ == '__main__':
@@ -117,7 +76,7 @@ if __name__ == '__main__':
     config = Config("config.ini")
     # config.get("name")
     code = code_temp
-    # code = getScript("mandelbrot")
+    # code = getScript("block")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

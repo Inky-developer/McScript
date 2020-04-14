@@ -245,6 +245,34 @@ a = 1;
 doSomething(a, m);
 return a == 1 and m.a == 2;
 
+[array]
+a = array(2);
+a[0] = 2;
+a[1] = 3;
+return a[0] * a[1] == 6;
+
+[array]
+a = 2;
+b = 3;
+a = arrayOf(a, b);
+return a[0] * a[1] == 6;
+
+[string]
+s = "test string";
+s[0] = "p";
+for (char in s) {
+    print(char);
+}
+return True;
+
+[for_loop]
+array = arrayOf(1, 2, 3, 4, 5, 6);
+sum = 0;
+for (i in array) {
+    if (i % 2) sum += i;
+}
+return sum == 9;
+
 [check_builtins_run]
 # don't validate the results, just check that the functions can run
 a = boolean(12.5);
@@ -270,5 +298,9 @@ run for @a {
     title("tEsT");
     subtitle("TeSt");
 }
+p = array(5);
+q = arrayOf(10);
+r = range(10);
+r = range(10, -1, -1);
 
 return True;
