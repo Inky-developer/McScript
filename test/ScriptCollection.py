@@ -73,7 +73,32 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-
+string = "hello :)";
+run for @a {
+    print(string);
+    print(string.length);
+    if (string) {
+        print("String has value!");
+    } else {
+        print("String has no value!");
+    }
+    
+    for (i in range(string.length)) {
+        print(string[i]);
+    }
+    
+    
+    a = "abc: "
+    b = a + 1
+    print(a)
+    print(b)
+    
+    print(b + string)
+    
+    for (char in string) {
+        print(char);
+    }
+}
 """
 
 if __name__ == '__main__':

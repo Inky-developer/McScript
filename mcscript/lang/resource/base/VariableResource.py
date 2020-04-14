@@ -31,7 +31,7 @@ class VariableResource(ValueResource, ABC):
 
     def _load(self, compileState: CompileState, stack: Optional[AddressResource]) -> AddressResource:
         stack = stack or compileState.expressionStack.next()
-        compileState.writeline(Command.LOAD_VARIABLE(
+        compileState.writeline(Command.LOAD_SCORE(
             stack=stack,
             var=self.embed()
         ))

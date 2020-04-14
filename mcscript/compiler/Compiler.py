@@ -335,7 +335,11 @@ class Compiler(Interpreter):
             number2 = self.compileState.load(number2)
 
             try:
-                number1 = number1.numericOperation(number2, operator, self.compileState)
+                result = number1.numericOperation(number2, operator, self.compileState)
+                if result == NotImplemented:
+                    raise McScriptTypeError(f"Operation <{operator.name}> not supported between operands "
+                                            f"'{number1.type().value}' and '{number2.type().value}'", self.compileState)
+                number1 = result
             except NotImplementedError:
                 raise TypeError(f"Expected operand that supports numeric operations, not {repr(number1)}")
         return number1
@@ -502,7 +506,7 @@ class Compiler(Interpreter):
             Logger.debug(f"[Compiler] skipping if-statement line {tree.line}: empty block")
             return None
 
-        addr_condition = self.compileState.load(condition)
+        addr_condition = self.compileState.load(condition).convertToBoolean(self.compileState)
         if not isinstance(addr_condition, ValueResource):
             raise McScriptTypeError("comparison result must be a valueResource", self.compileState)
 
@@ -729,6 +733,7 @@ class Compiler(Interpreter):
         res = self.visit_children(tree)
         # # now clear up the expression counter
         self.compileState.expressionStack.reset()
+        self.compileState.temporaryStorageStack.reset()
         # for readability
         self.compileState.writeline()
         return res

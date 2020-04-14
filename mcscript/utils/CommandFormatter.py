@@ -1,6 +1,6 @@
 from enum import Enum
 from string import Formatter
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 class CommandFormatter(Formatter):
@@ -36,7 +36,7 @@ class CommandFormatter(Formatter):
         return "", None
 
     def format_field(self, value, format_spec):
-        if not value and format_spec:
+        if (value is None or value == "") and format_spec:
             if "." not in format_spec:
                 return format_spec
             else:

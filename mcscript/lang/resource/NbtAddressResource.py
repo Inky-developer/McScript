@@ -8,7 +8,7 @@ class NbtAddressResource(ValueResource):
     """
     _hasStaticValue = False
 
-    def __init__(self, value):
+    def __init__(self, value: str):
         super().__init__(value, True)
         *self.address, self.name = value.split(".")
         self.address = ".".join(self.address)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Iterable
 from enum import Enum
 from inspect import isclass
 
@@ -49,6 +50,12 @@ class Selector(StringEnum):
 
 class Struct(StringEnum):
     VAR = '{{"{var}":{value}}}'
+
+    @classmethod
+    def ARRAY(cls, *values):
+        if len(values) == 1 and isinstance(values[0], Iterable):
+            values = values[0]
+        return f"[{','.join(str(value) for value in values)}]"
 
 
 class ExecuteCommand(StringEnum):
@@ -139,9 +146,12 @@ class Command(StringEnum):
     # loads a variable from storage to a scoreboard
     LOAD_SCORE = "execute store result score {stack} {name} run " \
                  "data get storage {name2}:{:Storage.NAME} {:Storage.VARS}.{var} {scale:1}"
+    LOAD_SCORE_NO_SCALE = "execute store result score {stack} {name} run " \
+                          "data get storage {name2}:{:Storage.NAME} {:Storage.VARS}.{var}"
 
     # sets a variable to a value
     SET_VARIABLE = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} merge value {struct}"
+    SET_VARIABLE_VALUE = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} set value {value}"
 
     COPY_VARIABLE = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} " \
                     "set from storage {name}:{:Storage.NAME} {:Storage.VARS}.{address2}"
@@ -163,6 +173,14 @@ class Command(StringEnum):
     ACTIONBAR = "title {target:@s} actionbar {text}"
 
     SET_BLOCK = "setblock {x:~} {y:~} {z:~} {block}{blockstate}{nbt}"
+    SET_BLOCK_ABS = "setblock {x:0} {y:0} {z:0} {block}{blockstate}{nbt}"
+
+    MODIFY_BLOCK_FROM_VARIABLE = "data modify block {x:~} {y:~} {z:~} {path} set from storage " \
+                                 "{name}:{:Storage.NAME} {:Storage.VARS}.{address}"
+
+    APPEND_ARRAY = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} append value {value}"
+    APPEND_ARRAY_FROM = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} append " \
+                        "from storage {name}:{:Storage.NAME} {:Storage.VARS}.{address2}"
 
     # summons an entity
     SUMMON_ENTITY = "summon {entity} {x:~} {y:~} {z:~} {nbt}"
