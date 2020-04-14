@@ -23,7 +23,7 @@ class GetBlockFunction(BuiltinFunction):
         return "getBlock"
 
     def returnType(self) -> ResourceType:
-        return ResourceType.BOOLEAN
+        return ResourceType.NUMBER
 
     def include(self, compileState: CompileState):
         compileState.datapack.getUtilsDirectory().addGetBlockFunction()

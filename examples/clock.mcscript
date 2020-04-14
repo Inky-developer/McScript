@@ -1,62 +1,27 @@
-fun printZeroPaddedTime(hours: Number, minutes: Number, seconds: Number) {
-    if seconds > 9 {
-        if minutes > 9 {
-            if hours > 9 {
-                actionbar(hours, ":", minutes, ":", seconds)
-            } else {
-                actionbar("0", hours, ":", minutes, ":", seconds)
-            }
-        } else {
-            if hours > 9 {
-                actionbar(hours, ":0", minutes, ":", seconds)
-            } else {
-                actionbar("0", hours, ":0", minutes, ":", seconds)
-            }
-        }
-    } else {
-        if minutes > 9 {
-            if hours > 9 {
-                actionbar(hours, ":", minutes, ":0", seconds)
-            } else {
-                actionbar("0", hours, ":", minutes, ":0", seconds)
-            }
-        } else {
-            if hours > 9 {
-                actionbar(hours, ":0", minutes, ":0", seconds)
-            } else {
-                actionbar("0", hours, ":0", minutes, ":0", seconds)
-            }
-        }
-    }
-}
-
-fun zeroPadHoursMinutes(hours: Number, minutes: Number) {
-    if hours > 9 {
-        if minutes > 9
+fun zeroPadHoursMinutes(hours: Number, minutes: Number) -> Null {
+    if (hours > 9) {
+        if (minutes > 9)
             actionbar(hours, ":", minutes)
-         else
+        else
             actionbar(hours, ":0", minutes)
     } else {
-        if minutes > 9
+        if (minutes > 9)
             actionbar("0", hours, ":", minutes)
-         else
+        else
             actionbar("0", hours, ":0", minutes)
     }
 }
 
 tickCount = 0
-fun onTick() {
-    for @p {
-        daytime = ((run "time query daytime") + 6000) % 24000 # between 0 and 24_000
-        hours = daytime / 1000
-        rest = daytime % 1000
-        minutes = rest * 60 / 1000 # what about transforming 0.6 to 6 / 100? (ToDo)
-        seconds = (rest * 60 % 1000) * 60 / 1000
+fun onTick() -> Null {
+    daytime = (evaluate("time query daytime") + 6000) % 24000
+    hours = daytime / 1000
+    rest = daytime % 1000
+    minutes = rest * 60 / 1000
+    seconds = (rest * 60 % 1000) * 60 / 1000
 
-        if tickCount % 20 == 0 {
-            zeroPadHoursMinutes(hours, minutes)
-        }
-        #actionbar("0.", tickCount % 20 * 5)
-        tickCount += 1
+    if (tickCount % 20 == 0) {
+        run for @a zeroPadHoursMinutes(hours, minutes)
     }
+    ++tickCount
 }

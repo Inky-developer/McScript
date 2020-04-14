@@ -9,7 +9,7 @@ from mcscript.utils.cmdHelper import generateFiles, getWorld
 
 
 def getScript(name: str) -> str:
-    with open(join("../examples/", name + ".mcscript")) as f:
+    with open(join("../examples/", name + ".mcscript"), encoding="utf-8") as f:
         return f.read()
 
 
@@ -75,8 +75,8 @@ if __name__ == '__main__':
     world = getWorld("McScript", join(getcwd(), "server"))
     config = Config("config.ini")
     # config.get("name")
-    code = code_temp
-    # code = getScript("block")
+    # code = code_temp
+    code = getScript("rotation")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

@@ -1,5 +1,3 @@
-# SET world = McScript
-
 fun pow(a: Number, b: Number) -> Number {
     res = 1
     while (b > 0) {
@@ -30,6 +28,7 @@ fun fac(x: Number) -> Number {
     }
     return ret
 }
+
 
 run for @a {
     a = 5

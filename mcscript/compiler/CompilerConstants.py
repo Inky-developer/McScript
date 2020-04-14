@@ -52,7 +52,7 @@ class CompilerConstants:
             compileState: the compile state
         """
 
-        for number in sorted(self.cache, key=lambda key: self.cache[key]):
+        for number in sorted(self.cache):
             compileState.writeline(Command.SET_VALUE(
                 stack=self.cache[number],
                 value=number
