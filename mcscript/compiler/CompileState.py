@@ -116,7 +116,7 @@ class CompileState:
 
     def pushStack(self, namespaceType: NamespaceType):
         index = self._namespaceId
-        self._namespaceId += 1 if namespaceType != namespaceType.LOOP else 0
+        self._namespaceId += 1 if namespaceType not in (namespaceType.LOOP, namespaceType.INLINE_FUNCTION) else 0
         namespace = Namespace(index, self.currentNamespace(), namespaceType)
         self.stack.append(namespace)
         return namespace

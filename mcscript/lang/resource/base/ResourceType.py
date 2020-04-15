@@ -18,9 +18,9 @@ class ResourceType(Enum):
     SELECTOR = "Selector"
     ENUM = "Enum"
     FUNCTION = "Function"
-    METHOD = "Method"
-    TYPE = auto()
+    TYPE = "Type"
 
     RESOURCE = "Resource"
     VALUE_RESOURCE = "ValueResource"
     ARRAY = "Array"
+    LIST = "List"

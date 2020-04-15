@@ -21,7 +21,14 @@ if TYPE_CHECKING:
 class ArrayResource(Resource):
     """
     An Array. Has a fixed size and can thus manage it's elements without an nbt array.
-    pointers to the resources are kept internally anf can be accesses via static element access or for loops.
+    pointers to the resources are kept internally and can be accesses via static element access or for loops.
+    This makes this class really lightweight when compiling to mcfunction files, but has some major limitations.
+    Namely, after the array was created, only read-access is possible.
+    If this is a problem, the more dynamic and heavy List resource should be used:
+
+    See Also:
+        :class:`mcscript.lang.resource.ListResource.ListResource`
+        :class:`mcscript.lang.resource.base.ResourceBase.Resource`
     """
 
     def __init__(self, *resources: Resource):
@@ -56,22 +63,7 @@ class ArrayResource(Resource):
         except IndexError:
             raise McScriptIndexError(index, compileState, len(self.resources) - 1)
 
-    def operation_set_element(self, compileState: CompileState, index: Resource, value: Resource):
-        try:
-            # noinspection PyTypeChecker
-            index = int(index)
-        except TypeError:
-            raise McScriptTypeError(f"Expected a resource that can be converted to a number but got {index}",
-                                    compileState)
-
-        newValue = value
-        if isinstance(value, ValueResource) and not value.isStatic:
-            newValue = value.storeToNbt(self.stack[index], compileState)
-
-        try:
-            self.resources[index] = newValue
-        except IndexError:
-            raise McScriptIndexError(index, compileState, len(self.resources) - 1)
+    # no operation set_element because an array is a static construct and thus read-only
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         try:
@@ -111,3 +103,6 @@ class ArrayResource(Resource):
 
     def toString(self) -> str:
         raise NotImplementedError()
+
+    def __str__(self):
+        return f"Array({', '.join(str(i) for i in self.resources)})"

@@ -64,11 +64,32 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-sum = 0;
-for (i in range(5)) {
-    if (i % 2) sum += i;
+a = arrayOf(1, 2, 3, 4);
+i = 0
+
+run for @a print(a);
+
+squares = list(types.Number)
+
+for (i in range(1, 10)) { 
+    squares.append(i*i)
 }
-run for @a print(sum);
+
+run for @a {
+    print("This is a list of the first ten squares: ", squares)
+    print("Length of this list: ", squares.size) 
+    
+    i = 0
+    for (value in squares) {
+        ++i
+        print(i, ": ", value)
+    }
+    
+    a = 9000
+    squares.insert(0, a)
+    print(squares)
+}
+
 """
 
 if __name__ == '__main__':
@@ -76,7 +97,7 @@ if __name__ == '__main__':
     config = Config("config.ini")
     # config.get("name")
     # code = code_temp
-    code = getScript("rotation")
+    code = getScript("raycast")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

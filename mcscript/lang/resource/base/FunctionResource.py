@@ -22,7 +22,7 @@ class FunctionResource(ObjectResource):
     """
     isDefault = False
 
-    def __init__(self, name: str, parameters: List[Parameter], returnType: TypeResource, block: Tree):
+    def __init__(self, name: str, parameters: List[Parameter], returnType: TypeResource, block: Tree = None):
         super().__init__()
         self._name = name
         self.returnType = returnType

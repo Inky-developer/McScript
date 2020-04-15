@@ -138,7 +138,7 @@ class Compiler(Interpreter):
             self.compileState.currentTree = index_
             return accessor.operation_get_element(self.compileState, index)
         except TypeError:
-            raise McScriptTypeError(f"Cannot access array element on type {accessor.type().value}", self.compileState)
+            raise McScriptTypeError(f"{accessor.type().value} does not support reading index access", self.compileState)
 
     def index_setter(self, tree):
         accessor, index, value = tree.children
@@ -150,7 +150,7 @@ class Compiler(Interpreter):
         try:
             return accessor.operation_set_element(self.compileState, index, value)
         except TypeError:
-            raise McScriptTypeError(f"{accessor.type().value} does not support index access", self.compileState)
+            raise McScriptTypeError(f"{accessor.type().value} does not support writing index access", self.compileState)
 
     def propertySetter(self, tree):
         identifier, value = tree.children
@@ -466,7 +466,8 @@ class Compiler(Interpreter):
         value = self.compileState.toResource(value)
 
         if not isinstance(value, ValueResource):
-            raise McScriptTypeError("Can only assign values for variables", self.compileState)
+            raise McScriptTypeError(f"Only simple datatypes can be assigned using const, not {value}",
+                                    self.compileState)
         if not value.hasStaticValue:
             raise McScriptNotStaticError("static declaration needs a static value.", self.compileState)
 
@@ -483,21 +484,21 @@ class Compiler(Interpreter):
             raise AttributeError(f"Cannot do an operation with '{resource}'", self.compileState)
 
         try:
-            var = var.numericOperation(resource, BinaryOperator(operator), self.compileState)
+            result = var.numericOperation(resource, BinaryOperator(operator), self.compileState)
+            if result == NotImplemented:
+                raise McScriptTypeError(
+                    f"Unsupported operation {operator} for {var.type().value} and {resource.type().value}",
+                    self.compileState
+                )
         except NotImplementedError:
             raise McScriptTypeError(
                 f"in place operation: Failed because {repr(var)} does not support the operation {operator.name}",
                 self.compileState
             )
 
-        # lastly, storeToNbt the value back into the variable
-        # self.compileState.writeline(Command.SET_VARIABLE_FROM(
-        #     var=str(varResource),
-        #     command=Command.GET_SCOREBOARD_VALUE(stack=var)
-        # ))
-        if not isinstance(var, Resource):
-            raise NotImplementedError("Expected a resource, got", self.compileState)
-        var.storeToNbt(varResource.value, self.compileState)
+        if not isinstance(result, Resource):
+            raise McScriptTypeError(f"Expected a resource, got {result}", self.compileState)
+        result.storeToNbt(varResource.value, self.compileState)
 
     def block(self, tree):
         blockName = self.compileState.pushBlock()

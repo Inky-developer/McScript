@@ -6,7 +6,6 @@ from typing import Callable, Dict, Optional, TYPE_CHECKING, Tuple, Union
 
 from lark import Tree
 
-from mcscript import Logger
 from mcscript.Exceptions.compileExceptions import McScriptTypeError
 from mcscript.compiler.Namespace import Namespace
 from mcscript.compiler.NamespaceType import NamespaceType
@@ -120,29 +119,9 @@ class StringResource(ValueResource):
                 ))
 
     def operation_plus(self, other: ValueResource, compileState: CompileState) -> ValueResource:
-        # ToDo: a + 1 will modify the memory of a but not it's size which will lead to strange behavior
-        if not isinstance(other, StringResource):
-            if not other.isStatic:
-                Logger.error(f"[StringResource] other is neither a string nor static!")
-                return NotImplemented
-            other = StringResource(str(other), True)
-
-        if self.isStatic:
+        if self.isStatic and isinstance(other, StringResource) and other.isStatic:
             return StringResource(self.value + other.value, True)
-
-        if other.isStatic:
-            for char in other.value:
-                compileState.writeline(Command.APPEND_ARRAY(
-                    address=self.value,
-                    value=f'"{char}"'
-                ))
-        else:
-            for i in range(other.length):
-                compileState.writeline(Command.APPEND_ARRAY_FROM(
-                    address=self.value,
-                    address2=other.value[i]
-                ))
-        return StringResource(self.value, False, self.length + other.length)
+        return NotImplemented
 
     def iterate(self, compileState: CompileState, varName: str, block: Tree):
         for i in range(self.length):

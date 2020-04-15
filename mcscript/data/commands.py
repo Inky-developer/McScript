@@ -155,6 +155,7 @@ class Command(StringEnum):
 
     COPY_VARIABLE = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} " \
                     "set from storage {name}:{:Storage.NAME} {:Storage.VARS}.{address2}"
+    REMOVE_VARIABLE = "data remove storage {name}:{:Storage.NAME} {:Storage.VARS}.{address}"
 
     # loads the result of another command as int into a storage
     SET_VARIABLE_FROM = \
@@ -180,6 +181,9 @@ class Command(StringEnum):
 
     APPEND_ARRAY = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} append value {value}"
     APPEND_ARRAY_FROM = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} append " \
+                        "from storage {name}:{:Storage.NAME} {:Storage.VARS}.{address2}"
+    INSERT_ARRAY = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} insert {index} value {value}"
+    INSERT_ARRAY_FROM = "data modify storage {name}:{:Storage.NAME} {:Storage.VARS}.{address} insert {index} " \
                         "from storage {name}:{:Storage.NAME} {:Storage.VARS}.{address2}"
 
     # summons an entity

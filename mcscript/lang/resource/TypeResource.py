@@ -4,7 +4,7 @@ from enum import Flag, auto
 from inspect import isclass
 
 from mcscript.lang.resource.StructResource import StructResource
-from mcscript.lang.resource.base.ResourceBase import ValueResource, Resource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 
@@ -31,6 +31,10 @@ class TypeResource(ValueResource):
         Accepts a subclass of resource and structs.
         """
         return (isclass(self.value) and issubclass(self.value, Resource)) or isinstance(self.value, StructResource)
+
+    @classmethod
+    def fromType(cls, resourceType: ResourceType) -> TypeResource:
+        return TypeResource(Resource.getResourceClass(resourceType))
 
     @staticmethod
     def type() -> ResourceType:
