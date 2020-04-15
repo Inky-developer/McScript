@@ -3,7 +3,7 @@ Converts Tokens to their corresponding resources.
 """
 from __future__ import annotations
 
-from typing import Type, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Type, Union
 
 from lark import Token
 
@@ -50,7 +50,7 @@ def DECIMAL(token: Token, _: CompileState) -> Resource:
 
 
 def STRING(token: Token, compileState: CompileState) -> Resource:
-    return StringResource(token[1:-1], True, compileState.currentNamespace())
+    return StringResource(token[1:-1], True, namespace=compileState.currentNamespace())
 
 
 def SELECTOR(token: Token, _: CompileState):

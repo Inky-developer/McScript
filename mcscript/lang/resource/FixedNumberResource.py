@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from mcscript.Exceptions.compileExceptions import McScriptTypeError
-from mcscript.data.commands import Command, Struct, BinaryOperator, multiple_commands, ExecuteCommand, Type
+from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Struct, Type, multiple_commands
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
-from mcscript.lang.resource.base.ResourceBase import ValueResource, Resource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
+    from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.lang.resource.BooleanResource import BooleanResource
     from mcscript.lang.resource.NumberResource import NumberResource
     from mcscript.compiler.CompileState import CompileState
@@ -39,6 +40,10 @@ class FixedNumberResource(ValueResource):
     def typeCheck(self) -> bool:
         return isinstance(self.value, int)
 
+    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+        return formatter.createFromResources(self.storeToNbt(
+            NbtAddressResource(compileState.temporaryStorageStack.next().embed()), compileState))
+
     @staticmethod
     def type() -> ResourceType:
         return ResourceType.FIXED_POINT
@@ -52,14 +57,12 @@ class FixedNumberResource(ValueResource):
         if self.isStatic:
             return NumberResource(self.value // self.BASE, True)
 
-        tmpStack = compileState.expressionStack.next()
-        compileState.writeline(Command.SET_VALUE(stack=tmpStack, value=self.BASE))
+        tmpStack = compileState.getConstant(self.BASE)
         compileState.writeline(Command.OPERATION(
             stack=self.value,
             operator=BinaryOperator.DIVIDE.value,
             stack2=tmpStack
         ))
-        compileState.expressionStack.previous()
         return NumberResource(self.value, False)
 
     def convertToFixedNumber(self, compileState: CompileState) -> FixedNumberResource:
@@ -157,14 +160,14 @@ class FixedNumberResource(ValueResource):
             return FixedNumberResource(self.value * other.value // self.BASE, True)
 
         # 1. a *= b
-        # 2. a += base // 2 (for correct rounding, round(a) = int(a+0.5)), rounding not implemented for now
-        # 3. c = base, ToDo only set base once globally
+        # 2. a += base // 2 (for correct rounding, round(a) = int(a+0.5)), rounding not implemented for now(performance)
+        # 3. c = base
         # 4. a /= c
 
+        b = other.toScoreboard(compileState) if not other.isStatic else compileState.getConstant(other.value)
         a = self.toScoreboard(compileState)
-        b = other.toScoreboard(compileState)
 
-        tmpStack = compileState.expressionStack.next()
+        tmpStack = compileState.getConstant(self.BASE)
         compileState.writeline(multiple_commands(
             Command.OPERATION(
                 stack=a.value,
@@ -175,45 +178,49 @@ class FixedNumberResource(ValueResource):
             #     stack=a.value,
             #     value=self.BASE // 2
             # ),
-            Command.SET_VALUE(
-                stack=tmpStack,
-                value=FixedNumberResource.BASE
-            ),
             Command.OPERATION(
                 stack=a.value,
                 operator=BinaryOperator.DIVIDE.value,
                 stack2=tmpStack
             )
         ))
-        compileState.expressionStack.previous()
+
         return a
 
     def operation_divide(self, other: FixedNumberResource, compileState: CompileState) -> FixedNumberResource:
         if self.isStatic and other.isStatic:
             return FixedNumberResource(self.value * self.BASE // other.value, True)
 
-        a = self.toScoreboard(compileState)
-        b = other.toScoreboard(compileState)
+        commands = []
 
-        tmpStack = compileState.expressionStack.next()
-        compileState.writeline(multiple_commands(
-            Command.SET_VALUE(
-                stack=tmpStack,
-                value=FixedNumberResource.BASE
-            ),
-            Command.OPERATION(
+        if self.isStatic:
+            a = FixedNumberResource(self.value * self.BASE, True).toScoreboard(compileState)
+        else:
+            a = self.toScoreboard(compileState)
+            commands.append(Command.OPERATION(
                 stack=a.value,
                 operator=BinaryOperator.TIMES.value,
-                stack2=tmpStack
-            ),
-            Command.OPERATION(
+                stack2=compileState.getConstant(self.BASE)
+            ))
+
+        if other.isStatic:
+            b = compileState.compilerConstants.getConstant(other.value)
+            commands.append(Command.OPERATION(
+                stack=a.value,
+                operator=BinaryOperator.DIVIDE.value,
+                stack2=b
+            ))
+        else:
+            b = other.toScoreboard(compileState)
+            commands.append(Command.OPERATION(
                 stack=a.value,
                 operator=BinaryOperator.DIVIDE.value,
                 stack2=b.value
-            )
-        ))
-        compileState.expressionStack.previous()
-        return a
+            ))
+
+        compileState.writeline(multiple_commands(*commands))
+
+        return FixedNumberResource(a.value, False)
 
     def operation_modulo(self, other: FixedNumberResource, compileState: CompileState) -> FixedNumberResource:
         if self.isStatic and other.isStatic:
@@ -234,16 +241,11 @@ class FixedNumberResource(ValueResource):
             return FixedNumberResource(-self.value, True)
 
         # else multiply this by -1
-        tmp = compileState.expressionStack.next()
         compileState.writeline(multiple_commands(
-            Command.SET_VALUE(
-                stack=tmp,
-                value=-1
-            ),
             Command.OPERATION(
                 stack=self.embed(),
                 operator=BinaryOperator.TIMES.value,
-                stack2=tmp
+                stack2=compileState.getConstant(-1)
             )
         ))
         compileState.expressionStack.previous()

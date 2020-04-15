@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Dict, List, Optional, TYPE_CHECKING
 
 from lark import Tree
@@ -93,8 +94,7 @@ class DefaultFunctionResource(FunctionResource):
         """
         return (
                 compileState.currentNamespace().index == 0 and
-                self.name().isalpha() and
-                self.name().islower()
+                re.fullmatch(r"[a-z_]+", self.name())
         )
 
     def initNamespace(self, compileState: CompileState):

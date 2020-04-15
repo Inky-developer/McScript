@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Tuple, List
+from typing import List, TYPE_CHECKING, Tuple
 
 from mcscript.compiler.Namespace import Namespace
 from mcscript.lang.resource.BooleanResource import BooleanResource
@@ -44,9 +44,12 @@ class StructResource(ObjectResource):
         raise TypeError
 
     def toString(self) -> str:
-        raise TypeError
+        return str(self)
 
     def getDeclaredVariables(self) -> List[Tuple[str, TypeResource]]:
         """ Returns all declared type resources """
         return [(i, self.namespace[i]) for i in self.namespace.namespace if
                 self.namespace[i].type() == ResourceType.TYPE]
+
+    def __str__(self):
+        return f"Struct<{self.name}>"

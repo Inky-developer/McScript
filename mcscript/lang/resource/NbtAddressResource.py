@@ -8,7 +8,7 @@ class NbtAddressResource(ValueResource):
     """
     _hasStaticValue = False
 
-    def __init__(self, value):
+    def __init__(self, value: str):
         super().__init__(value, True)
         *self.address, self.name = value.split(".")
         self.address = ".".join(self.address)
@@ -27,3 +27,8 @@ class NbtAddressResource(ValueResource):
         if not isinstance(other, NbtAddressResource):
             return NotImplemented
         return NbtAddressResource(f"{self.embed()}.{other.embed()}")
+
+    def __getitem__(self, item):
+        if not isinstance(item, int):
+            return NotImplemented
+        return NbtAddressResource(f"{self.embed()}[{item}]")

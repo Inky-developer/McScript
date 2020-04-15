@@ -19,22 +19,20 @@ if TYPE_CHECKING:
 class InlineFunctionResource(FunctionResource):
     isDefault = False
 
-    def __init__(self, name: str, parameters: List, return_type: TypeResource, block: Tree):
+    def __init__(self, name: str, parameters: List, return_type: TypeResource, block: Tree = None):
         super().__init__(name, parameters, return_type, block)
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keywordParameters: Resource) -> Resource:
         parameters = self.signature.matchParameters(compileState, parameters)
-        namespace = compileState.pushStack(NamespaceType.FUNCTION)
+        namespace = compileState.pushStack(NamespaceType.INLINE_FUNCTION)
 
         for pTemplate, parameter in zip(self.parameters, parameters):
             pName, pType = pTemplate
             parameter = self._loadParameter(parameter, pName, pType, compileState)
             namespace[pName] = parameter
 
-        # execute the body
-        for child in self.block.children:
-            compileState.compileFunction(child)
+        self.executeBody(compileState)
 
         if not compareTypes(namespace.returnedResource, self.returnType.value):
             raise McScriptTypeError(f"Function {self.name()} should return {self.returnType.type().name}, "
@@ -42,6 +40,12 @@ class InlineFunctionResource(FunctionResource):
 
         compileState.popStack()
         return namespace.returnedResource
+
+    def executeBody(self, compileState: CompileState):
+        if not self.block:
+            raise ValueError("No block to execute")
+        for child in self.block.children:
+            compileState.compileFunction(child)
 
     @staticmethod
     def inline() -> bool:
@@ -53,7 +57,7 @@ class InlineFunctionResource(FunctionResource):
         How resources are dealt with in inline functions.
         As there should be as few overhead as possible, resources that must be inlined and static values
         get directly passed on to this function. This has the side effect that, if these resources get modified, they
-        will change their value outside of this function scope. This is wanted for struct objects and static value
+        will change their value outside of this function scope. This is wanted for struct objects and static values
         are currently not allowed to be modified so there is no problem with passing them.
         """
         if pType.value.requiresInlineFunc or (isinstance(parameter, ValueResource) and parameter.isStatic):

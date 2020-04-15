@@ -118,7 +118,7 @@ class TestFunctionSignature(unittest.TestCase):
             McScriptArgumentsError,
             r"Parameter .+ must be static but got (.+)",
             self.signature1.matchParameters,
-            self.compileState, [StringResource("static", False)]
+            self.compileState, [StringResource("static", False, 5)]
         )
 
     def testFunction(self):

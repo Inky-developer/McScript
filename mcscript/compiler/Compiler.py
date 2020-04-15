@@ -48,6 +48,11 @@ class Compiler(Interpreter):
         self.compileState.fileStructure.pushFile("main.mcfunction")
         BuiltinFunction.load(self)
         self.visit(tree)
+
+        # create file with all constants
+        self.compileState.fileStructure.pushFile("init_constants.mcfunction")
+        self.compileState.compilerConstants.write_constants(self.compileState)
+
         return self.compileState.datapack
 
     #  called by every registered builtin function
@@ -115,11 +120,37 @@ class Compiler(Interpreter):
 
         accessed = [self.compileState.currentNamespace()[ret]]
         for value in values:
-            if not isinstance(accessed[-1], ObjectResource):
-                raise McScriptTypeError(f"Cannot access property '{value}' of {accessed[-1].type().name}",
+            try:
+                accessed.append(accessed[-1].getAttribute(self.compileState, value))
+            except TypeError:
+                raise McScriptTypeError(f"Cannot access property '{value}' of {accessed[-1].type().value}",
                                         self.compileState)
-            accessed.append(accessed[-1].getAttribute(value))
         return accessed
+
+    def array_accessor(self, tree):
+        """ Accesses an element on an array"""
+        accessor_, index_ = tree.children
+
+        accessor, = self.visit(accessor_)
+        index = self.compileState.toResource(index_)
+
+        try:
+            self.compileState.currentTree = index_
+            return accessor.operation_get_element(self.compileState, index)
+        except TypeError:
+            raise McScriptTypeError(f"{accessor.type().value} does not support reading index access", self.compileState)
+
+    def index_setter(self, tree):
+        accessor, index, value = tree.children
+
+        accessor, = self.visit(accessor)
+        index = self.compileState.toResource(index)
+        value = self.compileState.toResource(value)
+
+        try:
+            return accessor.operation_set_element(self.compileState, index, value)
+        except TypeError:
+            raise McScriptTypeError(f"{accessor.type().value} does not support writing index access", self.compileState)
 
     def propertySetter(self, tree):
         identifier, value = tree.children
@@ -293,7 +324,10 @@ class Compiler(Interpreter):
         return BooleanResource(stack, False)
 
     def binaryOperation(self, *args):
+        # ToDO: optimization for operations like a*a
+        # for this there must be an option that the number1 loads number1 and number2 manually
         number1, *values = args
+
         # the first number can also be a list. Then just do a binary operation with it
         if isinstance(number1, list):
             number1 = self.binaryOperation(*number1)
@@ -309,7 +343,11 @@ class Compiler(Interpreter):
             number2 = self.compileState.load(number2)
 
             try:
-                number1 = number1.numericOperation(number2, operator, self.compileState)
+                result = number1.numericOperation(number2, operator, self.compileState)
+                if result == NotImplemented:
+                    raise McScriptTypeError(f"Operation <{operator.name}> not supported between operands "
+                                            f"'{number1.type().value}' and '{number2.type().value}'", self.compileState)
+                number1 = result
             except NotImplementedError:
                 raise TypeError(f"Expected operand that supports numeric operations, not {repr(number1)}")
         return number1
@@ -414,11 +452,8 @@ class Compiler(Interpreter):
             var = value
             # The null resource is kinda special because it only ever has one value
             if not isinstance(value, NullResource):
-                Logger.warn(
-                    "[Compiler] Every resource should implement storeToNbt if it can be on both scoreboard and storage"
-                    f"\n({e})"
-                )
-
+                raise McScriptTypeError(f"Could not assign type {value.type().value} to a variable because "
+                                        f"it does not support this operation", self.compileState)
         self.compileState.currentNamespace().setVar(identifier, var)
         return var
 
@@ -431,7 +466,8 @@ class Compiler(Interpreter):
         value = self.compileState.toResource(value)
 
         if not isinstance(value, ValueResource):
-            raise McScriptTypeError("Can only assign values for variables", self.compileState)
+            raise McScriptTypeError(f"Only simple datatypes can be assigned using const, not {value}",
+                                    self.compileState)
         if not value.hasStaticValue:
             raise McScriptNotStaticError("static declaration needs a static value.", self.compileState)
 
@@ -448,21 +484,21 @@ class Compiler(Interpreter):
             raise AttributeError(f"Cannot do an operation with '{resource}'", self.compileState)
 
         try:
-            var = var.numericOperation(resource, BinaryOperator(operator), self.compileState)
+            result = var.numericOperation(resource, BinaryOperator(operator), self.compileState)
+            if result == NotImplemented:
+                raise McScriptTypeError(
+                    f"Unsupported operation {operator} for {var.type().value} and {resource.type().value}",
+                    self.compileState
+                )
         except NotImplementedError:
             raise McScriptTypeError(
                 f"in place operation: Failed because {repr(var)} does not support the operation {operator.name}",
                 self.compileState
             )
 
-        # lastly, storeToNbt the value back into the variable
-        # self.compileState.writeline(Command.SET_VARIABLE_FROM(
-        #     var=str(varResource),
-        #     command=Command.GET_SCOREBOARD_VALUE(stack=var)
-        # ))
-        if not isinstance(var, Resource):
-            raise NotImplementedError("Expected a resource, got", self.compileState)
-        var.storeToNbt(varResource.value, self.compileState)
+        if not isinstance(result, Resource):
+            raise McScriptTypeError(f"Expected a resource, got {result}", self.compileState)
+        result.storeToNbt(varResource.value, self.compileState)
 
     def block(self, tree):
         blockName = self.compileState.pushBlock()
@@ -479,7 +515,7 @@ class Compiler(Interpreter):
             Logger.debug(f"[Compiler] skipping if-statement line {tree.line}: empty block")
             return None
 
-        addr_condition = self.compileState.load(condition)
+        addr_condition = self.compileState.load(condition).convertToBoolean(self.compileState)
         if not isinstance(addr_condition, ValueResource):
             raise McScriptTypeError("comparison result must be a valueResource", self.compileState)
 
@@ -561,6 +597,15 @@ class Compiler(Interpreter):
             ))
         else:
             self.compileState.writeline(Command.RUN_FUNCTION(function=blockName))
+
+    def control_for(self, tree):
+        _, var_name, _, expression, block = tree.children
+
+        resource = self.compileState.toResource(expression)
+        try:
+            resource.iterate(self.compileState, var_name, block)
+        except TypeError:
+            raise McScriptTypeError(f"type {resource.type().value} does not support iteration", self.compileState)
 
     def return_(self, tree):
         resource = self.compileState.toResource(tree.children[0])
@@ -697,6 +742,7 @@ class Compiler(Interpreter):
         res = self.visit_children(tree)
         # # now clear up the expression counter
         self.compileState.expressionStack.reset()
+        self.compileState.temporaryStorageStack.reset()
         # for readability
         self.compileState.writeline()
         return res

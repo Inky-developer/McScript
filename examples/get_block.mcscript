@@ -1,6 +1,6 @@
-fun onTick() {
+fun onTick() -> Null {
     run for @p at @s {
-        block = getBlock(0, -0.05, 0)
+        block = getBlock(0, -1, 0)
         actionbar(block)
         # actionbar(block)
         if (not setBlock(block, 0, 10, 0))

@@ -2,18 +2,16 @@ ones = 0
 zeros = 0
 
 fun onTick() -> Null {
-    i = 0
-    while (i < 100) {
+    for (i in range(100)) {
         rand = random(1) % 2
         if (rand == 1) ones += 1
         else zeros += 1
         onesVsZeros = ones * 1000 / zeros
         zerosVsOnes = zeros * 1000 / ones
-        if onesVsZeros < 1000 {
-            for @a actionbar(ones, " ", zeros, " 0.", onesVsZeros)
+        if (onesVsZeros < 1000) {
+            run for @a actionbar(ones, " ", zeros, " 0.", onesVsZeros)
         } else {
-            for @a actionbar(ones, " ", zeros, " 0.", zerosVsOnes)
+            run for @a actionbar(ones, " ", zeros, " 0.", zerosVsOnes)
         }
-        i += 1
     }
 }

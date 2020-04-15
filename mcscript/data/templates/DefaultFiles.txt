@@ -28,6 +28,8 @@ scoreboard objectives add {name} dummy
 
 data remove storage {name}:main state
 
+function {name}:init_constants
+
 scoreboard objectives setdisplay sidebar mcscript
 tellraw @a ["", {{"text": "["}}, {{"text":"{name}", "color":"gold", "clickEvent":{{"action":"suggest_command", "value":"/function {name}:main"}}, "hoverEvent":{{"action":"show_text","value":"click to run"}}}}, {{"text":"] loaded"}}]
 
@@ -38,6 +40,8 @@ scoreboard objectives remove mcscript
 scoreboard objectives add mcscript dummy
 
 data remove storage {name}:main state
+
+function {name}:init_constants
 
 function {name}:main
 

@@ -8,6 +8,8 @@ def compareTypes(a: Resource, b: Resource) -> bool:
     from mcscript.lang.resource.StructObjectResource import StructObjectResource
     from mcscript.lang.resource.StructResource import StructResource
 
+    if b == Resource:
+        return True
     if isinstance(a, StructObjectResource):
         return isinstance(b, StructResource) and a.struct == b
-    return a.type() == b.type() or b == Resource
+    return a.type() == b.type()

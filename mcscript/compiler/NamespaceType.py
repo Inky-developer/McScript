@@ -8,7 +8,9 @@ class NamespaceType(Enum):
     """
     GLOBAL = auto()
     FUNCTION = auto()
+    INLINE_FUNCTION = auto()
     STRUCT = auto()
     METHOD = auto()
     BLOCK = auto()
+    LOOP = auto()
     OTHER = auto()
