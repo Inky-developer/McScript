@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
-from mcscript.data.minecraftData.blocks import Blocks
+from mcscript.data.minecraftData import blocks
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.base.ResourceBase import Resource
@@ -32,12 +32,12 @@ class IsBlockFunction(BuiltinFunction):
     def returnType(self) -> ResourceType:
         return ResourceType.BOOLEAN
 
-    # noinspection PyUnresolvedReferences
     def generate(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
         block, *rest = parameters
         x, y, z = ["~" + str(i) if int(str(i)) != 0 else "~" for i in rest]
 
         stack = compileState.expressionStack.next()
+        # noinspection PyUnresolvedReferences
         return FunctionResult(
             multiple_commands(
                 Command.SET_VALUE(
@@ -49,7 +49,7 @@ class IsBlockFunction(BuiltinFunction):
                         x=x,
                         y=y,
                         z=z,
-                        block=Blocks.getBlockstateIndexed(block.value).block.minecraft_id
+                        block=blocks.getBlockstateIndexed(block.value).block.minecraft_id
                     ),
                     command=Command.SET_VALUE(
                         stack=stack,

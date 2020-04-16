@@ -1,4 +1,7 @@
-const feature = features.fortress
+# SET world = 20w16a
+# SET mcpath = C:\Users\david\AppData\Roaming\.minecraft\Entwicklungsversionen\saves
+
+const feature = features.bastion_remnant
 const markerBlock = blocks.white_stained_glass
 const entityId = "mcscript_feature_detector"
 const summonString = "summon minecraft:area_effect_cloud ~$ ~$ ~$ {Duration:2147483647,Tags:['$']}"

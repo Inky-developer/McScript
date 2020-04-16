@@ -1,7 +1,6 @@
 from typing import Optional
 
-from mcscript.data.minecraftData import biomes, features
-from mcscript.data.minecraftData.blocks import Blocks
+from mcscript.data.minecraftData import biomes, blocks, features
 from mcscript.lang.resource.EnumResource import EnumResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.TypeResource import TypeResource
@@ -9,7 +8,7 @@ from mcscript.lang.resource.base.ResourceType import ResourceType
 
 
 def makeBlocks() -> EnumResource:
-    names = {block.name: NumberResource(block.index, True) for block in Blocks.getBlocks()}
+    names = {block.name: NumberResource(block.index, True) for block in blocks.getBlocks()}
     return EnumResource(**names)
 
 

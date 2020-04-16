@@ -8,6 +8,7 @@ from pathlib import Path
 from time import perf_counter
 
 from mcscript import Logger
+from mcscript.assets import setCurrentData
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
 from mcscript.documentation import generate_json
@@ -160,6 +161,9 @@ def run_build(args):
         except ValueError:
             Logger.critical(f"Could not find World '{worldPath}'")
             return False
+
+        # if the world is specified use the data version that matches
+        setCurrentData(str(world.mcVersion["Name"]))
 
     if not exists(input_):
         Logger.critical(f"Could not find file '{input_}'")

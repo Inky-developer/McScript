@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Union
 
 from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
-from mcscript.data.minecraftData.blocks import Blocks
+from mcscript.data.minecraftData import blocks
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
@@ -81,7 +81,7 @@ class SetBlockFunction(BuiltinFunction):
                         x=x,
                         y=y,
                         z=z,
-                        block=Blocks.getBlockstateIndexed(block).getMinecraftName()
+                        block=blocks.getBlockstateIndexed(block).getMinecraftName()
                     )
                 )
             ), BooleanResource(stack, False)

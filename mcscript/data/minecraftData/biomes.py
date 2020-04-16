@@ -1,8 +1,7 @@
-import json
 from dataclasses import dataclass
 from typing import List
 
-from mcscript.data import getBiomes as getBiomesRaw
+from mcscript.assets import getCurrentData
 
 
 @dataclass(frozen=True)
@@ -24,8 +23,7 @@ loaded = False
 def assertLoaded():
     global BIOMES, loaded
     if not loaded:
-        biomeJson = getBiomesRaw()
-        biomeDict = json.loads(biomeJson)
+        biomeDict = getCurrentData().getData("biomes")
         for index, key in enumerate(biomeDict):
             BIOMES.append(Biome(key, biomeDict[key]["protocol_id"], index))
         loaded = True

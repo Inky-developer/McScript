@@ -2,6 +2,7 @@ from os import getcwd
 from os.path import join
 
 from mcscript import Logger
+from mcscript.assets import setCurrentData
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
 from mcscript.utils import rcon
@@ -64,40 +65,16 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-a = arrayOf(1, 2, 3, 4);
-i = 0
-
-run for @a print(a);
-
-squares = list(types.Number)
-
-for (i in range(1, 10)) { 
-    squares.append(i*i)
-}
-
-run for @a {
-    print("This is a list of the first ten squares: ", squares)
-    print("Length of this list: ", squares.size) 
-    
-    i = 0
-    for (value in squares) {
-        ++i
-        print(i, ": ", value)
-    }
-    
-    a = 9000
-    squares.insert(0, a)
-    print(squares)
-}
 
 """
 
 if __name__ == '__main__':
     world = getWorld("McScript", join(getcwd(), "server"))
+    setCurrentData(str(world.mcVersion["Name"]))
     config = Config("config.ini")
     # config.get("name")
-    # code = code_temp
-    code = getScript("raycast")
+    code = code_temp
+    # code = getScript("raycast")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

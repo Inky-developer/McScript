@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from itertools import product
-from typing import List, Generator, Optional
+from typing import Generator, List, Optional
 
-from mcscript.data import getBlocks
+from mcscript.assets import getCurrentData
 
 
 @dataclass(frozen=True)
@@ -63,70 +62,67 @@ class Block:
         return b
 
 
-class _Blocks:
-    """
-    This class keeps track of all blocks that are currently in the game
-    """
-    PATTERN_BLOCKSTATES = re.compile(r"(?:(\w+)=(\w+))+")
-
-    def __init__(self):
-        self.loaded = False
-        self.blocks: List[Block] = []
-
-    def assertLoaded(self):
-        if not self.loaded:
-            self.reload()
-            self.loaded = True
-
-    def reload(self):
-        self.blocks = []
-
-        currentBlock = None
-        for index, blockName in enumerate(getBlocks().split("\n")):
-            if not blockName:
-                continue
-            minecraft_id = blockName.split("[")[0]
-            block = Block(minecraft_id, minecraft_id.split(":")[-1], index)
-
-            if not currentBlock or currentBlock.minecraft_id != block.minecraft_id:
-                currentBlock = block
-                self.blocks.append(block)
-
-            blockstates = self.PATTERN_BLOCKSTATES.findall(blockName.split("[")[-1])
-            for blockstate in blockstates:
-                identifier, value = (i.lower() for i in blockstate)
-                values = currentBlock.getBlockstate(identifier).values
-                if value not in values:
-                    values.append(value)
-
-    def getBlock(self, index: int) -> Block:
-        self.assertLoaded()
-        return self.blocks[index]
-
-    def getBlockstateIndexed(self, index: int) -> Optional[BlockstateBlock]:
-        lastBlock = None
-        for block in self.getBlocks():
-            if block.index > index:
-                break
-            lastBlock = block
-
-        if lastBlock.index == index and not lastBlock.blockstates:
-            return BlockstateBlock(lastBlock, [])
-        for blockstateId, blockstate in enumerate(lastBlock.getBlockstatePermutations()):
-            if lastBlock.index + blockstateId == index:
-                return BlockstateBlock(lastBlock, blockstate)
-        return None
-
-    def findBlockByName(self, name: str) -> Optional[Block]:
-        for block in self.getBlocks():
-            if block.name == name:
-                return block
-        return None
-
-    def getBlocks(self) -> List[Block]:
-        self.assertLoaded()
-        return self.blocks
+BLOCKS = []
 
 
-Blocks = _Blocks()
+def assertLoaded():
+    if not BLOCKS:
+        blockJson = getCurrentData().getData("blocks")
+        for blockId in blockJson:
+            properties = blockJson[blockId].get("properties", [])
+            blockstates = [Blockstate(i, properties[i]) for i in properties]
 
+            blockIndex = float("inf")
+            permutations = blockJson[blockId]["states"]
+            for permutation in permutations:
+                blockIndex = min(blockIndex, permutation["id"])
+
+            BLOCKS.append(Block(blockId, blockId.split("minecraft:")[1], blockIndex, blockstates))
+
+
+def getBlocks() -> List[Block]:
+    assertLoaded()
+    return BLOCKS
+
+
+def getBlock(index: int) -> Block:
+    assertLoaded()
+    return BLOCKS[index]
+
+
+def getBlockstateIndexed(index: int) -> Optional[BlockstateBlock]:
+    assertLoaded()
+
+    lastBlock: Optional[Block] = None
+    for block in BLOCKS:
+        if block.index > index:
+            break
+        lastBlock = block
+
+    if lastBlock is None:
+        raise ValueError(f"Unknown blockstate {index}")
+
+    if lastBlock.index == index and not lastBlock.blockstates:
+        return BlockstateBlock(lastBlock, [])
+
+    for blockstateId, blockstate in enumerate(lastBlock.getBlockstatePermutations()):
+        if lastBlock.index + blockstateId == index:
+            return BlockstateBlock(lastBlock, blockstate)
+
+# def getBlock(self, index: int) -> Block:
+#     self.assertLoaded()
+#     return self.blocks[index]
+#
+# def getBlockstateIndexed(self, index: int) -> Optional[BlockstateBlock]:
+#     lastBlock = None
+#     for block in self.getBlocks():
+#         if block.index > index:
+#             break
+#         lastBlock = block
+#
+#     if lastBlock.index == index and not lastBlock.blockstates:
+#         return BlockstateBlock(lastBlock, [])
+#     for blockstateId, blockstate in enumerate(lastBlock.getBlockstatePermutations()):
+#         if lastBlock.index + blockstateId == index:
+#             return BlockstateBlock(lastBlock, blockstate)
+#     return None

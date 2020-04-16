@@ -4,7 +4,8 @@ from typing import List
 from mcscript.data import getDictionaryResource
 from mcscript.data.blockStorage import BlockTree
 from mcscript.data.commands import Command, Config, ExecuteCommand, multiple_commands
-from mcscript.data.minecraftData.blocks import Block, Blocks, Blockstate, BlockstateValue
+from mcscript.data.minecraftData import blocks
+from mcscript.data.minecraftData.blocks import Block, Blockstate, BlockstateValue
 from mcscript.utils.FileStructure import FileStructure
 
 
@@ -119,7 +120,7 @@ class IdToBlockGenerator:
 
     def generate(self, filestructure: FileStructure, *data):
         var1, var2 = data
-        tempBlock = Blocks.getBlock(-1)
+        tempBlock = blocks.getBlock(-1)
         lastIndex = tempBlock.index + tempBlock.getNumberBlockstates()
 
         self.generateRecursive(var1, var2, filestructure, lastIndex)
@@ -169,7 +170,7 @@ class IdToBlockGenerator:
         ) + "\n"
 
     def checkBlock(self, a, b, value):
-        block = Blocks.getBlockstateIndexed(value)
+        block = blocks.getBlockstateIndexed(value)
         checkScores = Command.EXECUTE(
             sub=ExecuteCommand.IF_SCORE_RANGE(
                 stack=a,

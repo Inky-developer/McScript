@@ -11,7 +11,7 @@ from mcscript.data.Config import Config
 from mcscript.data.blockStorage.BlockTree import BlockTree
 from mcscript.data.blockStorage.Generator import BlockFunctionGenerator, BlockTagGenerator, IdToBlockGenerator
 from mcscript.data.commands import stringFormat
-from mcscript.data.minecraftData.blocks import Blocks
+from mcscript.data.minecraftData import blocks
 from mcscript.data.predicates.BiomePredicate import BiomePredicate
 from mcscript.data.predicates.FeaturePredicate import FeaturePredicate
 from mcscript.data.predicates.LightPredicate import LightPredicate
@@ -191,7 +191,7 @@ class HelperNamespace(Namespace):
     # cached blockTree for later
     @cached_property
     def blockTree(self):
-        return BlockTree.fromList(Blocks.getBlocks())
+        return BlockTree.fromList(blocks.getBlocks())
 
     def addGetBlockFunction(self):
         if self.hasGetBlockFunction:

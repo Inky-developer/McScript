@@ -18,13 +18,14 @@ def deprecated(reason="deprecated"):
 def run_function_once(func):
     """ On Classes will run once for the class, not for each object.  """
     hasRun = False
+    cache = None
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        nonlocal hasRun
+        nonlocal hasRun, cache
         if not hasRun:
             hasRun = True
-            return func(*args, **kwargs)
-        return None
+            cache = func(*args, **kwargs)
+        return cache
 
     return wrapper

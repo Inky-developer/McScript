@@ -1,8 +1,7 @@
-import json
 from dataclasses import dataclass
 from typing import List, Optional
 
-from mcscript.data import getFeatures as getFeaturesRaw
+from mcscript.assets import getCurrentData
 
 
 @dataclass(frozen=True)
@@ -22,7 +21,7 @@ loaded = False
 
 def assertLoaded():
     if not loaded:
-        features = json.loads(getFeaturesRaw())
+        features = getCurrentData().getData("features")
         for index, key in enumerate(features):
             FEATURES.append(Feature(key, features[key]["protocol_id"], index))
 

@@ -55,6 +55,8 @@ class BuiltinFunction(ABC):
         parameters = self.check_parameters(compileState, parameters)
         self._checkUsed(compileState)
         result = self._makeResult(self.generate(compileState, *parameters), compileState)
+        # some functions need include afterwards (see setBlocks)
+        self._checkUsed(compileState)
         return result
 
     def check_parameters(self, compileState: CompileState, parameters: Sequence[Resource]) -> List[Resource]:
