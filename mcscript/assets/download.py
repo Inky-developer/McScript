@@ -3,6 +3,8 @@ from os.path import join
 from typing import Dict
 from urllib.request import urlopen
 
+import certifi
+
 from mcscript import Logger
 from mcscript.utils.utils import run_function_once
 
@@ -104,7 +106,7 @@ def DownloadMinecraftServer(version_id: str, target: str) -> str:
 
 
 def _get(url: str):
-    request = urlopen(url)
+    request = urlopen(url, cafile=certifi.where())
     if request is None:
         raise ConnectionError(f"Could not download the version manifest file")
     if request.status != 200:

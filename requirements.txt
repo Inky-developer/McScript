@@ -3,6 +3,9 @@ lark-parser~=0.8.5
 NBT~=1.5.0
 setuptools~=46.1.3
 appdirs~=1.4.3
+certifi
+
+# fix ssl verification problem
 
 # build and doc tools
 sphinx
