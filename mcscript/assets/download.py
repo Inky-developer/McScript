@@ -35,14 +35,7 @@ def downloadVersionManifest() -> Dict:
         The version manifest
     """
     Logger.info("[Assets] Fetching version manifest...")
-    request = urlopen(VERSION_MANIFEST_URL)
-    if request is None:
-        raise ConnectionError(f"Could not download the version manifest file")
-    if request.status != 200:
-        raise ConnectionError(
-            f"Could not download the version manifest file: Bad response <{request.status} {request.msg}>"
-        )
-
+    request = _get(VERSION_MANIFEST_URL)
     manifest = json.load(request)
     Logger.info("[Assets] Successfully fetched version manifest")
     Logger.debug(manifest)
