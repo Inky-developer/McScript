@@ -1,12 +1,16 @@
-from os import makedirs
+from os import getcwd, makedirs
 from os.path import join
 
 import appdirs
 
-# who uses vista?
-ASSET_DIRECTORY = appdirs.site_data_dir("McScript", "inky")
-makedirs(ASSET_DIRECTORY, exist_ok=True)
-
+try:
+    # who uses vista?
+    ASSET_DIRECTORY = appdirs.site_data_dir("McScript", "inky")
+    makedirs(ASSET_DIRECTORY, exist_ok=True)
+except PermissionError:
+    # if something goes for some reason wrong, use the cwd as a fallback dir
+    ASSET_DIRECTORY = join(getcwd(), "assets")
+    makedirs(ASSET_DIRECTORY, exist_ok=True)
 VERSION_DIR = "versions"
 
 
