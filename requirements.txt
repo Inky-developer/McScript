@@ -8,5 +8,6 @@ certifi
 # fix ssl verification problem
 
 # build and doc tools
-sphinx
-cx_freeze
+# uncomment if required
+# sphinx
+# cx_freeze
