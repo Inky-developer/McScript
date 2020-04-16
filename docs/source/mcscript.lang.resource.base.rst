@@ -28,6 +28,14 @@ mcscript.lang.resource.base.ResourceType module
    :undoc-members:
    :show-inheritance:
 
+mcscript.lang.resource.base.VariableResource module
+---------------------------------------------------
+
+.. automodule:: mcscript.lang.resource.base.VariableResource
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mcscript.lang.resource.base.functionSignature module
 ----------------------------------------------------
 

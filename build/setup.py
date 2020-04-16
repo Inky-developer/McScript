@@ -2,6 +2,8 @@ import sys
 
 from cx_Freeze import Executable, setup
 
+from mcscript import __version__
+
 sys.path.insert(0, "../")
 from mcscript.lang.builtins import iterBuiltins
 
@@ -12,7 +14,7 @@ print(builtin_modules)
 
 setup(
     name="McScript",
-    version="0.1.0",
+    version=__version__.__version__,
     description='A Simple and powerful datapack generator for minecraft',
     executables=[Executable("../mcscript/mcscript_cli.py", base=None)],
     options={

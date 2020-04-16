@@ -4,7 +4,7 @@ from os.path import exists, join, split
 from subprocess import run
 from typing import Dict
 
-from mcscript import Logger
+from mcscript import Logger, __version__
 from mcscript.assets import getVersionDir
 from mcscript.assets.download import DownloadMinecraftServer, getLatestVersion
 
@@ -23,13 +23,18 @@ def makeData(version: str) -> str:
     if exists(file):
         with open(file) as f:
             try:
-                json.load(f)
-                Logger.debug(f"Already got data for version {version}")
-                return file
+                data = json.load(f)
+                if data.get("version", 0) != __version__.__asset_version__:
+                    Logger.warn(f"File '{file}' uses old version format {data.get('version', 0)} "
+                                f"(Required {__version__.__asset_version__})")
+                else:
+                    Logger.debug(f"Already got data for version {version}")
+                    return file
             except json.JSONDecodeError:
                 pass
 
     contents = getDataJson(version)
+    contents["version"] = __version__.__asset_version__
     with open(file, "w+") as f:
         json.dump(contents, f)
     Logger.info(f"Create data file {file}")

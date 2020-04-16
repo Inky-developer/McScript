@@ -4,6 +4,22 @@ mcscript.lang.builtins package
 Submodules
 ----------
 
+mcscript.lang.builtins.ArrayFunction module
+-------------------------------------------
+
+.. automodule:: mcscript.lang.builtins.ArrayFunction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mcscript.lang.builtins.ArrayOf module
+-------------------------------------
+
+.. automodule:: mcscript.lang.builtins.ArrayOf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mcscript.lang.builtins.BooleanFunction module
 ---------------------------------------------
 
@@ -76,6 +92,14 @@ mcscript.lang.builtins.IsFeatureFunction module
    :undoc-members:
    :show-inheritance:
 
+mcscript.lang.builtins.ListFunction module
+------------------------------------------
+
+.. automodule:: mcscript.lang.builtins.ListFunction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mcscript.lang.builtins.RandomChanceFunction module
 --------------------------------------------------
 
@@ -88,6 +112,14 @@ mcscript.lang.builtins.RandomFunction module
 --------------------------------------------
 
 .. automodule:: mcscript.lang.builtins.RandomFunction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mcscript.lang.builtins.RangeFunction module
+-------------------------------------------
+
+.. automodule:: mcscript.lang.builtins.RangeFunction
    :members:
    :undoc-members:
    :show-inheritance:

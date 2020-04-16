@@ -1,5 +1,7 @@
 from setuptools import find_packages, setup
 
+from mcscript import __version__
+
 with open("README.md") as f:
     readme = f.read()
 
@@ -11,7 +13,7 @@ with open("requirements.txt") as f:
 
 setup(
     name='McScript',
-    version='0.1.0',
+    version=__version__.__version__,
     packages=find_packages(where="mcscript"),
     url='https://github.com/Inky-developer/McScript',
     license=license_,

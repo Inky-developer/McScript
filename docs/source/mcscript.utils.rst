@@ -60,6 +60,14 @@ mcscript.utils.precompileInstructions module
    :undoc-members:
    :show-inheritance:
 
+mcscript.utils.rcon module
+--------------------------
+
+.. automodule:: mcscript.utils.rcon
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mcscript.utils.utils module
 ---------------------------
 

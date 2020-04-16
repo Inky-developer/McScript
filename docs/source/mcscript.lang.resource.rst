@@ -20,6 +20,14 @@ mcscript.lang.resource.AddressResource module
    :undoc-members:
    :show-inheritance:
 
+mcscript.lang.resource.ArrayResource module
+-------------------------------------------
+
+.. automodule:: mcscript.lang.resource.ArrayResource
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mcscript.lang.resource.BooleanResource module
 ---------------------------------------------
 
@@ -76,10 +84,10 @@ mcscript.lang.resource.InlineFunctionResource module
    :undoc-members:
    :show-inheritance:
 
-mcscript.lang.resource.MethodResource module
---------------------------------------------
+mcscript.lang.resource.ListResource module
+------------------------------------------
 
-.. automodule:: mcscript.lang.resource.MethodResource
+.. automodule:: mcscript.lang.resource.ListResource
    :members:
    :undoc-members:
    :show-inheritance:

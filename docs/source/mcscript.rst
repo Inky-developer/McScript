@@ -8,7 +8,7 @@ Subpackages
    :maxdepth: 4
 
    mcscript.Exceptions
-   mcscript.compileExceptions
+   mcscript.assets
    mcscript.compiler
    mcscript.data
    mcscript.documentation

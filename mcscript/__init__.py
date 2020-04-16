@@ -4,6 +4,7 @@ from importlib import resources
 from lark import Lark
 
 # setting up the logger as early as possible
+
 Logger = logging.getLogger("McScript")
 Logger.setLevel(logging.DEBUG)
 

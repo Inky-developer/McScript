@@ -20,6 +20,14 @@ mcscript.compiler.Compiler module
    :undoc-members:
    :show-inheritance:
 
+mcscript.compiler.CompilerConstants module
+------------------------------------------
+
+.. automodule:: mcscript.compiler.CompilerConstants
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mcscript.compiler.Namespace module
 ----------------------------------
 

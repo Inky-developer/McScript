@@ -65,7 +65,7 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-
+const block = blocks.stone
 """
 
 if __name__ == '__main__':

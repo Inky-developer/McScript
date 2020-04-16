@@ -5,6 +5,7 @@ import lark
 from lark import Tree
 
 from mcscript import Compiler, Grammar, Logger
+from mcscript.Exceptions.compileExceptions import McScriptError
 from mcscript.Exceptions.parseExceptions import McScriptParseException
 from mcscript.data.Config import Config
 from mcscript.data.defaultCode import addDefaults
@@ -37,7 +38,12 @@ def compileMcScript(text: str, callback: eventCallback, config: Config) -> Datap
     for index, step in enumerate(steps):
         callback(step[1], index / len(steps), arg)
         start_time = perf_counter()
-        arg = step[0](arg)
+        try:
+            arg = step[0](arg)
+        except Exception as e:
+            if not isinstance(e, McScriptError):
+                Logger.critical("Exception occured: " + str(e))
+            raise e
         Logger.debug(f"{step[1]} finished in {perf_counter() - start_time:.4f} seconds")
         if isinstance(arg, Tree):
             _debug_log_tree(arg)
