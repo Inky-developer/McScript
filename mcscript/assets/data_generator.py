@@ -81,7 +81,3 @@ def runDataGenerator(version: str, fpath: str) -> str:
     completedProcess.check_returncode()
 
     return join(path, "generated")
-
-
-if __name__ == '__main__':
-    print(makeData("20w16a"))
