@@ -143,8 +143,9 @@ def run_build(args):
     config = Config(args.config or None)
     name = precompile_instructions.get("name", args.name)
     if name is not None:
-        if not re.match(r"^[a-z_]+$", name):
-            Logger.critical(f"Invalid name '{name}': May only contain letters and underscores.")
+        if not re.match(r"^[a-z_]+$", name) or len(name) > 12:
+            Logger.critical(
+                f"Invalid name '{name}': May only contain letters and underscores and less than 13 characters.")
             return False
         config["compiler"]["name"] = name
 

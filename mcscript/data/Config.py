@@ -40,6 +40,7 @@ class Config:
             "entityId": ".entity_id"
         }
 
+        # maximum scoreboard name has 16 chars so `name` must contain 12 chars at most
         # warning and Todo: scores.main is unused!
         self.config["scoreboards"] = {
             "main"    : self["compiler"]["name"],
