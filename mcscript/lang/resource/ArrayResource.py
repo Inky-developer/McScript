@@ -6,7 +6,6 @@ from lark import Tree
 
 from mcscript.Exceptions.compileExceptions import McScriptAttributeError, McScriptIndexError, McScriptTypeError
 from mcscript.compiler.NamespaceType import NamespaceType
-from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NullResource import NullResource
@@ -15,6 +14,7 @@ from mcscript.lang.resource.base.ResourceBase import MinecraftDataStorage, Resou
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
+    from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.compiler.CompileState import CompileState
 
 

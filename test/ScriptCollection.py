@@ -65,16 +65,7 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-fun create_board() -> Null {
-    for (z in range(16)) {
-        for (x in range(16)) {
-            execute("execute align xz positioned ~.5 ~ ~.5 run summon armor_stand ~$x ~ ~$z {Marker:1b,Tags:['new']}")
-            execute("execute as @e[tag=new] run scoreboard players set @s board_x $x")
-            execute("execute as @e[tag=new] run scoreboard players set @s board_z $z")
-            execute("execute as @e[tag=new] run tag @s remove new")
-        }
-    }    
-}
+l = list(types.List)
 """
 
 if __name__ == '__main__':

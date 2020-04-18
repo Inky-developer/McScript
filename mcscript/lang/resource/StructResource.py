@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import List, TYPE_CHECKING, Tuple
 
-from mcscript.compiler.Namespace import Namespace
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
+    from mcscript.compiler.Namespace import Namespace
     from mcscript.lang.resource.TypeResource import TypeResource
     from mcscript.compiler.CompileState import CompileState
 
