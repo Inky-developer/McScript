@@ -65,16 +65,26 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-const block = blocks.stone
+fun create_board() -> Null {
+    for (z in range(16)) {
+        for (x in range(16)) {
+            execute("execute align xz positioned ~.5 ~ ~.5 run summon armor_stand ~$x ~ ~$z {Marker:1b,Tags:['new']}")
+            execute("execute as @e[tag=new] run scoreboard players set @s board_x $x")
+            execute("execute as @e[tag=new] run scoreboard players set @s board_z $z")
+            execute("execute as @e[tag=new] run tag @s remove new")
+        }
+    }    
+}
 """
 
 if __name__ == '__main__':
     world = getWorld("McScript", join(getcwd(), "server"))
+    # world = getWorld("McScript")
     setCurrentData(str(world.mcVersion["Name"]))
     config = Config("config.ini")
     # config.get("name")
     code = code_temp
-    # code = getScript("raycast")
+    # code = getScript("worldborder")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

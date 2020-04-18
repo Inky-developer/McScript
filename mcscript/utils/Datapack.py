@@ -140,22 +140,29 @@ class Namespace(Directory):
     def __init__(self, config: Config):
         super().__init__(config, {
             "advancements": None,
-            "functions": FunctionDirectory,
-            "loot_tables": None,
-            "predicates": None,
-            "recipes": None,
-            "structures": None,
-            "tags": {
-                "blocks": None,
+            "functions"   : FunctionDirectory,
+            "loot_tables" : None,
+            "predicates"  : None,
+            "recipes"     : None,
+            "structures"  : None,
+            "tags"        : {
+                "blocks"      : None,
                 "entity_types": None,
-                "fluids": None,
-                "functions": None,
-                "items": None,
+                "fluids"      : None,
+                "functions"   : None,
+                "items"       : None,
             },
         })
 
 
 class MinecraftNamespace(Namespace):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # whether the worldborder should be used get precise timings within a tick
+        # Is set in the getTickTime Function and read in defaultCode.py
+        self.hasSubTickClock = False
+
     def on_tags_functions(self, directory: Directory):
         data = getDictionaryResource("DefaultFiles.txt")
 
@@ -174,7 +181,8 @@ class MainNamespace(Namespace):
 
         file = "load_lite" if not self.config.get_compiler("load_debug") else "load"
         # add loadToScoreboard function
-        directory.addFile("load.mcfunction").write(stringFormat(data[file]))
+        string = stringFormat(data[file])
+        directory.addFile("load.mcfunction").write(string)
 
 
 class HelperNamespace(Namespace):
@@ -252,9 +260,9 @@ class Datapack(Directory):
     def __init__(self, config: Config):
         super().__init__(config, {
             "pack.mcmeta": None,
-            "data": {
-                "minecraft": MinecraftNamespace,
-                config.get_compiler("name"): MainNamespace,
+            "data"       : {
+                "minecraft"                 : MinecraftNamespace,
+                config.get_compiler("name") : MainNamespace,
                 config.get_compiler("utils"): HelperNamespace
             },
         })

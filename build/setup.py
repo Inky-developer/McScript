@@ -2,9 +2,8 @@ import sys
 
 from cx_Freeze import Executable, setup
 
-from mcscript import __version__
-
 sys.path.insert(0, "../")
+from mcscript import __version__
 from mcscript.lang.builtins import iterBuiltins
 
 # builtins are not recognized by cxFreeze

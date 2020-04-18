@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from inspect import isabstract
 from textwrap import dedent
-from typing import Any, Dict, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union
+from typing import Dict, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union
 
 from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.data.commands import Command
@@ -161,7 +161,7 @@ class BuiltinFunction(ABC):
         """ throw a ArgumentError for invalid parameters."""
         pass
 
-    def include(self, compileState: CompileState) -> Any:
+    def include(self, compileState: CompileState) -> bool:
         """
         Called when the function is used in the script
         if returns False, this function might be called again on the next use of this builtin
