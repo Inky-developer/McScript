@@ -57,6 +57,13 @@ class Struct(StringEnum):
             values = values[0]
         return f"[{','.join(str(value) for value in values)}]"
 
+    @classmethod
+    def fromDict(cls, dictionary: dict) -> str:
+        result = []
+        for key in dictionary:
+            result.append(f"{key}={dictionary[key]}")
+        return f'{{{", ".join(result)}}}'
+
 
 class ExecuteCommand(StringEnum):
     """ Allows to create an execute command"""
@@ -201,6 +208,7 @@ def stringFormat(string, **kwargs):
     kwargs.setdefault("utils", Config.currentConfig.UTILS)
     kwargs.setdefault("ret", Config.currentConfig.RETURN_SCORE)
     kwargs.setdefault("block", Config.currentConfig.BLOCK_SCORE)
+    kwargs.setdefault("scoreboard_entities", Config.currentConfig.get_scoreboard("entities"))
     return Formatter.format(string, **kwargs)
 
 

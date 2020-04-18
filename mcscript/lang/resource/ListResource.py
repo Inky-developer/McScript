@@ -15,6 +15,7 @@ from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.lang.resource.base.VariableResource import VariableResource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -40,9 +41,11 @@ class ListResource(Resource):
     def __init__(self, contentType: TypeResource, nbtAddress: NbtAddressResource = None):
         super().__init__()
 
+        # use the second order classes since they should be the scoreboard classes
         # noinspection PyTypeChecker
-        self.ContentResource: Type[ValueResource] = Resource.getResourceClass(contentType.value.type())
-        if not issubclass(self.ContentResource, ValueResource):
+        self.ContentResource: Type[VariableResource] = Resource.getResourceClass(contentType.value.type())
+
+        if not issubclass(self.ContentResource, (ValueResource, VariableResource)):
             raise TypeError(f"Invalid type for Array: must be a value")
 
         self.nbtAddress: Optional[NbtAddressResource] = nbtAddress
@@ -266,4 +269,4 @@ class ListResource(Resource):
             # gets returned in case something goes wrong
             index = compileState.currentNamespace().namespace["index"]
             value = compileState.currentNamespace().namespace["value"]
-            self.master.insert(compileState, index, value)
+            self.master.insert(compileState, index.convertToNumber(compileState), value)

@@ -30,7 +30,9 @@ class MinecraftDataStorage(Enum):
 
 class Resource(ABC):
     _reference = {}
+    _reference_variables = {}
     isDefault: bool = True
+    isVariable: bool = False
     """
     whether this class is the default implementation of all resources that have the same ResourceType.
     """
@@ -48,12 +50,6 @@ class Resource(ABC):
     # noinspection PyUnresolvedReferences
     def __init_subclass__(cls, **kwargs):
         if not isabstract(cls):
-            if cls.type() in Resource._reference:
-                if Resource._reference[cls.type()].isDefault and cls.isDefault:
-                    raise ReferenceError(f"Multiple resources of type {cls.type().name} register as default.")
-                if not cls.isDefault:
-                    return
-
             # implementation validity checks
             if not cls.requiresInlineFunc and (
                     cls.createEmptyResource.__func__ == Resource.createEmptyResource.__func__ or
@@ -63,7 +59,17 @@ class Resource(ABC):
                     F"every subclass of resource that does not require an inline function "
                     F"must implement 'createEmptyResource' and 'copy', {cls.__name__} does not."
                 )
-            Resource._reference[cls.type()] = cls
+            if cls.isDefault or cls.type() not in Resource._reference:
+                if cls.type() in Resource._reference and Resource._reference[cls.type()].isDefault and cls.isDefault:
+                    raise ReferenceError(f"Multiple resources of type {cls.type().name} register as default.")
+                if cls.type() not in Resource._reference or not Resource._reference[cls.type()].isDefault:
+                    Resource._reference[cls.type()] = cls
+
+            if cls.type() in Resource._reference_variables and cls.isVariable:
+                raise ReferenceError("Multiple resources of type {cls.type().name} register as variable.")
+
+            if cls.isVariable:
+                Resource._reference_variables[cls.type()] = cls
 
     def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
         """
@@ -323,6 +329,10 @@ class Resource(ABC):
             return ValueResource
 
         return cls._reference[resourceType]
+
+    @classmethod
+    def getVariableResourceClass(cls, resourceType: ResourceType) -> Type[Resource]:
+        return cls._reference_variables[resourceType]
 
     @classmethod
     def createEmptyResource(cls, identifier: str, compileState: CompileState) -> Resource:

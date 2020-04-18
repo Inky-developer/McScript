@@ -65,7 +65,14 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-l = list(types.List)
+players = list(types.Selector)
+run for @a {
+    print(@s)
+    entity = @e[type=armor_stand]
+    player = @e[type=player]
+    print(entity)
+    print(player)
+}
 """
 
 if __name__ == '__main__':

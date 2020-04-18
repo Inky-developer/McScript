@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Optional, TYPE_CHECKING
 
 from mcscript.data.commands import Command
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import MinecraftDataStorage, Resource, ValueResource
+from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -18,7 +19,13 @@ class VariableResource(ValueResource, ABC):
     """
     _hasStaticValue = False
     isDefault = False
+    isVariable = True
     storage = MinecraftDataStorage.STORAGE
+
+    @staticmethod
+    @abstractmethod
+    def type() -> ResourceType:
+        pass
 
     def embed(self) -> str:
         return str(self.value)

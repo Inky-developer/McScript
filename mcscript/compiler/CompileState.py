@@ -1,4 +1,4 @@
-from typing import Callable, List, Optional
+from typing import Callable, Dict, List, Optional
 
 from lark import Tree
 
@@ -9,6 +9,7 @@ from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.Address import Address
 from mcscript.utils.Datapack import Datapack
+from mcscript.utils.NbtAddress import NbtAddress
 
 
 class CompileState:
@@ -26,7 +27,11 @@ class CompileState:
         self.datapack = Datapack(config)
 
         self.codeBlockStack = Address("block_{}")
-        self.temporaryStorageStack = Address("temp.tmp{}")
+        # ToDo the two stacks below should not be in state.vars
+        # ToDo make temporaryStorageStack NbtAddress
+        self.temporaryStorageStack = Address("_temp.tmp{}")
+        self.selectorStorageStack = NbtAddress("_selector.selector{}")
+        self.selectorStack2Score: Dict[NbtAddress, int] = {}
         self.compilerConstants = CompilerConstants()
 
         self.stack: List[Namespace] = [Namespace(0, namespaceType=NamespaceType.GLOBAL)]

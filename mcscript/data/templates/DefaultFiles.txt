@@ -24,7 +24,9 @@
 # 2**24-1, max tick length ~ 30s
 gamerule maxCommandChainLength 16777215
 scoreboard objectives remove {name}
+scoreboard objectives remove {scoreboard_entities}
 scoreboard objectives add {name} dummy
+scoreboard objectives add {scoreboard_entities} dummy
 
 data remove storage {name}:main state
 
@@ -36,8 +38,10 @@ tellraw @a ["", {{"text": "["}}, {{"text":"{name}", "color":"gold", "clickEvent"
 function {name}:main
 
 [load_lite]
-scoreboard objectives remove mcscript
-scoreboard objectives add mcscript dummy
+scoreboard objectives remove {name}
+scoreboard objectives remove {scoreboard_entities}
+scoreboard objectives add {name} dummy
+scoreboard objectives add {scoreboard_entities} dummy
 
 data remove storage {name}:main state
 

@@ -23,17 +23,27 @@ class Config:
         self.config = configparser.ConfigParser()
 
         self.config["data"] = {
-            "block_list_path": "",
-            "item_list_path": "",
-            "biome_list_path": "",
+            "block_list_path"  : "",
+            "item_list_path"   : "",
+            "biome_list_path"  : "",
             "feature_list_path": ""
         }
         self.config["compiler"] = {
             "load_debug": False,
-            "name": "mcscript",
-            "utils": "mcscript_utils",
-            "return_score": ".ret",
-            "block_score": ".block"
+            "name"      : "mcscript",
+            "utils"     : "mcscript_utils"
+        }
+
+        self.config["scores"] = {
+            "return"  : ".ret",
+            "block"   : ".block",
+            "entityId": ".entity_id"
+        }
+
+        # warning and Todo: scores.main is unused!
+        self.config["scoreboards"] = {
+            "main"    : self["compiler"]["name"],
+            "entities": f"{self['compiler']['name']}_ent"
         }
 
         if path:
@@ -60,19 +70,25 @@ class Config:
     @lru_cache()
     def RETURN_SCORE(self):
         from mcscript.lang.resource.AddressResource import AddressResource
-        return AddressResource(self.get_compiler("return_score"), True)
+        return AddressResource(self.get_score("return"), True)
 
     @property
     @lru_cache()
     def BLOCK_SCORE(self):
         from mcscript.lang.resource.AddressResource import AddressResource
-        return AddressResource(self.get_compiler("block_score"), True)
+        return AddressResource(self.get_score("block"), True)
 
     def get_compiler(self, key) -> str:
         return self["compiler"][key]
 
     def get_data(self, key) -> str:
         return self["data"][key]
+
+    def get_score(self, key) -> str:
+        return self["scores"][key]
+
+    def get_scoreboard(self, key) -> str:
+        return self["scoreboards"][key]
 
     def __getitem__(self, item):
         return self.config[item]
