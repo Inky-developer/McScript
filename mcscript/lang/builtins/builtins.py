@@ -14,6 +14,7 @@ from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
@@ -41,8 +42,8 @@ class BuiltinFunction(ABC):
     """
     functions: List[BuiltinFunction] = []
 
-    _PATTERN_PARAMETER = re.compile(r"parameter *=> *((?:\[[\w=.]+\] *)*) *([*+]?)(\w+): (\w+)+ *(.*)$")
-    _PATTERN_MODIFIERS = re.compile(r"\[([\w=.]+)\]")
+    _PATTERN_PARAMETER = re.compile(r"parameter *=> *((?:\[[\w=@.]+\] *)*) *([*+]?)(\w+): (\w+)+ *(.*)$")
+    _PATTERN_MODIFIERS = re.compile(r"\[([\w=@.]+)\]")
 
     def __init_subclass__(cls, hide=False):
         if not hide and not isabstract(cls):
@@ -124,6 +125,8 @@ class BuiltinFunction(ABC):
                             default = FixedNumberResource.fromNumber(float(raw))
                         elif raw.lower() == "null":
                             default = NullResource()
+                        elif raw.startswith("@"):
+                            default = SelectorResource(raw, True)
                         else:
                             default = StringResource(raw, True)
                     elif mod_match.lower() == "static":

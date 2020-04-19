@@ -65,8 +65,7 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-
-
+run for @a print(kill(@e[type=armor_stand]))
 """
 
 if __name__ == '__main__':
