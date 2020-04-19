@@ -92,7 +92,7 @@ class ArrayResource(Resource):
         return BooleanResource.TRUE if self.resources else BooleanResource.FALSE
 
     def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
-        resources = [self.resources[0]]
+        resources: list = [self.resources[0]] if self.resources else []
         for resource in self.resources[1:]:
             resources.append(", ")
             resources.append(resource)

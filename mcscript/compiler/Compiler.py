@@ -49,9 +49,14 @@ class Compiler(Interpreter):
         BuiltinFunction.load(self)
         self.visit(tree)
 
+        # ToDO put this in default code
         # create file with all constants
         self.compileState.fileStructure.pushFile("init_constants.mcfunction")
         self.compileState.compilerConstants.write_constants(self.compileState)
+
+        self.compileState.fileStructure.pushFile("init_scoreboards.mcfunction")
+        for scoreboard in self.compileState.scoreboards:
+            scoreboard.writeInit(self.compileState.fileStructure)
 
         return self.compileState.datapack
 

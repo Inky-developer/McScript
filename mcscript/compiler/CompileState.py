@@ -1,15 +1,15 @@
-from typing import Callable, Dict, List, Optional
+from typing import Callable, List, Optional
 
 from lark import Tree
 
 from mcscript.compiler.CompilerConstants import CompilerConstants
 from mcscript.compiler.Namespace import Namespace, NamespaceType
 from mcscript.data.Config import Config
+from mcscript.data.Scoreboard import Scoreboard
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.Address import Address
 from mcscript.utils.Datapack import Datapack
-from mcscript.utils.NbtAddress import NbtAddress
 
 
 class CompileState:
@@ -30,8 +30,12 @@ class CompileState:
         # ToDo the two stacks below should not be in state.vars
         # ToDo make temporaryStorageStack NbtAddress
         self.temporaryStorageStack = Address("_temp.tmp{}")
-        self.selectorStorageStack = NbtAddress("_selector.selector{}")
-        self.selectorStack2Score: Dict[NbtAddress, int] = {}
+        self.selectorCounter = 1
+
+        self.scoreboards: List[Scoreboard] = [
+            Scoreboard(self.config.get_scoreboard("main"), True, 0),
+            Scoreboard("entities", False, 1)
+        ]
         self.compilerConstants = CompilerConstants()
 
         self.stack: List[Namespace] = [Namespace(0, namespaceType=NamespaceType.GLOBAL)]

@@ -22,12 +22,6 @@ class Config:
         self.path = path
         self.config = configparser.ConfigParser()
 
-        self.config["data"] = {
-            "block_list_path"  : "",
-            "item_list_path"   : "",
-            "biome_list_path"  : "",
-            "feature_list_path": ""
-        }
         self.config["compiler"] = {
             "load_debug": False,
             "name"      : "mcscript",
@@ -37,14 +31,12 @@ class Config:
         self.config["scores"] = {
             "return"  : ".ret",
             "block"   : ".block",
-            "entityId": ".entity_id"
         }
 
         # maximum scoreboard name has 16 chars so `name` must contain 12 chars at most
         # warning and Todo: scores.main is unused!
         self.config["scoreboards"] = {
-            "main"    : self["compiler"]["name"],
-            "entities": f"{self['compiler']['name']}_ent"
+            "main": self["compiler"]["name"]
         }
 
         if path:
@@ -54,6 +46,15 @@ class Config:
                     self.config.write(f)
             self.config.read(path)
             Logger.info("[Config] loaded from file")
+
+        if not self.checkData():
+            raise ValueError("Invalid values for config detected!")
+
+    def checkData(self):
+        """ Checks that all data are in an allowed range """
+        return (
+            all(len(self.get_scoreboard(i)) <= 16 for i in ("main", "entities"))
+        )
 
     #           legacy getters              #
     #########################################
@@ -81,9 +82,6 @@ class Config:
 
     def get_compiler(self, key) -> str:
         return self["compiler"][key]
-
-    def get_data(self, key) -> str:
-        return self["data"][key]
 
     def get_score(self, key) -> str:
         return self["scores"][key]

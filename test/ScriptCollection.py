@@ -65,13 +65,9 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-players = list(types.Selector)
-run for @a {
-    print(@s)
-    entity = @e[type=armor_stand]
-    player = @e[type=player]
-    print(entity)
-    print(player)
+fun onTick() -> Null {
+    players = @a
+    print(players)
 }
 """
 
