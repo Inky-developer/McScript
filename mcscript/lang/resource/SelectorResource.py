@@ -48,7 +48,7 @@ class SelectorResource(ValueResource):
         Notes:
             In this implementation it is actually not necessary to store anything as nbt.
             Additionally, I think that this implementation is too dirty and I will change it later (ToDo)
-            This includes the fact that in a non-static loop weird things can happen
+            Optimize the scoreboard players set 0 thing if it is not necessary
 
         Args:
             stack: the stack on the data storage
@@ -63,6 +63,11 @@ class SelectorResource(ValueResource):
         scoreboard, = filter(lambda x: x.name == "entities", compileState.scoreboards)
 
         compileState.writeline(multiple_commands(
+            Command.SET_VALUE(
+                stack=Selector.ALL_ENTITIES(),
+                name=scoreboard.get_name(),
+                value=0
+            ),
             Command.EXECUTE(
                 sub=ExecuteCommand.AS(target=self.embed()),
                 command=Command.SET_VALUE(
@@ -89,7 +94,7 @@ class SelectorResource(ValueResource):
         # Todo: more efficient lookup
         compileState.writeline(Command.SET_VALUE_EQUAL(
             stack=stack,
-            stack2=self.value,
+            stack2=self.embed_non_static(compileState),
             name2=scoreboard.get_name()
         ))
         return NumberResource(stack, False)
@@ -106,13 +111,13 @@ class SelectorResource(ValueResource):
 
         if value.isStatic:
             compileState.writeline(Command.SET_VALUE(
-                stack=self.value,
+                stack=self.embed_non_static(compileState),
                 name=scoreboard.get_name(),
                 value=value.value
             ))
         else:
             compileState.writeline(Command.SET_VALUE_EQUAL(
-                stack=self.value,
+                stack=self.embed_non_static(compileState),
                 name=scoreboard.get_name(),
                 stack2=value.value
             ))

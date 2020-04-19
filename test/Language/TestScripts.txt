@@ -292,6 +292,26 @@ for (i in array) {
 }
 return sum == 9;
 
+[non_static_selector]
+players = @a
+for (player in players) {
+    current_player = players
+    run for @a print(current_player)
+}
+return True
+
+[custom_scoreboard]
+player_count = 0
+for (player in @a) ++player_count
+return_value = True
+if (player_count != 0) {
+    any_player = @p
+    start_val = any_player["test"]
+    any_player["test"] = 10
+    return_value = start_val == 0 and any_player["test"] == 10
+}
+return return_value
+
 [check_builtins_run]
 # don't validate the results, just check that the functions can run
 a = boolean(12.5);

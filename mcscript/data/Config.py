@@ -53,7 +53,7 @@ class Config:
     def checkData(self):
         """ Checks that all data are in an allowed range """
         return (
-            all(len(self.get_scoreboard(i)) <= 16 for i in ("main", "entities"))
+            all(len(self.get_scoreboard(i)) <= 16 for i in ("main",))
         )
 
     #           legacy getters              #

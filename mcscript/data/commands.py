@@ -208,7 +208,6 @@ def stringFormat(string, **kwargs):
     kwargs.setdefault("utils", Config.currentConfig.UTILS)
     kwargs.setdefault("ret", Config.currentConfig.RETURN_SCORE)
     kwargs.setdefault("block", Config.currentConfig.BLOCK_SCORE)
-    kwargs.setdefault("scoreboard_entities", Config.currentConfig.get_scoreboard("entities"))
     return Formatter.format(string, **kwargs)
 
 
