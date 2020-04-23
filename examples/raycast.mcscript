@@ -1,3 +1,5 @@
+# SET world = McScript
+
 const TAG = "raycaster"
 const MAX_STEPS = 20
 execute("kill @e[tag=$TAG]")
@@ -11,6 +13,8 @@ inline fun raycast(onHit: Function) -> Null {
             execute("execute at @s run tp @s ^ ^ ^.1")
             ++ steps
         }
+        onHit()
+        kill()
     }
 }
 

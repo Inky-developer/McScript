@@ -65,7 +65,7 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-run for @a print(kill(@e[type=armor_stand]))
+run for @a print(not 0 or 0 and not 0)
 """
 
 if __name__ == '__main__':
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     config = Config("config.ini")
     # config.get("name")
     code = code_temp
-    # code = getScript("selectors")
+    # code = getScript("clock")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

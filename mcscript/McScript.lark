@@ -20,7 +20,7 @@ block: "{" statement* "}"
 
 function_parameter: IDENTIFIER ":" IDENTIFIER
 parameter_list: "(" (function_parameter "," )* function_parameter? ")"
-function_definition: [ /\binline\b/ ] /\bfun\b/ IDENTIFIER parameter_list "->" IDENTIFIER block
+function_definition: [ /\binline\b/ ] /\bfun\b/ IDENTIFIER parameter_list [ "->" IDENTIFIER ] block
 
 function_call: accessor "(" (expression "," )* expression? ")"
 
@@ -32,11 +32,14 @@ index_setter: accessor "[" expression "]" "=" expression
 
 term_ip: accessor (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression
 
-expression: comparison
+
+expression: boolean_and
+?boolean_and: boolean_or (AND boolean_or)*
+?boolean_or: boolean_not (OR boolean_not)*
+?boolean_not: NOT? _expression
+
+_expression: comparison
           | term
-          | expression (AND expression)+ -> boolean_and
-          | expression (OR expression)+ -> boolean_or
-          | NOT expression -> boolean_not
 
 // terms like (6 + 8) * -9
 term: sum

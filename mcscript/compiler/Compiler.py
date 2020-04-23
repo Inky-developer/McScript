@@ -628,9 +628,14 @@ class Compiler(Interpreter):
         # a function will be inlined if so specified or if it is declared in a struct scope.
         isMethod = self.compileState.currentNamespace().namespaceType == NamespaceType.STRUCT
         inline = inline or isMethod
-
         parameter_list = [self.visit(i) for i in parameter_list.children]
-        return_type = TypeResource(convertToken(return_type, self.compileState), True)
+
+        # the return type can be omitted. In this case, it will be Null
+        return_type = TypeResource(
+            convertToken(return_type, self.compileState) if return_type else NullResource,
+            True
+        )
+
         if any(parameter.value.requiresInlineFunc for _, parameter in parameter_list) and not inline:
             raise McScriptTypeError(f"Some parameters can only be used in an inline context. "
                                     f"Consider declaring this function using 'inline fun'.", self.compileState)
