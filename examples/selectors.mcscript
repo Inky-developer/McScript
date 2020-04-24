@@ -18,7 +18,7 @@ run for @a print("Hello, ", @s, "!")
 # one problem with selectors is that the entities that select might change during the program
 # consider:
 const armor_stands = @e[type=armor_stand]
-execute("summon armor_stand")
+execute("summon armor_stand ~ ~ ~ {Tags:['mcscript_demo']}")
 run for @a print(armor_stands)
 
 # It might not be the intention of the programmer to print the newly summoned armor stand.
@@ -29,16 +29,18 @@ armor_stands = @e[type=armor_stand]
 # So any new summoned armor stand won't be listed by this selector.
 
 # Instead of the run for ... construct one may also use a for-loop:
+# This will not uses const selectors so "for ()"with selectors if a bit slower than "run for"
 for (player in @a) {
-    # player is equivalent to const player = @s
+    # player is equivalent to player = @s
     # do something
 }
 # A for loop is mostly equivalent to run for @. at @s {...}
 
 # Here is a little example to show how powerful selectors can be
 for (entity in @e) {
-    # keep in mind that entity is by default a const selector. This creates a 'snapshot' of the entity.
-    entity = entity
     # Run for all players and print the name of 'entity'
     run for @a print("message for player ", @s, ": Found entity ", entity)
 }
+
+# kill the summoned armor stand
+run for @a print(kill(@e[tag=mcscript_demo]))

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from lark import Tree
 
@@ -40,7 +40,7 @@ class SelectorResource(ValueResource):
     def typeCheck(self) -> bool:
         return isinstance(self.value, str)
 
-    def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> SelectorResource:
+    def storeToNbt(self, _: Optional[NbtAddressResource], compileState: CompileState) -> SelectorResource:
         """
         creates a score for all entities that match this selector and stores this score numerically on a scoreboard.
         This is constant and that is why there is no load implementation
@@ -51,7 +51,7 @@ class SelectorResource(ValueResource):
             Optimize the scoreboard players set 0 thing if it is not necessary
 
         Args:
-            stack: the stack on the data storage
+            _: the stack on the data storage
             compileState: the compile state
 
         Returns:
@@ -126,7 +126,9 @@ class SelectorResource(ValueResource):
         """ identical to `run for @. at @s` """
 
         block = compileState.pushBlock(namespaceType=NamespaceType.LOOP)
-        compileState.currentNamespace()[varName] = SelectorResource(Selector.CURRENT_ENTITY(), True)
+        compileState.currentNamespace()[varName] = SelectorResource(Selector.CURRENT_ENTITY(), True) \
+            .storeToNbt(None, compileState)
+
         for child in tree.children:
             compileState.compileFunction(child)
         compileState.popBlock()
