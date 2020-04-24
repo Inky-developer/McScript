@@ -91,3 +91,9 @@ class McScriptIndexError(McScriptError):
         if customMessage:
             message += "\n" + customMessage
         super().__init__(message, compileState)
+
+
+class McScriptDeclarationError(McScriptError):
+    """
+    Thrown when a variable is declared in an invalid way
+    """

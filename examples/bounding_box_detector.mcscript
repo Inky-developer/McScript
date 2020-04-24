@@ -1,4 +1,6 @@
-const feature = features.bastion_remnant
+#SET world = world
+
+const feature = features.village
 const markerBlock = blocks.white_stained_glass
 const entityId = "mcscript_feature_detector"
 const summonString = "summon minecraft:area_effect_cloud ~$ ~$ ~$ {Duration:2147483647,Tags:['$']}"
@@ -9,9 +11,9 @@ run for @a at @s {
 }
 
 # checks all adjacent blocks if they are in the features bounding box.
-fun checkBlocks() {
-    if ((not isFeature(feature)) or isBlock(markerBlock)) {
-        execute("kill @s")
+inline fun checkBlocks() {
+    if (not isFeature(feature) or isBlock(markerBlock)) {
+        kill()
     } else {
         setBlock(markerBlock)
         execute(stringFormat(summonString, 0, 0, 1, entityId))
@@ -23,17 +25,17 @@ fun checkBlocks() {
     }
 }
 
-shouldRun = 0
-hasRun = 0
-fun doTick() -> Null {
-    if (evaluate("execute unless entity @e[tag=$entityId]")) {
+shouldRun = False
+hasRun = False
+fun doTick() {
+    if (not hasEntity(entities)) {
         if (not hasRun) {
-            hasRun = 1
+            hasRun = True
             run for @a at @s execute(stringFormat(summonString, 0, -1, 0, entityId))
         } else {
             run for @a print("Finished.")
-            shouldRun = 0
-            hasRun = 0
+            shouldRun = False
+            hasRun = False
         }
     }
     if (shouldRun) {

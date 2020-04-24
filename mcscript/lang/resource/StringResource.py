@@ -141,7 +141,9 @@ class StringResource(ValueResource):
             return self
         compileState.writeline(Command.SET_VARIABLE(
             address=stack.address,
-            struct=Struct.VAR(var=stack.name, value=Struct.ARRAY(f'"{i}"' for i in self.value))
+            struct=Struct.VAR(var=stack.name, value=Struct.ARRAY(
+                f'"{i}"' for i in self.value
+            ))
         ))
         return StringResource(stack, False, len(self.value))
 

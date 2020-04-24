@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
+from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptAttributeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.StringResource import StringResource
@@ -35,7 +35,8 @@ class EnumResource(ObjectResource):
         try:
             return self.namespace[name]
         except KeyError:
-            raise AttributeError()
+            raise McScriptAttributeError(f"Unknown member {name} of enum.\n"
+                                         f"Expected one of: {', '.join(i for i in self.namespace)}", compileState)
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keywordParameters: Resource) -> Resource:

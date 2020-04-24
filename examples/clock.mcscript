@@ -1,15 +1,17 @@
-fun zeroPadHoursMinutes(hours: Number, minutes: Number) -> Null {
-    if (hours > 9) {
-        if (minutes > 9)
-            actionbar(hours, ":", minutes)
+# This code will be better at some point
+
+inline fun zeroPadHoursMinutes(printFunction: Function, hours: Number, minutes: Number) -> Null {
+    if (hours < 10) 
+        if (minutes < 10)
+            printFunction("0", hours, ":0", minutes)
         else
-            actionbar(hours, ":0", minutes)
-    } else {
-        if (minutes > 9)
-            actionbar("0", hours, ":", minutes)
+            printFunction("0", hours, ":", minutes)
+    else
+        if (minutes < 10)
+            printFunction(hours, ":0", minutes)
         else
-            actionbar("0", hours, ":0", minutes)
-    }
+            printFunction(hours, ":", minutes)
+
 }
 
 tickCount = 0
@@ -21,7 +23,7 @@ fun onTick() -> Null {
     seconds = (rest * 60 % 1000) * 60 / 1000
 
     if (tickCount % 20 == 0) {
-        run for @a zeroPadHoursMinutes(hours, minutes)
+        run for @a zeroPadHoursMinutes(actionbar, hours, minutes)
     }
     ++tickCount
 }

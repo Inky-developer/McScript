@@ -42,7 +42,7 @@ def compileMcScript(text: str, callback: eventCallback, config: Config) -> Datap
             arg = step[0](arg)
         except Exception as e:
             if not isinstance(e, McScriptError):
-                Logger.critical("Exception occured: " + str(e))
+                Logger.critical(f"Exception occured: {repr(e)}")
             raise e
         Logger.debug(f"{step[1]} finished in {perf_counter() - start_time:.4f} seconds")
         if isinstance(arg, Tree):

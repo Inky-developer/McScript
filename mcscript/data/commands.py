@@ -54,8 +54,8 @@ class Struct(StringEnum):
     @classmethod
     def ARRAY(cls, *values):
         if len(values) == 1 and isinstance(values[0], Iterable):
-            values = values[0]
-        return f"[{','.join(str(value) for value in values)}]"
+            values = list(values[0])
+        return f"[{','.join(str(value) for value in values)}]" if values else '[""]'
 
     @classmethod
     def fromDict(cls, dictionary: dict) -> str:

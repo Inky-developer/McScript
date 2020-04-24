@@ -65,7 +65,16 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-run for @a print(not 0 or 0 and not 0)
+y = 0
+fun onTick() {
+    if (hasEntity(@e[type=armor_stand])) {
+        run for @e[type=armor_stand] {
+            new_y = evaluate("data get entity @s Pos[1]")
+            if (new_y < y) y = new_y
+        }
+    }
+    run for @a actionbar(y)
+}
 """
 
 if __name__ == '__main__':
@@ -74,8 +83,8 @@ if __name__ == '__main__':
     setCurrentData(str(world.mcVersion["Name"]))
     config = Config("config.ini")
     # config.get("name")
-    code = code_temp
-    # code = getScript("clock")
+    # code = code_temp
+    code = getScript("clock")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

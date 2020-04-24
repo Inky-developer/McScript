@@ -4,7 +4,8 @@ from lark import Token, Tree
 from lark.visitors import Interpreter
 
 from mcscript import Logger
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptIsStaticError, McScriptNameError, \
+from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptDeclarationError, \
+    McScriptIsStaticError, McScriptNameError, \
     McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.NamespaceType import NamespaceType
@@ -19,6 +20,7 @@ from mcscript.lang.resource.EnumResource import EnumResource
 from mcscript.lang.resource.InlineFunctionResource import InlineFunctionResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NullResource import NullResource
+from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.StructMethodResource import StructMethodResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TypeResource import TypeResource
@@ -448,6 +450,10 @@ class Compiler(Interpreter):
                     stack = NbtAddressResource(self.compileState.currentNamespace().variableFmt.format(identifier))
             else:
                 stack = NbtAddressResource(self.compileState.currentNamespace().variableFmt.format(identifier))
+
+            # temporary toDo refactor when contexts are done
+            if isinstance(old_val := self.compileState.currentNamespace().get(identifier), StringResource):
+                raise McScriptDeclarationError(f"cannot redefine variable of type 'String'", self.compileState)
         else:
             # create a new stack value
             stack = NbtAddressResource(self.compileState.currentNamespace().variableFmt.format(identifier))

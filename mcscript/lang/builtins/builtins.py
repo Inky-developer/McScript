@@ -52,6 +52,9 @@ class BuiltinFunction(ABC):
     def __init__(self):
         self.used = False
 
+    def type(self) -> ResourceType:
+        return ResourceType.FUNCTION
+
     def create(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
         parameters = self.check_parameters(compileState, parameters)
         self._checkUsed(compileState)
