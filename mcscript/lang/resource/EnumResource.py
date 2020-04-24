@@ -6,16 +6,17 @@ from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScri
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.StringResource import StringResource
-from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
+from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
+    from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
 
 
 class EnumResource(ObjectResource):
     """
-    Is an enum. All values are numbers
+    Is an enum.
     """
 
     def __init__(self, *properties, **valueProperties):
@@ -25,7 +26,15 @@ class EnumResource(ObjectResource):
         """
         super().__init__()
         self.namespace.namespace.update({key: NumberResource(value, True) for value, key in enumerate(properties)})
-        self.namespace.namespace.update(valueProperties)
+        for key in valueProperties:
+            resource = valueProperties[key]
+            if not isinstance(resource, ValueResource):
+                raise TypeError(f"Invalid value for enum member {key}: {resource}")
+            if resource.value in (i.value for i in self.namespace.values()):
+                other, = filter(lambda x: self.namespace[x].value == resource.value, self.namespace)
+                raise ValueError(f"key '{key}' does not have a unique value of {resource.value} which is already "
+                                 f"defined for '{other}'")
+            self.namespace[key] = resource
 
     @staticmethod
     def type() -> ResourceType:
@@ -59,6 +68,15 @@ class EnumResource(ObjectResource):
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         """ returns true if this enum contains at least one member"""
         return BooleanResource.TRUE if self.namespace.namespace else BooleanResource.FALSE
+
+    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+        parameters = []
+        for value in self.namespace:
+            parameters.append(value)
+            parameters.append("=")
+            parameters.append(self.namespace[value])
+            parameters.append(", ")
+        return formatter.createFromResources("Enum(", *parameters[:-1], ")")
 
     def toString(self) -> str:
         raise TypeError()

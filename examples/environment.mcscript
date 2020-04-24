@@ -1,4 +1,4 @@
-fun onTick() -> Null {
+fun onTick() {
     run for @a {
         lightlevel = getLightLevel()
         biome = getBiome()

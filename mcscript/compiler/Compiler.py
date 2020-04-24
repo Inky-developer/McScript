@@ -90,14 +90,24 @@ class Compiler(Interpreter):
         _, name, block = tree.children
         properties, value_properties = self.visit(block)
 
-        enum = EnumResource(*properties, **value_properties)
+        try:
+            enum = EnumResource(*properties, **value_properties)
+        except ValueError as e:
+            raise McScriptDeclarationError(e.args[0], self.compileState)
+        except TypeError as e:
+            raise McScriptTypeError(e.args[0], self.compileState)
+
         self.compileState.currentNamespace()[name] = enum
 
     def enum_block(self, tree):
         properties = []
         value_properties = {}
 
-        for name, *value in self.visit_children(tree):
+        for child in tree.children:
+            name, *value = self.visit(child)
+
+            if name in properties:
+                raise McScriptNameError(f"Enum member {name} was already defined for this enum", self.compileState)
             if value:
                 value_properties[name] = value[0]
             else:
@@ -109,7 +119,7 @@ class Compiler(Interpreter):
         identifier, *value = tree.children
         if value:
             return identifier, convertToken(value[0], self.compileState)
-        return identifier
+        return identifier,
 
     def accessor(self, tree):
         """

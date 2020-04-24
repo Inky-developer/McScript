@@ -1,4 +1,4 @@
-fun onTick() -> Null {
+fun onTick() {
     run for @a {
         rotation = (evaluate("data get entity @s Rotation[0]") + 180) % 360
         direction = (rotation + 23) % 360 / 45 % 8
