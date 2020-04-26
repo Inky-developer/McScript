@@ -227,11 +227,11 @@ class Compiler(Interpreter):
     def boolean_and(self, tree):
         rest = tree.children
 
-        _conditions = []
+        _conditions = [rest[0]]
+        rest = rest[1:]
         while rest:
-            a, _, b, *rest = rest
+            _, a, *rest = rest
             _conditions.append(a)
-            _conditions.append(b)
 
         conditions = []
         for condition in _conditions:
@@ -273,25 +273,27 @@ class Compiler(Interpreter):
     def boolean_or(self, tree):
         rest = tree.children
 
+        _conditions = [rest[0]]
+        rest = rest[1:]
+        while rest:
+            _, a, *rest = rest
+            _conditions.append(a)
+        # ToDO: make it work
         conditions = []
 
-        while rest:
-            operand1, _, operand2, *rest = rest
-            operand1 = self.compileState.toResource(operand1).convertToBoolean(self.compileState)
-            operand2 = self.compileState.toResource(operand2).convertToBoolean(self.compileState)
-
-            if (operand1.isStatic and operand1.value) or (operand2.isStatic and operand2.value):
-                Logger.warn(f"[Compiler] boolean or at {tree.line}:{tree.column} is always True.")
-                return BooleanResource.TRUE
-
-            if operand1.isStatic and operand2.isStatic:
+        for condition in _conditions:
+            value = self.compileState.toResource(condition).convertToBoolean(self.compileState)
+            if value.isStatic:
+                if value.value:
+                    Logger.debug(f"[Compiler] boolean or is always True at line {tree.line} column {tree.column}")
+                    return BooleanResource.TRUE
+                # always False boolean does not matter, so it will be discarded
                 continue
 
-            conditions.append(operand1)
-            conditions.append(operand2)
+            conditions.append(value)
 
         if not conditions:
-            Logger.warn(f"[Compiler] boolean or at {tree.line}:{tree.column} is always False.")
+            Logger.debug(f"[Compiler] boolean or is always False at {tree.line} column {tree.column} ")
             return BooleanResource.FALSE
 
         stack = self.compileState.expressionStack.next()

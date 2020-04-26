@@ -65,16 +65,12 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-y = 0
-fun onTick() {
-    if (hasEntity(@e[type=armor_stand])) {
-        run for @e[type=armor_stand] {
-            new_y = evaluate("data get entity @s Pos[1]")
-            if (new_y < y) y = new_y
-        }
-    }
-    run for @a actionbar(y)
+enum myEnum {
+    a;
+    b;
+    c = 100;
 }
+run for @a print( myEnum.a!=0 or myEnum.b!=1 or myEnum.c==100 );
 """
 
 if __name__ == '__main__':
@@ -83,8 +79,8 @@ if __name__ == '__main__':
     setCurrentData(str(world.mcVersion["Name"]))
     config = Config("config.ini")
     # config.get("name")
-    # code = code_temp
-    code = getScript("selectors")
+    code = code_temp
+    # code = getScript("selectors")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")
