@@ -20,7 +20,7 @@ veryImportantVariable = 1
 run for @a {
     print("The important variable is: {}", veryImportantVariable)
 
-    # curly brackets may contains a number to specify which argument to use:
+    # curly brackets may contain a number to specify which argument to use:
     print("The result of {0} + {0} is {1}.", veryImportantVariable, veryImportantVariable * 2)
 }
 
