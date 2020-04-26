@@ -11,20 +11,24 @@ from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScri
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.JsonTextFormat import markupGrammar
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
-from mcscript.utils.JsonTextFormat.objectFormatter import format_bold, format_color, format_italic, format_obfuscated, \
-    format_strike_through, format_text, format_underlined
+from mcscript.utils.JsonTextFormat.objectFormatter import format_bold, format_color, format_hover, format_italic, \
+    format_obfuscated, \
+    format_open_url, format_run_command, format_strike_through, format_text, format_underlined
 from mcscript.utils.utils import debug_log_text
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 RULE2ACTION = {
-    "b"    : lambda v, c: format_bold(c),
-    "i"    : lambda v, c: format_italic(c),
-    "u"    : lambda v, c: format_underlined(c),
-    "s"    : lambda v, c: format_strike_through(c),
-    "o"    : lambda v, c: format_obfuscated(c),
-    "color": lambda v, c: format_color(c, str(v))
+    "b"      : lambda v, c: format_bold(c),
+    "i"      : lambda v, c: format_italic(c),
+    "u"      : lambda v, c: format_underlined(c),
+    "s"      : lambda v, c: format_strike_through(c),
+    "o"      : lambda v, c: format_obfuscated(c),
+    "color"  : lambda v, c: format_color(c, str(v)),
+    "link"   : lambda v, c: format_open_url(c, v),
+    "command": lambda v, c: format_run_command(c, v),
+    "hover"  : lambda v, c: format_hover(c, v)
 }
 
 
@@ -87,7 +91,7 @@ class MarkupParser(Interpreter):
         rule, value, *content, endRule = tree.children
 
         if rule != endRule:
-            raise ValueError(f"Rule mismatch: {rule} was ended with {endRule}")
+            raise McScriptInvalidMarkupError(f"Rule mismatch: {rule} was ended with {endRule}", self.compileState)
 
         ret = []
         for i in content:

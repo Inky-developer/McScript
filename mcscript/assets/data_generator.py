@@ -75,7 +75,7 @@ def runDataGenerator(version: str, fpath: str) -> str:
 
     # test if java is installed
     process = run(["java", "-version"], cwd=path)
-    print("Process java version result:", process.returncode)
+    Logger.info("Process java version result: {}".format(process.returncode))
 
     completedProcess = run(["java", "-cp", file, "net.minecraft.data.Main", "-all"], cwd=path)
     completedProcess.check_returncode()

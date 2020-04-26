@@ -50,6 +50,46 @@ def format_obfuscated(data: Dict) -> Dict:
     return {**data, "obfuscated": "true"}
 
 
+def format_open_url(data: Dict, url: str) -> Dict:
+    if "clickEvent" in data:
+        raise ValueError(f"Cannot create click event for url '{url}' because there already is a click event "
+                         f"({data['clickEvent']['value']})")
+    return {
+        **data,
+        "clickEvent": {
+            "action": "open_url",
+            "value" : url
+        }
+    }
+
+
+def format_run_command(data: Dict, command: str) -> Dict:
+    if "clickEvent" in data:
+        raise ValueError(f"Cannot create click event to run command '{command}' because there already is a click event "
+                         f"({data['clickEvent']['value']})")
+    if len(command) >= 100:
+        raise ValueError(f"Due to a limitation of minecraft the maximum command length is 100 characters, "
+                         f"got {len(command)}")
+
+    return {
+        **data,
+        "clickEvent": {
+            "action": "run_command",
+            "value" : command
+        }
+    }
+
+
+def format_hover(data: Dict, hover_text: str) -> Dict:
+    return {
+        **data,
+        "hoverEvent": {
+            "action": "show_text",
+            "value" : hover_text
+        }
+    }
+
+
 def format_color(data: Dict, color: str) -> Dict:
     if color.startswith("#"):
         return _format_hex_color(data, color)

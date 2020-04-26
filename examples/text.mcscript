@@ -36,6 +36,19 @@ run for @a {
 
     # The markup codes can be nested:
     print("This [b]is [i]a [u]nested [color=green]chat [s]message[/s][/color][/u][/i][/b]")
+
+    # Basic support for click and hover events is available, too:
+    print("[link=https://google.com]Open [u]Google[/u][/link]")
+    print("[command=/kill @e][hover=get free bucks!]click to run a [color=gold]command[/color]![/hover][/command]")
+    # it is not possible to specify both the command tag and the link tag for a given range.
+
+
+    # This is what a basic log function could look like:
+    inline fun log(message: String) {
+        print("\[[color=gold][hover=open github repo][link=https://github.com/Inky-developer/McScript]mcscript[/link][/hover][/color]\] $message")
+    }
+
+    log("This message is logged by my [b]log-function[/b]: [i]$log[/i]")
 }
 
 

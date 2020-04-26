@@ -1,0 +1,8 @@
+# SET world = 20w17a
+# SET mcpath=C:\Users\david\AppData\Roaming\.minecraft\Entwicklungsversionen\saves
+
+run for @a {
+	for (i in range(10, 100)) {
+		print(stringFormat("[color=#$a0000]Test[/color]", i)))		
+	}
+}
