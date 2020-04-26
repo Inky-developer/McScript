@@ -30,16 +30,12 @@ MINIMUM_VERSION = 2225
 
 def generateFiles(world: MCWorld, datapack: Datapack, name="McScript"):
     """
-    saves the datapack for `world`.
+    Saves the datapack for `world`.
 
-    Parameters
-    ----------
-    world: MCWorld
-        the minecraft world
-    datapack: Datapack
-        the 'Datapack' object
-    name: str
-        the name of the datapack, default "McScript"
+    Parameters:
+        world: the minecraft world
+        datapack: the 'Datapack' object
+        name: the name of the datapack, default "McScript"
     """
     if not world.satisfiesVersion(MINIMUM_VERSION):
         Logger.Error(f"[WriteFiles] #### Warning: World {world.levelName} is below the minimum supported version. ####")
@@ -121,3 +117,15 @@ class MCWorld:
 
     def __repr__(self):
         return f"MCWorld({self.levelName})"
+
+
+currentWorld: Optional[MCWorld] = None
+
+
+def setCurrentWorld(world: MCWorld):
+    global currentWorld
+    currentWorld = world
+
+
+def getCurrentWorld() -> MCWorld:
+    return currentWorld

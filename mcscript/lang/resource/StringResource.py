@@ -16,7 +16,7 @@ from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
-    from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
+    from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.compiler.CompileState import CompileState
     from mcscript.compiler.Namespace import Namespace
 
@@ -150,7 +150,7 @@ class StringResource(ValueResource):
     def load(self, compileState: CompileState, stack: ValueResource = None) -> Resource:
         return self
 
-    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
         if self.isStatic or self.length == 1:
             raise TypeError
         return formatter.createFromResources(*[NbtAddressResource(self.value[i].embed()) for i in range(self.length)])

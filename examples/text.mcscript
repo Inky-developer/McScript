@@ -1,7 +1,41 @@
-player = @p
-run for player {
-    print("Hallo ", player, ", 1+1=", 1+1)
-    title("Hallo ", player, ", 1+1=", 1+1)
-    subtitle("Hallo ", player, ", 1+1=", 1+1)
-    actionbar("Hallo ", player, ", 1+1=", 1+1)
+######################################################################
+# text can be outputted using one of the four functions:             #
+#   * print     - prints text to the chat                            #
+#   * title     - prints text using the /title ... title command     #
+#   * subtitle  - prints text using the /title ... subtitle command  #
+#   * actionbar - prints text using the /title ... actionbar command #
+######################################################################
+
+# The text will only be printed for the entity that is executing the print command.
+# For that reason, print statements are usually wrapped in a run for block:
+run for @a {
+    print("Hello, world!")
+    title("Hello, world!")
+    subtitle("Hello, world!")
+    actionbar("Hello, world!")
 }
+
+# it is possible to print variables using curly brackets as placeholders:
+veryImportantVariable = 1
+run for @a {
+    print("The important variable is: {}", veryImportantVariable)
+
+    # curly brackets may contains a number to specify which argument to use:
+    print("The result of {0} + {0} is {1}.", veryImportantVariable, veryImportantVariable * 2)
+}
+
+# Furthermore, as simple text markdown format can be used:
+run for @a {
+    print("styles: [b]bold[/b], [i]italic[/i], [u]underlined[/u], [s]strikethrough[/s], [o]obfuscated[/o]")
+    # available colors are:
+    # white, black, yellow, gold, aqua, dark_aqua, blue, dark_blue, light_purple, dark_purple, red, dark_red, green,
+    # dark_green, gray, dark_gray
+    # since snapshot 20w17a hexadecimal rgb colors are also allowed: [color=#rrggbb]...[/color]
+    # this syntax is obviously only available if compiling for a version >= 20w17a
+    print("Specifiy colors with \[color=<color>\]: [color=red]This should be red[/color]")
+
+    # The markup codes can be nested:
+    print("This [b]is [i]a [u]nested [color=green]chat [s]message[/s][/color][/u][/i][/b]")
+}
+
+

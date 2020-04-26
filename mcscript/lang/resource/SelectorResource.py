@@ -14,7 +14,7 @@ from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
-    from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
+    from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
 
 class SelectorResource(ValueResource):
@@ -143,7 +143,7 @@ class SelectorResource(ValueResource):
             command=Command.RUN_FUNCTION(function=block)
         ))
 
-    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
         if self.isStatic:
             raise TypeError
         return formatter.createFromResources(SelectorResource(

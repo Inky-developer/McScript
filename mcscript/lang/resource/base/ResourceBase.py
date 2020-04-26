@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum, auto
 from inspect import isabstract
-from typing import TYPE_CHECKING, Type
+from typing import Dict, TYPE_CHECKING, Type
 
 from lark import Tree
 
@@ -13,7 +13,7 @@ from mcscript.data.commands import BinaryOperator
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
-    from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
+    from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
     from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
     from mcscript.lang.resource.NumberResource import NumberResource
@@ -71,7 +71,7 @@ class Resource(ABC):
             if cls.isVariable:
                 Resource._reference_variables[cls.type()] = cls
 
-    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
         """
         Creates a string that can be used as a minecraft tellraw or title string.
 
@@ -80,7 +80,7 @@ class Resource(ABC):
             formatter: A formatter that can be used to format this resource
 
         Returns:
-            A minecraft json string
+            A dictionary
 
         Raises:
             TypeError: if this method should not be called.

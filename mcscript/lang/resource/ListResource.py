@@ -7,7 +7,6 @@ from lark import Tree
 from mcscript.Exceptions.compileExceptions import McScriptAttributeError, McScriptTypeError
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.data.commands import Command, ExecuteCommand
-from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.InlineFunctionResource import InlineFunctionResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
@@ -16,6 +15,7 @@ from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.base.VariableResource import VariableResource
+from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -222,7 +222,7 @@ class ListResource(Resource):
     def toString(self) -> str:
         raise NotImplementedError()
 
-    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
         if not self.nbtAddress:
             return "List()"
         return formatter.createFromResources(self.nbtAddress)

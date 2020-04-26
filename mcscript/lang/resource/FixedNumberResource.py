@@ -10,7 +10,7 @@ from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
-    from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
+    from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.lang.resource.BooleanResource import BooleanResource
     from mcscript.lang.resource.NumberResource import NumberResource
     from mcscript.compiler.CompileState import CompileState
@@ -40,7 +40,7 @@ class FixedNumberResource(ValueResource):
     def typeCheck(self) -> bool:
         return isinstance(self.value, int)
 
-    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
         return formatter.createFromResources(self.storeToNbt(
             NbtAddressResource(compileState.temporaryStorageStack.next().embed()), compileState))
 

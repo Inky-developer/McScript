@@ -14,7 +14,7 @@ from mcscript.lang.resource.base.ResourceBase import MinecraftDataStorage, Resou
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
-    from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
+    from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.compiler.CompileState import CompileState
 
 
@@ -91,7 +91,7 @@ class ArrayResource(Resource):
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         return BooleanResource.TRUE if self.resources else BooleanResource.FALSE
 
-    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
         resources: list = [self.resources[0]] if self.resources else []
         for resource in self.resources[1:]:
             resources.append(", ")

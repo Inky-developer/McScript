@@ -28,7 +28,7 @@ Logger.info("Logger initialized")
 from mcscript.compiler.Compiler import Compiler as _Compiler
 
 Grammar = Lark(
-    resources.open_text("mcscript", "McScript.lark").read(),
+    resources.read_text("mcscript", "McScript.lark"),
     parser="lalr",
     propagate_positions=True,
     maybe_placeholders=True

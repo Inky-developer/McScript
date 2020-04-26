@@ -12,7 +12,7 @@ from mcscript.assets import setCurrentData
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
 from mcscript.documentation import generate_json
-from mcscript.utils.cmdHelper import MCPATH, generateFiles, getWorld
+from mcscript.utils.cmdHelper import MCPATH, generateFiles, getWorld, setCurrentWorld
 from mcscript.utils.precompileInstructions import getPrecompileInstructions
 
 """
@@ -159,6 +159,7 @@ def run_build(args):
 
         try:
             world = getWorld(worldPath, mcpath)
+            setCurrentWorld(world)
         except ValueError:
             Logger.critical(f"Could not find World '{worldPath}'")
             return False

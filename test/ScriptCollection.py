@@ -6,7 +6,7 @@ from mcscript.assets import setCurrentData
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
 from mcscript.utils import rcon
-from mcscript.utils.cmdHelper import generateFiles, getWorld
+from mcscript.utils.cmdHelper import generateFiles, getWorld, setCurrentWorld
 
 
 def getScript(name: str) -> str:
@@ -65,22 +65,19 @@ fun make_disk() -> Null {
 """
 
 code_temp = """
-enum myEnum {
-    a;
-    b;
-    c = 100;
-}
-run for @a print( myEnum.a!=0 or myEnum.b!=1 or myEnum.c==100 );
+value = 1
+run for @a print("[b]---[/b][color=#123456]{}[/color][b]---[/b]", value) 
 """
 
 if __name__ == '__main__':
     world = getWorld("McScript", join(getcwd(), "server"))
     # world = getWorld("McScript")
+    setCurrentWorld(world)
     setCurrentData(str(world.mcVersion["Name"]))
     config = Config("config.ini")
     # config.get("name")
     code = code_temp
-    # code = getScript("selectors")
+    # code = getScript("text")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

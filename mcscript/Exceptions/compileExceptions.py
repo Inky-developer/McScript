@@ -97,3 +97,9 @@ class McScriptDeclarationError(McScriptError):
     """
     Thrown when a variable is declared in an invalid way
     """
+
+
+class McScriptInvalidMarkupError(McScriptError):
+    """
+    Thrown when the user has entered invalid markup (which could not be parsed)
+    """

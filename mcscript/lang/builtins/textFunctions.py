@@ -1,16 +1,23 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import TYPE_CHECKING
 
-from mcscript.lang.ResourceTextFormatter import PrintCommand, ResourceTextFormatter
+from mcscript.data.commands import Command
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.NullResource import NullResource
+from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.utils.JsonTextFormat.MarkupParser import MarkupParser
 
-if TYPE_CHECKING:
-    from mcscript.compiler.CompileState import CompileState
+
+class PrintCommand(Enum):
+    TELLRAW = Command.TELLRAW
+    ACTIONBAR = Command.ACTIONBAR
+    TITLE = Command.TITLE
+    SUBTITLE = Command.SUBTITLE
 
 
 class TextFunction(BuiltinFunction, ABC):
@@ -25,15 +32,23 @@ class TextFunction(BuiltinFunction, ABC):
         return True
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
+        fmtString: StringResource
+
+        fmtString, *resources = parameters
         return FunctionResult(
-            ResourceTextFormatter(compileState).createCommandFromResources(self.getCommand(), *parameters),
+            self.getCommand().value(text=MarkupParser(compileState).toJsonString(fmtString.value, *resources)),
             resource=NullResource(),
             inline=True
         )
 
 
+if TYPE_CHECKING:
+    from mcscript.compiler.CompileState import CompileState
+
+
 class PrintFunction(TextFunction):
     """
+    parameter => [Static] text: String the format string
     parameter => *values: Resource the values to print out
     Print Function.
     Example:
@@ -50,6 +65,7 @@ class PrintFunction(TextFunction):
 
 class TitleFunction(TextFunction):
     """
+    parameter => [Static] text: String the format string
     parameter => *values: Resource the values to print out
     prints text as title
     """
@@ -63,9 +79,10 @@ class TitleFunction(TextFunction):
 
 class SubTitleFunction(TextFunction):
     """
-        parameter => *values: Resource the values to print out
-        prints text as subtitle
-        """
+    parameter => [Static] text: String the format string
+    parameter => *values: Resource the values to print out
+    prints text as subtitle
+    """
 
     def getCommand(self) -> PrintCommand:
         return PrintCommand.SUBTITLE
@@ -76,9 +93,10 @@ class SubTitleFunction(TextFunction):
 
 class ActionBarFunction(TextFunction):
     """
-        parameter => *values: Resource the values to print out
-        prints text on the actionbar
-        """
+    parameter => [Static] text: String the format string
+    parameter => *values: Resource the values to print out
+    prints text on the actionbar
+    """
 
     def getCommand(self) -> PrintCommand:
         return PrintCommand.ACTIONBAR

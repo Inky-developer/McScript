@@ -11,7 +11,7 @@ from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
-    from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
+    from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
 
 class EnumResource(ObjectResource):
@@ -69,7 +69,7 @@ class EnumResource(ObjectResource):
         """ returns true if this enum contains at least one member"""
         return BooleanResource.TRUE if self.namespace.namespace else BooleanResource.FALSE
 
-    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
         parameters = []
         for value in self.namespace:
             parameters.append(value)

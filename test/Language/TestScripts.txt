@@ -272,7 +272,7 @@ for (i in range(10)) {
     end = not end;
 }
 # no simple list comparison yet
-run for @a print(a);
+run for @a print("{}", a);
 
 return True
 
@@ -280,7 +280,7 @@ return True
 s = "test string";
 s[0] = "p";
 for (char in s) {
-    print(char);
+    print("{}", char);
 }
 return True;
 
@@ -296,7 +296,7 @@ return sum == 9;
 players = @a
 for (player in players) {
     current_player = players
-    run for @a print(current_player)
+    run for @a print("{}", current_player)
 }
 return True
 

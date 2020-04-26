@@ -4,13 +4,13 @@ import warnings
 from typing import Optional, TYPE_CHECKING
 
 from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptNameError
-from mcscript.lang.ResourceTextFormatter import ResourceTextFormatter
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.utility import compareTypes
+from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -106,7 +106,7 @@ class StructObjectResource(ObjectResource):
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         return BooleanResource.TRUE
 
-    def toJsonString(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
         def resourceString(key):
             return [key + ": ", self.namespace[key]]
 
