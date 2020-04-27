@@ -28,6 +28,7 @@ function_call: accessor "(" (expression "," )* expression? ")"
 variable_declaration: [/\bconst\b/] IDENTIFIER ":" IDENTIFIER
 
 declaration: accessor "=" expression
+           | "(" accessor ( "," accessor )+ ")" "=" expression -> multi_declaration
 const_declaration: "const " declaration
 index_setter: accessor "[" expression "]" "=" expression
 

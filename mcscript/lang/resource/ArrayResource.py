@@ -43,6 +43,9 @@ class ArrayResource(Resource):
     def type() -> ResourceType:
         return ResourceType.ARRAY
 
+    def allow_redefine(self, compileState) -> bool:
+        return compileState.currentNamespace().isContextStatic()
+
     def iterate(self, compileState: CompileState, varName: str, block: Tree):
         for i in range(len(self.resources)):
             compileState.pushStack(NamespaceType.UNROLLED_LOOP)

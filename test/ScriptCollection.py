@@ -65,11 +65,13 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-a = "Hallo, Welt"
-b = ". Dies ist ein Beispielsatz."
+inline fun doStuff() -> Array {
+    a = random()
+    return arrayOf(a, 1)
+}
 
-a = a + b
-run for @a print("{}", a)
+(a, b) = doStuff()
+run for @a print("Value of a: {}\nValue of b: {}", a, b)
 """
 
 if __name__ == '__main__':

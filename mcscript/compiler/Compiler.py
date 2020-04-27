@@ -15,6 +15,7 @@ from mcscript.data.Config import Config
 from mcscript.data.commands import BinaryOperator, Command, ConditionalExecute, ExecuteCommand, Relation, UnaryOperator, \
     multiple_commands
 from mcscript.lang.builtins.builtins import BuiltinFunction
+from mcscript.lang.resource.ArrayResource import ArrayResource
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.DefaultFunctionResource import DefaultFunctionResource
 from mcscript.lang.resource.EnumResource import EnumResource
@@ -395,13 +396,18 @@ class Compiler(Interpreter):
 
         return relation
 
-    def declaration(self, tree):
-        identifier, value = tree.children
-        if len(identifier.children) != 1:
-            return self.propertySetter(tree)
-        identifier, = identifier.children
-        value = self.compileState.toResource(value)
+    def _set_variable(self, identifier: str, value: Resource, force_new_stack=True):
+        """
+        Sets a variable in the current namespace.
 
+        Args:
+            identifier: the name of the variable
+            value: the value of the variable
+            force_new_stack: Whether a new stack is required. If False the value might simply get copied.
+
+        Returns:
+            None
+        """
         if identifier in self.compileState.currentNamespace():
             stack = self.compileState.currentNamespace()[identifier]
             if isinstance(stack, ValueResource) and isinstance(stack.value, NbtAddressResource):
@@ -431,7 +437,8 @@ class Compiler(Interpreter):
             # create a new stack value
             stack = NbtAddressResource(self.compileState.currentNamespace().variableFmt.format(identifier))
         try:
-            var = value.load(self.compileState).storeToNbt(stack, self.compileState)
+            # var = value.load(self.compileState).storeToNbt(stack, self.compileState)
+            var = value.storeToNbt(stack, self.compileState) if force_new_stack else value
         except TypeError as e:
             var = value
             # The null resource is kinda special because it only ever has one value
@@ -440,6 +447,35 @@ class Compiler(Interpreter):
                                         f"it does not support this operation", self.compileState)
         self.compileState.currentNamespace().setVar(identifier, var)
         return var
+
+    def declaration(self, tree):
+        identifier, value = tree.children
+        if len(identifier.children) != 1:
+            return self.propertySetter(tree)
+        identifier, = identifier.children
+        value = self.compileState.toResource(value)
+        self._set_variable(identifier, value)
+
+    def multi_declaration(self, tree):
+        *variables, expression = tree.children
+        expression = self.compileState.toResource(expression)
+
+        if not isinstance(expression, ArrayResource):
+            raise McScriptTypeError(
+                f"Return type deconstruction works only for arrays, but not for type {expression.type().value}",
+                self.compileState
+            )
+
+        if (size := expression.getAttribute(self.compileState, "size").toNumber()) != len(variables):
+            raise McScriptDeclarationError(
+                f"Array must contain exactly {len(variables)} elements but found {size}:\n"
+                f'({", ".join(i.type().value for i in expression.resources)})',
+                self.compileState
+            )
+
+        for variable, value in zip(variables, expression.resources):
+            variable, = variable.children
+            self._set_variable(variable, value, False)
 
     def const_declaration(self, tree):
         declaration = tree.children[0]
