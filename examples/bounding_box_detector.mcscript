@@ -4,7 +4,7 @@ const feature = features.village
 const markerBlock = blocks.white_stained_glass
 const entityId = "mcscript_feature_detector"
 const summonString = "summon minecraft:area_effect_cloud ~$ ~$ ~$ {Duration:2147483647,Tags:['$']}"
-const entities = @e[tag=mcscript_feature_detector]
+const entities = @e[tag=$entityId]
 
 run for @a at @s {
     kill(entities)
@@ -40,8 +40,7 @@ fun doTick() {
     }
     if (shouldRun) {
         run for @a actionbar("Running...")
-        # ToDo: better selectors
-        run for @e[tag=mcscript_feature_detector,limit=250] at @s {
+        run for @e[tag=$entityId,limit=250] at @s {
             checkBlocks()
         }
     }
