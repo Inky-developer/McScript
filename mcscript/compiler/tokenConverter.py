@@ -53,8 +53,8 @@ def STRING(token: Token, compileState: CompileState) -> Resource:
     return StringResource(token[1:-1], True, namespace=compileState.currentNamespace())
 
 
-def SELECTOR(token: Token, _: CompileState):
-    return SelectorResource(token, True)
+def SELECTOR(token: Token, compileState: CompileState):
+    return SelectorResource(token, True, compileState.currentNamespace())
 
 
 def DATATYPE(token: Token, compileState: CompileState) -> Union[Type[Resource], StructResource]:

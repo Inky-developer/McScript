@@ -9,10 +9,12 @@ from mcscript.data.Scoreboard import Scoreboard
 from mcscript.data.commands import Command, ExecuteCommand, Selector, Struct, multiple_commands
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
+    from mcscript.compiler.Namespace import Namespace
     from mcscript.compiler.CompileState import CompileState
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
@@ -21,6 +23,11 @@ class SelectorResource(ValueResource):
     """
     Holds a minecraft selector
     """
+
+    def __init__(self, value: str, isStatic: bool, namespace: Namespace = None):
+        if namespace:
+            value = StringResource.StringFormatter().format(value, **namespace.asDict())
+        super().__init__(value, isStatic)
 
     def embed(self) -> str:
         return self.value

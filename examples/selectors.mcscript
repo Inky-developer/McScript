@@ -44,3 +44,8 @@ for (entity in @e) {
 
 # kill the summoned armor stand
 run for @a print(kill(@e[tag=mcscript_demo]))
+
+# Using the $-placeholder syntax which is also used for strings, constants can be embedded into the selector
+# at compile time:
+const TAG = "mcscript_marker"
+const MARKER = @e[type=armor_stand,tag=$TAG]

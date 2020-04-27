@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from string import Formatter
-from typing import Callable, Dict, Optional, TYPE_CHECKING, Tuple, Union
+from typing import Callable, Dict, List, Optional, TYPE_CHECKING, Tuple, Union
 
 from lark import Tree
 
@@ -200,7 +200,7 @@ class StringResource(ValueResource):
     def load(self, compileState: CompileState, stack: ValueResource = None) -> Resource:
         return self
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> List:
         if self.isStatic or self.length == 1:
             raise TypeError
         return formatter.createFromResources(*[NbtAddressResource(self.value[i].embed()) for i in range(self.length)])
