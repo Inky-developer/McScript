@@ -420,18 +420,19 @@ class Compiler(Interpreter):
             else:
                 stack = NbtAddressResource(self.compileState.currentNamespace().variableFmt.format(identifier))
 
-            # Redefining a variable can lead to errors.
-            # for example, consider: a="Test"; fun onTick() { a = a + "|" }
-            # this code would only add one | to the string instead of one every tick. This is because a string
-            # needs a static context to do this operation
-            # (static context := known at compile time how often this code will run)
-            # For this reason we have to "ask" the resource if redefining it in the current context is ok.
-            if not value.allow_redefine(self.compileState):
-                scope = "static" if self.compileState.currentNamespace().isContextStatic() else "non-static"
-                # ToDo better error message (which provides help)
-                raise McScriptDeclarationError(
-                    f"Trying to redefine a variable of type {value.type().value} in a {scope} scope", self.compileState
-                )
+            # what is this bs?
+            # # Redefining a variable can lead to errors.
+            # # for example, consider: a="Test"; fun onTick() { a = a + "|" }
+            # # this code would only add one | to the string instead of one every tick. This is because a string
+            # # needs a static context to do this operation
+            # # (static context := known at compile time how often this code will run)
+            # # For this reason we have to "ask" the resource if redefining it in the current context is ok.
+            # if not value.allow_redefine(self.compileState):
+            #     scope = "static" if self.compileState.currentNamespace().isContextStatic() else "non-static"
+            #     # ToDo better error message (which provides help)
+            #     raise McScriptDeclarationError(
+            #        f"Trying to redefine a variable of type {value.type().value} in a {scope} scope", self.compileState
+            #     )
 
         else:
             # create a new stack value

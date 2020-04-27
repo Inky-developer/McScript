@@ -6,7 +6,7 @@ from typing import Callable, Dict, List, Optional, TYPE_CHECKING, Tuple, Union
 
 from lark import Tree
 
-from mcscript.Exceptions.compileExceptions import McScriptIsStaticError, McScriptTypeError
+from mcscript.Exceptions.compileExceptions import McScriptIsStaticError, McScriptNotStaticError, McScriptTypeError
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.data.commands import Command, Struct
 from mcscript.lang.resource.BooleanResource import BooleanResource
@@ -138,6 +138,9 @@ class StringResource(ValueResource):
             raise McScriptIsStaticError(
                 f"Can not concatenate static string ({self.value}) with non-static string!", compileState
             )
+
+        if not compileState.currentNamespace().isContextStatic():
+            raise McScriptNotStaticError("This operation can only be performed in a static context!", compileState)
 
         resource = StringResource(
             NbtAddressResource(compileState.temporaryStorageStack.next().embed()),
