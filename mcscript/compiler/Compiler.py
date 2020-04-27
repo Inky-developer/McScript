@@ -21,7 +21,6 @@ from mcscript.lang.resource.EnumResource import EnumResource
 from mcscript.lang.resource.InlineFunctionResource import InlineFunctionResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NullResource import NullResource
-from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.StructMethodResource import StructMethodResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TypeResource import TypeResource
@@ -405,7 +404,7 @@ class Compiler(Interpreter):
 
         if identifier in self.compileState.currentNamespace():
             stack = self.compileState.currentNamespace()[identifier]
-            if isinstance(stack, ValueResource):
+            if isinstance(stack, ValueResource) and isinstance(stack.value, NbtAddressResource):
                 stack = stack.value
             elif isinstance(stack, ObjectResource):
                 try:
@@ -415,9 +414,19 @@ class Compiler(Interpreter):
             else:
                 stack = NbtAddressResource(self.compileState.currentNamespace().variableFmt.format(identifier))
 
-            # temporary toDo refactor when contexts are done
-            if isinstance(old_val := self.compileState.currentNamespace().get(identifier), StringResource):
-                raise McScriptDeclarationError(f"cannot redefine variable of type 'String'", self.compileState)
+            # Redefining a variable can lead to errors.
+            # for example, consider: a="Test"; fun onTick() { a = a + "|" }
+            # this code would only add one | to the string instead of one every tick. This is because a string
+            # needs a static context to do this operation
+            # (static context := known at compile time how often this code will run)
+            # For this reason we have to "ask" the resource if redefining it in the current context is ok.
+            if not value.allow_redefine(self.compileState):
+                scope = "static" if self.compileState.currentNamespace().isContextStatic() else "non-static"
+                # ToDo better error message (which provides help)
+                raise McScriptDeclarationError(
+                    f"Trying to redefine a variable of type {value.type().value} in a {scope} scope", self.compileState
+                )
+
         else:
             # create a new stack value
             stack = NbtAddressResource(self.compileState.currentNamespace().variableFmt.format(identifier))

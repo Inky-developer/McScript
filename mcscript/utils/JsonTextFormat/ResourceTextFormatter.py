@@ -24,7 +24,7 @@ class ResourceTextFormatter:
     def __init__(self, compileState: CompileState):
         self.compileState = compileState
 
-    def createFromResources(self, *resources: Resource) -> List:
+    def createFromResources(self, *resources: Union[str, Resource]) -> List:
         data = []
         for resource in resources:
             data.append(self.createFromResource(resource))

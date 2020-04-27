@@ -65,12 +65,11 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-array = range(6)
-for (index in array) {
-    if (index % 2) {
-        run for @a print("{}", index)
-    }
-}
+a = "Hallo, Welt"
+b = ". Dies ist ein Beispielsatz."
+
+a = a + b
+run for @a print("{}", a)
 """
 
 if __name__ == '__main__':

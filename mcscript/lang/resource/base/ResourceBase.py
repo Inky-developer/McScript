@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum, auto
 from inspect import isabstract
-from typing import Dict, TYPE_CHECKING, Type
+from typing import Dict, List, TYPE_CHECKING, Type, Union
 
 from lark import Tree
 
@@ -71,7 +71,7 @@ class Resource(ABC):
             if cls.isVariable:
                 Resource._reference_variables[cls.type()] = cls
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List]:
         """
         Creates a string that can be used as a minecraft tellraw or title string.
 
@@ -86,6 +86,20 @@ class Resource(ABC):
             TypeError: if this method should not be called.
         """
         raise TypeError()
+
+    def allow_redefine(self, compileState) -> bool:
+        """
+        This method is called when a resource that has been defined previously with the same name should be redefined.
+        The default implementation allows this but some resources, which must handle these operations statically,
+        have to prohibit this behaviour.
+
+        Args:
+            compileState: the compile state
+
+        Returns:
+            Whether to allow a redefinition of this resource.
+        """
+        return True
 
     def convertToNumber(self, compileState: CompileState) -> NumberResource:
         """ Convert this to a number resource"""
@@ -450,13 +464,15 @@ class ObjectResource(Resource, ABC):
 
     def __init__(self, namespace: Namespace = None):
         from mcscript.compiler.Namespace import Namespace
-        # ToDo: is this correct?
-        self.namespace = namespace or Namespace(0, namespaceType=NamespaceType.STRUCT)
+        self.namespace = namespace or Namespace(0, NamespaceType.STRUCT)
 
     @staticmethod
     @abstractmethod
     def type() -> ResourceType:
         pass
+
+    def allow_redefine(self, compileState) -> bool:
+        return compileState.currentNamespace().isContextStatic()
 
     def getBasePath(self) -> NbtAddressResource:
         """ Returns the base path which contains the attributes of this object. """

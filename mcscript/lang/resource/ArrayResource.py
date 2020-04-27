@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 from lark import Tree
 
@@ -45,7 +45,7 @@ class ArrayResource(Resource):
 
     def iterate(self, compileState: CompileState, varName: str, block: Tree):
         for i in range(len(self.resources)):
-            compileState.pushStack(NamespaceType.LOOP)
+            compileState.pushStack(NamespaceType.UNROLLED_LOOP)
             compileState.currentNamespace()[varName] = self.resources[i]
             for child in block.children:
                 compileState.compileFunction(child)
@@ -91,7 +91,7 @@ class ArrayResource(Resource):
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         return BooleanResource.TRUE if self.resources else BooleanResource.FALSE
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> List:
         resources: list = [self.resources[0]] if self.resources else []
         for resource in self.resources[1:]:
             resources.append(", ")

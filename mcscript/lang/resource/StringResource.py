@@ -6,7 +6,7 @@ from typing import Callable, Dict, Optional, TYPE_CHECKING, Tuple, Union
 
 from lark import Tree
 
-from mcscript.Exceptions.compileExceptions import McScriptTypeError
+from mcscript.Exceptions.compileExceptions import McScriptIsStaticError, McScriptTypeError
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.data.commands import Command, Struct
 from mcscript.lang.resource.BooleanResource import BooleanResource
@@ -23,7 +23,10 @@ if TYPE_CHECKING:
 
 class StringResource(ValueResource):
     """
-    Holds a String
+    Holds a String.
+    A string must always have a known length but its contents are allowed to change during runtime.
+    These limitations are in place to allow efficient iteration over a string.
+    A more mutable string class may be added later
     """
 
     class StringFormatter(Formatter):
@@ -77,6 +80,9 @@ class StringResource(ValueResource):
         if attribute := self.attributes.get(name, None):
             return attribute(compileState)
 
+    def allow_redefine(self, compileState) -> bool:
+        return compileState.currentNamespace().isContextStatic()
+
     def operation_get_element(self, compileState: CompileState, index: Resource) -> Resource:
         number = index.convertToNumber(compileState)
         if not number.isStatic:
@@ -90,14 +96,17 @@ class StringResource(ValueResource):
         number = index.convertToNumber(compileState)
 
         if not number.isStatic:
-            raise McScriptTypeError(f"Index must be a static value, because I did not implement it yet.", compileState)
+            raise McScriptTypeError(f"The index must be a static value", compileState)
 
         number = number.toNumber()
+        # negative numbers can lead to bugs
+        if number < 0:
+            number = self.length - number - 2
 
         if not isinstance(value, StringResource):
             raise McScriptTypeError(f"Expected type String but got {value.type().value}", compileState)
 
-        if value.length > 1:
+        if value.length != 1:
             raise McScriptTypeError(f"Expected single character but string had length {value.length}", compileState)
 
         if self.isStatic:
@@ -119,9 +128,40 @@ class StringResource(ValueResource):
                 ))
 
     def operation_plus(self, other: ValueResource, compileState: CompileState) -> ValueResource:
-        if self.isStatic and isinstance(other, StringResource) and other.isStatic:
+        if not isinstance(other, StringResource):
+            raise McScriptTypeError(f"Can only concatenate strings, not {other.type().value}", compileState)
+
+        if self.isStatic and other.isStatic:
             return StringResource(self.value + other.value, True)
-        return NotImplemented
+
+        if self.isStatic:
+            raise McScriptIsStaticError(
+                f"Can not concatenate static string ({self.value}) with non-static string!", compileState
+            )
+
+        resource = StringResource(
+            NbtAddressResource(compileState.temporaryStorageStack.next().embed()),
+            False,
+            self.length + other.length
+        )
+        compileState.writeline(Command.COPY_VARIABLE(
+            address=resource.value,
+            address2=self.value
+        ))
+        if other.isStatic:
+            for char in other.value:
+                compileState.writeline(Command.APPEND_ARRAY(
+                    address=resource.value,
+                    value=f'"{char}"'
+                ))
+        else:
+            for i in range(other.length):
+                compileState.writeline(Command.APPEND_ARRAY_FROM(
+                    address=resource.value,
+                    address2=other.value[i]
+                ))
+
+        return resource
 
     def iterate(self, compileState: CompileState, varName: str, block: Tree):
         for i in range(self.length):
@@ -138,7 +178,17 @@ class StringResource(ValueResource):
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> Resource:
         if not self.isStatic:
-            return self
+            if stack == self.value:
+                return self
+            compileState.writeline(Command.COPY_VARIABLE(
+                address=stack,
+                address2=self.value
+            ))
+            return StringResource(
+                stack,
+                False,
+                self.length
+            )
         compileState.writeline(Command.SET_VARIABLE(
             address=stack.address,
             struct=Struct.VAR(var=stack.name, value=Struct.ARRAY(

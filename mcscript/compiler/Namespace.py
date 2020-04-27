@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Union, Type, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Type, Union
 
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
@@ -15,8 +15,7 @@ if TYPE_CHECKING:
 
 
 class Namespace(NamespaceBase[Resource]):
-    def __init__(self, identification: int, previous: Optional[Namespace] = None,
-                 namespaceType: NamespaceType = NamespaceType.OTHER):
+    def __init__(self, identification: int, namespaceType: NamespaceType, previous: Optional[Namespace] = None):
         super().__init__(previous)
         self.id = identification
 
@@ -26,6 +25,16 @@ class Namespace(NamespaceBase[Resource]):
 
         self.namespaceType = namespaceType
         self.returnedResource: Resource = NullResource()
+
+    def isContextStatic(self) -> bool:
+        """
+        Returns true if the namespaceType of this namespace and all predecessors is static
+        """
+        if self.predecessor is None:
+            return self.namespaceType.hasStaticContext
+
+        self.predecessor: Namespace
+        return self.namespaceType.hasStaticContext and self.predecessor.isContextStatic()
 
     def setPredecessor(self, predecessor: Namespace):
         super().setPredecessor(predecessor)

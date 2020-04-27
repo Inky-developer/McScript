@@ -23,9 +23,9 @@ class Scoreboard:
     def __post_init__(self):
         if len(self.name) > 16:
             raise ValueError("Cannot create a scoreboard with a length > 16")
-        if self.index >= len(VALID_OBJECTIVE_CHARACTERS) ** 4:
+        if self.index >= len(VALID_OBJECTIVE_CHARACTERS) ** 3:
             raise ValueError(
-                f"Maximum id exceeded: {self.index} expected at most {len(VALID_OBJECTIVE_CHARACTERS) ** 4 - 1}")
+                f"Maximum id exceeded: {self.index} expected at most {len(VALID_OBJECTIVE_CHARACTERS) ** 3 - 1}")
         Logger.info(f"[Scoreboard] created {self.name} with id {self.get_name()}")
 
     def writeInit(self, filestructure: FileStructure):
@@ -44,9 +44,9 @@ class Scoreboard:
     def unique_name(self) -> str:
         """
         Converts `self.index` to a number base `len(self.index)` using the valid objective alphabet.
-        A scoreboard name may have at most 16 characters. A mcscript scoreboard name may have at most 13
+        A scoreboard name may have at most 16 characters. A mcscript scoreboard name may have at most 13 characters
         which means that three characters are left for scoreboard identifiers.
-        66^4-1 = 18_974_735 which should be enough unique scoreboard names for most purposes
+        66^3-1 = 287_495 which should be enough unique scoreboard names for most purposes
         """
         out = []
         index = self.index
@@ -54,7 +54,7 @@ class Scoreboard:
             index, rest = divmod(index, len(VALID_OBJECTIVE_CHARACTERS))
             out.append(rest)
         out.append(index)
-        return "{}{}".format(
+        return "{}.{}".format(
             Config.currentConfig.get_scoreboard("main"),
             "".join(VALID_OBJECTIVE_CHARACTERS[i] for i in reversed(out))
         )
