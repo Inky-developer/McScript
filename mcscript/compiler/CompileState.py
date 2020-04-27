@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Union
 
 from lark import Tree
 
@@ -7,7 +7,7 @@ from mcscript.compiler.CompilerConstants import CompilerConstants
 from mcscript.compiler.Namespace import Namespace, NamespaceType
 from mcscript.data.Config import Config
 from mcscript.data.Scoreboard import Scoreboard
-from mcscript.data.commands import ConditionalExecute
+from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.Address import Address
@@ -83,7 +83,7 @@ class CompileState:
             raise ValueError(
                 f"Cannot load resource of type {type(value)}. It cannot be converted to a Number.")
 
-    def toResource(self, value: Resource) -> Resource:
+    def toResource(self, value: Union[Resource, ConditionalExecute, Tree]) -> Resource:
         """
         Converts a value to a resource. similar to ´load´ but does not actually load the resource.
 
@@ -99,6 +99,32 @@ class CompileState:
         if isinstance(value, ConditionalExecute):
             return value.toResource(self)
         return self.toResource(self.compileFunction(value))
+
+    def toCondition(self, value: Tree) -> ConditionalExecute:
+        """
+        Converts the tree to a conditional execute
+
+        Args:
+            value: the tree
+
+        Returns:
+            the condition
+        """
+        result = self.compileFunction(value)
+
+        if isinstance(result, ConditionalExecute):
+            return result
+        elif isinstance(result, Resource):
+            result = result.convertToBoolean(self)
+            if result.isStatic:
+                return ConditionalExecute(result.value == 1)
+            return ConditionalExecute(Command.EXECUTE(
+                sub=ExecuteCommand.IF_SCORE_RANGE(
+                    stack=result.value,
+                    range=1
+                )
+            ))
+        raise ValueError(f"Unknown type {result}")
 
     def pushBlock(self, blockName: str = None, namespaceType: NamespaceType = NamespaceType.BLOCK) -> AddressResource:
         """ creates a new file and namespace and returns the block id."""

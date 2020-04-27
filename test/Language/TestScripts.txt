@@ -78,6 +78,19 @@ while (n > 0) {
 }
 return s == 15;
 
+[DoWhile]
+a = 0
+do {
+    ++a
+} (a < 0)
+
+b = 0
+while (b < 0) {
+    ++b
+}
+
+return a == 1 and b == 0
+
 [Enum]
 enum myEnum {
     a;

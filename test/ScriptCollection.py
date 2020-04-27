@@ -65,13 +65,12 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-a = 0
-b = 5.0
-
-do {
-    run for @a print("{}", a)
-    --a
-} (a > 0)
+array = range(6)
+for (index in array) {
+    if (index % 2) {
+        run for @a print("{}", index)
+    }
+}
 """
 
 if __name__ == '__main__':

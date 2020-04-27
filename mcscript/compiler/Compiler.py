@@ -483,14 +483,13 @@ class Compiler(Interpreter):
         return blockName, newNamespace
 
     def control_if(self, tree):
-        condition: ConditionalExecute
         condition, block, block_else = tree.children
 
         if not block.children:
             Logger.debug(f"[Compiler] skipping if-statement line {tree.line}: empty block")
             return None
 
-        condition = self.visit(condition)
+        condition = self.compileState.toCondition(condition)
         if condition.isStatic:
             # if the result is already known execute either the if or else block
             if condition.condition is True:
