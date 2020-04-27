@@ -613,8 +613,9 @@ class Compiler(Interpreter):
             True
         )
 
-        if any(parameter.value.requiresInlineFunc for _, parameter in parameter_list) and not inline:
-            raise McScriptTypeError(f"Some parameters can only be used in an inline context. "
+        if (any(parameter.value.requiresInlineFunc for _, parameter in
+                parameter_list) or return_type.value.requiresInlineFunc) and not inline:
+            raise McScriptTypeError(f"Some parameters (or the return type) can only be used in an inline context. "
                                     f"Consider declaring this function using 'inline fun'.", self.compileState)
 
         if not inline:

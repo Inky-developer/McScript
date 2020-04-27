@@ -41,7 +41,9 @@ class MarkupParser(Interpreter):
         result = self.toJson(markup, *args)
         if isinstance(result, list):
             result.insert(0, "")
-        return json.dumps(result)
+
+        # Why is escaping so annoying?
+        return json.dumps(result).replace("\\\\", "\\")
 
     def toJson(self, markup: str, *args: Resource) -> Dict:
         """

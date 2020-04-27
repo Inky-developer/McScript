@@ -272,6 +272,13 @@ b = 3;
 a = arrayOf(a, b);
 return a[0] * a[1] == 6;
 
+[array_unpacking]
+var = 3
+a = arrayOf(1, 2, var)
+
+(value1, value2, value3) = a
+return value1 == 1 and value2 == 2 and value3 == 3
+
 [list]
 a = list(types.Number);
 
