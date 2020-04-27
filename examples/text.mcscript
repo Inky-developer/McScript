@@ -44,8 +44,10 @@ run for @a {
 
 
     # This is what a basic log function could look like:
+    const DO_LOG = True;
     inline fun log(message: String) {
-        print("\[[color=gold][hover=open github repo][link=https://github.com/Inky-developer/McScript]mcscript[/link][/hover][/color]\] $message")
+        if (DO_LOG)
+            print("\[[color=gold][hover=open github repo][link=https://github.com/Inky-developer/McScript]mcscript[/link][/hover][/color]\] $message")
     }
 
     log("This message is logged by my [b]log-function[/b]: [i]$log[/i]")

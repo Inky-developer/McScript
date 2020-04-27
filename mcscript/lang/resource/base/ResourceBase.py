@@ -9,7 +9,7 @@ from lark import Tree
 
 from mcscript.Exceptions.compileExceptions import McScriptTypeError
 from mcscript.compiler.Namespace import NamespaceType
-from mcscript.data.commands import BinaryOperator
+from mcscript.data.commands import BinaryOperator, ConditionalExecute, Relation
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
@@ -243,6 +243,21 @@ class Resource(ABC):
 
         Returns:
             the new resource
+        """
+        raise TypeError
+
+    def operation_test_relation(self, compileState: CompileState, relation: Relation,
+                                other: Resource) -> ConditionalExecute:
+        """
+        Checks if the `relation` evaluates to true for both resources
+
+        Args:
+            compileState: the compile state
+            relation: the relation. can be ==, !=, >, <, >=, <=
+            other: the other resource
+
+        Returns:
+            A conditional execute that runs if the relations matches both resources
         """
         raise TypeError
 

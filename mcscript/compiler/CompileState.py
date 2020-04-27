@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from typing import Callable, List, Optional
 
 from lark import Tree
@@ -6,6 +7,7 @@ from mcscript.compiler.CompilerConstants import CompilerConstants
 from mcscript.compiler.Namespace import Namespace, NamespaceType
 from mcscript.data.Config import Config
 from mcscript.data.Scoreboard import Scoreboard
+from mcscript.data.commands import ConditionalExecute
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.Address import Address
@@ -46,6 +48,9 @@ class CompileState:
         self.fileStructure = self.datapack.getMainDirectory().getPath("functions").fileStructure
         self.lineCount = 0
 
+        # used in combination with the context manager to determine whether the changes should be kepts
+        self._commit = False
+
     def getConstant(self, constant: int) -> AddressResource:
         """ Wrapper for compilerConstant"""
         return AddressResource(self.compilerConstants.getConstant(constant), True)
@@ -70,6 +75,8 @@ class CompileState:
         """
         if isinstance(value, Tree):
             return self.load(self.compileFunction(value))
+        if isinstance(value, ConditionalExecute):
+            return value.toResource(self)
         try:
             return value.load(self)
         except TypeError:
@@ -88,6 +95,9 @@ class CompileState:
         """
         if isinstance(value, Resource):
             return value
+        # the condition tree evaluates to a conditional execute. Convert to a boolean here
+        if isinstance(value, ConditionalExecute):
+            return value.toResource(self)
         return self.toResource(self.compileFunction(value))
 
     def pushBlock(self, blockName: str = None, namespaceType: NamespaceType = NamespaceType.BLOCK) -> AddressResource:
@@ -100,6 +110,30 @@ class CompileState:
     def popBlock(self):
         self.popStack()
         self.fileStructure.popFile()
+
+    def commit(self):
+        self._commit = True
+
+    @contextmanager
+    def push(self):
+        """
+        Pushes a new file to `self.fileStructure`.
+        At exit, copies the contents of the file to the previous file if `commit` was called
+        """
+        self._commit = False
+        self.fileStructure.pushFile("__tmp__", save=False)
+        try:
+            yield
+        finally:
+            if self._commit:
+                file = self.fileStructure.get()
+                file.seek(0)
+                contents = file.read()
+                self.fileStructure.popFile()
+
+                self.write(contents)
+            else:
+                self.fileStructure.popFile()
 
     @property
     def nextNamespaceDefaults(self):

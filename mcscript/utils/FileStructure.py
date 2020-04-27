@@ -22,9 +22,10 @@ class FileStructure:
     def getFile(self, filename: str):
         return self._subFiles[filename]
 
-    def pushFile(self, name):
+    def pushFile(self, name, save=True):
         self._stack.append(io.StringIO())
-        self._subFiles[str(name)] = self._stack[-1]
+        if save:
+            self._subFiles[str(name)] = self._stack[-1]
 
     def popFile(self) -> io.StringIO:
         return self._stack.pop()

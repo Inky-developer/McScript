@@ -5,7 +5,7 @@ from mcscript import Logger
 from mcscript.assets import setCurrentData
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
-from mcscript.utils import precompileInstructions, rcon
+from mcscript.utils import rcon
 from mcscript.utils.cmdHelper import generateFiles, getWorld, setCurrentWorld
 
 
@@ -65,13 +65,13 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-inline fun log(message: String) {
-    print("\[[color=gold][hover=click to run][command=/function mcscript:main]mcscript[/command][/hover][/color]\] $message")
-}
+a = 0
+b = 5.0
 
-run for @a print("[link=https://google.com]Google[/link]") 
-run for @a print("[command=/kill @e][hover=get free bucks!]click to run a [color=gold]command[/color]![/hover][/command]")
-run for @a log("This is logged by my [b]log-function[/b]!")
+do {
+    run for @a print("{}", a)
+    --a
+} (a > 0)
 """
 
 if __name__ == '__main__':
@@ -80,10 +80,10 @@ if __name__ == '__main__':
     setCurrentWorld(world)
     setCurrentData(str(world.mcVersion["Name"]))
     config = Config("config.ini")
-    print(precompileInstructions.getPrecompileInstructions(code_temp))
+    # print(precompileInstructions.getPrecompileInstructions(code_temp))
     # config.get("name")
-    # code = code_temp
-    code = getScript("text")
+    code = code_temp
+    # code = getScript("text")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

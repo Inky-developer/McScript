@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING, Union
 
 from mcscript.data import Config
 from mcscript.data.commands import Storage
@@ -27,13 +27,11 @@ class ResourceTextFormatter:
     def createFromResources(self, *resources: Resource) -> List:
         data = []
         for resource in resources:
-            if isinstance(resource, str):
-                resource = StringResource(resource, False)
             data.append(self.createFromResource(resource))
 
         return data
 
-    def createFromResource(self, resource: Resource) -> Dict:
+    def createFromResource(self, resource: Union[Resource, str]) -> Dict:
         if isinstance(resource, str):
             resource = StringResource(resource, True)
         handler = self.handlers.get(resource.type(), None)

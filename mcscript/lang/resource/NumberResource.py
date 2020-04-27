@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from mcscript.Exceptions.compileExceptions import McScriptTypeError
-from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Struct, multiple_commands
+from mcscript.data.commands import BinaryOperator, Command, ConditionalExecute, ExecuteCommand, Relation, Struct, \
+    multiple_commands
+from mcscript.data.commandsCommon import compare_scoreboard_value
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
@@ -98,6 +100,18 @@ class NumberResource(ValueResource):
                 command=Command.GET_SCOREBOARD_VALUE(stack=str(self))
             ))
         return NumberVariableResource(stack, False)
+
+    def operation_test_relation(self, compileState: CompileState, relation: Relation,
+                                other: Resource) -> ConditionalExecute:
+        other = other.load(compileState)
+        if not isinstance(other, ValueResource):
+            raise McScriptTypeError(f"Cannot compare {self} and {other}", compileState)
+
+        # This class does not handle comparison with a fixed number resource
+        if isinstance(other, FixedNumberResource):
+            raise TypeError
+
+        return compare_scoreboard_value(compileState, self, relation, other.load(compileState))
 
     def operation_negate(self, compileState: CompileState) -> Resource:
         if self.isStatic:

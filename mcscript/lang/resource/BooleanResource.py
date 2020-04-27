@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import BinaryOperator, Command, Struct
+from mcscript.data.commands import BinaryOperator, Command, ConditionalExecute, Relation, Struct
+from mcscript.data.commandsCommon import compare_scoreboard_value
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.base.ResourceBase import ValueResource, Resource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.utils.utils import deprecated
 
@@ -67,6 +68,17 @@ class BooleanResource(ValueResource):
                 command=Command.GET_SCOREBOARD_VALUE(stack=str(self))
             ))
         return BooleanVariableResource(stack, False)
+
+    def operation_test_relation(self, compileState: CompileState, relation: Relation,
+                                other: Resource) -> ConditionalExecute:
+        if relation not in (Relation.EQUAL, Relation.NOT_EQUAL):
+            raise TypeError
+
+        other = other.load(compileState)
+        if not isinstance(other, BooleanResource):
+            raise TypeError
+
+        return compare_scoreboard_value(compileState, self, relation, other)
 
     def copy(self, target: ValueResource, compileState: CompileState) -> Resource:
         if not isinstance(target, AddressResource):

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union
+from typing import Dict, TYPE_CHECKING, Union
 
 from mcscript.Exceptions.compileExceptions import McScriptTypeError
-from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Struct, Type, multiple_commands
+from mcscript.data.commands import BinaryOperator, Command, ConditionalExecute, ExecuteCommand, Relation, Struct, Type, \
+    multiple_commands
+from mcscript.data.commandsCommon import compare_scoreboard_value
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
@@ -35,13 +37,16 @@ class FixedNumberResource(ValueResource):
     requiresInlineFunc = False
 
     def embed(self) -> str:
-        return str("{:.8f}".format(self.value / self.BASE) if self.isStatic else self.value)
+        return str("{}d".format(self.value / self.BASE) if self.isStatic else self.value)
 
     def typeCheck(self) -> bool:
         return isinstance(self.value, int)
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
-        return formatter.createFromResources(self.storeToNbt(
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
+        if self.isStatic:
+            return formatter.createFromResource(self.embed())
+
+        return formatter.createFromResource(self.storeToNbt(
             NbtAddressResource(compileState.temporaryStorageStack.next().embed()), compileState))
 
     @staticmethod
@@ -111,6 +116,15 @@ class FixedNumberResource(ValueResource):
                 )
             )
         return FixedNumberVariableResource(stack, False)
+
+    def operation_test_relation(self, compileState: CompileState, relation: Relation,
+                                other: Resource) -> ConditionalExecute:
+        other = other.convertToFixedNumber(compileState)
+        if not isinstance(other, ValueResource):
+            raise TypeError
+
+        if isinstance(other, FixedNumberResource):
+            return compare_scoreboard_value(compileState, self, relation, other)
 
     def operation_plus(self, other: FixedNumberResource, compileState: CompileState) -> FixedNumberResource:
         if self.isStatic and other.isStatic:

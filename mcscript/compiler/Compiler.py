@@ -12,7 +12,8 @@ from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.compiler.tokenConverter import convertToken
 from mcscript.data import defaultCode, defaultEnums
 from mcscript.data.Config import Config
-from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Relation, UnaryOperator, multiple_commands
+from mcscript.data.commands import BinaryOperator, Command, ConditionalExecute, ExecuteCommand, Relation, UnaryOperator, \
+    multiple_commands
 from mcscript.lang.builtins.builtins import BuiltinFunction
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.DefaultFunctionResource import DefaultFunctionResource
@@ -278,7 +279,6 @@ class Compiler(Interpreter):
         while rest:
             _, a, *rest = rest
             _conditions.append(a)
-        # ToDO: make it work
         conditions = []
 
         for condition in _conditions:
@@ -343,8 +343,6 @@ class Compiler(Interpreter):
         return BooleanResource(stack, False)
 
     def binaryOperation(self, *args):
-        # ToDO: optimization for operations like a*a
-        # for this there must be an option that the number1 loads number1 and number2 manually
         number1, *values = args
 
         # the first number can also be a list. Then just do a binary operation with it
@@ -378,71 +376,25 @@ class Compiler(Interpreter):
         return self.visit(term)
 
     def comparison(self, tree):
-        # ToDo: comparison code is awful currently.
-        # ToDo: Also it must be more efficient (double copying of values)
         left, operator, right = tree.children
-        addr_left = self.compileState.load(left)
-        if not isinstance(addr_left, ValueResource):
-            raise McScriptTypeError("left comparison term must be a valueResource", self.compileState)
-        addr_right = self.compileState.load(right)
-        if not isinstance(addr_right, ValueResource):
-            raise McScriptTypeError("right comparison term must be a valueResource", self.compileState)
-        relation = Relation.get(operator.type)
-        if addr_right.isStatic:
-            addr_left, addr_right = addr_right, addr_left
-            relation = relation.swap()
+        left = self.compileState.toResource(left)
+        right = self.compileState.toResource(right)
+        operator = Relation.get(operator.type)
 
-        if addr_left.isStatic and addr_right.isStatic:
-            result = relation.testRelation(addr_left.value, addr_right.value)
-            Logger.warn(f"[Compiler] comparison at {tree.line}:{tree.column} is always {result}.")
-            return BooleanResource(result, True)
-        addr_result = self.compileState.expressionStack.next()
-        self.compileState.writeline(Command.SET_VALUE(
-            stack=addr_result,
-            value=0
-        ))
-        if addr_left.isStatic:
-            # if one of both terms is static
-            # currently only implemented for numbers
-            value = int(addr_left.toNumber())
-            scoreTest = ExecuteCommand.IF_SCORE_RANGE if relation != Relation.NOT_EQUAL else \
-                ExecuteCommand.UNLESS_SCORE_RANGE
-            self.compileState.writeline(Command.EXECUTE(
-                sub=scoreTest(
-                    stack=str(addr_right),
-                    range=relation.swap().getRange(value)
-                ),
-                command=Command.SET_VALUE(stack=addr_result, value=1)
-            ))
-            return BooleanResource(addr_result, False)
+        try:
+            # if this operation goes wrong, the contextmanager discards all writes
+            with self.compileState.push():
+                relation = left.operation_test_relation(self.compileState, operator, right)
+                self.compileState.commit()
+        except TypeError:
+            # if this operation is not possible, try the other way around
+            try:
+                relation = right.operation_test_relation(self.compileState, operator.swap(), left)
+            except TypeError:
+                raise McScriptTypeError(f"Comparison not available for {left.type().value} "
+                                        f"and {right.type().value}", self.compileState)
 
-        # else as normal - no side of the comparison is known
-        if relation == Relation.NOT_EQUAL:
-            command = Command.EXECUTE(
-                sub=ExecuteCommand.UNLESS_SCORE(
-                    stack=addr_left,
-                    relation=Relation.EQUAL.value,
-                    stack2=addr_right
-                ),
-                command=Command.SET_VALUE(
-                    stack=addr_result,
-                    value=1
-                )
-            )
-        else:
-            command = Command.EXECUTE(
-                sub=ExecuteCommand.IF_SCORE(
-                    stack=addr_left,
-                    relation=relation.value,
-                    stack2=addr_right
-                ),
-                command=Command.SET_VALUE(
-                    stack=addr_result,
-                    value=1
-                )
-            )
-        self.compileState.writeline(command)
-        return BooleanResource(addr_result, False)
+        return relation
 
     def declaration(self, tree):
         identifier, value = tree.children
@@ -531,95 +483,58 @@ class Compiler(Interpreter):
         return blockName, newNamespace
 
     def control_if(self, tree):
-        # ToDO: reduce to one mcfunction statement
-        _, condition, block, *block_else = tree.children
+        condition: ConditionalExecute
+        condition, block, block_else = tree.children
 
         if not block.children:
             Logger.debug(f"[Compiler] skipping if-statement line {tree.line}: empty block")
             return None
 
-        addr_condition = self.compileState.load(condition).convertToBoolean(self.compileState)
-        if not isinstance(addr_condition, ValueResource):
-            raise McScriptTypeError("comparison result must be a valueResource", self.compileState)
-
-        if addr_condition.hasStaticValue:
-            Logger.warn(f"[Compiler] If-statement at {tree.line}:{tree.column} is always {bool(int(addr_condition))}")
-            if int(addr_condition):
-                run = block
-            else:
-                run = block_else
-
-            if run:
-                blockName, _ = self.visit(run)
-                self.compileState.writeline(Command.RUN_FUNCTION(function=blockName))
+        condition = self.visit(condition)
+        if condition.isStatic:
+            # if the result is already known execute either the if or else block
+            if condition.condition is True:
+                self.visit_children(block)
+            elif block_else is not None:
+                self.visit_children(block_else)
             return
 
-        # else normal if statement
+        block, _ = self.visit(block)
 
-        blockName, _ = self.visit(block)
-
-        self.compileState.writeline(Command.EXECUTE(
-            sub=ExecuteCommand.IF_SCORE_RANGE(
-                stack=addr_condition,
-                range=1
-            ),
-            command=Command.RUN_FUNCTION(function=blockName)
-        ))
-
-        if block_else:
-            _, block_else = block_else
-            blockName, _ = self.visit(block_else)
-            self.compileState.writeline(Command.EXECUTE(
-                sub=ExecuteCommand.UNLESS_SCORE_RANGE(
-                    stack=addr_condition,
-                    range=1
-                ),
-                command=Command.RUN_FUNCTION(function=blockName)
-            ))
-
-    def control_while(self, tree):
-        _, _condition, block = tree.children
-        condition = self.compileState.toResource(_condition)
-
-        blockName = self.compileState.pushBlock()
-        self.visit_children(block)
-        infinite_loop = False
-        if not isinstance(condition, ValueResource):
-            raise McScriptTypeError(f"invalid condition {condition}", self.compileState)
-        if condition.hasStaticValue:
-            infinite_loop = bool(condition.value)
-            if infinite_loop:
-                Logger.warn(f"[Compiler] Infinite loop at {tree.line}:{tree.column}")
-            else:
-                Logger.warn(f"[Compiler] Loop will never run at {tree.line}:{tree.column}")
-                return
-
-        if not infinite_loop:
-            # check the condition
-            addr_expression = self.compileState.load(_condition)
-            self.compileState.writeline(Command.EXECUTE(
-                sub=ExecuteCommand.IF_SCORE_RANGE(
-                    stack=addr_expression,
-                    range=1
-                ),
-                command=Command.RUN_FUNCTION(function=blockName)
-            ))
+        if block_else is not None:
+            cond_if, cond_else = condition.if_else(self.compileState)
+            block_else, _ = self.visit(block_else)
+            self.compileState.writeline(cond_if(Command.RUN_FUNCTION(function=block)))
+            self.compileState.writeline(cond_else(Command.RUN_FUNCTION(function=block_else)))
         else:
-            self.compileState.writeline(Command.RUN_FUNCTION(function=blockName))
+            self.compileState.writeline(condition(Command.RUN_FUNCTION(function=block)))
+
+    def _conditional_loop(self, block: Tree, conditionTree: Tree, check_start: bool):
+        blockName = self.compileState.pushBlock(namespaceType=NamespaceType.LOOP)
+        self.visit_children(block)
+
+        condition = self.visit(conditionTree)
+        if condition.isStatic:
+            if condition.condition:
+                Logger.info(f"[Compiler] Loop at line {conditionTree.line} column {conditionTree.column} runs forever!")
+            else:
+                Logger.info(
+                    f"[Compiler] Loop at line {conditionTree.line} column {conditionTree.column} only runs once!"
+                )
+
+        self.compileState.writeline(condition(Command.RUN_FUNCTION(function=blockName)))
         self.compileState.popBlock()
 
-        # next line unnecessary?
-        if not infinite_loop:
-            addr_expression = self.compileState.load(condition)
-            self.compileState.writeline(Command.EXECUTE(
-                sub=ExecuteCommand.IF_SCORE_RANGE(
-                    stack=addr_expression,
-                    range=1
-                ),
-                command=Command.RUN_FUNCTION(function=blockName)
-            ))
-        else:
-            self.compileState.writeline(Command.RUN_FUNCTION(function=blockName))
+        condition = self.visit(conditionTree) if check_start else ConditionalExecute(True)
+        self.compileState.writeline(condition(Command.RUN_FUNCTION(function=blockName)))
+
+    def control_do_while(self, tree):
+        block, _condition = tree.children
+        return self._conditional_loop(block, _condition, False)
+
+    def control_while(self, tree):
+        _condition, block = tree.children
+        return self._conditional_loop(block, _condition, True)
 
     def control_for(self, tree):
         _, var_name, _, expression, block = tree.children

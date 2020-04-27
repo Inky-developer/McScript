@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from mcscript.data.commands import BinaryOperator
-from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
@@ -11,6 +10,7 @@ from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.base.VariableResource import VariableResource
 
 if TYPE_CHECKING:
+    from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
     from mcscript.compiler.CompileState import CompileState
 
 
@@ -23,8 +23,12 @@ class NumberVariableResource(VariableResource):
     def type() -> ResourceType:
         return ResourceType.NUMBER
 
-    def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
-        return self.load(compileState).convertToBoolean(compileState)
+    def convertToFixedNumber(self, compileState: CompileState) -> FixedNumberResource:
+        """ An efficient way to convert a storage number to a fixed is to load with a factor of 1000"""
+        from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
+        if self.isStatic:
+            return FixedNumberResource.fromNumber(self.value)
+        return FixedNumberResource(self._load(compileState, None, FixedNumberResource.BASE), False)
 
     def load(self, compileState: CompileState, stack: ValueResource = None) -> NumberResource:
         stack = self._load(compileState, stack)

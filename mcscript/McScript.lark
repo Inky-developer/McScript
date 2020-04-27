@@ -9,6 +9,7 @@ statement: declaration _STATEMENT_SEPARATOR
          | "return " expression _STATEMENT_SEPARATOR -> return_
          | control_if
          | control_while
+         | control_do_while
          | control_for
          | control_enum
          | control_struct
@@ -66,8 +67,9 @@ unary_operation: MINUS value
 comparison: term (VERIFY_EQUAL | VERIFY_NOT_EQUAL | VERIFY_GREATER | VERIFY_GREATER_OR_EQUAL | VERIFY_LESS | VERIFY_LESS_OR_EQUAL) term
 
 // control flow
-control_if: /\bif/ "(" expression ")" block (/\belse\b/ block)?
-control_while: /\bwhile/ "(" expression ")" block
+control_if: _KEYWORD_IF "(" expression ")" block [_KEYWORD_ELSE block]
+control_while: _KEYWORD_WHILE "(" expression ")" block
+control_do_while: _KEYWORD_DO block "(" expression ")"
 
 control_for: /\bfor\b/ "(" IDENTIFIER /\bin\b/ expression ")" block
 
@@ -107,6 +109,10 @@ VERIFY_LESS_OR_EQUAL: "<="
 IDENTIFIER.0: /[a-z_][a-z_0-9]*/i
 
 _KEYWORD_STRUCT: /\bstruct\b/
+_KEYWORD_IF: /\bif/
+_KEYWORD_ELSE: /\belse\b/
+_KEYWORD_WHILE: /\bwhile/
+_KEYWORD_DO: /\bdo\b/
 
 _STATEMENT_SEPARATOR: /\n|;\n?/
 COMMENT: "#" /[^\n]/*

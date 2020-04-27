@@ -3,9 +3,14 @@ from __future__ import annotations
 from collections import Iterable
 from enum import Enum
 from inspect import isclass
+from typing import TYPE_CHECKING, Tuple, Union
 
 from mcscript.data.Config import Config
 from mcscript.utils.CommandFormatter import CommandFormatter
+
+if TYPE_CHECKING:
+    from mcscript.lang.resource.BooleanResource import BooleanResource
+    from mcscript.compiler.CompileState import CompileState
 
 
 class Storage(Enum):
@@ -77,6 +82,76 @@ class ExecuteCommand(StringEnum):
     IF_BLOCK = "if block {x:~} {y:~} {z:~} {block} {command}"
     IF_ENTITY = "if entity {target} {command}"
     IF_PREDICATE = "if predicate {:Config.currentConfig.UTILS}:{predicate} {command}"
+
+
+class ConditionalExecute:
+    """
+    Can be called with a command that will only execute if a predefined condition evaluates to True.
+    it also supports static conditions which can either be true or false. If true, the command will always be run.
+    If false, the command will never be run.
+    """
+
+    def __init__(self, condition: Union[str, bool]):
+        self.condition = condition
+        self.isStatic = isinstance(self.condition, bool)
+
+    def toResource(self, compileState) -> BooleanResource:
+        """
+        Converts this to a boolean resource.
+
+        Args:
+            compileState: the compile state
+
+        Returns:
+            a boolean resource
+        """
+        from mcscript.lang.resource.BooleanResource import BooleanResource
+        if self.isStatic:
+            return BooleanResource(self.condition, True)
+
+        stack = compileState.expressionStack.next()
+        compileState.writeline(Command.SET_VALUE(
+            stack=stack,
+            value=0
+        ))
+        compileState.writeline(self(Command.SET_VALUE(
+            stack=stack,
+            value=1
+        )))
+        return BooleanResource(stack, False)
+
+    def if_else(self, compileState: CompileState) -> Tuple[ConditionalExecute, ConditionalExecute]:
+        """
+        Simplifies it's own conditions to be a simple boolean check and returns one condition that runs
+        if the original condition evaluates to True and one condition that runs if the original condition
+        evaluates to false
+
+        Args:
+            compileState: the compile state
+
+        Returns:
+            Another ConditionalExecute with a simpler condition
+        """
+        boolean = self.toResource(compileState)
+        if boolean.isStatic:
+            return ConditionalExecute(boolean.value), ConditionalExecute(not boolean.value)
+
+        return (
+            ConditionalExecute(Command.EXECUTE(
+                sub=ExecuteCommand.IF_SCORE_RANGE(stack=boolean.value, range=1)
+            )),
+            ConditionalExecute(Command.EXECUTE(
+                sub=ExecuteCommand.UNLESS_SCORE_RANGE(stack=boolean.value, range=1)
+            ))
+        )
+
+    def __call__(self, command: str) -> str:
+        if self.isStatic:
+            return command if self.condition else ""
+        return f"{self.condition}{command}"
+
+    def __repr__(self):
+        return f"ConditionalExpression({self.condition})"
 
 
 class Relation(StringEnum):
