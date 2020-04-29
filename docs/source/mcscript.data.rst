@@ -23,10 +23,26 @@ mcscript.data.Config module
    :undoc-members:
    :show-inheritance:
 
+mcscript.data.Scoreboard module
+-------------------------------
+
+.. automodule:: mcscript.data.Scoreboard
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mcscript.data.commands module
 -----------------------------
 
 .. automodule:: mcscript.data.commands
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mcscript.data.commandsCommon module
+-----------------------------------
+
+.. automodule:: mcscript.data.commandsCommon
    :members:
    :undoc-members:
    :show-inheritance:

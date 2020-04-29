@@ -76,6 +76,22 @@ mcscript.lang.builtins.GetLightLevelFunction module
    :undoc-members:
    :show-inheritance:
 
+mcscript.lang.builtins.GetTickTimeFunction module
+-------------------------------------------------
+
+.. automodule:: mcscript.lang.builtins.GetTickTimeFunction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mcscript.lang.builtins.HasEntityFunction module
+-----------------------------------------------
+
+.. automodule:: mcscript.lang.builtins.HasEntityFunction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mcscript.lang.builtins.IsBlockFunction module
 ---------------------------------------------
 
@@ -88,6 +104,30 @@ mcscript.lang.builtins.IsFeatureFunction module
 -----------------------------------------------
 
 .. automodule:: mcscript.lang.builtins.IsFeatureFunction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mcscript.lang.builtins.IsRainingFunction module
+-----------------------------------------------
+
+.. automodule:: mcscript.lang.builtins.IsRainingFunction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mcscript.lang.builtins.IsThunderingFunction module
+--------------------------------------------------
+
+.. automodule:: mcscript.lang.builtins.IsThunderingFunction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mcscript.lang.builtins.KillFunction module
+------------------------------------------
+
+.. automodule:: mcscript.lang.builtins.KillFunction
    :members:
    :undoc-members:
    :show-inheritance:
@@ -144,22 +184,6 @@ mcscript.lang.builtins.builtins module
 --------------------------------------
 
 .. automodule:: mcscript.lang.builtins.builtins
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-mcscript.lang.builtins.isRainingFunction module
------------------------------------------------
-
-.. automodule:: mcscript.lang.builtins.isRainingFunction
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-mcscript.lang.builtins.isThunderingFunction module
---------------------------------------------------
-
-.. automodule:: mcscript.lang.builtins.isThunderingFunction
    :members:
    :undoc-members:
    :show-inheritance:

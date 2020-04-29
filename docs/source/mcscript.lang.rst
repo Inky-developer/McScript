@@ -13,14 +13,6 @@ Subpackages
 Submodules
 ----------
 
-mcscript.lang.ResourceTextFormatter module
-------------------------------------------
-
-.. automodule:: mcscript.lang.ResourceTextFormatter
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mcscript.lang.utility module
 ----------------------------
 

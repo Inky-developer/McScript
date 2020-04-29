@@ -9,7 +9,7 @@ const maxIterations = 15;
 
 const stringArmorStand = "summon armor_stand ~ ~ ~ {'Tags':['$', 'mandelbrot'],Marker:1b}";
 
-fun start() -> Null {
+fun start() {
     execute(stringFormat(stringArmorStand, "mandelbrot_master"));
 }
 

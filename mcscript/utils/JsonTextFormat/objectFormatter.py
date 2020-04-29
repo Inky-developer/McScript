@@ -81,6 +81,8 @@ def format_run_command(data: Dict, command: str) -> Dict:
 
 
 def format_hover(data: Dict, hover_text: str) -> Dict:
+    # sadly it does not seem like minecraft supports selectors as hover text
+    # ToDo: test if scores and nbt work
     return {
         **data,
         "hoverEvent": {

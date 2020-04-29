@@ -1,6 +1,14 @@
 mcscript.utils package
 ======================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   mcscript.utils.JsonTextFormat
+
 Submodules
 ----------
 
@@ -40,6 +48,14 @@ mcscript.utils.NamespaceBase module
 -----------------------------------
 
 .. automodule:: mcscript.utils.NamespaceBase
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mcscript.utils.NbtAddress module
+--------------------------------
+
+.. automodule:: mcscript.utils.NbtAddress
    :members:
    :undoc-members:
    :show-inheritance:

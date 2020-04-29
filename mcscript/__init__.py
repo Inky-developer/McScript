@@ -1,16 +1,19 @@
 import logging
 from importlib import resources
+from os.path import join
 
 from lark import Lark
 
-# setting up the logger as early as possible
+from mcscript.utils.dirPaths import getLogDir
 
+# setting up the logger as early as possible
 Logger = logging.getLogger("McScript")
 Logger.setLevel(logging.DEBUG)
 
 # clear logging file
-open("../latest.log", "w+").close()
-_fh = logging.FileHandler("../latest.log", encoding="utf-8")
+fPath = join(getLogDir(), "latest.log")
+open(fPath, "w+").close()
+_fh = logging.FileHandler(fPath, encoding="utf-8")
 _fh.setLevel(logging.DEBUG)
 
 _ch = logging.StreamHandler()

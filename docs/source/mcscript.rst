@@ -26,14 +26,6 @@ mcscript.compile module
    :undoc-members:
    :show-inheritance:
 
-mcscript.mcscript\_cli module
------------------------------
-
-.. automodule:: mcscript.mcscript_cli
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 
 Module contents
 ---------------

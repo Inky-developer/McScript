@@ -5,8 +5,8 @@ from subprocess import run
 from typing import Dict
 
 from mcscript import Logger, __version__
-from mcscript.assets import getVersionDir
 from mcscript.assets.download import DownloadMinecraftServer, getLatestVersion
+from mcscript.utils.dirPaths import getVersionDir
 
 
 def makeData(version: str) -> str:

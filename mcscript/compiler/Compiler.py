@@ -540,8 +540,10 @@ class Compiler(Interpreter):
             # if the result is already known execute either the if or else block
             if condition.condition is True:
                 self.visit_children(block)
+                Logger.debug(f"If statement at line {tree.line} column {tree.column} is always True")
             elif block_else is not None:
                 self.visit_children(block_else)
+                Logger.debug(f"If statement at line {tree.line} column {tree.column} is always False")
             return
 
         block, _ = self.visit(block)
@@ -558,7 +560,7 @@ class Compiler(Interpreter):
         blockName = self.compileState.pushBlock(namespaceType=NamespaceType.LOOP)
         self.visit_children(block)
 
-        condition = self.visit(conditionTree)
+        condition = self.compileState.toCondition(conditionTree)
         if condition.isStatic:
             if condition.condition:
                 Logger.info(f"[Compiler] Loop at line {conditionTree.line} column {conditionTree.column} runs forever!")
@@ -570,7 +572,7 @@ class Compiler(Interpreter):
         self.compileState.writeline(condition(Command.RUN_FUNCTION(function=blockName)))
         self.compileState.popBlock()
 
-        condition = self.visit(conditionTree) if check_start else ConditionalExecute(True)
+        condition = self.compileState.toCondition(conditionTree) if check_start else ConditionalExecute(True)
         self.compileState.writeline(condition(Command.RUN_FUNCTION(function=blockName)))
 
     def control_do_while(self, tree):

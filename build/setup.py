@@ -15,7 +15,7 @@ setup(
     name="McScript",
     version=__version__.__version__,
     description='A Simple and powerful datapack generator for minecraft',
-    executables=[Executable("../mcscript/mcscript_cli.py", base=None)],
+    executables=[Executable("../mcscript.py", base=None)],
     options={
         "build_exe": {
             # fix this: cx_freeze does not automatically include all nbt files

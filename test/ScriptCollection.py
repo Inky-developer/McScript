@@ -65,8 +65,11 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-const tag = "mcscript_marker"
-const marker = @e[type=armor_stand,tag=$tag]
+run for @a {
+    print("Test")
+    if (True)
+        print("[hover=@s]Always[/hover] print that! {}", @s)
+}
 """
 
 if __name__ == '__main__':
@@ -77,8 +80,8 @@ if __name__ == '__main__':
     config = Config("config.ini")
     # print(precompileInstructions.getPrecompileInstructions(code_temp))
     # config.get("name")
-    code = code_temp
-    # code = getScript("text")
+    # code = code_temp
+    code = getScript("mandelbrot")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")
