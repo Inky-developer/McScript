@@ -1,16 +1,16 @@
 # This code will be better at some point
 
+# ToDo raise error if sHours is reassigned with different length
 inline fun zeroPadHoursMinutes(printFunction: Function, hours: Number, minutes: Number) -> Null {
-    if (hours < 10) 
-        if (minutes < 10)
-            printFunction("0", hours, ":0", minutes)
-        else
-            printFunction("0", hours, ":", minutes)
-    else
-        if (minutes < 10)
-            printFunction(hours, ":0", minutes)
-        else
-            printFunction(hours, ":", minutes)
+    sHours = ""
+    if (hours < 10)
+        sHours = "0"
+
+    sMinutes = ""
+    if (minutes < 10)
+        sMinutes = "0"
+
+    printFunction("[color=gold]{}{}[/color]:[color=red]{}{}[/color]", sHours, hours, sMinutes, minutes)
 
 }
 

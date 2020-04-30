@@ -36,7 +36,7 @@ class StringResource(ValueResource):
             lastMatch = 0
             for match in re.finditer(self.PATTERN, format_string):
                 literal_text = format_string[lastMatch:match.span()[0]]
-                name = match.group(1)
+                name = match.group(1) or match.group(2)
                 yield literal_text, name, "", None
                 lastMatch = match.span()[1]
             yield format_string[lastMatch:], None, None, None
@@ -204,7 +204,7 @@ class StringResource(ValueResource):
         return self
 
     def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> List:
-        if self.isStatic or self.length == 1:
+        if self.isStatic:
             raise TypeError
         return formatter.createFromResources(*[NbtAddressResource(self.value[i].embed()) for i in range(self.length)])
 

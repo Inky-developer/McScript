@@ -59,7 +59,7 @@ class ArrayResource(Resource):
             # noinspection PyTypeChecker
             index = int(index)
         except TypeError:
-            raise McScriptTypeError(f"Expected a resource that can be converted to a number but got {index}",
+            raise McScriptTypeError(f"Expected a resource that can be converted to a number but got {repr(index)}",
                                     compileState)
         try:
             return self.resources[index]
@@ -67,6 +67,18 @@ class ArrayResource(Resource):
             raise McScriptIndexError(index, compileState, len(self.resources) - 1)
 
     # no operation set_element because an array is a static construct and thus read-only
+    def operation_set_element(self, compileState: CompileState, index: Resource, value: Resource):
+        try:
+            # noinspection PyTypeChecker
+            index = int(index)
+        except TypeError:
+            raise McScriptTypeError(f"Expected a resource that can be converted to a number but got {index}",
+                                    compileState)
+
+        try:
+            self.resources[index] = value
+        except IndexError:
+            raise McScriptIndexError(index, compileState, len(self.resources) - 1)
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         try:

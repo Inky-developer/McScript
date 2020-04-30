@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import difflib
 import json
 from typing import Dict, TYPE_CHECKING
 
@@ -111,5 +112,12 @@ class MarkupParser(Interpreter):
 
         try:
             return RULE2ACTION[rule](value, content)
+        except KeyError:
+            closest = difflib.get_close_matches(rule, RULE2ACTION.keys(), 1)
+            if closest:
+                msg = f"Maybe you meant: '{closest[0]}'?"
+            else:
+                msg = f"Available rules: {', '.join(RULE2ACTION.keys())}"
+            raise McScriptInvalidMarkupError(f"Unknown rule: '{rule}'.\n{msg}", self.compileState)
         except Exception as e:
             raise McScriptError(e, self.compileState)

@@ -1,8 +1,30 @@
 #g SET world = 20w17a
 #g SET mcpath=C:\Users\david\AppData\Roaming\.minecraft\Entwicklungsversionen\saves
 
-run for @a {
-	for (i in range(10, 100)) {
-        print(stringFormat("[color=#$a0000]Test[/color]", i)))
-	}
+# compiles to a lookup 'table'
+# makes a red Heartbeat
+inline fun printWithIndex(index: Number, text: String) {
+    found = False
+    for (i in range(10, 100)) {
+        if (index == i) {
+            found = True
+            actionbar("[color=#$(i)0000]$text[/color]")
+        }
+    }
+    if (not found)
+        actionbar("[color=red]Invalid index: {}[/color]", index)
+}
+
+
+tickCount = 10
+direction = 1
+fun onTick() {
+    run for @a {
+        printWithIndex(tickCount, "What a colourful message!")
+    }
+    tickCount += direction * 5
+    if (tickCount >= 95)
+        direction = -1
+    else if (tickCount <= 10)
+        direction = 1
 }
