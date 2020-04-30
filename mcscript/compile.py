@@ -56,7 +56,8 @@ def compileMcScript(text: str, callback: eventCallback, config: Config) -> Datap
 
 def _parseCode(code: str) -> Tree:
     try:
-        return Grammar.parse(code)
+        # keeping tabs can produce error messages that are offset
+        return Grammar.parse(code.replace("\t", "  "))
     except lark.exceptions.UnexpectedToken as e:
         raise McScriptParseException(e.line, e.column, code, e.expected, e.token) from None
 
