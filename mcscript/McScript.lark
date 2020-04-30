@@ -1,7 +1,7 @@
 start: statement*
 
 statement: declaration _STATEMENT_SEPARATOR
-         | const_declaration _STATEMENT_SEPARATOR
+         | static_declaration _STATEMENT_SEPARATOR
          | index_setter _STATEMENT_SEPARATOR
          | term_ip _STATEMENT_SEPARATOR
          | expression _STATEMENT_SEPARATOR
@@ -25,11 +25,11 @@ function_definition: [ /\binline\b/ ] /\bfun\b/ IDENTIFIER parameter_list [ "->"
 
 function_call: accessor "(" (expression "," )* expression? ")"
 
-variable_declaration: [/\bconst\b/] IDENTIFIER ":" IDENTIFIER
+variable_declaration: IDENTIFIER ":" IDENTIFIER
 
 declaration: accessor "=" expression
            | "(" accessor ( "," accessor )+ ")" "=" expression -> multi_declaration
-const_declaration: "const " declaration
+static_declaration: _KEYWORD_STATIC declaration
 index_setter: accessor "[" expression "]" "=" expression
 
 term_ip: accessor (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression
@@ -109,6 +109,8 @@ VERIFY_LESS_OR_EQUAL: "<="
 
 IDENTIFIER.0: /[a-z_][a-z_0-9]*/i
 
+
+_KEYWORD_STATIC: /\bstatic\b/
 _KEYWORD_STRUCT: /\bstruct\b/
 _KEYWORD_IF: /\bif/
 _KEYWORD_ELSE: /\belse\b/

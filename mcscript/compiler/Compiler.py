@@ -404,9 +404,6 @@ class Compiler(Interpreter):
             identifier: the name of the variable
             value: the value of the variable
             force_new_stack: Whether a new stack is required. If False the value might simply get copied.
-
-        Returns:
-            None
         """
         if identifier in self.compileState.currentNamespace():
             stack = self.compileState.currentNamespace()[identifier]
@@ -478,16 +475,16 @@ class Compiler(Interpreter):
             variable, = variable.children
             self._set_variable(variable, value, False)
 
-    def const_declaration(self, tree):
+    def static_declaration(self, tree):
         declaration = tree.children[0]
         identifier, value = declaration.children
         if len(identifier.children) > 1:
-            raise McScriptSyntaxError(f"Cannot set a const value on an object.", self.compileState)
+            raise McScriptSyntaxError(f"Cannot set a static value on an object.", self.compileState)
         identifier, = identifier.children
         value = self.compileState.toResource(value)
 
         if not isinstance(value, ValueResource):
-            raise McScriptTypeError(f"Only simple datatypes can be assigned using const, not {value}",
+            raise McScriptTypeError(f"Only simple datatypes can be assigned using const, not {value.type().value}",
                                     self.compileState)
         if not value.hasStaticValue:
             raise McScriptNotStaticError("static declaration needs a static value.", self.compileState)
@@ -687,9 +684,9 @@ class Compiler(Interpreter):
                                     self.compileState)
 
     def variable_declaration(self, tree):
-        modifier, identifier, datatype = tree.children
+        identifier, datatype = tree.children
         self.compileState.currentNamespace()[identifier] = TypeResource(
-            convertToken(datatype, self.compileState), True, modifier
+            convertToken(datatype, self.compileState), True
         )
 
     def control_struct(self, tree):

@@ -65,22 +65,22 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-const var = True
+static var = True
 print("$(var)101029")
 """
 
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")
-    mcDir = r"C:\Users\david\AppData\Roaming\.minecraft\Entwicklungsversionen\saves"
-    world = getWorld("20w18a", mcDir)
-    # world = getWorld("McScript")
+    # mcDir = r"C:\Users\david\AppData\Roaming\.minecraft\Entwicklungsversionen\saves"
+    # world = getWorld("20w18a", mcDir)
+    world = getWorld("McScript")
     setCurrentWorld(world)
     setCurrentData(str(world.mcVersion["Name"]))
     config = Config("config.ini")
     # print(precompileInstructions.getPrecompileInstructions(code_temp))
     # config.get("name")
-    # code = code_temp
-    code = getScript("clock")
+    code = code_temp
+    # code = getScript("clock")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")
