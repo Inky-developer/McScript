@@ -106,7 +106,10 @@ def DownloadMinecraftServer(version_id: str, target: str) -> str:
 
 
 def _get(url: str):
-    request = urlopen(url, cafile=certifi.where())
+    try:
+        request = urlopen(url, cafile=certifi.where(), timeout=20)
+    except Exception as e:
+        raise ConnectionError(f"[Assets] Request 'GET {url}' failed") from e
     if request is None:
         raise ConnectionError(f"Could not download the version manifest file")
     if request.status != 200:

@@ -35,7 +35,7 @@ class InlineFunctionResource(FunctionResource):
         self.executeBody(compileState)
 
         if not compareTypes(namespace.returnedResource, self.returnType.value):
-            raise McScriptTypeError(f"Function {self.name()} should return {self.returnType.type().name}, "
+            raise McScriptTypeError(f"Function {self.name()} should return {self.returnType.value.type().name}, "
                                     f"but returned {namespace.returnedResource.type().name}", compileState)
 
         compileState.popStack()

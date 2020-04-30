@@ -18,8 +18,8 @@ setup(
     executables=[Executable("../mcscript.py", base=None)],
     options={
         "build_exe": {
-            # fix this: cx_freeze does not automatically include all nbt files
-            "includes": ["mcscript", "nbt.world"] + builtin_modules,
+            # fix this: cx_freeze does not automatically include all modules
+            "includes": ["mcscript", "nbt.world", "appdirs"] + builtin_modules,
             "path"    : sys.path + ["../"],
             "optimize": 2
         }

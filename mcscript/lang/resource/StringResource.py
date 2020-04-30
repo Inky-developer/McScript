@@ -30,7 +30,7 @@ class StringResource(ValueResource):
     """
 
     class StringFormatter(Formatter):
-        PATTERN = re.compile(r"\$(\w*)")
+        PATTERN = re.compile(r"\$(?:\((\w+)\)|(\w*))")
 
         def parse(self, format_string) -> Tuple[str, str, str, str]:
             lastMatch = 0

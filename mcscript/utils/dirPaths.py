@@ -11,6 +11,9 @@ except PermissionError:
     # if something goes for some reason wrong, use the cwd as a fallback dir
     ASSET_DIRECTORY = join(getcwd(), "assets")
     makedirs(ASSET_DIRECTORY, exist_ok=True)
+
+LOG_DIRECTORY = appdirs.user_log_dir("McScript", "inky")
+
 VERSION_DIR = "versions"
 
 
@@ -22,6 +25,5 @@ def getVersionDir(version: str) -> str:
 
 
 def getLogDir() -> str:
-    path = join(ASSET_DIRECTORY, "Logs")
-    makedirs(path, exist_ok=True)
-    return path
+    makedirs(LOG_DIRECTORY, exist_ok=True)
+    return LOG_DIRECTORY
