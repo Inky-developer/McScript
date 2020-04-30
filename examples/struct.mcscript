@@ -7,8 +7,8 @@ struct Complex {
 run for @a at @s {
     c = Complex(1.0,0.0)
     d = Complex(0.5,0.5)
-    print(c.real, " + ", c.imag, "i")
-    print(d.real, " + ", d.imag, "i")
+    print("{} + {}i", c.real, c.imag)
+    print("{} + {}i", d.real, d.imag)
     c.real = 2.5*c.real
-    print(c.real)
+    print("{}", c.real)
 }

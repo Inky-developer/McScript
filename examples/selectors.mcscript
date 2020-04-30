@@ -1,8 +1,8 @@
 # basic selectors can be used just like in minecraft:
-const all_players = @a
+static all_players = @a
 
 # it is also possible to specify filters:
-const all_armor_stands = @e[type=armor_stand]
+static all_armor_stands = @e[type=armor_stand]
 
 # to mimic the execute as . at @s behavior one can write:
 run for @a at @s {
@@ -47,5 +47,5 @@ run for @a print(kill(@e[tag=mcscript_demo]))
 
 # Using the $-placeholder syntax which is also used for strings, constants can be embedded into the selector
 # at compile time:
-const TAG = "mcscript_marker"
-const MARKER = @e[type=armor_stand,tag=$TAG]
+static TAG = "mcscript_marker"
+static MARKER = @e[type=armor_stand,tag=$TAG]

@@ -1,13 +1,13 @@
-const size = 128;
-const yCenter = 0;
-const xCenter = 0;
+static size = 128;
+static yCenter = 0;
+static xCenter = 0;
 
-const border = 1.0;
+static border = 1.0;
 # choose step so that xMin and yMin are equal to - border;
-const step = (2.0 * border) / (size - 1);
-const maxIterations = 15;
+static step = (2.0 * border) / (size - 1);
+static maxIterations = 15;
 
-const stringArmorStand = "summon armor_stand ~ ~ ~ {'Tags':['$', 'mandelbrot'],Marker:1b}";
+static stringArmorStand = "summon armor_stand ~ ~ ~ {'Tags':['$', 'mandelbrot'],Marker:1b}";
 
 fun start() {
     execute(stringFormat(stringArmorStand, "mandelbrot_master"));
@@ -37,7 +37,7 @@ struct MandelbrotManager {
     workerCount: Number;
     step: Number;
 
-    fun tick(self: MandelbrotManager) -> Null {
+    fun tick(self: MandelbrotManager) {
         if (self.workerCount < size) {
             run for @e[tag=mandelbrot_master] at @s {
                 execute("tp @s ~ ~ ~1");

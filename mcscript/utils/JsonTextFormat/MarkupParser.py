@@ -57,17 +57,26 @@ class MarkupParser(Interpreter):
         Returns:
             A json string
         """
-        self.state = dict(args=args)
+        self.state = dict(args=args, used_placeholders=set())
         try:
             Logger.debug(f"[MarkupParser] parsing '{markup}'")
             tree = markupGrammar.parse(markup)
             debug_log_text(tree.pretty(), "Parse tree: ")
-            return self.visit(tree)
+            data = self.visit(tree)
         except UnexpectedToken as e:
             raise McScriptInvalidMarkupError(f"\nFailed to parse Markup string:\n"
                                              f"{e.get_context(markup, span=len(markup))}"
                                              f"Unexpected token: {e.token.type}('{e.token}')\n"
                                              f"Expected one of {e.expected}", self.compileState)
+
+        all_args = set(range(len(args)))
+        for used_arg in self.state["used_placeholders"]:
+            all_args.remove(used_arg)
+
+        if all_args:
+            raise McScriptInvalidMarkupError(f"Not all arguments were used!\nunused indices: "
+                                             f"{', '.join(str(i) for i in all_args)}", self.compileState)
+        return data
 
     def string(self, tree):
         string, = tree.children
@@ -80,6 +89,8 @@ class MarkupParser(Interpreter):
             self.state["auto_index"] = number + 1
         else:
             number = int(number)
+
+        self.state["used_placeholders"].add(number)
 
         try:
             resource = self.state["args"][number]

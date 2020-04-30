@@ -9,9 +9,9 @@ fun onTick() {
         onesVsZeros = ones * 1000 / zeros
         zerosVsOnes = zeros * 1000 / ones
         if (onesVsZeros < 1000) {
-            run for @a actionbar(ones, " ", zeros, " 0.", onesVsZeros)
+            run for @a actionbar("{} {} 0.{} ", ones, zeros, onesVsZeros)
         } else {
-            run for @a actionbar(ones, " ", zeros, " 0.", zerosVsOnes)
+            run for @a actionbar("{} {} 0.{}", ones, zeros, zerosVsOnes)
         }
     }
 }

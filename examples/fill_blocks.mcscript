@@ -10,7 +10,7 @@ run for @p at @s {
 }
 
 
-fun onTick() -> Null {
+fun onTick() {
     if (active) {
         run for @p at @s {
             setBlock(blocks.dirt, 0, -1, 0)

@@ -1,15 +1,15 @@
 execute("scoreboard objectives add sneak minecraft.custom:minecraft.sneak_time")
 
 
-fun long_function() -> Null {
+fun long_function() {
 	i = 0
 	while (getTickTime() < 1000) {
 		++i
 	}	
-	#run for @a print("Executed ", i, " iterations")
+	#run for @a print("Executed {} iterations", i)
 }
 
-fun onTick() -> Null {
+fun onTick() {
 	stopTime = False
 	run for @a {
 		if (evaluate("scoreboard players get @s sneak")) {

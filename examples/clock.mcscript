@@ -15,7 +15,7 @@ inline fun zeroPadHoursMinutes(printFunction: Function, hours: Number, minutes: 
 }
 
 tickCount = 0
-fun onTick() -> Null {
+fun onTick() {
     daytime = (evaluate("time query daytime") + 6000) % 24000
     hours = daytime / 1000
     rest = daytime % 1000

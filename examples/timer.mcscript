@@ -3,7 +3,7 @@ tickCount = 0
 fun onTick() {
     run for @a at @s {
         if (tickCount % 20 == 0)
-            actionbar(@s, " Second: ", tickCount / 20)
+            actionbar("{} Second: {}", @s, tickCount / 20)
     }
     ++tickCount
 }

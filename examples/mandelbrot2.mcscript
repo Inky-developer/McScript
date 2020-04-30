@@ -15,7 +15,7 @@ struct Complex {
     }
 }
 
-fun mandelbrot(x: Fixed, y: Fixed) -> Boolean {
+inline fun mandelbrot(x: Fixed, y: Fixed) -> Boolean {
     c = Complex(x, y);
     z = Complex(0.0, 0.0);
     i = 0

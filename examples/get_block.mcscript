@@ -1,4 +1,4 @@
-fun onTick() -> Null {
+fun onTick() {
     run for @p at @s {
         block = getBlock(0, -1, 0)
         actionbar(block)

@@ -1,10 +1,10 @@
 
 block=blocks.dragon_head
 rot=0
-active=1
+active=True
 
 setBlock(blocks.stone, 0, 2, 0);
-fun onTick() -> Null {
+fun onTick() {
     if (isBlock(blocks.air,0,2,0))
         active=0
     else if (isBlock(blocks.dragon_head,0,2,0))

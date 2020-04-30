@@ -1,6 +1,3 @@
-#g SET world = 20w17a
-#g SET mcpath=C:\Users\david\AppData\Roaming\.minecraft\Entwicklungsversionen\saves
-
 # compiles to a lookup 'table'
 # makes a red Heartbeat
 inline fun printWithIndex(index: Number, text: String) {
