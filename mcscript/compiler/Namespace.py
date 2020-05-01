@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING, Type, Union
 
+from mcscript.analyzer.VariableContext import VariableContext
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NullResource import NullResource
@@ -10,6 +11,7 @@ from mcscript.utils.Address import Address
 from mcscript.utils.NamespaceBase import NamespaceBase
 
 if TYPE_CHECKING:
+    from mcscript.compiler.CompileState import CompileState
     from mcscript.lang.builtins.builtins import BuiltinFunction
     from mcscript.lang.resource.base.FunctionResource import FunctionResource
 
@@ -55,6 +57,7 @@ class Namespace(NamespaceBase[Resource]):
             raise ValueError(f"Cannot add variable {identifier} to this namespace, because it already exists.")
         stack = NbtAddressResource(self.variableFmt.format(identifier))
         resource = resourceClass(stack, False)
+
         self.namespace[identifier] = resource
         return resource
 
@@ -74,6 +77,17 @@ class Namespace(NamespaceBase[Resource]):
             namespace = namespace.predecessor if namespace.predecessor is not None else None
 
         self.namespace[identifier] = var
+
+    def getVariableInfo(self, compileState: CompileState, identifier: str) -> VariableContext:
+        if identifier not in self:
+            raise ValueError(f"identifier {identifier} not defined in this namespace")
+
+        for context in compileState.contexts:
+            for var in context:
+                if var.identifier == identifier:
+                    return var
+
+        raise ValueError(f"Error: Could not find variable {identifier} even though it is defined in this namespace!")
 
     def __setitem__(self, key, value):
         self.namespace[key] = value

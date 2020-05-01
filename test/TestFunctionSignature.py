@@ -15,7 +15,7 @@ from mcscript.lang.resource.base.functionSignature import FunctionParameter, Fun
 
 class TestFunctionSignature(unittest.TestCase):
     def setUp(self) -> None:
-        self.compileState = CompileState("Example code", lambda x: x, Config())
+        self.compileState = CompileState("Example code", [], lambda x: x, Config())
 
         self.signature1 = FunctionSignature(
             StringFormatFunction(),

@@ -404,6 +404,7 @@ class ValueResource(Resource, ABC):
     storage = MinecraftDataStorage.SCOREBOARD
 
     def __init__(self, value, isStatic):
+        super().__init__()
         self.value = None
         self.isStatic = False
         self.setValue(value, isStatic)
@@ -463,6 +464,7 @@ class ObjectResource(Resource, ABC):
     storage = MinecraftDataStorage.STORAGE
 
     def __init__(self, namespace: Namespace = None):
+        super().__init__()
         from mcscript.compiler.Namespace import Namespace
         self.namespace = namespace or Namespace(0, NamespaceType.STRUCT)
 

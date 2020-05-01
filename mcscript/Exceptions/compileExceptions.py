@@ -3,26 +3,27 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from mcscript.Exceptions.McScriptException import McScriptException
+from mcscript.Exceptions.utils import textLocation
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
+    from mcscript.lang.resource.base.ResourceBase import Resource
 
 
 class McScriptError(McScriptException):
     """ base McScript error"""
 
-    def __init__(self, message, compileState: CompileState):
+    def __init__(self, message, compileState: CompileState, showErr=True):
         tree = compileState.currentTree
         if tree:
-            code = compileState.code[tree.line - 1]
-            start_error_code = max(tree.column - 1, 0)
-            error_code = max(tree.end_column - tree.column, 0) if tree.line == tree.end_line else len(
-                code) - start_error_code
-            message = f"At line {tree.line} column {tree.column}\n" \
-                      f"{code}\n" \
-                      f"{' ' * start_error_code}{'^' * error_code}\n" \
-                      f"{message}"
-        super().__init__(message)
+            msg = f"At line {tree.line} column {tree.column}\n"
+            if showErr:
+                msg += textLocation(compileState.code, tree, message)
+            else:
+                msg += message
+        else:
+            msg = message
+        super().__init__(msg)
         self.tree = tree
 
 
@@ -103,3 +104,30 @@ class McScriptInvalidMarkupError(McScriptError):
     """
     Thrown when the user has entered invalid markup (which could not be parsed)
     """
+
+
+class McScriptChangedTypeError(McScriptError):
+    def __init__(self, identifier: str, value: Resource, compileState: CompileState):
+        var = compileState.currentNamespace().getVariableInfo(compileState, identifier)
+        resource = compileState.currentNamespace()[identifier]
+
+        # if the user tries to overwrite a builtin, the first message does not make sense
+        if identifier in compileState.stack.stack[0]:
+            message = textLocation(
+                compileState.code,
+                compileState.currentTree,
+                f"Trying to change the type of built-in resource {identifier} "
+                f"from {resource.type().value} to {value.type().value}"
+            )
+        else:
+            message = textLocation(
+                compileState.code,
+                var.declaration,
+                f"Variable {identifier} declared with type {resource.type().value}"
+            ) + "\n"
+            message += textLocation(
+                compileState.code,
+                compileState.currentTree,
+                f"Trying to change type of {identifier} to {value.type().value}"
+            )
+        super().__init__(message, compileState, False)

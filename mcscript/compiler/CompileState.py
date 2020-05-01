@@ -3,8 +3,10 @@ from typing import Callable, List, Optional, Union
 
 from lark import Tree
 
+from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompilerConstants import CompilerConstants
 from mcscript.compiler.Namespace import Namespace, NamespaceType
+from mcscript.compiler.NamespaceStack import NamespaceStack
 from mcscript.data.Config import Config
 from mcscript.data.Scoreboard import Scoreboard
 from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
@@ -19,7 +21,7 @@ class CompileState:
     This class keeps track of the current state of the compilation
     """
 
-    def __init__(self, code: str, compileFunction: Callable, config: Config):
+    def __init__(self, code: str, contexts: List[NamespaceContext], compileFunction: Callable, config: Config):
         self.compileFunction = compileFunction
 
         self.code = code.split("\n")
@@ -40,10 +42,9 @@ class CompileState:
         ]
         self.compilerConstants = CompilerConstants()
 
-        self.stack: List[Namespace] = [Namespace(0, namespaceType=NamespaceType.GLOBAL)]
-        self._namespaceId = 1
-
-        self.namespaceTotal = 1
+        self.contexts = contexts
+        self.stack: NamespaceStack = NamespaceStack()
+        self.stack.append(Namespace(0, namespaceType=NamespaceType.GLOBAL))
 
         self.fileStructure = self.datapack.getMainDirectory().getPath("functions").fileStructure
         self.lineCount = 0
@@ -178,15 +179,13 @@ class CompileState:
         self.write("\n")
 
     def currentNamespace(self) -> Namespace:
-        return self.stack[-1]
+        return self.stack.tail()
 
     def popStack(self):
         self.stack.pop()
 
     def pushStack(self, namespaceType: NamespaceType):
-        index = self._namespaceId
-        self._namespaceId += 1 if namespaceType not in (namespaceType.LOOP, namespaceType.INLINE_FUNCTION) else 0
-        namespace = Namespace(index, namespaceType, self.currentNamespace())
+        namespace = Namespace(self.stack.index(), namespaceType, self.currentNamespace())
         self.stack.append(namespace)
         return namespace
 

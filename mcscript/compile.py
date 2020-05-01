@@ -7,6 +7,7 @@ from lark import Tree
 from mcscript import Compiler, Grammar, Logger
 from mcscript.Exceptions.compileExceptions import McScriptError
 from mcscript.Exceptions.parseExceptions import McScriptParseException
+from mcscript.analyzer.Analyzer import Analyzer
 from mcscript.data.Config import Config
 from mcscript.data.defaultCode import addDefaults
 from mcscript.utils.Datapack import Datapack
@@ -29,7 +30,8 @@ def compileMcScript(text: str, callback: eventCallback, config: Config) -> Datap
     """
     steps = (
         (lambda string: _parseCode(string), "Parsing"),
-        (lambda tree: Compiler.compile(tree, text, config), "Compiling"),
+        (lambda tree: Analyzer().analyze(tree), "Analyzing context"),
+        (lambda tree: Compiler.compile(tree[0], tree[1], text, config), "Compiling"),
         (lambda datapack: addDefaults(datapack), "post processing")
     )
 
@@ -43,7 +45,7 @@ def compileMcScript(text: str, callback: eventCallback, config: Config) -> Datap
             arg = step[0](arg)
         except Exception as e:
             if not isinstance(e, McScriptError):
-                Logger.critical(f"Exception occured: {repr(e)}")
+                Logger.critical(f"Exception occurred: {repr(e)}")
             raise e
         Logger.debug(f"{step[1]} finished in {perf_counter() - start_time:.4f} seconds")
         if isinstance(arg, Tree):

@@ -65,8 +65,13 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-static var = True
-print("$(var)101029")
+testResult = False
+fun test() -> Boolean {
+    return 1 + 1 == 2;
+}
+
+testResult = test()
+if (testResult == True) print("True")
 """
 
 if __name__ == '__main__':
@@ -80,8 +85,8 @@ if __name__ == '__main__':
     config = Config("config.ini")
     # print(precompileInstructions.getPrecompileInstructions(code_temp))
     # config.get("name")
-    # code = code_temp
-    code = getScript("math")
+    code = code_temp
+    # code = getScript("math")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

@@ -4,9 +4,11 @@ from lark import Token, Tree
 from lark.visitors import Interpreter
 
 from mcscript import Logger
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptDeclarationError, \
+from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptChangedTypeError, \
+    McScriptDeclarationError, \
     McScriptIsStaticError, McScriptNameError, \
     McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
+from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.compiler.tokenConverter import convertToken
@@ -27,6 +29,7 @@ from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.FunctionResource import Parameter
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
+from mcscript.lang.utility import compareTypes
 from mcscript.utils.Datapack import Datapack
 
 
@@ -46,8 +49,8 @@ class Compiler(Interpreter):
         self.compileState.currentTree = previous
         return result
 
-    def compile(self, tree: Tree, code: str, config: Config) -> Datapack:
-        self.compileState = CompileState(code, self.visit, config)
+    def compile(self, tree: Tree, contexts: List[NamespaceContext], code: str, config: Config) -> Datapack:
+        self.compileState = CompileState(code, contexts, self.visit, config)
         self.compileState.fileStructure.pushFile("main.mcfunction")
         BuiltinFunction.load(self)
         self.visit(tree)
@@ -132,7 +135,7 @@ class Compiler(Interpreter):
         ret, *values = tree.children
         if ret not in self.compileState.currentNamespace():
             if result := defaultEnums.get(ret):
-                self.compileState.stack[0][ret] = result
+                self.compileState.stack.stack[0][ret] = result
             else:
                 raise McScriptNameError(f"Unknown variable '{ret}'", self.compileState)
 
@@ -407,6 +410,10 @@ class Compiler(Interpreter):
         """
         if identifier in self.compileState.currentNamespace():
             stack = self.compileState.currentNamespace()[identifier]
+
+            if not compareTypes(value, stack):
+                raise McScriptChangedTypeError(identifier, value, self.compileState)
+
             if isinstance(stack, ValueResource) and isinstance(stack.value, NbtAddressResource):
                 stack = stack.value
             elif isinstance(stack, ObjectResource):
@@ -543,15 +550,21 @@ class Compiler(Interpreter):
                 Logger.debug(f"If statement at line {tree.line} column {tree.column} is always False")
             return
 
-        block, _ = self.visit(block)
+        blockName = self.compileState.pushBlock(namespaceType=NamespaceType.CONDITIONAL)
+        self.visit_children(block)
+        self.compileState.popBlock()
 
         if block_else is not None:
             cond_if, cond_else = condition.if_else(self.compileState)
-            block_else, _ = self.visit(block_else)
-            self.compileState.writeline(cond_if(Command.RUN_FUNCTION(function=block)))
-            self.compileState.writeline(cond_else(Command.RUN_FUNCTION(function=block_else)))
+
+            blockElseName = self.compileState.pushBlock(namespaceType=NamespaceType.CONDITIONAL)
+            self.visit_children(block_else)
+            self.compileState.popBlock()
+
+            self.compileState.writeline(cond_if(Command.RUN_FUNCTION(function=blockName)))
+            self.compileState.writeline(cond_else(Command.RUN_FUNCTION(function=blockElseName)))
         else:
-            self.compileState.writeline(condition(Command.RUN_FUNCTION(function=block)))
+            self.compileState.writeline(condition(Command.RUN_FUNCTION(function=blockName)))
 
     def _conditional_loop(self, block: Tree, conditionTree: Tree, check_start: bool):
         blockName = self.compileState.pushBlock(namespaceType=NamespaceType.LOOP)

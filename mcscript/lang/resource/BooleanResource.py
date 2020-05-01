@@ -77,6 +77,7 @@ class BooleanResource(ValueResource):
         other = other.load(compileState)
         if not isinstance(other, BooleanResource):
             raise TypeError
+        other = other.convertToNumber(compileState)
 
         return compare_scoreboard_value(compileState, self, relation, other)
 
