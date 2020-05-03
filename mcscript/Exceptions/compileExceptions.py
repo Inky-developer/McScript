@@ -131,3 +131,12 @@ class McScriptChangedTypeError(McScriptError):
                 f"Trying to change type of {identifier} to {value.type().value}"
             )
         super().__init__(message, compileState, False)
+
+
+class McScriptUnexpectedTypeError(McScriptError):
+    def __init__(self, expected_type, got_type, compileState: CompileState):
+        if hasattr(expected_type, "type") and callable(expected_type.type):
+            expected_type = expected_type.type().value
+        if hasattr(got_type, "type") and callable(got_type.type):
+            got_type = got_type.type().value
+        super().__init__(f"Expected type {expected_type} but got type {got_type}", compileState)

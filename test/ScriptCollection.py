@@ -65,13 +65,7 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-testResult = False
-fun test() -> Boolean {
-    return 1 + 1 == 2;
-}
-
-testResult = test()
-if (testResult == True) print("True")
+run for @a at @s absolute 0, 0, 0 relative 10, 0, 0 local 0, 0, 10 print("HI")
 """
 
 if __name__ == '__main__':

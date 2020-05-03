@@ -8,6 +8,7 @@ from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScri
     McScriptDeclarationError, \
     McScriptIsStaticError, McScriptNameError, \
     McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
+from mcscript.Exceptions.utils import requireType
 from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.NamespaceType import NamespaceType
@@ -24,6 +25,7 @@ from mcscript.lang.resource.EnumResource import EnumResource
 from mcscript.lang.resource.InlineFunctionResource import InlineFunctionResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NullResource import NullResource
+from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StructMethodResource import StructMethodResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TypeResource import TypeResource
@@ -718,22 +720,54 @@ class Compiler(Interpreter):
         self.compileState.currentNamespace().setVar(name, struct)
 
     def context_manipulator(self, tree):
+        def for_(selector):
+            requireType(selector, SelectorResource, self.compileState)
+            return ExecuteCommand.AS(target=selector)
+
+        def at(selector):
+            requireType(selector, SelectorResource, self.compileState)
+            return ExecuteCommand.AT(target=selector)
+
+        def absolute(x, y, z):
+            return ExecuteCommand.POSITIONED(x=str(x), y=str(y), z=str(z))
+
+        def relative(x, y, z):
+            return ExecuteCommand.POSITIONED(x="~" + str(x), y="~" + str(y), z="~" + str(z))
+
+        def local(x, y, z):
+            return ExecuteCommand.POSITIONED(x="^" + str(x), y="^" + str(y), z="^" + str(z))
+
         command_table = {
-            "for": ExecuteCommand.AS,
-            "at": ExecuteCommand.AT
+            "context_for"     : for_,
+            "context_at"      : at,
+            "context_absolute": absolute,
+            "context_relative": relative,
+            "context_local"   : local
         }
-        *modifier_list, block = tree.children
-        block, namespace = self.visit(block)
+
+        *modifiers, block = tree.children
+
+        blockName = self.compileState.pushBlock(namespaceType=NamespaceType.CONTEXT_MANIPULATOR)
+        self.visit_children(block)
+        self.compileState.popBlock()
+
         command = ""
-        for modifier, selector in zip(modifier_list[-2::-2], modifier_list[-1::-2]):
-            try:
-                if not command:
-                    command = command_table.pop(modifier)(target=selector)
-                else:
-                    command = command_table.pop(modifier)(target=selector, command=command)
-            except KeyError:
-                raise McScriptSyntaxError(f"Repeated context modifier '{modifier} {selector}'", self.compileState)
-        self.compileState.writeline(Command.EXECUTE(sub=command, command=Command.RUN_FUNCTION(function=block)))
+        for modifier in modifiers:
+            self.compileState.currentTree = modifier
+            name = modifier.data
+
+            if name not in command_table:
+                raise McScriptSyntaxError(f"Unknown modifier: '{name}'", self.compileState)
+
+            args = [self.compileState.toResource(i) for i in modifier.children]
+            command += command_table[name](*args)
+
+        command = Command.EXECUTE(
+            sub=command,
+            command=Command.RUN_FUNCTION(function=blockName)
+        )
+
+        self.compileState.writeline(command)
 
     def expression(self, tree):
         return self.visit(tree.children[0])

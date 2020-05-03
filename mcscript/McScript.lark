@@ -81,7 +81,12 @@ enum_property: IDENTIFIER | (IDENTIFIER "=" NUMBER)
 control_struct: _KEYWORD_STRUCT IDENTIFIER struct_block
 struct_block: "{" ( (variable_declaration _STATEMENT_SEPARATOR) | function_definition )* "}"
 
-context_manipulator: /\brun\b/ ((/\bat\b/ | /\bfor\b/) SELECTOR)+ block
+context_manipulator: _KEYWORD_RUN ( context_modifier)+ block
+context_modifier: _CONTEXT_FOR expression -> context_for
+                | _CONTEXT_AT expression -> context_at
+                | _CONTEXT_ABSOLUTE expression "," expression "," expression -> context_absolute
+                | _CONTEXT_RELATIVE expression "," expression "," expression -> context_relative
+                | _CONTEXT_LOCAL expression "," expression "," expression -> context_local
 
 
 NUMBER: /[0-9]+/
@@ -109,7 +114,13 @@ VERIFY_LESS_OR_EQUAL: "<="
 
 IDENTIFIER.0: /[a-z_][a-z_0-9]*/i
 
+_CONTEXT_AT: /\bat\b/
+_CONTEXT_FOR: /\bfor\b/
+_CONTEXT_ABSOLUTE: /\babsolute\b/
+_CONTEXT_RELATIVE: /\brelative\b/
+_CONTEXT_LOCAL: /\blocal\b/
 
+_KEYWORD_RUN: /\brun\b/
 _KEYWORD_STATIC: /\bstatic\b/
 _KEYWORD_STRUCT: /\bstruct\b/
 _KEYWORD_IF: /\bif/

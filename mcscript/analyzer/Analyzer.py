@@ -78,7 +78,7 @@ class Analyzer:
 
         identifier, *not_implemented = accessor.children
         if not_implemented:
-            raise NotImplementedError()
+            return
 
         if var := getVar(self.stack, identifier):
             var.writes.append(VariableAccess(tree, self.getCurrentIndex()))
@@ -112,7 +112,7 @@ class Analyzer:
 
         identifier, *not_implemented = accessor.children
         if not_implemented:
-            raise NotImplementedError()
+            return
 
         if var := getVar(self.stack, identifier):
             var.writes.append(VariableAccess(tree, self.getCurrentIndex()))

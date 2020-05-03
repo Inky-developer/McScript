@@ -318,6 +318,10 @@ for (player in players) {
 }
 return True
 
+[context_manipulator]
+run for @a at @s absolute 0, 0, 0 relative 10, 0, 0 local 0, 0, 10 print("HI")
+return True
+
 [custom_scoreboard]
 player_count = 0
 for (player in @a) ++player_count

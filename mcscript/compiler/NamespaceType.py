@@ -14,6 +14,7 @@ class NamespaceType(Enum):
     STRUCT = auto(), True
     METHOD = auto(), True
     BLOCK = auto(), True
+    CONTEXT_MANIPULATOR = auto(), False
     CONDITIONAL = auto(), False
     LOOP = auto(), False
     UNROLLED_LOOP = auto(), True
