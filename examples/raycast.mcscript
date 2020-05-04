@@ -1,16 +1,11 @@
 static MAX_ITERATIONS = 64
 
-inline fun summonMarker() {
-    execute("summon armor_stand ~ ~ ~ {NoGravity:1b}")
-}
-
 inline fun raycast(onRaycastHit: Function) -> Boolean {
     steps = 0
     hit = False
     do local 0, 0, 1 {
         if (not isBlock(blocks.air)) {
-            hit = True
-            onRaycastHit(steps)
+            hit = onRaycastHit(steps)
         }
         ++steps
     } while (not hit and steps < MAX_ITERATIONS)
@@ -18,9 +13,10 @@ inline fun raycast(onRaycastHit: Function) -> Boolean {
 }
 
 
-inline fun onHit(steps: Number) {
+inline fun onHit(steps: Number) -> Boolean {
     actionbar("[color=black]Hit after [color=red]{}[/color] block(s)[/color]", steps)
     setBlock(blocks.red_stained_glass)
+    return True
 }
 
 fun execute() {
