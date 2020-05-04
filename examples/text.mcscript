@@ -52,5 +52,3 @@ run for @a {
 
     log("This message is logged by my [b]log-function[/b]: [i]$log[/i]")
 }
-
-
