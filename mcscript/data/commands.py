@@ -75,6 +75,7 @@ class ExecuteCommand(StringEnum):
     AS = "as {target} {command}"
     AT = "at {target} {command}"
     POSITIONED = "positioned {x} {y} {z} {command}"
+    ANCHORED = "anchored {anchor} {command}"
     IF_SCORE_RANGE = "if score {stack} {name} matches {range} {command}"
     IF_SCORE = "if score {stack} {name} {relation} {stack2} {name2} {command}"
     UNLESS_SCORE = "unless score {stack} {name} {relation} {stack2} {name2} {command}"

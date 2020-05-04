@@ -8,14 +8,14 @@ from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScri
     McScriptDeclarationError, \
     McScriptIsStaticError, McScriptNameError, \
     McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
-from mcscript.Exceptions.utils import requireType
 from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.NamespaceType import NamespaceType
+from mcscript.compiler.common import conditional_loop, readContextManipulator
 from mcscript.compiler.tokenConverter import convertToken
 from mcscript.data import defaultCode, defaultEnums
 from mcscript.data.Config import Config
-from mcscript.data.commands import BinaryOperator, Command, ConditionalExecute, ExecuteCommand, Relation, UnaryOperator, \
+from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Relation, UnaryOperator, \
     multiple_commands
 from mcscript.lang.builtins.builtins import BuiltinFunction
 from mcscript.lang.resource.ArrayResource import ArrayResource
@@ -25,7 +25,6 @@ from mcscript.lang.resource.EnumResource import EnumResource
 from mcscript.lang.resource.InlineFunctionResource import InlineFunctionResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NullResource import NullResource
-from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StructMethodResource import StructMethodResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TypeResource import TypeResource
@@ -568,32 +567,13 @@ class Compiler(Interpreter):
         else:
             self.compileState.writeline(condition(Command.RUN_FUNCTION(function=blockName)))
 
-    def _conditional_loop(self, block: Tree, conditionTree: Tree, check_start: bool):
-        blockName = self.compileState.pushBlock(namespaceType=NamespaceType.LOOP)
-        self.visit_children(block)
-
-        condition = self.compileState.toCondition(conditionTree)
-        if condition.isStatic:
-            if condition.condition:
-                Logger.info(f"[Compiler] Loop at line {conditionTree.line} column {conditionTree.column} runs forever!")
-            else:
-                Logger.info(
-                    f"[Compiler] Loop at line {conditionTree.line} column {conditionTree.column} only runs once!"
-                )
-
-        self.compileState.writeline(condition(Command.RUN_FUNCTION(function=blockName)))
-        self.compileState.popBlock()
-
-        condition = self.compileState.toCondition(conditionTree) if check_start else ConditionalExecute(True)
-        self.compileState.writeline(condition(Command.RUN_FUNCTION(function=blockName)))
-
     def control_do_while(self, tree):
-        block, _condition = tree.children
-        return self._conditional_loop(block, _condition, False)
+        context, block, _condition = tree.children
+        return conditional_loop(self.compileState, block, _condition, False, context)
 
     def control_while(self, tree):
-        _condition, block = tree.children
-        return self._conditional_loop(block, _condition, True)
+        _condition, context, block = tree.children
+        return conditional_loop(self.compileState, block, _condition, True, context)
 
     def control_for(self, tree):
         _, var_name, _, expression, block = tree.children
@@ -720,54 +700,18 @@ class Compiler(Interpreter):
         self.compileState.currentNamespace().setVar(name, struct)
 
     def context_manipulator(self, tree):
-        def for_(selector):
-            requireType(selector, SelectorResource, self.compileState)
-            return ExecuteCommand.AS(target=selector)
-
-        def at(selector):
-            requireType(selector, SelectorResource, self.compileState)
-            return ExecuteCommand.AT(target=selector)
-
-        def absolute(x, y, z):
-            return ExecuteCommand.POSITIONED(x=str(x), y=str(y), z=str(z))
-
-        def relative(x, y, z):
-            return ExecuteCommand.POSITIONED(x="~" + str(x), y="~" + str(y), z="~" + str(z))
-
-        def local(x, y, z):
-            return ExecuteCommand.POSITIONED(x="^" + str(x), y="^" + str(y), z="^" + str(z))
-
-        command_table = {
-            "context_for"     : for_,
-            "context_at"      : at,
-            "context_absolute": absolute,
-            "context_relative": relative,
-            "context_local"   : local
-        }
-
         *modifiers, block = tree.children
 
         blockName = self.compileState.pushBlock(namespaceType=NamespaceType.CONTEXT_MANIPULATOR)
         self.visit_children(block)
         self.compileState.popBlock()
 
-        command = ""
-        for modifier in modifiers:
-            self.compileState.currentTree = modifier
-            name = modifier.data
-
-            if name not in command_table:
-                raise McScriptSyntaxError(f"Unknown modifier: '{name}'", self.compileState)
-
-            args = [self.compileState.toResource(i) for i in modifier.children]
-            command += command_table[name](*args)
-
-        command = Command.EXECUTE(
-            sub=command,
-            command=Command.RUN_FUNCTION(function=blockName)
-        )
-
-        self.compileState.writeline(command)
+        self.compileState.writeline(Command.EXECUTE(
+            sub=readContextManipulator(modifiers, self.compileState),
+            command=Command.RUN_FUNCTION(
+                function=blockName
+            )
+        ))
 
     def expression(self, tree):
         return self.visit(tree.children[0])

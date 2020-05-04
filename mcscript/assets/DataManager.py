@@ -1,6 +1,7 @@
 import json
 from typing import Dict, Optional
 
+from mcscript import Logger
 from mcscript.assets.data_generator import makeData
 
 
@@ -12,8 +13,12 @@ class DataManager:
     def assertData(self):
         if self.data is None:
             file = makeData(self.version)
-            with open(file) as f:
-                self.data = json.load(f)
+            with open(file, encoding="utf-8") as f:
+                try:
+                    self.data = json.load(f)
+                except Exception as e:
+                    Logger.info("[DataManager] could not parse json.\n" + f.read())
+                    raise e
 
     def getData(self, key: str = None) -> Dict:
         self.assertData()

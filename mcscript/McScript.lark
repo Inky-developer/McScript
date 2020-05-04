@@ -69,8 +69,9 @@ comparison: term (VERIFY_EQUAL | VERIFY_NOT_EQUAL | VERIFY_GREATER | VERIFY_GREA
 
 // control flow
 control_if: _KEYWORD_IF "(" expression ")" block [_KEYWORD_ELSE block]
-control_while: _KEYWORD_WHILE "(" expression ")" block
-control_do_while: _KEYWORD_DO block "(" expression ")"
+// hack to enable recursive context changes. ToDo: fix this
+control_while: _KEYWORD_WHILE "(" expression ")" [ context_modifier ] block
+control_do_while: _KEYWORD_DO [ context_modifier ] block _KEYWORD_WHILE "(" expression ")"
 
 control_for: /\bfor\b/ "(" IDENTIFIER /\bin\b/ expression ")" block
 
@@ -87,6 +88,7 @@ context_modifier: _CONTEXT_FOR expression -> context_for
                 | _CONTEXT_ABSOLUTE expression "," expression "," expression -> context_absolute
                 | _CONTEXT_RELATIVE expression "," expression "," expression -> context_relative
                 | _CONTEXT_LOCAL expression "," expression "," expression -> context_local
+                | _CONTEXT_ANCHORED expression -> context_anchor
 
 
 NUMBER: /[0-9]+/
@@ -119,6 +121,7 @@ _CONTEXT_FOR: /\bfor\b/
 _CONTEXT_ABSOLUTE: /\babsolute\b/
 _CONTEXT_RELATIVE: /\brelative\b/
 _CONTEXT_LOCAL: /\blocal\b/
+_CONTEXT_ANCHORED: /\banchored\b/
 
 _KEYWORD_RUN: /\brun\b/
 _KEYWORD_STATIC: /\bstatic\b/
