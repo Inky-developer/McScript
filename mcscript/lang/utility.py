@@ -13,3 +13,8 @@ def compareTypes(a: Resource, b: Resource) -> bool:
     if isinstance(a, StructObjectResource):
         return isinstance(b, StructResource) and a.struct == b
     return a.type() == b.type()
+
+
+def isStatic(resource: Resource) -> bool:
+    """ Returns whether the resource is static if it is a value resource else False"""
+    return getattr(resource, "isStatic", False)

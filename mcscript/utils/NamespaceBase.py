@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Mapping, TypeVar, Iterator, Dict
+from typing import Dict, Iterator, Mapping, Optional, TypeVar
 
 T = TypeVar("T")
 
@@ -43,7 +43,7 @@ class NamespaceBase(Mapping[str, T]):
     def __len__(self) -> int:
         return len(self.namespace) + len(self.predecessor) if self.predecessor else len(self.namespace)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> T:
         try:
             return self.namespace[item]
         except KeyError as e:

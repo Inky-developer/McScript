@@ -17,7 +17,8 @@ class NamespaceStack:
         return self.stack[-1]
 
     def getByIndex(self, index: int) -> Namespace:
-        return self.data[index]
+        """ adds one to the index because the first namespace is reserved for built-in data"""
+        return self.data[index + 1]
 
     def pop(self):
         self.stack.pop()

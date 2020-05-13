@@ -7,7 +7,8 @@ from mcscript import Logger
 from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.NamespaceType import NamespaceType
-from mcscript.compiler.common import conditional_loop, get_context_info, readContextManipulator
+from mcscript.compiler.common import conditional_loop, readContextManipulator, \
+    search_non_static_namespace_until
 from mcscript.compiler.tokenConverter import convertToken
 from mcscript.data import defaultCode, defaultEnums
 from mcscript.data.Config import Config
@@ -30,7 +31,7 @@ from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.FunctionResource import Parameter
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
-from mcscript.lang.utility import compareTypes
+from mcscript.lang.utility import compareTypes, isStatic
 from mcscript.utils.Datapack import Datapack
 
 
@@ -416,6 +417,21 @@ class Compiler(Interpreter):
             if not compareTypes(value, stack):
                 raise McScriptChangedTypeError(identifier, value, self.compileState)
 
+            if isStatic(stack):
+                variable_data = self.compileState.currentNamespace().getVariableInfo(self.compileState, identifier)
+                non_static_namespace = search_non_static_namespace_until(
+                    self.compileState,
+                    self.compileState.stack.getByIndex(variable_data.declaration.contextId)
+                )
+
+                if non_static_namespace is not None:
+                    raise McScriptIsStaticError(
+                        f"Trying to change the value here\nIn between is a non-static namespace "
+                        f"{non_static_namespace.namespaceType.name} (ToDo show line for this)",
+                        variable_data.declaration.access,
+                        self.compileState,
+                    )
+
             if isinstance(stack, ValueResource) and isinstance(stack.value, NbtAddressResource):
                 stack = stack.value
             elif isinstance(stack, ObjectResource):
@@ -461,7 +477,9 @@ class Compiler(Interpreter):
             return self.propertySetter(tree)
         identifier, = identifier.children
         value = self.compileState.toResource(value)
-        self._set_variable(identifier, value)
+        force_stack = identifier not in self.compileState.currentNamespace() or not isStatic(
+            self.compileState.currentNamespace()[identifier])
+        self._set_variable(identifier, value, force_stack)
 
     def multi_declaration(self, tree):
         *variables, expression = tree.children
@@ -493,7 +511,7 @@ class Compiler(Interpreter):
         value = self.compileState.toResource(value)
 
         if not isinstance(value, ValueResource):
-            raise McScriptTypeError(f"Only simple datatypes can be assigned using const, not {value.type().value}",
+            raise McScriptTypeError(f"Only simple datatypes can be assigned using static, not {value.type().value}",
                                     self.compileState)
         if not value.hasStaticValue:
             raise McScriptNotStaticError("static declaration needs a static value.", self.compileState)
@@ -503,14 +521,8 @@ class Compiler(Interpreter):
     def term_ip(self, tree):
         variable, operator, resource = tree.children
         resource = self.compileState.load(resource)
-        *_, varResource = self.visit(variable)
+        *accessed, varResource = self.visit(variable)
         var = varResource.load(self.compileState)
-        if var.isStatic:
-            raise McScriptIsStaticError(
-                "Trying to change the value here",
-                get_context_info(self.compileState, variable).declaration,
-                self.compileState
-            )
         if not isinstance(resource, ValueResource):
             raise AttributeError(f"Cannot do an operation with '{resource}'", self.compileState)
 
@@ -530,7 +542,7 @@ class Compiler(Interpreter):
         if not isinstance(result, Resource):
             raise McScriptTypeError(f"Expected a resource, got {result}", self.compileState)
 
-        self._set_variable(variable, result)
+        result.storeToNbt(varResource.value, self.compileState)
 
     def block(self, tree):
         blockName = self.compileState.pushBlock()

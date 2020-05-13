@@ -8,7 +8,7 @@ from lark import Tree
 
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.data.commands import Command, Struct
-from mcscript.exceptions.compileExceptions import McScriptIsStaticError, McScriptNotStaticError, McScriptTypeError
+from mcscript.exceptions.compileExceptions import McScriptNotStaticError, McScriptTypeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
@@ -134,10 +134,10 @@ class StringResource(ValueResource):
         if self.isStatic and other.isStatic:
             return StringResource(self.value + other.value, True)
 
-        if self.isStatic:
-            raise McScriptIsStaticError(
-                f"Can not concatenate static string ({self.value}) with non-static string!", compileState
-            )
+        # if self.isStatic:
+        #     raise McScriptIsStaticError(
+        #         f"Can not concatenate static string ({self.value}) with non-static string!", compileState
+        #     )
 
         if not compileState.currentNamespace().isContextStatic():
             raise McScriptNotStaticError("This operation can only be performed in a static context!", compileState)

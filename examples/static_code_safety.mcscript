@@ -1,13 +1,28 @@
 
 
-#a = "Test"
 static i = 0
 
-while (i < 10) {
-#    a = "Test"
-#    a = a + "i"
-#    i = "2"
-}
-#i += 1
-print("{}", i)
+# reassignment in global context
+i = i + 2
+i *= 2
+
 _DebugVariable("i")
+
+
+# write and initialization of static variable in non-static context:
+fun non_static_context() {
+    static a = 0
+
+    a = 2
+
+    run for @a print("{}", a*a)
+}
+
+
+# This code should fail
+
+## initialization in static context but modification in non-static context
+#static thisWillFail = True
+#run for @a {
+#    thisWillFail = False
+#}

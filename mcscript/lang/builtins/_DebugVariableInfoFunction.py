@@ -36,9 +36,11 @@ class _DebugVariableInfoFunction(BuiltinFunction):
         modifiers = "static " if variableData.static_declaration else ""
         modifiers += "mutable " if variableData.writes else "constant "
         lines.append(f"{modifiers}variable {identifier} of type {resource.type().value}")
+        lines.append(f"Current value: {repr(resource)}")
 
         source_annotations = SourceAnnotationList()
-        source_annotations += SourceAnnotation.from_token(compileState.code, variableData.declaration, "Declared here")
+        source_annotations += SourceAnnotation.from_token(compileState.code, variableData.declaration.access,
+                                                          "Declared here")
         for accessType, var in variableData.history():
             namespace = compileState.stack.getByIndex(var.contextId)
             message = "Read access here" if accessType == "read" else "Write access here"

@@ -9,6 +9,7 @@ from lark import Tree
 
 from mcscript import Logger
 from mcscript.analyzer.VariableContext import VariableContext
+from mcscript.compiler.Namespace import Namespace
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
 from mcscript.exceptions.compileExceptions import McScriptSyntaxError
@@ -26,6 +27,27 @@ def get_context_info(compileState: CompileState, tree: Tree) -> VariableContext:
         raise ValueError(f"Cannot get variable name from tree {tree}")
 
     return compileState.currentNamespace().getVariableInfo(compileState, name)
+
+
+def search_non_static_namespace_until(compileState: CompileState, namespace: Namespace) -> Optional[Namespace]:
+    """
+    Iterates down the namespace stack until it hits `namespace` or a namespace is not static in which case
+    the non-static namespace will be returned
+
+    Args:
+        compileState: The compile state
+        namespace: The namespace to stop searching at
+
+    Returns:
+        A namespace if a non-static namespace was found
+    """
+    current_namespace = compileState.currentNamespace()
+    while current_namespace is not namespace and current_namespace is not None:
+        if not current_namespace.namespaceType.hasStaticContext:
+            return current_namespace
+        current_namespace = namespace.predecessor
+
+    return None
 
 
 def conditional_loop(compileState: CompileState,

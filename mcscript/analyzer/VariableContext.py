@@ -13,7 +13,7 @@ class VariableAccess:
 @dataclass()
 class VariableContext:
     identifier: Token
-    declaration: Tree
+    declaration: VariableAccess
     static_declaration: bool
     member_declaration: bool
     reads: List[VariableAccess] = field(default_factory=list)

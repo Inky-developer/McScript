@@ -85,7 +85,7 @@ class Analyzer:
         else:
             self.stack[-1].append(VariableContext(
                 identifier,
-                tree,
+                VariableAccess(tree, self.getCurrentIndex()),
                 False,
                 False
             ))
@@ -101,7 +101,7 @@ class Analyzer:
         else:
             self.stack[-1].append(VariableContext(
                 identifier,
-                tree,
+                VariableAccess(tree, self.getCurrentIndex()),
                 True,
                 False
             ))

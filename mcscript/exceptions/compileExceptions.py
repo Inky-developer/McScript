@@ -67,11 +67,12 @@ class McScriptIsStaticError(McScriptError):
     Thrown when a static value is found in the wrong place
     """
 
-    def __init__(self, message: str, token: Union[Token, Tree], compileState: CompileState):
+    def __init__(self, message: str, token: Union[Token, Tree], compileState: CompileState, *args):
         super().__init__(
             message,
             compileState,
-            SourceAnnotation.from_token(compileState.code, token, "Variable statically defined here")
+            SourceAnnotation.from_token(compileState.code, token, "Variable statically defined here"),
+            *args
         )
 
 
