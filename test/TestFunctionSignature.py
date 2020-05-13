@@ -1,8 +1,8 @@
 import unittest
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.compiler.CompileState import CompileState
 from mcscript.data import Config
+from mcscript.exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.lang.builtins.GetBlockFunction import GetBlockFunction
 from mcscript.lang.builtins.SetBlockFunction import SetBlockFunction
 from mcscript.lang.builtins.StringFormatFunction import StringFormatFunction

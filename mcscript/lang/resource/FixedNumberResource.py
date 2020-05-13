@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Dict, TYPE_CHECKING, Union
 
-from mcscript.Exceptions.compileExceptions import McScriptTypeError
 from mcscript.data.commands import BinaryOperator, Command, ConditionalExecute, ExecuteCommand, Relation, Struct, Type, \
     multiple_commands
 from mcscript.data.commandsCommon import compare_scoreboard_value
+from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource

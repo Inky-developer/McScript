@@ -80,7 +80,7 @@ if __name__ == '__main__':
     # print(precompileInstructions.getPrecompileInstructions(code_temp))
     # config.get("name")
     # code = code_temp
-    code = getScript("raycast")
+    code = getScript("static_code_safety")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

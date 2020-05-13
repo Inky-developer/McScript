@@ -8,8 +8,8 @@ from inspect import isabstract
 from textwrap import dedent
 from typing import Dict, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.data.commands import Command
+from mcscript.exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.NullResource import NullResource

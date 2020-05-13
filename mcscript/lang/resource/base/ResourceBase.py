@@ -7,9 +7,9 @@ from typing import Dict, List, TYPE_CHECKING, Type, Union
 
 from lark import Tree
 
-from mcscript.Exceptions.compileExceptions import McScriptTypeError
 from mcscript.compiler.Namespace import NamespaceType
 from mcscript.data.commands import BinaryOperator, ConditionalExecute, Relation
+from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:

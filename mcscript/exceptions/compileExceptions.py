@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
-from mcscript.Exceptions.McScriptException import McScriptException
-from mcscript.Exceptions.utils import textLocation
+from lark import Token, Tree
+
+from mcscript.exceptions.McScriptException import McScriptException
+from mcscript.exceptions.utils.sourceAnnotation import SourceAnnotation, SourceAnnotationList
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -13,14 +15,22 @@ if TYPE_CHECKING:
 class McScriptError(McScriptException):
     """ base McScript error"""
 
-    def __init__(self, message, compileState: CompileState, showErr=True):
+    def __init__(self, message, compileState: CompileState, *source_annotations: SourceAnnotation, showErr=True):
         tree = compileState.currentTree
-        if tree:
-            msg = f"At line {tree.line} column {tree.column}\n"
+        if tree is not None:
+            header = f"At line {tree.line} column {tree.column}\n"
+            msg = SourceAnnotationList()
             if showErr:
-                msg += textLocation(compileState.code, tree, message)
+                msg += SourceAnnotation.from_token(compileState.code, tree, message)
             else:
                 msg += message
+
+            # if custom annotations specified, include them and sort everything by line numbers
+            if source_annotations:
+                msg += SourceAnnotationList(*source_annotations)
+                msg = msg.sorted()
+
+            msg = header + str(msg)
         else:
             msg = message
         super().__init__(msg)
@@ -56,6 +66,13 @@ class McScriptIsStaticError(McScriptError):
     """
     Thrown when a static value is found in the wrong place
     """
+
+    def __init__(self, message: str, token: Union[Token, Tree], compileState: CompileState):
+        super().__init__(
+            message,
+            compileState,
+            SourceAnnotation.from_token(compileState.code, token, "Variable statically defined here")
+        )
 
 
 class McScriptTypeError(McScriptError):
@@ -113,24 +130,23 @@ class McScriptChangedTypeError(McScriptError):
 
         # if the user tries to overwrite a builtin, the first message does not make sense
         if identifier in compileState.stack.stack[0]:
-            message = textLocation(
+            message = SourceAnnotation.from_token(
                 compileState.code,
                 compileState.currentTree,
                 f"Trying to change the type of built-in resource {identifier} "
                 f"from {resource.type().value} to {value.type().value}"
             )
         else:
-            message = textLocation(
+            message = SourceAnnotation.from_token(
                 compileState.code,
                 var.declaration,
                 f"Variable {identifier} declared with type {resource.type().value}"
-            ) + "\n"
-            message += textLocation(
+            ) + SourceAnnotation.from_token(
                 compileState.code,
                 compileState.currentTree,
                 f"Trying to change type of {identifier} to {value.type().value}"
             )
-        super().__init__(message, compileState, False)
+        super().__init__(str(message), compileState, False)
 
 
 class McScriptUnexpectedTypeError(McScriptError):

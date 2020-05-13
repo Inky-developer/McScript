@@ -3,7 +3,7 @@ from __future__ import annotations
 import warnings
 from typing import Optional, TYPE_CHECKING
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptNameError
+from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptNameError
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.StructResource import StructResource

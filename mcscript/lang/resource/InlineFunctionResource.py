@@ -4,8 +4,8 @@ from typing import List, TYPE_CHECKING
 
 from lark import Tree
 
-from mcscript.Exceptions.compileExceptions import McScriptTypeError
 from mcscript.compiler.Namespace import NamespaceType
+from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.FunctionResource import FunctionResource

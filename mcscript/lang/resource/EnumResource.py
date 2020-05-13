@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptAttributeError
+from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptAttributeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.StringResource import StringResource

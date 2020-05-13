@@ -8,7 +8,7 @@ from lark import UnexpectedToken
 from lark.visitors import Interpreter
 
 from mcscript import Logger
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptError, McScriptInvalidMarkupError
+from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptError, McScriptInvalidMarkupError
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.JsonTextFormat import markupGrammar
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter

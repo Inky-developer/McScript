@@ -1,0 +1,13 @@
+
+
+#a = "Test"
+static i = 0
+
+while (i < 10) {
+#    a = "Test"
+#    a = a + "i"
+#    i = "2"
+}
+#i += 1
+print("{}", i)
+_DebugVariable("i")

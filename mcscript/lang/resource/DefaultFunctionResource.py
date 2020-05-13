@@ -5,9 +5,9 @@ from typing import Dict, List, Optional, TYPE_CHECKING
 
 from lark import Tree
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptTypeError
 from mcscript.compiler.Namespace import NamespaceType
 from mcscript.data.commands import Command
+from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptTypeError
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.TypeResource import TypeResource

@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from enum import Enum, Flag, auto
 from typing import List, Optional, Sequence, TYPE_CHECKING, Union
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
+from mcscript.exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType

@@ -1,6 +1,6 @@
 from typing import List
 
-from mcscript.Exceptions.McScriptException import McScriptException
+from mcscript.exceptions.McScriptException import McScriptException
 
 
 class McScriptParseException(McScriptException):

@@ -4,9 +4,9 @@ from os.path import exists, join
 from shutil import rmtree
 
 from mcscript import Logger
-from mcscript.Exceptions.McScriptException import McScriptException
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
+from mcscript.exceptions.McScriptException import McScriptException
 from mcscript.utils import rcon
 from mcscript.utils.cmdHelper import generateFiles, getWorld
 from test.Language.loadScripts import loadScripts

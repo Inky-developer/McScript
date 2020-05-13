@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.data.predicates.RandomChancePredicate import RandomChancePredicate
+from mcscript.exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.lang.builtins.builtins import CachedFunction
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.base.ResourceBase import Resource

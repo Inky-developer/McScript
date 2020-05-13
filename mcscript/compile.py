@@ -5,11 +5,11 @@ import lark
 from lark import Tree
 
 from mcscript import Compiler, Grammar, Logger
-from mcscript.Exceptions.compileExceptions import McScriptError
-from mcscript.Exceptions.parseExceptions import McScriptParseException
 from mcscript.analyzer.Analyzer import Analyzer
 from mcscript.data.Config import Config
 from mcscript.data.defaultCode import addDefaults
+from mcscript.exceptions.compileExceptions import McScriptError
+from mcscript.exceptions.parseExceptions import McScriptParseException
 from mcscript.utils.Datapack import Datapack
 from mcscript.utils.utils import debug_log_text
 
@@ -37,7 +37,7 @@ def compileMcScript(text: str, callback: eventCallback, config: Config) -> Datap
 
     debug_log_text(text, "[Compile] parsing the following code: ")
 
-    arg = text
+    arg = text + "\n"
     for index, step in enumerate(steps):
         callback(step[1], index / len(steps), arg)
         start_time = perf_counter()

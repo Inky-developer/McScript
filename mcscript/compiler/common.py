@@ -8,14 +8,24 @@ from typing import List, Optional, TYPE_CHECKING
 from lark import Tree
 
 from mcscript import Logger
-from mcscript.Exceptions.compileExceptions import McScriptSyntaxError
-from mcscript.Exceptions.utils import requireType
+from mcscript.analyzer.VariableContext import VariableContext
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
+from mcscript.exceptions.compileExceptions import McScriptSyntaxError
+from mcscript.exceptions.utils import requireType
 from mcscript.lang.resource.SelectorResource import SelectorResource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
+
+
+def get_context_info(compileState: CompileState, tree: Tree) -> VariableContext:
+    if tree.data == "accessor":
+        name, = tree.children
+    else:
+        raise ValueError(f"Cannot get variable name from tree {tree}")
+
+    return compileState.currentNamespace().getVariableInfo(compileState, name)
 
 
 def conditional_loop(compileState: CompileState,

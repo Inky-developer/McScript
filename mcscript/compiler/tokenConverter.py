@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Type, Union
 
 from lark import Token
 
-from mcscript.Exceptions.compileExceptions import McScriptTypeError
+from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.SelectorResource import SelectorResource

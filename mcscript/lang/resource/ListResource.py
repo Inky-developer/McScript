@@ -4,9 +4,9 @@ from typing import Callable, Dict, Optional, TYPE_CHECKING, Type
 
 from lark import Tree
 
-from mcscript.Exceptions.compileExceptions import McScriptAttributeError, McScriptTypeError
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.data.commands import Command, ExecuteCommand
+from mcscript.exceptions.compileExceptions import McScriptAttributeError, McScriptTypeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.InlineFunctionResource import InlineFunctionResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource

@@ -6,9 +6,9 @@ from typing import Callable, Dict, List, Optional, TYPE_CHECKING, Tuple, Union
 
 from lark import Tree
 
-from mcscript.Exceptions.compileExceptions import McScriptIsStaticError, McScriptNotStaticError, McScriptTypeError
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.data.commands import Command, Struct
+from mcscript.exceptions.compileExceptions import McScriptIsStaticError, McScriptNotStaticError, McScriptTypeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource

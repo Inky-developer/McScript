@@ -4,19 +4,19 @@ from lark import Token, Tree
 from lark.visitors import Interpreter
 
 from mcscript import Logger
-from mcscript.Exceptions.compileExceptions import McScriptArgumentsError, McScriptChangedTypeError, \
-    McScriptDeclarationError, \
-    McScriptIsStaticError, McScriptNameError, \
-    McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
 from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.NamespaceType import NamespaceType
-from mcscript.compiler.common import conditional_loop, readContextManipulator
+from mcscript.compiler.common import conditional_loop, get_context_info, readContextManipulator
 from mcscript.compiler.tokenConverter import convertToken
 from mcscript.data import defaultCode, defaultEnums
 from mcscript.data.Config import Config
 from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Relation, UnaryOperator, \
     multiple_commands
+from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptChangedTypeError, \
+    McScriptDeclarationError, \
+    McScriptIsStaticError, McScriptNameError, \
+    McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
 from mcscript.lang.builtins.builtins import BuiltinFunction
 from mcscript.lang.resource.ArrayResource import ArrayResource
 from mcscript.lang.resource.BooleanResource import BooleanResource
@@ -54,6 +54,7 @@ class Compiler(Interpreter):
         self.compileState = CompileState(code, contexts, self.visit, config)
         self.compileState.fileStructure.pushFile("main.mcfunction")
         BuiltinFunction.load(self)
+        self.compileState.pushStack(NamespaceType.GLOBAL)
         self.visit(tree)
 
         # ToDO put this in default code
@@ -505,7 +506,11 @@ class Compiler(Interpreter):
         *_, varResource = self.visit(variable)
         var = varResource.load(self.compileState)
         if var.isStatic:
-            raise McScriptIsStaticError("Cannot modify a static variable", self.compileState)
+            raise McScriptIsStaticError(
+                "Trying to change the value here",
+                get_context_info(self.compileState, variable).declaration,
+                self.compileState
+            )
         if not isinstance(resource, ValueResource):
             raise AttributeError(f"Cannot do an operation with '{resource}'", self.compileState)
 
@@ -524,7 +529,8 @@ class Compiler(Interpreter):
 
         if not isinstance(result, Resource):
             raise McScriptTypeError(f"Expected a resource, got {result}", self.compileState)
-        result.storeToNbt(varResource.value, self.compileState)
+
+        self._set_variable(variable, result)
 
     def block(self, tree):
         blockName = self.compileState.pushBlock()
