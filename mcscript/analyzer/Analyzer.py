@@ -41,7 +41,7 @@ class Analyzer:
         self.stack.pop()
 
     def getCurrentIndex(self) -> int:
-        return len(self.state) - 1
+        return len(self.stack) - 1
 
     def visit(self, tree: Tree):
         return getattr(self, tree.data, self._default)(tree)

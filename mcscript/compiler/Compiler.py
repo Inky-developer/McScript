@@ -419,6 +419,14 @@ class Compiler(Interpreter):
 
             if isStatic(stack):
                 variable_data = self.compileState.currentNamespace().getVariableInfo(self.compileState, identifier)
+
+                if not isStatic(value):
+                    raise McScriptIsStaticError(
+                        "Trying to assign non-static value to static variable",
+                        variable_data.declaration.access,
+                        self.compileState
+                    )
+
                 non_static_namespace = search_non_static_namespace_until(
                     self.compileState,
                     self.compileState.stack.getByIndex(variable_data.declaration.contextId)
@@ -472,13 +480,17 @@ class Compiler(Interpreter):
         return var
 
     def declaration(self, tree):
-        identifier, value = tree.children
+        identifier, _value = tree.children
         if len(identifier.children) != 1:
             return self.propertySetter(tree)
+
         identifier, = identifier.children
-        value = self.compileState.toResource(value)
+
+        value = self.compileState.toResource(_value)
         force_stack = identifier not in self.compileState.currentNamespace() or not isStatic(
             self.compileState.currentNamespace()[identifier])
+
+        self.compileState.currentTree = _value
         self._set_variable(identifier, value, force_stack)
 
     def multi_declaration(self, tree):
@@ -514,13 +526,13 @@ class Compiler(Interpreter):
             raise McScriptTypeError(f"Only simple datatypes can be assigned using static, not {value.type().value}",
                                     self.compileState)
         if not value.hasStaticValue:
-            raise McScriptNotStaticError("static declaration needs a static value.", self.compileState)
+            raise McScriptNotStaticError("static declaration needs a static value", self.compileState)
 
         self.compileState.currentNamespace()[identifier] = value
 
     def term_ip(self, tree):
-        variable, operator, resource = tree.children
-        resource = self.compileState.load(resource)
+        variable, operator, _resource = tree.children
+        resource = self.compileState.load(_resource)
         *accessed, varResource = self.visit(variable)
         var = varResource.load(self.compileState)
         if not isinstance(resource, ValueResource):
@@ -542,7 +554,24 @@ class Compiler(Interpreter):
         if not isinstance(result, Resource):
             raise McScriptTypeError(f"Expected a resource, got {result}", self.compileState)
 
-        result.storeToNbt(varResource.value, self.compileState)
+        self.compileState.currentTree = _resource
+        if isStatic(varResource) and not isStatic(result):
+            if accessed:
+                raise McScriptTypeError("Trying to assign a non-static value to a static property", self.compileState)
+            raise McScriptIsStaticError(
+                "Trying to assign a non-static value here",
+                self.compileState.currentNamespace().getVariableInfo(self.compileState,
+                                                                     variable.children[0]).declaration.access,
+                self.compileState
+            )
+
+        if isStatic(result) and isStatic(varResource):
+            if not accessed:
+                self.compileState.currentNamespace()[variable.children[0]] = result
+            else:
+                raise NotImplementedError("TODO: Implement in-place operations for static properties")
+        else:
+            result.storeToNbt(varResource.value, self.compileState)
 
     def block(self, tree):
         blockName = self.compileState.pushBlock()

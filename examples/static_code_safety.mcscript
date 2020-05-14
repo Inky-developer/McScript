@@ -26,3 +26,17 @@ fun non_static_context() {
 #run for @a {
 #    thisWillFail = False
 #}
+
+
+# this code should also fail
+
+#static val = evaluate("execute as @a")
+#run for @a print(val)
+
+
+# the following should fail
+
+#static val = 1
+#val += random()
+
+a = 1

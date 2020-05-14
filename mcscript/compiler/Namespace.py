@@ -82,7 +82,7 @@ class Namespace(NamespaceBase[Resource]):
         if identifier not in self:
             raise ValueError(f"identifier {identifier} not defined in this namespace")
 
-        for context in compileState.contexts:
+        for context in reversed(compileState.contexts):
             for var in context:
                 if var.identifier == identifier:
                     return var
