@@ -14,8 +14,8 @@ from mcscript.data import defaultCode, defaultEnums
 from mcscript.data.Config import Config
 from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Relation, UnaryOperator, \
     multiple_commands
-from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptChangedTypeError, \
-    McScriptDeclarationError, \
+from mcscript.exceptions.compileExceptions import McScriptArgumentsError, \
+    McScriptChangedTypeError, McScriptDeclarationError, \
     McScriptIsStaticError, McScriptNameError, \
     McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
 from mcscript.lang.builtins.builtins import BuiltinFunction

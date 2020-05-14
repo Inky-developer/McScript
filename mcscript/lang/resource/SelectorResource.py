@@ -6,7 +6,8 @@ from lark import Tree
 
 from mcscript.compiler.NamespaceType import NamespaceType
 from mcscript.data.Scoreboard import Scoreboard
-from mcscript.data.commands import Command, ExecuteCommand, Selector, Struct, multiple_commands
+from mcscript.data.commands import Command, ExecuteCommand, Selector as CmdSelector, Struct, multiple_commands
+from mcscript.data.selector.Selector import Selector
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.StringResource import StringResource
@@ -24,9 +25,14 @@ class SelectorResource(ValueResource):
     Holds a minecraft selector
     """
 
-    def __init__(self, value: str, isStatic: bool, namespace: Namespace = None):
-        if namespace:
-            value = StringResource.StringFormatter().format(value, **namespace.asDict())
+    def __init__(self, value: str, isStatic: bool, compileState: CompileState, namespace: Namespace = None):
+        if isStatic:
+            if namespace:
+                value = StringResource.StringFormatter().format(value, **namespace.asDict())
+
+            value = Selector.from_string(value, compileState)
+            value.verify(compileState)
+            value.sort()
         super().__init__(value, isStatic)
 
     def embed(self) -> str:
@@ -36,7 +42,7 @@ class SelectorResource(ValueResource):
         if self.isStatic:
             return self.embed()
         scoreboard, = filter(lambda x: x.name == "entities", compileState.scoreboards)
-        return Selector.ALL_ENTITIES.filter(scores=Struct.fromDict({
+        return CmdSelector.ALL_ENTITIES.filter(scores=Struct.fromDict({
             scoreboard.get_name(): self.value
         }))
 
@@ -45,7 +51,7 @@ class SelectorResource(ValueResource):
         return ResourceType.SELECTOR
 
     def typeCheck(self) -> bool:
-        return isinstance(self.value, str)
+        return isinstance(self.value, Selector)
 
     def storeToNbt(self, _: Optional[NbtAddressResource], compileState: CompileState) -> SelectorResource:
         """
@@ -71,21 +77,21 @@ class SelectorResource(ValueResource):
 
         compileState.writeline(multiple_commands(
             Command.SET_VALUE(
-                stack=Selector.ALL_ENTITIES(),
+                stack=CmdSelector.ALL_ENTITIES(),
                 name=scoreboard.get_name(),
                 value=0
             ),
             Command.EXECUTE(
                 sub=ExecuteCommand.AS(target=self.embed()),
                 command=Command.SET_VALUE(
-                    stack=Selector.CURRENT_ENTITY(),
+                    stack=CmdSelector.CURRENT_ENTITY(),
                     name=scoreboard.get_name(),
                     value=value
                 )
             )
         ))
 
-        return SelectorResource(value, False)
+        return SelectorResource(value, False, compileState)
 
     def operation_get_element(self, compileState: CompileState, index: Resource) -> NumberResource:
         string = index.toString()
@@ -133,7 +139,7 @@ class SelectorResource(ValueResource):
         """ identical to `run for @. at @s` """
 
         block = compileState.pushBlock(namespaceType=NamespaceType.LOOP)
-        compileState.currentNamespace()[varName] = SelectorResource(Selector.CURRENT_ENTITY(), True) \
+        compileState.currentNamespace()[varName] = SelectorResource(CmdSelector.CURRENT_ENTITY(), True, compileState) \
             .storeToNbt(None, compileState)
 
         for child in tree.children:
@@ -144,15 +150,15 @@ class SelectorResource(ValueResource):
             sub=ExecuteCommand.AS(
                 target=self.embed_non_static(compileState),
                 command=ExecuteCommand.AT(
-                    target=Selector.CURRENT_ENTITY()
+                    target=CmdSelector.CURRENT_ENTITY()
                 )
             ),
             command=Command.RUN_FUNCTION(function=block)
         ))
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
         if self.isStatic:
             raise TypeError
         return formatter.createFromResources(SelectorResource(
-            self.embed_non_static(compileState), True
+            self.embed_non_static(compileState), True, compileState
         ))

@@ -140,14 +140,14 @@ class McScriptChangedTypeError(McScriptError):
         else:
             message = SourceAnnotation.from_token(
                 compileState.code,
-                var.declaration,
+                var.declaration.access,
                 f"Variable {identifier} declared with type {resource.type().value}"
             ) + SourceAnnotation.from_token(
                 compileState.code,
                 compileState.currentTree,
                 f"Trying to change type of {identifier} to {value.type().value}"
             )
-        super().__init__(str(message), compileState, False)
+        super().__init__(str(message), compileState, showErr=False)
 
 
 class McScriptUnexpectedTypeError(McScriptError):
@@ -157,3 +157,7 @@ class McScriptUnexpectedTypeError(McScriptError):
         if hasattr(got_type, "type") and callable(got_type.type):
             got_type = got_type.type().value
         super().__init__(f"Expected type {expected_type} but got type {got_type}", compileState)
+
+
+class McScriptInvalidSelectorError(McScriptError):
+    """ Thrown when an invalid selector is found."""

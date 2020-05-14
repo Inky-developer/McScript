@@ -65,19 +65,8 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-struct Modifiable {
-    a: Number;
-}
-
-inline fun doSomething(a: Number, b: Modifiable) -> Null {
-    ++a;
-    b.a += 1;
-}
-
-m = Modifiable(1);
-a = 1;
-doSomething(a, m);
-return a == 1 and m.a == 2;
+players = @e[gamemode=survival,level=1..,type=player,team=me,tag=tag,name=player,nbt={"Teste":"hi"}]
+players["x"] = 0
 """
 
 if __name__ == '__main__':
@@ -91,8 +80,8 @@ if __name__ == '__main__':
     config = Config("config.ini")
     # print(precompileInstructions.getPrecompileInstructions(code_temp))
     # config.get("name")
-    # code = code_temp
-    code = getScript("static_code_safety")
+    code = code_temp
+    # code = getScript("static_code_safety")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")

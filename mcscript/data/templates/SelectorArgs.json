@@ -1,0 +1,162 @@
+{
+  "comment": [
+    "Explanation for the priority fields:",
+    "The priority determines the order in which these arguments are arrange when compiling.",
+    "Some selectors like type can be a huge benefit for the performance because they can discard a big number",
+    "of entities when put early.",
+    "The priority values are mostly taken from:",
+    "https://minecraftcommands.github.io/commanders-handbook/selector-argument-order",
+    "0 priority means order is already determined, generally the higher the value the higher the priority.",
+    "Predicates in mcscript mostly affect players so they get a very high priority.",
+    "Ordering:",
+    "10. type",
+    "9. gamemode",
+    "8. predicate",
+    "7. team",
+    "6. type (negated)",
+    "5. tag",
+    "4. name",
+    "3. scores",
+    "2. advancements",
+    "1. nbt"
+  ],
+  "selectors": [
+    {
+      "name": "x",
+      "accepts": "range",
+      "constant": false,
+      "repeat": "?",
+      "priority": 0
+    },
+    {
+      "name": "y",
+      "accepts": "range",
+      "constant": false,
+      "repeat": "?",
+      "priority": 0
+    },
+    {
+      "name": "z",
+      "accepts": "range",
+      "constant": false,
+      "repeat": "?",
+      "priority": 0
+    },
+    {
+      "name": "distance",
+      "accepts": "range",
+      "constant": false,
+      "repeat": "?",
+      "priority": 0
+    },
+    {
+      "name": "scores",
+      "accepts": "nbt",
+      "constant": false,
+      "repeat": "?",
+      "priority": 3
+    },
+    {
+      "name": "tag",
+      "accepts": "identifier",
+      "constant": false,
+      "repeat": "*",
+      "priority": 5
+    },
+    {
+      "name": "team",
+      "accepts": "identifier",
+      "constant": false,
+      "repeat": "?",
+      "priority": 7
+    },
+    {
+      "name": "limit",
+      "accepts": "int",
+      "constant": false,
+      "repeat": "?",
+      "priority": 0
+    },
+    {
+      "name": "sort",
+      "accepts": [
+        "nearest",
+        "furthest",
+        "random",
+        "arbitrary"
+      ],
+      "constant": false,
+      "repeat": "?",
+      "priority": 0
+    },
+    {
+      "name": "level",
+      "accepts": "range",
+      "constant": false,
+      "repeat": "?",
+      "priority": 0
+    },
+    {
+      "name": "gamemode",
+      "accepts": [
+        "adventure",
+        "creative",
+        "spectator",
+        "survival"
+      ],
+      "constant": false,
+      "repeat": "?",
+      "priority": 9
+    },
+    {
+      "name": "name",
+      "accepts": "string",
+      "constant": true,
+      "repeat": "?",
+      "priority": 4
+    },
+    {
+      "name": "x_rotation",
+      "accepts": "range",
+      "constant": false,
+      "repeat": "?",
+      "priority": 0
+    },
+    {
+      "name": "y_rotation",
+      "accepts": "range",
+      "constant": false,
+      "repeat": "?",
+      "priority": 0
+    },
+    {
+      "name": "type",
+      "accepts": "identifier",
+      "constant": false,
+      "repeat": "?",
+      "priority": 10,
+      "priority_negated": 6
+    },
+    {
+      "name": "nbt",
+      "accepts": "nbt",
+      "constant": false,
+      "repeat": "?",
+      "priority": 1
+    },
+    {
+      "name": "advancements",
+      "accepts": "nbt",
+      "constant": false,
+      "repeat": "?",
+      "priority": 2
+    },
+    {
+      "name": "predicate",
+      "accepts": "identifier",
+      "constant": false,
+      "repeat": "?",
+      "priority": 8
+    }
+  ]
+}
