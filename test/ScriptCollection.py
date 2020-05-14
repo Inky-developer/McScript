@@ -65,8 +65,12 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-players = @e[gamemode=survival,level=1..,type=player,team=me,tag=tag,name=player,nbt={"Teste":"hi"}]
-players["x"] = 0
+players = @a
+for (player in players) {
+    current_player = players
+    run for @a print("{}", current_player)
+}
+return True
 """
 
 if __name__ == '__main__':

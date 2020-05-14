@@ -36,7 +36,7 @@ class SelectorResource(ValueResource):
         super().__init__(value, isStatic)
 
     def embed(self) -> str:
-        return self.value
+        return str(self.value)
 
     def embed_non_static(self, compileState: CompileState) -> str:
         if self.isStatic:
@@ -157,8 +157,6 @@ class SelectorResource(ValueResource):
         ))
 
     def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
-        if self.isStatic:
-            raise TypeError
-        return formatter.createFromResources(SelectorResource(
-            self.embed_non_static(compileState), True, compileState
-        ))
+        return formatter.createFromResources(
+            self.embed_non_static(compileState)
+        )
