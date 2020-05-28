@@ -3,10 +3,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum, auto
 from inspect import isabstract
-from typing import Dict, List, TYPE_CHECKING, Type, Union
+from typing import ClassVar, Dict, List, Optional, TYPE_CHECKING, Type, Union
 
 from lark import Tree
 
+from mcscript.analyzer.VariableContext import VariableContext
 from mcscript.compiler.Namespace import NamespaceType
 from mcscript.data.commands import BinaryOperator, ConditionalExecute, Relation
 from mcscript.exceptions.compileExceptions import McScriptTypeError
@@ -29,22 +30,33 @@ class MinecraftDataStorage(Enum):
 
 
 class Resource(ABC):
-    _reference = {}
-    _reference_variables = {}
-    isDefault: bool = True
-    isVariable: bool = False
+    _reference: ClassVar[Dict] = {}
+    _reference_variables: ClassVar[Dict] = {}
+
+    # ToDo clean up the isDefault / isVariable mess
+    isDefault: ClassVar[bool] = True
+
+    isVariable: ClassVar[bool] = False
     """
     whether this class is the default implementation of all resources that have the same ResourceType.
     """
 
-    storage: MinecraftDataStorage = MinecraftDataStorage.NONE
+    storage: ClassVar[MinecraftDataStorage] = MinecraftDataStorage.NONE
+    """
+    How this resource is stored in minecraft
+    """
 
-    requiresInlineFunc: bool = True
+    requiresInlineFunc: ClassVar[bool] = True
     """ 
     whether this resource class requires an inline function to be used as a function parameters.
     Should be True if this is a complex resource (stores multiple other resources like a struct) or if it cannot be
     stored in minecraft (like a selector)
     when this is set to False, an implementation of createEmptyResource is required.
+    """
+
+    _context: Optional[VariableContext]
+    """
+    If this resource directly corresponds to a variable, this field will contain its context.
     """
 
     # noinspection PyUnresolvedReferences
