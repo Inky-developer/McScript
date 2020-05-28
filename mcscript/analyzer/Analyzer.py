@@ -120,8 +120,26 @@ class Analyzer:
             # otherwise the user tries to access an undefined variable
             Logger.error(f"[Analyzer] invalid variable access: '{identifier}' is not defined")
 
+    def index_setter(self, tree: Tree):
+        accessor, index, expression = tree.children
+        self.visit(expression)
+
+        identifier, *not_implemented = accessor.children
+        if not_implemented:
+            return
+
+        if var := getVar(self.stack, identifier):
+            var.writes.append(VariableAccess(tree, self.getCurrentIndex()))
+        else:
+            Logger.error(f"[Analyzer] invalid variable array setter: '{identifier}' is not defined")
+
     def value(self, tree: Tree):
         value, = tree.children
+
+        # simply extract the accessor part
+        if isinstance(value, Tree) and value.data == "array_accessor":
+            value = value.children[0]
+
         if isinstance(value, Tree) and value.data == "accessor":
             identifier, *not_implemented = value.children
             if not not_implemented:
