@@ -17,11 +17,15 @@ def format_score(scoreboard: str, player: str) -> Dict:
     }
 
 
-def format_nbt(storage: str, nbt: str) -> Dict:
-    return {
+def format_nbt(storage: str, nbt: str, interpret: bool = False) -> Dict:
+    ret = {
         "nbt"    : f"{commands.Storage.VARS.value}.{nbt}",
         "storage": storage
     }
+    if interpret:
+        ret["interpret"] = True
+
+    return ret
 
 
 def format_selector(selector: str) -> Dict:
