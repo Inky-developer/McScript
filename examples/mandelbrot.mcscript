@@ -56,9 +56,9 @@ struct MandelbrotManager {
                 }
                 
                 execute("tp @s ~1 ~ ~");
-                self.currentX += step;
+                self.currentX = self.currentX + step;
             }
-            self.currentY += step;
+            self.currentY = self.currentY + step;
             ++self.step;
         } else {
             run for @a actionbar("Done!");

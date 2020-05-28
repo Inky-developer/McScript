@@ -1,6 +1,7 @@
 .idea/
 .github/
 .coverage
+benchmark/
 build/build
 build/dist
 build/freeze.cmd

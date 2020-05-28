@@ -9,6 +9,6 @@ selectorGrammar = Lark(
     # The nbt matcher does not work with lalr
     parser="earley",
     maybe_placeholders=False,
-    propagate_positions=True
+    propagate_positions=True,
 )
 Logger.info("[Selector] Grammar loaded!")

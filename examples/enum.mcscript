@@ -6,8 +6,8 @@ enum example {
 }
 # This enum is auto-indexed, so example.FAIL has a value of 0 and example.SUCCESS has a value of 1:
 run for @a {
-	print("Fail: ", example.FAIL)
-	print("SUCCESS: ", example.SUCCESS)
+	print("Fail: {}", example.FAIL)
+	print("SUCCESS: {}", example.SUCCESS)
 }
 
 # Enums can have custom values, too:
@@ -17,9 +17,9 @@ enum customValues {
 	another_number = 1000000000000;
 }
 run for @a {
-	print(customValues.normal)
-	print(customValues.number)
-	print(customValues.another_number)
+	print("{}", customValues.normal)
+	print("{}", customValues.number)
+	print("{}", customValues.another_number)
 }
 # Note that every value for an enum must be unique.
 # If the value of customValues.number would be set to 1 instead of 10,
@@ -28,15 +28,15 @@ run for @a {
 # A enum can return the name of a value
 # Printing is also supported which can be helpful for debugging
 run for @a {
-	print("Enum member with a value of 10: ", customValues(10))
-	print(customValues)
+	print("Enum member with a value of 10: {}", customValues(10))
+	print("{}", customValues)
 }
 
 # There are also built-in enums:
 # block, biome, structure and types
 # built-in enums can have other values than numbers
 run for @a {
-	print("sponge: ", blocks.sponge)
-	print("plains: ", biomes.plains)
-	print(types)
+	print("sponge: {}", blocks.sponge)
+	print("plains: {}", biomes.plains)
+	print("{}", types)
 }
