@@ -101,7 +101,6 @@ class Selector:
         Returns:
             A selector
         """
-
         ast = selectorGrammar.parse(_selector)
         selector, *arguments = ast.children
         arguments = arguments[0].children if arguments else []

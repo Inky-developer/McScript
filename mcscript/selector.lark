@@ -2,7 +2,7 @@ start: selector ( "[" selector_arguments "]" )?
 
 selector: "@" /[parse]/
 
-selector_arguments: selector_argument ("," selector_argument)*
+selector_arguments: selector_argument ("," " "? selector_argument)*
 selector_argument: IDENTIFIER "=" value
                  | IDENTIFIER "=!" value -> neg
 value: number
