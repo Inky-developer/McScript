@@ -33,6 +33,7 @@ RULE2ACTION = {
 }
 
 
+# ToDo: Transform the tree directly when it is created to save memory and time
 class MarkupParser(Interpreter):
     def __init__(self, compileState: CompileState):
         self.state: Dict = {}
@@ -40,8 +41,8 @@ class MarkupParser(Interpreter):
 
     def toJsonString(self, markup: str, *args: Resource) -> str:
         result = self.toJson(markup, *args)
-        if isinstance(result, list):
-            result.insert(0, "")
+        # if isinstance(result, list):
+        #     result =
 
         # Why is escaping so annoying?
         return json.dumps(result).replace("\\\\", "\\")
@@ -102,10 +103,7 @@ class MarkupParser(Interpreter):
             ) from None
 
     def markup_rule(self, tree):
-        rule, value, *content, endRule = tree.children
-
-        if rule != endRule:
-            raise McScriptInvalidMarkupError(f"Rule mismatch: {rule} was ended with {endRule}", self.compileState)
+        rule, value, *content = tree.children
 
         ret = []
         for i in content:
