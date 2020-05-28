@@ -2,18 +2,19 @@ from __future__ import annotations
 
 import re
 from string import Formatter
-from typing import Callable, Dict, List, Optional, TYPE_CHECKING, Tuple, Union
+from typing import Callable, Dict, Optional, TYPE_CHECKING, Tuple, Union
 
 from lark import Tree
 
 from mcscript.compiler.NamespaceType import NamespaceType
-from mcscript.data.commands import Command, Struct
-from mcscript.exceptions.compileExceptions import McScriptNotStaticError, McScriptTypeError
+from mcscript.data.commands import Command, Storage, Struct
+from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.utils.JsonTextFormat.objectFormatter import format_nbt
 
 if TYPE_CHECKING:
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
@@ -24,7 +25,12 @@ if TYPE_CHECKING:
 class StringResource(ValueResource):
     """
     Holds a String.
-    A string must always have a known length but its contents are allowed to change during runtime.
+
+    Things the compiler can know about a string:
+        * Literal value: string is statically known. Every method expect working with non-static strings supported
+        * Length: the literal value is not known but the length is. Used for bounds checking and other optimizations
+        * Nothing: The string is completely dynamic and every operation has to be executed in minecraft, slow
+
     These limitations are in place to allow efficient iteration over a string.
     A more mutable string class may be added later
     """
@@ -51,14 +57,14 @@ class StringResource(ValueResource):
 
     formatter = StringFormatter()
 
-    def __init__(self, value: Union[str, NbtAddressResource], isStatic, length=None,
+    def __init__(self, value: Union[str, NbtAddressResource], isStatic, length: int = None,
                  namespace: Optional[Namespace] = None):
         super().__init__(value, isStatic)
 
+        self.length = len(value) if isStatic else length
+        # Even if the string is not static, the length might be known
+
         self.attributes: Dict[str, Callable] = dict(length=self.getLength)
-        self.length = len(value) if self.isStatic else length
-        if self.length is None:
-            raise ValueError(f"Non-static string must have a fixed and thus known length!")
 
         if namespace is not None:
             self.setValue(self.formatter.format(self.embed(), **namespace.asDict()), self.isStatic)
@@ -73,15 +79,25 @@ class StringResource(ValueResource):
     def typeCheck(self) -> bool:
         return isinstance(self.value, str)
 
-    def getLength(self, _: CompileState) -> NumberResource:
-        return NumberResource(self.length, True)
+    def getLength(self, compileState: CompileState) -> NumberResource:
+        if self.length is not None:
+            return NumberResource(self.length, True)
+
+        if self.isStatic:
+            raise ValueError("Static string has a length value of None!")
+
+        stack = compileState.expressionStack.next()
+        compileState.writeline(
+            Command.LOAD_SCORE(
+                stack=stack,
+                var=self.value
+            )
+        )
+        return stack
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         if attribute := self.attributes.get(name, None):
             return attribute(compileState)
-
-    def allow_redefine(self, compileState) -> bool:
-        return compileState.currentNamespace().isContextStatic()
 
     def operation_get_element(self, compileState: CompileState, index: Resource) -> Resource:
         number = index.convertToNumber(compileState)
@@ -93,6 +109,25 @@ class StringResource(ValueResource):
         return StringResource(self.value[number.toNumber()], False, length=1)
 
     def operation_set_element(self, compileState: CompileState, index: Resource, value: Resource):
+        """
+        Replaces a character in this string by another character.
+        ToDo: add bound and size checking runtime errors for debug builds
+        ToDo: check if the operation is valid in the current context
+
+        Combinations:
+            - static - static: Ok
+            - static - non static: Error - cannot replace a character of a static string by a non-static string
+            - non static - static: Ok (Note: no bounds checking)
+            - non static - non static: Ok (Note no bounds checking, no size checking)
+
+        Args:
+            compileState: the compile state
+            index: the static access index
+            value: the one-character string to replace a character of this string
+
+        Returns:
+            None. The operation modifies this existing string
+        """
         number = index.convertToNumber(compileState)
 
         if not number.isStatic:
@@ -106,7 +141,7 @@ class StringResource(ValueResource):
         if not isinstance(value, StringResource):
             raise McScriptTypeError(f"Expected type String but got {value.type().value}", compileState)
 
-        if value.length != 1:
+        if value.length != 1 and value.length is not None:
             raise McScriptTypeError(f"Expected single character but string had length {value.length}", compileState)
 
         if self.isStatic:
@@ -128,24 +163,36 @@ class StringResource(ValueResource):
                 ))
 
     def operation_plus(self, other: ValueResource, compileState: CompileState) -> ValueResource:
+        """
+        Concatenates this string with the other string.
+        ToDo: check if the operation is valid in the current context
+
+        Combinations:
+            - static - static: Ok
+            - static - non static: Err
+            - non static - static: Ok
+            - non static - non static: Ok
+
+        Args:
+            other: the other string
+            compileState: the compile state
+
+        Returns:
+            The concatenated string
+        """
         if not isinstance(other, StringResource):
             raise McScriptTypeError(f"Can only concatenate strings, not {other.type().value}", compileState)
 
         if self.isStatic and other.isStatic:
             return StringResource(self.value + other.value, True)
 
-        # if self.isStatic:
-        #     raise McScriptIsStaticError(
-        #         f"Can not concatenate static string ({self.value}) with non-static string!", compileState
-        #     )
-
-        if not compileState.currentNamespace().isContextStatic():
-            raise McScriptNotStaticError("This operation can only be performed in a static context!", compileState)
-
+        # should length be none: check if the current variable context is not static ToDo!!!!!!!!!!!!
+        # But how to get the variable information for a resource?
+        # maybe use a field which can be none. Probably the best but feels hacky
         resource = StringResource(
             NbtAddressResource(compileState.temporaryStorageStack.next().embed()),
             False,
-            self.length + other.length
+            self.length + other.length if self.length is not None and other.length is not None else None
         )
         compileState.writeline(Command.COPY_VARIABLE(
             address=resource.value,
@@ -158,6 +205,11 @@ class StringResource(ValueResource):
                     value=f'"{char}"'
                 ))
         else:
+            if other.length is None:
+                raise McScriptTypeError(
+                    f"The length of the second string must be known at compile time for a concatenation",
+                    compileState
+                )
             for i in range(other.length):
                 compileState.writeline(Command.APPEND_ARRAY_FROM(
                     address=resource.value,
@@ -167,6 +219,9 @@ class StringResource(ValueResource):
         return resource
 
     def iterate(self, compileState: CompileState, varName: str, block: Tree):
+        if self.length is None:
+            raise McScriptTypeError(f"Cannot iterate over a string with unknown length (ToDo implement that)",
+                                    compileState)
         for i in range(self.length):
             compileState.pushStack(NamespaceType.LOOP)
             compileState.currentNamespace()[varName] = self.operation_get_element(compileState, NumberResource(i, True))
@@ -203,10 +258,10 @@ class StringResource(ValueResource):
     def load(self, compileState: CompileState, stack: ValueResource = None) -> Resource:
         return self
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> List:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
         if self.isStatic:
             raise TypeError
-        return formatter.createFromResources(*[NbtAddressResource(self.value[i].embed()) for i in range(self.length)])
+        return format_nbt(f"{compileState.config.NAME}:{Storage.NAME}", self.value, interpret=True)
 
     def format(self, *args, **kwargs) -> StringResource:
         r"""

@@ -87,20 +87,6 @@ class Resource(ABC):
         """
         raise TypeError()
 
-    def allow_redefine(self, compileState) -> bool:
-        """
-        This method is called when a resource that has been defined previously with the same name should be redefined.
-        The default implementation allows this but some resources, which must handle these operations statically,
-        have to prohibit this behaviour.
-
-        Args:
-            compileState: the compile state
-
-        Returns:
-            Whether to allow a redefinition of this resource.
-        """
-        return True
-
     def convertToNumber(self, compileState: CompileState) -> NumberResource:
         """ Convert this to a number resource"""
         raise TypeError(f"{repr(self)} cannot be converted to a number.")
@@ -472,9 +458,6 @@ class ObjectResource(Resource, ABC):
     @abstractmethod
     def type() -> ResourceType:
         pass
-
-    def allow_redefine(self, compileState) -> bool:
-        return compileState.currentNamespace().isContextStatic()
 
     def getBasePath(self) -> NbtAddressResource:
         """ Returns the base path which contains the attributes of this object. """

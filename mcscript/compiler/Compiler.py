@@ -17,7 +17,7 @@ from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Rela
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError, \
     McScriptChangedTypeError, McScriptDeclarationError, \
     McScriptIsStaticError, McScriptNameError, \
-    McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
+    McScriptNotImplementedError, McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
 from mcscript.lang.builtins.builtins import BuiltinFunction
 from mcscript.lang.resource.ArrayResource import ArrayResource
 from mcscript.lang.resource.BooleanResource import BooleanResource
@@ -191,7 +191,7 @@ class Compiler(Interpreter):
                 raise McScriptTypeError(f"resource {obj} must be an object!", self.compileState)
 
             try:
-                obj = obj.getAttribute(i)
+                obj = obj.getAttribute(self.compileState, i)
             except AttributeError:
                 raise McScriptNameError(f"property {i} of {obj} does not exist!", self.compileState)
 
@@ -565,12 +565,16 @@ class Compiler(Interpreter):
                 self.compileState
             )
 
+        if len(variable.children) > 1:
+            raise McScriptNotImplementedError("In-place operations on attributes are temporarily disabled",
+                                              self.compileState)
         if isStatic(result) and isStatic(varResource):
             if not accessed:
-                self.compileState.currentNamespace()[variable.children[0]] = result
+                self.compileState.currentNamespace().setVar(variable.children[0], result)
             else:
                 raise NotImplementedError("TODO: Implement in-place operations for static properties")
         else:
+            self.compileState.currentNamespace().setVar(variable.children[0], result)
             result.storeToNbt(varResource.value, self.compileState)
 
     def block(self, tree):

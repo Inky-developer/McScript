@@ -69,7 +69,7 @@ class SourceAnnotation:
             token_or_tree.column - 1,
             token_or_tree.end_line - 1,
             token_or_tree.end_column - 1,
-            annotation
+            str(annotation)
         )
 
     def line_number_padding(self, number: int = None) -> str:

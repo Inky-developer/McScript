@@ -65,12 +65,14 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-players = @a
-for (player in players) {
-    current_player = players
-    run for @a print("{}", current_player)
+s = "Hallo, Welt!"
+while (s.length < 100) {
+    s += " Was ein Tag!"
+    # s[0] = s[1]
 }
-return True
+run for @a print("The length of string '[b]{}[/]' is: {}", s, s.length)
+
+_DebugVariable("s")
 """
 
 if __name__ == '__main__':
@@ -85,7 +87,7 @@ if __name__ == '__main__':
     # print(precompileInstructions.getPrecompileInstructions(code_temp))
     # config.get("name")
     code = code_temp
-    # code = getScript("static_code_safety")
+    # code = getScript("mandelbrot")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
     rcon.send("reload")
