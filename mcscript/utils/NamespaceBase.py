@@ -57,5 +57,8 @@ class NamespaceBase(Mapping[str, T]):
     def __contains__(self, item):
         return item in self.namespace or self.predecessor and item in self.predecessor
 
+    def __str__(self):
+        return f"Namespace({self.namespace}, ...)"
+
     def __repr__(self):
         return f"Namespace({self.namespace}, [{repr(self.predecessor)}])"
