@@ -147,7 +147,7 @@ class McScriptChangedTypeError(McScriptError):
                 compileState.currentTree,
                 f"Trying to change type of {identifier} to {value.type().value}"
             )
-        super().__init__(str(message), compileState, showErr=False)
+        super().__init__(message, compileState, showErr=False)
 
 
 class McScriptUnexpectedTypeError(McScriptError):
@@ -160,4 +160,8 @@ class McScriptUnexpectedTypeError(McScriptError):
 
 
 class McScriptInvalidSelectorError(McScriptError):
-    """ Thrown when an invalid selector is found."""
+    """ Thrown when an invalid selector is found. """
+
+
+class McScriptNotImplementedError(McScriptError):
+    """ Thrown when something is not yet implemented. """
