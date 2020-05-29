@@ -8,7 +8,8 @@ from typing import ClassVar, Dict, List, Optional, TYPE_CHECKING, Type, Union
 from lark import Tree
 
 from mcscript.analyzer.VariableContext import VariableContext
-from mcscript.compiler.Namespace import NamespaceType
+from mcscript.compiler.Context import Context
+from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import BinaryOperator, ConditionalExecute, Relation
 from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -20,7 +21,6 @@ if TYPE_CHECKING:
     from mcscript.lang.resource.NumberResource import NumberResource
     from mcscript.lang.resource.BooleanResource import BooleanResource
     from mcscript.compiler.CompileState import CompileState
-    from mcscript.compiler.Namespace import Namespace
 
 
 class MinecraftDataStorage(Enum):
@@ -83,7 +83,7 @@ class Resource(ABC):
             if cls.isVariable:
                 Resource._reference_variables[cls.type()] = cls
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List]:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List, str]:
         """
         Creates a string that can be used as a minecraft tellraw or title string.
 
@@ -461,10 +461,10 @@ class ValueResource(Resource, ABC):
 class ObjectResource(Resource, ABC):
     storage = MinecraftDataStorage.STORAGE
 
-    def __init__(self, namespace: Namespace = None):
+    def __init__(self, context: Context = None):
         super().__init__()
-        from mcscript.compiler.Namespace import Namespace
-        self.namespace = namespace or Namespace(0, NamespaceType.STRUCT)
+        # the empty context is a dummy
+        self.context = context or Context(0, ContextType.STRUCT, [])
 
     @staticmethod
     @abstractmethod
@@ -476,12 +476,12 @@ class ObjectResource(Resource, ABC):
         raise TypeError
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
-        if name not in self.namespace:
+        if name not in self.context:
             raise AttributeError(f"Property {name} does not exist for {type(self)}.")
-        return self.namespace[name]
+        return self.context.find_resource(name)
 
     def setAttribute(self, compileState: CompileState, name: str, value: Resource) -> Resource:
-        self.namespace[name] = value
+        self.context.set_var(name, value)
         return value
 
     def __repr__(self):

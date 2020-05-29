@@ -50,18 +50,18 @@ def DECIMAL(token: Token, _: CompileState) -> Resource:
 
 
 def STRING(token: Token, compileState: CompileState) -> Resource:
-    return StringResource(token[1:-1], True, namespace=compileState.currentNamespace())
+    return StringResource(token[1:-1], True, context=compileState.currentContext())
 
 
 def SELECTOR(token: Token, compileState: CompileState):
-    return SelectorResource(token, True, compileState, compileState.currentNamespace())
+    return SelectorResource(token, True, compileState, compileState.currentContext())
 
 
 def DATATYPE(token: Token, compileState: CompileState) -> Union[Type[Resource], StructResource]:
     try:
         return Resource.getResourceClass(ResourceType(token.value))
     except ValueError:
-        datatype = compileState.currentNamespace()[token]
+        datatype = compileState.currentContext().find_resource(token)
         if datatype.type() == ResourceType.STRUCT:
             # noinspection PyTypeChecker
             return datatype

@@ -104,8 +104,8 @@ class BooleanResource(ValueResource):
     @classmethod
     def createEmptyResource(cls, identifier: str, compileState: CompileState) -> Resource:
         from mcscript.lang.resource.BooleanVariableResource import BooleanVariableResource
-        return compileState.currentNamespace().addVar(identifier, BooleanVariableResource)
+        return BooleanVariableResource(compileState.get_nbt_address(identifier), False)
 
 
-BooleanResource.TRUE = BooleanResource(1, True)
-BooleanResource.FALSE = BooleanResource(0, True)
+BooleanResource.TRUE = BooleanResource(True, True)
+BooleanResource.FALSE = BooleanResource(False, True)

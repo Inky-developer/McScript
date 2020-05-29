@@ -8,9 +8,8 @@ from typing import List, Optional, TYPE_CHECKING
 from lark import Tree
 
 from mcscript import Logger
-from mcscript.analyzer.VariableContext import VariableContext
-from mcscript.compiler.Namespace import Namespace
-from mcscript.compiler.NamespaceType import NamespaceType
+from mcscript.compiler.Context import Context
+from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
 from mcscript.exceptions.compileExceptions import McScriptSyntaxError
 from mcscript.exceptions.utils import requireType
@@ -20,32 +19,23 @@ if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 
-def get_context_info(compileState: CompileState, tree: Tree) -> VariableContext:
-    if tree.data == "accessor":
-        name, = tree.children
-    else:
-        raise ValueError(f"Cannot get variable name from tree {tree}")
-
-    return compileState.currentNamespace().getVariableInfo(compileState, name)
-
-
-def search_non_static_namespace_until(compileState: CompileState, namespace: Namespace) -> Optional[Namespace]:
+def search_non_static_namespace_until(compileState: CompileState, context: Context) -> Optional[Context]:
     """
-    Iterates down the namespace stack until it hits `namespace` or a namespace is not static in which case
-    the non-static namespace will be returned
+    Iterates down the context stack until it hits `context` or a context is not static in which case
+    the non-static context will be returned
 
     Args:
         compileState: The compile state
-        namespace: The namespace to stop searching at
+        context: The context to stop searching at
 
     Returns:
-        A namespace if a non-static namespace was found
+        A context if a non-static namespace was found
     """
-    current_namespace = compileState.currentNamespace()
-    while current_namespace is not namespace and current_namespace is not None:
-        if not current_namespace.namespaceType.hasStaticContext:
-            return current_namespace
-        current_namespace = namespace.predecessor
+    current_context = compileState.currentContext()
+    while current_context is not context and current_context is not None:
+        if not current_context.context_type.hasStaticContext:
+            return current_context
+        current_context = context.predecessor
 
     return None
 
@@ -55,7 +45,7 @@ def conditional_loop(compileState: CompileState,
                      conditionTree: Tree,
                      check_start: bool,
                      context: Optional[Tree] = None):
-    blockName = compileState.pushBlock(namespaceType=NamespaceType.LOOP)
+    blockName = compileState.pushBlock(ContextType.LOOP)
     for child in block.children:
         compileState.compileFunction(child)
 

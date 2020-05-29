@@ -4,7 +4,7 @@ from typing import List, Optional, TYPE_CHECKING
 
 from lark import Tree
 
-from mcscript.compiler.NamespaceType import NamespaceType
+from mcscript.compiler.ContextType import ContextType
 from mcscript.exceptions.compileExceptions import McScriptAttributeError, McScriptIndexError, McScriptTypeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
@@ -45,8 +45,8 @@ class ArrayResource(Resource):
 
     def iterate(self, compileState: CompileState, varName: str, block: Tree):
         for i in range(len(self.resources)):
-            compileState.pushStack(NamespaceType.UNROLLED_LOOP)
-            compileState.currentNamespace()[varName] = self.resources[i]
+            compileState.pushStack(ContextType.UNROLLED_LOOP)
+            compileState.currentContext().add_var(varName, self.resources[i])
             for child in block.children:
                 compileState.compileFunction(child)
             compileState.popStack()

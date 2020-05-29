@@ -4,7 +4,8 @@ from typing import Optional, TYPE_CHECKING
 
 from lark import Tree
 
-from mcscript.compiler.NamespaceType import NamespaceType
+from mcscript.compiler.Context import Context
+from mcscript.compiler.ContextType import ContextType
 from mcscript.data.Scoreboard import Scoreboard
 from mcscript.data.commands import Command, ExecuteCommand, Selector as CmdSelector, Struct, multiple_commands
 from mcscript.data.selector.Selector import Selector
@@ -15,7 +16,6 @@ from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
-    from mcscript.compiler.Namespace import Namespace
     from mcscript.compiler.CompileState import CompileState
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
@@ -25,14 +25,17 @@ class SelectorResource(ValueResource):
     Holds a minecraft selector
     """
 
-    def __init__(self, value: str, isStatic: bool, compileState: CompileState, namespace: Namespace = None):
+    def __init__(self, value: str, isStatic: bool, compileState: CompileState = None, context: Context = None):
         if isStatic:
-            if namespace:
-                value = StringResource.StringFormatter().format(value, **namespace.asDict())
+            if context:
+                value = StringResource.StringFormatter().format(value, **context.as_dict())
 
             value = Selector.from_string(value, compileState)
-            value.verify(compileState)
-            value.sort()
+
+            # if this resource is created from user code and a compile state is available, verify that this is valid
+            if compileState is not None:
+                value.verify(compileState)
+                value.sort()
         super().__init__(value, isStatic)
 
     def embed(self) -> str:
@@ -138,9 +141,11 @@ class SelectorResource(ValueResource):
     def iterate(self, compileState: CompileState, varName: str, tree: Tree):
         """ identical to `run for @. at @s` """
 
-        block = compileState.pushBlock(namespaceType=NamespaceType.LOOP)
-        compileState.currentNamespace()[varName] = SelectorResource(CmdSelector.CURRENT_ENTITY(), True, compileState) \
-            .storeToNbt(None, compileState)
+        block = compileState.pushBlock(ContextType.LOOP)
+        compileState.currentContext().add_var(
+            varName,
+            SelectorResource(CmdSelector.CURRENT_ENTITY(), True, compileState).storeToNbt(None, compileState)
+        )
 
         for child in tree.children:
             compileState.compileFunction(child)

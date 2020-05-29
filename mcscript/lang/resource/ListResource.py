@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Optional, TYPE_CHECKING, Type
+from typing import Callable, Dict, Optional, TYPE_CHECKING, Type, Union
 
 from lark import Tree
 
-from mcscript.compiler.NamespaceType import NamespaceType
+from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import Command, ExecuteCommand
 from mcscript.exceptions.compileExceptions import McScriptAttributeError, McScriptTypeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
@@ -128,9 +128,9 @@ class ListResource(Resource):
         tempStack = NbtAddressResource(compileState.temporaryStorageStack.next().embed())
         tempArray = self.copy(tempStack, compileState)
 
-        block = compileState.pushBlock(namespaceType=NamespaceType.BLOCK)
+        block = compileState.pushBlock(ContextType.LOOP)
         var = self.ContentResource(tempStack[0], False)
-        compileState.currentNamespace()[varName] = var
+        compileState.currentContext().add_var(varName, var)
 
         # steps in the loop:
         # 1. set ´var´ equal to the current first value of the array
@@ -222,7 +222,7 @@ class ListResource(Resource):
     def toString(self) -> str:
         raise NotImplementedError()
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[list, str]:
         if not self.nbtAddress:
             return "List()"
         return formatter.createFromResources(self.nbtAddress)
@@ -247,7 +247,7 @@ class ListResource(Resource):
         def executeBody(self, compileState: CompileState):
             # make sure to directly access the namespace object so that not accidentally a value of a deeper namespace
             # gets returned in case something goes wrong
-            value = compileState.currentNamespace().namespace["value"]
+            value = compileState.currentContext().namespace["value"].resource
             self.master.append(compileState, value)
 
     class InsertFunction(InlineFunctionResource):
@@ -267,6 +267,6 @@ class ListResource(Resource):
         def executeBody(self, compileState: CompileState):
             # make sure to directly access the namespace object so that not accidentally a value of a deeper namespace
             # gets returned in case something goes wrong
-            index = compileState.currentNamespace().namespace["index"]
-            value = compileState.currentNamespace().namespace["value"]
+            index = compileState.currentContext().namespace["index"].resource
+            value = compileState.currentContext().namespace["value"].resource
             self.master.insert(compileState, index.convertToNumber(compileState), value)

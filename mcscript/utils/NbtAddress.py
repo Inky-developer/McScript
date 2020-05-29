@@ -19,6 +19,9 @@ class NbtAddress(Address):
     def previous(self) -> NbtAddressResource:
         return self._from(super().previous())
 
+    def with_name(self, name: str) -> NbtAddressResource:
+        return NbtAddressResource(self.fmt_str.format(name))
+
     def clone(self) -> NbtAddress:
         address = NbtAddress(self.fmt_str, self.default)
         address.value = self.value

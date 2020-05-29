@@ -6,9 +6,8 @@ from lark.visitors import Interpreter
 from mcscript import Logger
 from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompileState import CompileState
-from mcscript.compiler.NamespaceType import NamespaceType
-from mcscript.compiler.common import conditional_loop, readContextManipulator, \
-    search_non_static_namespace_until
+from mcscript.compiler.ContextType import ContextType
+from mcscript.compiler.common import conditional_loop, readContextManipulator
 from mcscript.compiler.tokenConverter import convertToken
 from mcscript.data import defaultCode, defaultEnums
 from mcscript.data.Config import Config
@@ -55,7 +54,7 @@ class Compiler(Interpreter):
         self.compileState = CompileState(code, contexts, self.visit, config)
         self.compileState.fileStructure.pushFile("main.mcfunction")
         BuiltinFunction.load(self)
-        self.compileState.pushStack(NamespaceType.GLOBAL)
+        self.compileState.pushStack(ContextType.GLOBAL)
         self.visit(tree)
 
         # ToDO put this in default code
@@ -71,7 +70,7 @@ class Compiler(Interpreter):
 
     #  called by every registered builtin function
     def loadFunction(self, function: BuiltinFunction):
-        self.compileState.currentNamespace().addFunction(function)
+        self.compileState.currentContext().add_var(function.name(), function)
 
     #######################
     #    tree handlers    #
@@ -104,7 +103,7 @@ class Compiler(Interpreter):
         except TypeError as e:
             raise McScriptTypeError(e.args[0], self.compileState)
 
-        self.compileState.currentNamespace()[name] = enum
+        self.compileState.currentContext().add_var(name, enum)
 
     def enum_block(self, tree):
         properties = []
@@ -136,13 +135,13 @@ class Compiler(Interpreter):
             a list of all objects that were accessed
         """
         ret, *values = tree.children
-        if ret not in self.compileState.currentNamespace():
+        if ret not in self.compileState.currentContext():
             if result := defaultEnums.get(ret):
-                self.compileState.stack.stack[0][ret] = result
+                self.compileState.stack.stack[0].set_var(ret, result)
             else:
                 raise McScriptNameError(f"Unknown variable '{ret}'", self.compileState)
 
-        accessed = [self.compileState.currentNamespace()[ret]]
+        accessed = [self.compileState.currentContext().find_resource(ret)]
         for value in values:
             try:
                 accessed.append(accessed[-1].getAttribute(self.compileState, value))
@@ -181,9 +180,9 @@ class Compiler(Interpreter):
         obj, *rest = identifier.children
 
         self.compileState.currentTree = obj  # manual setting because this method is called manually
-        if obj not in self.compileState.currentNamespace():
+        if obj not in self.compileState.currentContext():
             raise McScriptNameError(f"Unknown variable '{obj}'", self.compileState)
-        obj = self.compileState.currentNamespace()[obj]
+        obj = self.compileState.currentContext().find_resource(obj)
 
         for i in rest[:-1]:
             self.compileState.currentTree = i
@@ -411,14 +410,16 @@ class Compiler(Interpreter):
             value: the value of the variable
             force_new_stack: Whether a new stack is required. If False the value might simply get copied.
         """
-        if identifier in self.compileState.currentNamespace():
-            stack = self.compileState.currentNamespace()[identifier]
+        if identifier in self.compileState.currentContext():
+            set_method = self.compileState.currentContext().set_var
+            variable = self.compileState.currentContext().find_var(identifier)
+            stack = variable.resource
 
             if not compareTypes(value, stack):
                 raise McScriptChangedTypeError(identifier, value, self.compileState)
 
             if isStatic(stack):
-                variable_data = self.compileState.currentNamespace().getVariableInfo(self.compileState, identifier)
+                variable_data = variable.context
 
                 if not isStatic(value):
                     raise McScriptIsStaticError(
@@ -427,15 +428,14 @@ class Compiler(Interpreter):
                         self.compileState
                     )
 
-                non_static_namespace = search_non_static_namespace_until(
-                    self.compileState,
+                non_static_context = self.compileState.currentContext().search_non_static_until(
                     self.compileState.stack.getByIndex(variable_data.declaration.contextId)
                 )
 
-                if non_static_namespace is not None:
+                if non_static_context is not None:
                     raise McScriptIsStaticError(
                         f"Trying to change the value here\nIn between is a non-static namespace "
-                        f"{non_static_namespace.namespaceType.name} (ToDo show line for this)",
+                        f"{non_static_context.context_type.name} (ToDo show line for this)",
                         variable_data.declaration.access,
                         self.compileState,
                     )
@@ -446,9 +446,9 @@ class Compiler(Interpreter):
                 try:
                     stack = stack.getBasePath()
                 except TypeError:
-                    stack = NbtAddressResource(self.compileState.currentNamespace().variableFmt.format(identifier))
+                    stack = self.compileState.currentContext().nbt_format.with_name(identifier)
             else:
-                stack = NbtAddressResource(self.compileState.currentNamespace().variableFmt.format(identifier))
+                stack = self.compileState.currentContext().nbt_format.with_name(identifier)
 
             # what is this bs?
             # # Redefining a variable can lead to errors.
@@ -463,10 +463,11 @@ class Compiler(Interpreter):
             #     raise McScriptDeclarationError(
             #        f"Trying to redefine a variable of type {value.type().value} in a {scope} scope", self.compileState
             #     )
-
         else:
             # create a new stack value
-            stack = NbtAddressResource(self.compileState.currentNamespace().variableFmt.format(identifier))
+            stack = self.compileState.currentContext().nbt_format.with_name(identifier)
+            set_method = self.compileState.currentContext().add_var
+
         try:
             # var = value.load(self.compileState).storeToNbt(stack, self.compileState)
             var = value.storeToNbt(stack, self.compileState) if force_new_stack else value
@@ -476,7 +477,8 @@ class Compiler(Interpreter):
             if not isinstance(value, NullResource):
                 raise McScriptTypeError(f"Could not assign type {value.type().value} to a variable because "
                                         f"it does not support this operation", self.compileState)
-        self.compileState.currentNamespace().setVar(identifier, var)
+
+        set_method(identifier, var)
         return var
 
     def declaration(self, tree):
@@ -487,8 +489,8 @@ class Compiler(Interpreter):
         identifier, = identifier.children
 
         value = self.compileState.toResource(_value)
-        force_stack = identifier not in self.compileState.currentNamespace() or not isStatic(
-            self.compileState.currentNamespace()[identifier])
+        force_stack = identifier not in self.compileState.currentContext() or not isStatic(
+            self.compileState.currentContext().find_resource(identifier))
 
         self.compileState.currentTree = _value
         self._set_variable(identifier, value, force_stack)
@@ -528,7 +530,7 @@ class Compiler(Interpreter):
         if not value.hasStaticValue:
             raise McScriptNotStaticError("static declaration needs a static value", self.compileState)
 
-        self.compileState.currentNamespace()[identifier] = value
+        self.compileState.currentContext().add_var(identifier, value)
 
     def term_ip(self, tree):
         variable, operator, _resource = tree.children
@@ -560,8 +562,7 @@ class Compiler(Interpreter):
                 raise McScriptTypeError("Trying to assign a non-static value to a static property", self.compileState)
             raise McScriptIsStaticError(
                 "Trying to assign a non-static value here",
-                self.compileState.currentNamespace().getVariableInfo(self.compileState,
-                                                                     variable.children[0]).declaration.access,
+                self.compileState.currentContext().find_var(variable.children[0]).context.declaration.access,
                 self.compileState
             )
 
@@ -570,16 +571,16 @@ class Compiler(Interpreter):
                                               self.compileState)
         if isStatic(result) and isStatic(varResource):
             if not accessed:
-                self.compileState.currentNamespace().setVar(variable.children[0], result)
+                self.compileState.currentContext().set_var(variable.children[0], result)
             else:
                 raise NotImplementedError("TODO: Implement in-place operations for static properties")
         else:
-            self.compileState.currentNamespace().setVar(variable.children[0], result)
+            self.compileState.currentContext().set_var(variable.children[0], result)
             result.storeToNbt(varResource.value, self.compileState)
 
     def block(self, tree):
-        blockName = self.compileState.pushBlock()
-        newNamespace = self.compileState.currentNamespace()
+        blockName = self.compileState.pushBlock(ContextType.BLOCK)
+        newNamespace = self.compileState.currentContext()
         self.visit_children(tree)
         self.compileState.popBlock()
         return blockName, newNamespace
@@ -602,14 +603,14 @@ class Compiler(Interpreter):
                 Logger.debug(f"If statement at line {tree.line} column {tree.column} is always False")
             return
 
-        blockName = self.compileState.pushBlock(namespaceType=NamespaceType.CONDITIONAL)
+        blockName = self.compileState.pushBlock(ContextType.CONDITIONAL)
         self.visit_children(block)
         self.compileState.popBlock()
 
         if block_else is not None:
             cond_if, cond_else = condition.if_else(self.compileState)
 
-            blockElseName = self.compileState.pushBlock(namespaceType=NamespaceType.CONDITIONAL)
+            blockElseName = self.compileState.pushBlock(ContextType.CONDITIONAL)
             self.visit_children(block_else)
             self.compileState.popBlock()
 
@@ -637,9 +638,9 @@ class Compiler(Interpreter):
 
     def return_(self, tree):
         resource = self.compileState.toResource(tree.children[0])
-        if not isinstance(self.compileState.currentNamespace().returnedResource, NullResource):
+        if self.compileState.currentContext().return_resource is not None:
             raise McScriptSyntaxError("Cannot set the return value twice.", self.compileState)
-        self.compileState.currentNamespace().returnedResource = resource
+        self.compileState.currentContext().returnedResource = resource
 
     def function_parameter(self, tree):
         identifier, datatype = tree.children
@@ -649,7 +650,7 @@ class Compiler(Interpreter):
     def function_definition(self, tree):
         inline, _, function_name, parameter_list, return_type, block = tree.children
         # a function will be inlined if so specified or if it is declared in a struct scope.
-        isMethod = self.compileState.currentNamespace().namespaceType == NamespaceType.STRUCT
+        isMethod = self.compileState.currentContext().context_type == ContextType.STRUCT
         inline = inline or isMethod
         parameter_list = [self.visit(i) for i in parameter_list.children]
 
@@ -677,13 +678,13 @@ class Compiler(Interpreter):
         FunctionCls = StructMethodResource if isMethod else InlineFunctionResource
 
         function = FunctionCls(function_name, parameter_list, return_type, block)
-        self.compileState.currentNamespace().addFunction(function)
+        self.compileState.currentContext().add_var(function.name(), function)
 
     def function_definition_normal(self, function_name: str, parameter_list: List[Parameter], return_type: TypeResource,
                                    block: Tree):
         function = DefaultFunctionResource(function_name, parameter_list, return_type, block)
         function.compile(self.compileState)
-        self.compileState.currentNamespace().addFunction(function)
+        self.compileState.currentContext().add_var(function.name(), function)
 
         is_special = function_name in defaultCode.MAGIC_FUNCTIONS
         if is_special:
@@ -697,6 +698,7 @@ class Compiler(Interpreter):
 
     def builtinFunction(self, function: BuiltinFunction, *parameters: Resource):
         loadFunction = self.compileState.load if not function.requireRawParameters() else self.compileState.toResource
+        # noinspection PyArgumentList
         parameters = [loadFunction(i) for i in parameters]
 
         result = function.create(self.compileState, *parameters)
@@ -704,7 +706,7 @@ class Compiler(Interpreter):
             if result.inline:
                 self.compileState.writeline(result.code)
             else:
-                addr = self.compileState.pushBlock()
+                addr = self.compileState.pushBlock(ContextType.BLOCK)
                 self.compileState.writeline(result.code)
                 self.compileState.popBlock()
                 self.compileState.writeline(Command.RUN_FUNCTION(function=addr))
@@ -731,29 +733,29 @@ class Compiler(Interpreter):
 
     def variable_declaration(self, tree):
         identifier, datatype = tree.children
-        self.compileState.currentNamespace()[identifier] = TypeResource(
+        self.compileState.currentContext().add_var(identifier, TypeResource(
             convertToken(datatype, self.compileState), True
-        )
+        ))
 
     def control_struct(self, tree):
         name, block = tree.children
-        self.compileState.pushStack(NamespaceType.STRUCT)
-        namespace = self.compileState.currentNamespace()
+        self.compileState.pushStack(ContextType.STRUCT)
+        context = self.compileState.currentContext()
 
-        struct = StructResource(name, namespace)
+        struct = StructResource(name, context)
 
         # this is not nice, but the struct must be referencable within itself
-        self.compileState.currentNamespace().setVar(name, struct)
+        self.compileState.currentContext().add_var(name, struct)
 
         for declaration in block.children:
             self.visit(declaration)
         self.compileState.popStack()
-        self.compileState.currentNamespace().setVar(name, struct)
+        self.compileState.currentContext().add_var(name, struct)
 
     def context_manipulator(self, tree):
         *modifiers, block = tree.children
 
-        blockName = self.compileState.pushBlock(namespaceType=NamespaceType.CONTEXT_MANIPULATOR)
+        blockName = self.compileState.pushBlock(ContextType.CONTEXT_MANIPULATOR)
         self.visit_children(block)
         self.compileState.popBlock()
 

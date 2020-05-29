@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, TYPE_CHECKING
 
 from lark import Tree
 
-from mcscript.compiler.Namespace import NamespaceType
+from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import Command
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptTypeError
 from mcscript.lang.resource.AddressResource import AddressResource
@@ -37,14 +37,14 @@ class DefaultFunctionResource(FunctionResource):
     def compile(self, compileState: CompileState):
         blockName = self.blockName = self.name() if self.canUseOwnName(compileState) else \
             compileState.codeBlockStack.next()
-        compileState.pushBlock(blockName, NamespaceType.FUNCTION)
+        compileState.pushBlock(ContextType.FUNCTION, blockName)
 
         self.initNamespace(compileState)
 
         for child in self.block.children:
             compileState.compileFunction(child)
 
-        self.returnValue = compileState.currentNamespace().returnedResource
+        self.returnValue = compileState.currentContext().return_resource
         if self.returnValue.type() != self.returnType.value.type():
             raise McScriptTypeError(f"{repr(self)} should return {self.returnType.value.type().name} "
                                     f"but returned {self.returnValue.type().name}", compileState)
@@ -52,7 +52,8 @@ class DefaultFunctionResource(FunctionResource):
         # leave the signature as a comment
         signature = f"# fun {self.name()}({{}}) -> {{}}"
         params = ", ".join(
-            f"{compileState.currentNamespace()[pIdentifier]}: {pType}" for pIdentifier, pType in self.parameters
+            f"{compileState.currentContext().find_resource(pIdentifier)}: {pType}" for pIdentifier, pType in
+            self.parameters
         )
         compileState.writeline(signature.format(params, repr(self.returnValue)))
 
@@ -93,7 +94,7 @@ class DefaultFunctionResource(FunctionResource):
         returns whether this function can use its own name as a filename for the function file
         """
         return (
-                compileState.currentNamespace().index == 0 and
+                compileState.currentContext().index == 0 and
                 re.fullmatch(r"[a-z_]+", self.name())
         )
 
@@ -101,4 +102,4 @@ class DefaultFunctionResource(FunctionResource):
         for identifier, resource in self.parameters:
             resource = resource.value.createEmptyResource(identifier, compileState)
             self.parameterStack[identifier] = resource.value
-            compileState.currentNamespace()[identifier] = resource
+            compileState.currentContext().add_var(identifier, resource)

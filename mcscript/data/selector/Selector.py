@@ -90,13 +90,14 @@ class Selector:
                                                                                      False) or not argument.negative
 
     @classmethod
-    def from_string(cls, _selector: str, compileState: CompileState) -> Selector:
+    def from_string(cls, _selector: str, compileState: CompileState = None) -> Selector:
         """
         Creates a Selector from a string
         format: @[parse][key=value,...] where value has balanced parentheses
 
         Args:
             _selector: the selector string
+            compileState: the compile state or none if not available
 
         Returns:
             A selector
@@ -132,10 +133,12 @@ class Selector:
             try:
                 selectorArgs.append(SelectorArgument(getByName(key), value, negate))
             except ValueError:
-                raise McScriptInvalidSelectorError(
-                    f"Invalid Selector argument: '{key}'. Must be one of:\n{', '.join(i.name for i in getSelectors())}",
-                    compileState
-                )
+                msg = f"Invalid Selector argument: '{key}'. Must be one of:\n" \
+                      f"{', '.join(i.name for i in getSelectors())}"
+                if compileState is not None:
+                    raise McScriptInvalidSelectorError(msg, compileState)
+                else:
+                    raise ValueError(msg)
         # noinspection PyTypeChecker
         return Selector(str(selector.children[0]), selectorArgs)
 

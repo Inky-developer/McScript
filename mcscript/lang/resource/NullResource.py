@@ -35,4 +35,4 @@ class NullResource(ValueResource):
     @classmethod
     def createEmptyResource(cls, identifier: str, compileState: CompileState) -> NullResource:
         # noinspection PyTypeChecker
-        return compileState.currentNamespace().addVar(identifier, NullResource())
+        return compileState.currentContext().add_var(identifier, NullResource())

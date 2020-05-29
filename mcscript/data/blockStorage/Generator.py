@@ -38,8 +38,8 @@ class BlockTagGenerator(Generator):
             filestructure.get().write(fmt_string.format(self.format_blocks(tree.values)))
 
     @staticmethod
-    def format_blocks(blocks: List[Block]):
-        return ",\n        ".join(f'"{block.minecraft_id}"' for block in blocks)
+    def format_blocks(block_list: List[Block]):
+        return ",\n        ".join(f'"{block.minecraft_id}"' for block in block_list)
 
 
 class BlockStateGenerator(ABC):

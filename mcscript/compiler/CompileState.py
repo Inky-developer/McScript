@@ -5,12 +5,14 @@ from lark import Tree
 
 from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompilerConstants import CompilerConstants
-from mcscript.compiler.Namespace import Namespace, NamespaceType
-from mcscript.compiler.NamespaceStack import NamespaceStack
+from mcscript.compiler.Context import Context
+from mcscript.compiler.ContextStack import ContextStack
+from mcscript.compiler.ContextType import ContextType
 from mcscript.data.Config import Config
 from mcscript.data.Scoreboard import Scoreboard
 from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
 from mcscript.lang.resource.AddressResource import AddressResource
+from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.Address import Address
 from mcscript.utils.Datapack import Datapack
@@ -43,26 +45,39 @@ class CompileState:
         self.compilerConstants = CompilerConstants()
 
         self.contexts = contexts
-        self.stack: NamespaceStack = NamespaceStack()
-        self.stack.append(Namespace(0, namespaceType=NamespaceType.GLOBAL))
+        self.stack: ContextStack = ContextStack()
+        # self.stack.append(Namespace(0, namespaceType=NamespaceType.GLOBAL))
+        self.stack.append(Context(0, ContextType.GLOBAL, []))
 
         self.fileStructure = self.datapack.getMainDirectory().getPath("functions").fileStructure
         self.lineCount = 0
 
-        # used in combination with the context manager to determine whether the changes should be kepts
+        # used in combination with the context manager to determine whether the changes should be kept
         self._commit = False
+
+    def get_nbt_address(self, name: str) -> NbtAddressResource:
+        """
+        formats the variable name so that it can be used as an nbt name
+
+        Args:
+            name: the name
+
+        Returns:
+            A nbt address
+        """
+        return self.currentContext().nbt_format.format(name)
 
     def getConstant(self, constant: int) -> AddressResource:
         """ Wrapper for compilerConstant"""
         return AddressResource(self.compilerConstants.getConstant(constant), True)
 
     @property
-    def expressionStack(self):
+    def expressionStack(self) -> Address:
         """
-        shortcut for expressionStack.currentNamespace().expressionStack.
+        shortcut for currentNamespace().expressionStack
         Used by a lot of old code.
         """
-        return self.currentNamespace().expressionStack
+        return self.currentContext().format_string
 
     def load(self, value: Resource) -> Resource:
         """
@@ -127,11 +142,11 @@ class CompileState:
             ))
         raise ValueError(f"Unknown type {result}")
 
-    def pushBlock(self, blockName: str = None, namespaceType: NamespaceType = NamespaceType.BLOCK) -> AddressResource:
-        """ creates a new file and namespace and returns the block id."""
+    def pushBlock(self, contextType: ContextType, blockName: str = None) -> AddressResource:
+        """ creates a new file and context and returns the block id."""
         blockName = blockName or self.codeBlockStack.next()
         self.fileStructure.pushFile(blockName)
-        self.pushStack(namespaceType)
+        self.pushStack(contextType)
         return blockName
 
     def popBlock(self):
@@ -178,16 +193,19 @@ class CompileState:
         self.write(string)
         self.write("\n")
 
-    def currentNamespace(self) -> Namespace:
+    def currentContext(self) -> Context:
         return self.stack.tail()
 
     def popStack(self):
         self.stack.pop()
 
-    def pushStack(self, namespaceType: NamespaceType):
-        namespace = Namespace(self.stack.index(), namespaceType, self.currentNamespace())
-        self.stack.append(namespace)
-        return namespace
+    def pushStack(self, contextType: ContextType) -> Context:
+        # namespace = Namespace(self.stack.index(), contextType, self.currentContext())
+
+        # the context index is always one above self.contexts because the first context is used for default stuff
+        context = Context(self.stack.index(), contextType, self.contexts[self.stack.index() - 1])
+        self.stack.append(context)
+        return context
 
     def getDebugLines(self, a, _):
         return self.code[a - 1].strip()

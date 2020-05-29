@@ -28,8 +28,8 @@ class _DebugVariableInfoFunction(BuiltinFunction):
     def generate(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
         variable, = parameters
         identifier = variable.toString()
-        variableData = compileState.currentNamespace().getVariableInfo(compileState, identifier)
-        resource = compileState.currentNamespace()[identifier]
+        variable = compileState.currentContext().find_var(identifier)
+        variableData, resource = variable.context, variable.resource
 
         lines = []
 
@@ -42,10 +42,13 @@ class _DebugVariableInfoFunction(BuiltinFunction):
         source_annotations += SourceAnnotation.from_token(compileState.code, variableData.declaration.access,
                                                           "Declared here")
         for accessType, var in variableData.history():
-            namespace = compileState.stack.getByIndex(var.contextId)
+            context = compileState.stack.getByIndex(var.contextId)
             message = "Read access here" if accessType == "read" else "Write access here"
-            if not namespace.isContextStatic():
-                message += f"\nNon-static context"
+
+            # what should that mean?
+            # if not context.isContextStatic():
+            #     message += f"\nNon-static context"
+
             source_annotations += SourceAnnotation.from_token(compileState.code, var.access, message)
         lines.append(str(source_annotations.sorted()))
 

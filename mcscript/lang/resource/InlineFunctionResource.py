@@ -4,9 +4,8 @@ from typing import List, TYPE_CHECKING
 
 from lark import Tree
 
-from mcscript.compiler.Namespace import NamespaceType
+from mcscript.compiler.ContextType import ContextType
 from mcscript.exceptions.compileExceptions import McScriptTypeError
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.FunctionResource import FunctionResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
@@ -25,21 +24,21 @@ class InlineFunctionResource(FunctionResource):
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keywordParameters: Resource) -> Resource:
         parameters = self.signature.matchParameters(compileState, parameters)
-        namespace = compileState.pushStack(NamespaceType.INLINE_FUNCTION)
+        context = compileState.pushStack(ContextType.INLINE_FUNCTION)
 
         for pTemplate, parameter in zip(self.parameters, parameters):
             pName, pType = pTemplate
             parameter = self._loadParameter(parameter, pName, pType, compileState)
-            namespace[pName] = parameter
+            context.add_var(pName, parameter)
 
         self.executeBody(compileState)
 
-        if not compareTypes(namespace.returnedResource, self.returnType.value):
+        if not compareTypes(context.return_resource, self.returnType.value):
             raise McScriptTypeError(f"Function {self.name()} should return {self.returnType.value.type().name}, "
-                                    f"but returned {namespace.returnedResource.type().name}", compileState)
+                                    f"but returned {context.return_resource.type().name}", compileState)
 
         compileState.popStack()
-        return namespace.returnedResource
+        return context.return_resource
 
     def executeBody(self, compileState: CompileState):
         if not self.block:
@@ -62,7 +61,8 @@ class InlineFunctionResource(FunctionResource):
         """
         if pType.value.requiresInlineFunc or (isinstance(parameter, ValueResource) and parameter.isStatic):
             return parameter
+
         return parameter.load(compileState).storeToNbt(
-            NbtAddressResource(compileState.currentNamespace().variableFmt.format(pName)),
+            compileState.get_nbt_address(pName),
             compileState
         )

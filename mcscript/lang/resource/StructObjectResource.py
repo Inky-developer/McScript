@@ -46,7 +46,7 @@ class StructObjectResource(ObjectResource):
             if not isinstance(value, ValueResource):
                 # raise NotImplementedError
                 pass
-            self.namespace[key] = value
+            self.context[key] = value
             variables.remove(var)
 
         identifierKeys = [key for key, varType in variables]
@@ -61,7 +61,7 @@ class StructObjectResource(ObjectResource):
             if not isinstance(value, ValueResource):
                 raise NotImplementedError
             # value.isStatic = False
-            self.namespace[key] = value
+            self.context[key] = value
 
         if variables:
             raise McScriptArgumentsError(
@@ -72,21 +72,21 @@ class StructObjectResource(ObjectResource):
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> Resource:
         self.nbtPath = stack
-        for key in self.namespace:
-            self.namespace[key] = self.namespace[key].storeToNbt(stack + NbtAddressResource(key), compileState)
+        for key in self.context:
+            self.context[key] = self.context[key].storeToNbt(stack + NbtAddressResource(key), compileState)
         return self
 
     def setAttribute(self, compileState: CompileState, name: str, value: Resource) -> Resource:
         if not self.nbtPath:
             raise ReferenceError("Trying to set an attribute for an enum that has no nbtPath")
-        if name not in self.namespace:
+        if name not in self.context:
             raise McScriptNameError(f"Cannot set variable '{name}' for {self} which was never declared!", compileState)
-        self.namespace[name] = value.storeToNbt(self.nbtPath + NbtAddressResource(name), compileState)
+        self.context[name] = value.storeToNbt(self.nbtPath + NbtAddressResource(name), compileState)
         return value
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         try:
-            return self.namespace[name]
+            return self.context[name]
         except KeyError:
             try:
                 return self.struct.getAttribute(compileState, name)
@@ -106,9 +106,9 @@ class StructObjectResource(ObjectResource):
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         return BooleanResource.TRUE
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
         def resourceString(key):
-            return [key + ": ", self.namespace[key]]
+            return [key + ": ", self.context[key]]
 
         variables = self.struct.getDeclaredVariables()
         resources = resourceString(variables[0][0])

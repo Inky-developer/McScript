@@ -10,6 +10,6 @@ def iterBuiltins():
         yield modname
 
 
-for modname in iterBuiltins():
-    Logger.debug(f"[Resource] auto-importing {modname}")
-    import_module("." + modname, __name__)
+for name in iterBuiltins():
+    Logger.debug(f"[Resource] auto-importing {name}")
+    import_module("." + name, __name__)

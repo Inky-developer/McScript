@@ -8,6 +8,7 @@ from inspect import isabstract
 from textwrap import dedent
 from typing import Dict, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union
 
+from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import Command
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.lang.resource.AddressResource import AddressResource
@@ -209,7 +210,7 @@ class CachedFunction(BuiltinFunction, ABC):
         isStatic = all(isinstance(i, ValueResource) and i.hasStaticValue for i in parameters)
         if isStatic:
             if parameters not in self._cache:
-                blockName = compileState.pushBlock()
+                blockName = compileState.pushBlock(contextType=ContextType.BLOCK)
                 self._checkUsed(compileState)
                 result = self.generate(compileState, *parameters)
                 compileState.writeline(result)

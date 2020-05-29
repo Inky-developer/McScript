@@ -11,8 +11,6 @@ from .TestDataReader import TestDataReader
 # noinspection PyUnresolvedReferences
 from .TestFunctionSignature import TestFunctionSignature
 # noinspection PyUnresolvedReferences
-from .TestNamespace import TestNamespace
-# noinspection PyUnresolvedReferences
 from .TestStringResource import TestStringResource
 # noinspection PyUnresolvedReferences
 from .TestUtils import TestUtils

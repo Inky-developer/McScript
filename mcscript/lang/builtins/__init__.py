@@ -9,5 +9,5 @@ def iterBuiltins():
         yield modname
 
 
-for modname in iterBuiltins():
-    import_module("." + modname, __name__)
+for name in iterBuiltins():
+    import_module("." + name, __name__)

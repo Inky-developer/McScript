@@ -126,8 +126,9 @@ class McScriptInvalidMarkupError(McScriptError):
 
 class McScriptChangedTypeError(McScriptError):
     def __init__(self, identifier: str, value: Resource, compileState: CompileState):
-        var = compileState.currentNamespace().getVariableInfo(compileState, identifier)
-        resource = compileState.currentNamespace()[identifier]
+        variable = compileState.currentContext().find_var(identifier)
+        var = variable.context
+        resource = variable.resource
 
         # if the user tries to overwrite a builtin, the first message does not make sense
         if identifier in compileState.stack.stack[0]:

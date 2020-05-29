@@ -6,11 +6,13 @@ from typing import Callable, Dict, Optional, TYPE_CHECKING, Tuple, Union
 
 from lark import Tree
 
-from mcscript.compiler.NamespaceType import NamespaceType
+from mcscript.compiler.Context import Context
+from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import Command, Storage, Struct
 from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
+from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -19,7 +21,6 @@ from mcscript.utils.JsonTextFormat.objectFormatter import format_nbt
 if TYPE_CHECKING:
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.compiler.CompileState import CompileState
-    from mcscript.compiler.Namespace import Namespace
 
 
 class StringResource(ValueResource):
@@ -58,7 +59,7 @@ class StringResource(ValueResource):
     formatter = StringFormatter()
 
     def __init__(self, value: Union[str, NbtAddressResource], isStatic, length: int = None,
-                 namespace: Optional[Namespace] = None):
+                 context: Optional[Context] = None):
         super().__init__(value, isStatic)
 
         self.length = len(value) if isStatic else length
@@ -66,8 +67,8 @@ class StringResource(ValueResource):
 
         self.attributes: Dict[str, Callable] = dict(length=self.getLength)
 
-        if namespace is not None:
-            self.setValue(self.formatter.format(self.embed(), **namespace.asDict()), self.isStatic)
+        if context is not None:
+            self.setValue(self.formatter.format(self.embed(), **context.as_dict()), self.isStatic)
 
     @staticmethod
     def type():
@@ -93,7 +94,7 @@ class StringResource(ValueResource):
                 var=self.value
             )
         )
-        return stack
+        return NumberResource(stack, False)
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         if attribute := self.attributes.get(name, None):
@@ -222,9 +223,16 @@ class StringResource(ValueResource):
         if self.length is None:
             raise McScriptTypeError(f"Cannot iterate over a string with unknown length (ToDo implement that)",
                                     compileState)
+
+        # register a dummy value
+        compileState.currentContext().add_var(varName, NullResource())
+
         for i in range(self.length):
-            compileState.pushStack(NamespaceType.LOOP)
-            compileState.currentNamespace()[varName] = self.operation_get_element(compileState, NumberResource(i, True))
+            compileState.pushStack(ContextType.LOOP)
+            compileState.currentContext().set_var(
+                varName,
+                self.operation_get_element(compileState, NumberResource(i, True))
+            )
             for child in block.children:
                 compileState.compileFunction(child)
             compileState.popStack()

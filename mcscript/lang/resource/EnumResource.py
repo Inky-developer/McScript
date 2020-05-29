@@ -25,16 +25,16 @@ class EnumResource(ObjectResource):
         properties is a list of members, each member gets as the value its index
         """
         super().__init__()
-        self.namespace.namespace.update({key: NumberResource(value, True) for value, key in enumerate(properties)})
+        self.context.namespace.update({key: NumberResource(value, True) for value, key in enumerate(properties)})
         for key in valueProperties:
             resource = valueProperties[key]
             if not isinstance(resource, ValueResource):
                 raise TypeError(f"Invalid value for enum member {key}: {resource}")
-            if resource.value in (i.value for i in self.namespace.values()):
-                other, = filter(lambda x: self.namespace[x].value == resource.value, self.namespace)
+            if resource.value in (i.value for i in self.context.values()):
+                other, = filter(lambda x: self.context[x].value == resource.value, self.context)
                 raise ValueError(f"key '{key}' does not have a unique value of {resource.value} which is already "
                                  f"defined for '{other}'")
-            self.namespace[key] = resource
+            self.context[key] = resource
 
     @staticmethod
     def type() -> ResourceType:
@@ -42,10 +42,10 @@ class EnumResource(ObjectResource):
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         try:
-            return self.namespace[name]
+            return self.context[name]
         except KeyError:
             raise McScriptAttributeError(f"Unknown member {name} of enum.\n"
-                                         f"Expected one of: {', '.join(i for i in self.namespace)}", compileState)
+                                         f"Expected one of: {', '.join(i for i in self.context)}", compileState)
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keywordParameters: Resource) -> Resource:
@@ -60,21 +60,21 @@ class EnumResource(ObjectResource):
                 "Enum must be called with an argument that is static and can be converted to a number.",
                 compileState
             )
-        for key in self.namespace:
-            if self.namespace[key].toNumber() == parameter:
+        for key in self.context:
+            if self.context[key].toNumber() == parameter:
                 return StringResource(key, True)
         raise McScriptArgumentsError(f"Enum {repr(self)} has no member with a value of {parameter}", compileState)
 
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         """ returns true if this enum contains at least one member"""
-        return BooleanResource.TRUE if self.namespace.namespace else BooleanResource.FALSE
+        return BooleanResource.TRUE if self.context.namespace else BooleanResource.FALSE
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> str:
+    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
         parameters = []
-        for value in self.namespace:
+        for value in self.context:
             parameters.append(value)
             parameters.append("=")
-            parameters.append(self.namespace[value])
+            parameters.append(self.context[value])
             parameters.append(", ")
         return formatter.createFromResources("Enum(", *parameters[:-1], ")")
 
