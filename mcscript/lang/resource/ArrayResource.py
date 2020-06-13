@@ -44,12 +44,18 @@ class ArrayResource(Resource):
         return ResourceType.ARRAY
 
     def iterate(self, compileState: CompileState, varName: str, block: Tree):
+        context = compileState.pushContext(ContextType.UNROLLED_LOOP)
+
         for i in range(len(self.resources)):
-            compileState.pushStack(ContextType.UNROLLED_LOOP)
-            compileState.currentContext().add_var(varName, self.resources[i])
+            context.clear()
+            # It is important that the defined contexts only appear once in the compile state context stack.
+            # For this reason everything is cleared here.
+            compileState.clearUntilContext(context)
+            context.add_var(varName, self.resources[i])
             for child in block.children:
                 compileState.compileFunction(child)
-            compileState.popStack()
+
+        compileState.popContext()
 
     def operation_get_element(self, compileState: CompileState, index: Resource) -> Resource:
         try:

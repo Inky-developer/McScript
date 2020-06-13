@@ -8,8 +8,9 @@ from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import Command, ExecuteCommand
 from mcscript.exceptions.compileExceptions import McScriptAttributeError, McScriptTypeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
-from mcscript.lang.resource.InlineFunctionResource import InlineFunctionResource
+from mcscript.lang.resource.InternalFunctionResource import InternalFunctionResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
+from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
@@ -54,7 +55,7 @@ class ListResource(Resource):
             size=self.getSize,
         )
 
-        self.functions: Dict[str, InlineFunctionResource] = dict(
+        self.functions: Dict[str, InternalFunctionResource] = dict(
             append=self.AppendFunction(self),
             insert=self.InsertFunction(self)
         )
@@ -233,40 +234,34 @@ class ListResource(Resource):
                                     compileState)
 
     # Function classes
-    class AppendFunction(InlineFunctionResource):
+    class AppendFunction(InternalFunctionResource):
         def __init__(self, master: ListResource):
             super().__init__(
-                "append",
                 [("value", TypeResource.fromType(ResourceType.RESOURCE)), ],
-                TypeResource.fromType(ResourceType.NULL),
-                None
+                TypeResource.fromType(ResourceType.NULL)
             )
 
             self.master = master
 
-        def executeBody(self, compileState: CompileState):
-            # make sure to directly access the namespace object so that not accidentally a value of a deeper namespace
-            # gets returned in case something goes wrong
-            value = compileState.currentContext().namespace["value"].resource
+        # noinspection PyMethodOverriding
+        def execute(self, compileState: CompileState, value: Resource) -> Resource:
             self.master.append(compileState, value)
+            return NullResource()
 
-    class InsertFunction(InlineFunctionResource):
+    class InsertFunction(InternalFunctionResource):
         def __init__(self, master: ListResource):
             super().__init__(
-                "insert",
                 [
                     ("index", TypeResource.fromType(ResourceType.NUMBER)),
                     ("value", TypeResource.fromType(ResourceType.RESOURCE))
                 ],
-                TypeResource.fromType(ResourceType.NULL),
-                None
+                TypeResource.fromType(ResourceType.NULL)
             )
 
             self.master = master
 
-        def executeBody(self, compileState: CompileState):
-            # make sure to directly access the namespace object so that not accidentally a value of a deeper namespace
-            # gets returned in case something goes wrong
-            index = compileState.currentContext().namespace["index"].resource
-            value = compileState.currentContext().namespace["value"].resource
+        def execute(self, compileState: CompileState, **parameters) -> Resource:
+            index = parameters.get("index")
+            value = parameters.get("value")
             self.master.insert(compileState, index.convertToNumber(compileState), value)
+            return NullResource()

@@ -24,7 +24,7 @@ class InlineFunctionResource(FunctionResource):
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keywordParameters: Resource) -> Resource:
         parameters = self.signature.matchParameters(compileState, parameters)
-        context = compileState.pushStack(ContextType.INLINE_FUNCTION)
+        context = compileState.pushContext(ContextType.INLINE_FUNCTION)
 
         for pTemplate, parameter in zip(self.parameters, parameters):
             pName, pType = pTemplate
@@ -33,12 +33,12 @@ class InlineFunctionResource(FunctionResource):
 
         self.executeBody(compileState)
 
-        if not compareTypes(context.return_resource, self.returnType.value):
+        if not compareTypes(context.get_return_resource_or_null(), self.returnType.value):
             raise McScriptTypeError(f"Function {self.name()} should return {self.returnType.value.type().name}, "
                                     f"but returned {context.return_resource.type().name}", compileState)
 
-        compileState.popStack()
-        return context.return_resource
+        compileState.popContext()
+        return context.get_return_resource_or_null()
 
     def executeBody(self, compileState: CompileState):
         if not self.block:

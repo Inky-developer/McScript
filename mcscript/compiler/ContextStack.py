@@ -24,3 +24,9 @@ class ContextStack:
 
     def pop(self):
         self.stack.pop()
+
+    def remove(self, context: Context) -> bool:
+        while self.data.pop() != context:
+            if not self.data:
+                return False
+        return True

@@ -8,13 +8,13 @@ from typing import ClassVar, Dict, List, Optional, TYPE_CHECKING, Type, Union
 from lark import Tree
 
 from mcscript.analyzer.VariableContext import VariableContext
-from mcscript.compiler.Context import Context
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import BinaryOperator, ConditionalExecute, Relation
 from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
+    from mcscript.compiler.Context import Context
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
     from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
@@ -464,6 +464,7 @@ class ObjectResource(Resource, ABC):
     def __init__(self, context: Context = None):
         super().__init__()
         # the empty context is a dummy
+        from mcscript.compiler.Context import Context
         self.context = context or Context(0, ContextType.STRUCT, [])
 
     @staticmethod

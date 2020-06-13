@@ -4,7 +4,6 @@ from typing import Optional, TYPE_CHECKING
 
 from lark import Tree
 
-from mcscript.compiler.Context import Context
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.Scoreboard import Scoreboard
 from mcscript.data.commands import Command, ExecuteCommand, Selector as CmdSelector, Struct, multiple_commands
@@ -16,6 +15,7 @@ from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
+    from mcscript.compiler.Context import Context
     from mcscript.compiler.CompileState import CompileState
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 

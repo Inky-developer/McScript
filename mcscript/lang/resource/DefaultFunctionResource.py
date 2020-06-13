@@ -57,7 +57,7 @@ class DefaultFunctionResource(FunctionResource):
         )
         compileState.writeline(signature.format(params, repr(self.returnValue)))
 
-        compileState.popStack()
+        compileState.popContext()
         compileState.fileStructure.popFile()
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
@@ -102,4 +102,3 @@ class DefaultFunctionResource(FunctionResource):
         for identifier, resource in self.parameters:
             resource = resource.value.createEmptyResource(identifier, compileState)
             self.parameterStack[identifier] = resource.value
-            compileState.currentContext().add_var(identifier, resource)

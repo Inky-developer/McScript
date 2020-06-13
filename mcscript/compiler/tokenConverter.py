@@ -38,7 +38,7 @@ def convertToken(token: Union[Token, str], compileState: CompileState) -> Union[
     try:
         return DATATYPE(token, compileState)
     except KeyError:
-        raise McScriptTypeError(f"Could not convert token {token}", compileState)
+        raise McScriptTypeError(f"Could not interpret token '{token}' as a resource", compileState)
 
 
 def NUMBER(token: Token, _: CompileState) -> Resource:
@@ -62,7 +62,7 @@ def DATATYPE(token: Token, compileState: CompileState) -> Union[Type[Resource], 
         return Resource.getResourceClass(ResourceType(token.value))
     except ValueError:
         datatype = compileState.currentContext().find_resource(token)
-        if datatype.type() == ResourceType.STRUCT:
+        if datatype is not None and datatype.type() == ResourceType.STRUCT:
             # noinspection PyTypeChecker
             return datatype
-        raise ValueError(f"Invalid datatype {token}")
+        raise KeyError(f"Invalid datatype {token}")

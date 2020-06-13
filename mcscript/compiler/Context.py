@@ -3,8 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
+from mcscript import Logger
 from mcscript.analyzer.VariableContext import VariableContext
 from mcscript.compiler.ContextType import ContextType
+from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.Address import Address
 from mcscript.utils.NbtAddress import NbtAddress
@@ -57,6 +59,15 @@ class Context:
         # A resource which is returned when this context is popped
         self.return_resource: Optional[Resource] = None
 
+    def clear(self):
+        """
+        resets this context by clearing the namespace
+
+        Returns:
+            None
+        """
+        self.namespace.clear()
+
     def find_var(self, name: str) -> Optional[Context.Variable]:
         """
         Recursively looks for a variable with key `name`.
@@ -87,7 +98,7 @@ class Context:
         """
         return None if (var := self.find_var(name)) is None else var.resource
 
-    def add_var(self, name: str, value: Resource):
+    def add_var(self, name: str, value: Resource) -> Resource:
         """
         Adds a variable to this context and assigns it the correct variable context.
         Note that there must be a valid variable context!
@@ -106,10 +117,15 @@ class Context:
         if name in self.namespace:
             raise ValueError(f"Variable {name} does already exist!")
 
-        variable_context = self.variable_context[name] if self.variable_context else None
-        self.namespace[name] = self.Variable(value, variable_context)
+        # should an error be thrown when no history is found?
+        variable_context = self.variable_context.get(name, None)
+        if variable_context is None:
+            Logger.debug(f"[Context] No context data available for variable '{name}' ({value})")
 
-    def set_var(self, name: str, value: Resource):
+        self.namespace[name] = self.Variable(value, variable_context)
+        return value
+
+    def set_var(self, name: str, value: Resource) -> Resource:
         """
         Overwrites the value of an existing resource.
         If the variable is not in this namespace, the next lower namespace will be used.
@@ -131,7 +147,9 @@ class Context:
         elif self.predecessor is not None:
             self.predecessor.set_var(name, value)
         else:
-            raise KeyError(f"Variable '{name}' does not exist!")
+            raise KeyError(f"Variable '{name}' does not exist and thus cannot be changed!")
+
+        return value
 
     def as_dict(self) -> Dict[str, Context.Variable]:
         """
@@ -168,6 +186,13 @@ class Context:
 
         return None
 
+    def get_return_resource_or_null(self) -> Resource:
+        """
+        Returns:
+            `self.return_resource` if it is not None, else a `NullResource`
+        """
+        return self.return_resource or NullResource()
+
     def __contains__(self, item) -> bool:
         """
         Tests recursively if the item is in this contexts namespace or below
@@ -179,3 +204,6 @@ class Context:
             return item in self.predecessor
 
         return False
+
+    def __str__(self):
+        return f"Context(index={self.index},type={self.context_type},namespace={self.namespace})"

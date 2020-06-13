@@ -180,7 +180,11 @@ class NumberResource(ValueResource):
 
     @classmethod
     def createEmptyResource(cls, identifier: str, compileState: CompileState) -> Resource:
-        return compileState.currentContext().add_var(identifier, compileState.get_nbt_address(identifier))
+        from mcscript.lang.resource.NumberVariableResource import NumberVariableResource
+        return compileState.currentContext().add_var(
+            identifier,
+            NumberVariableResource(compileState.get_nbt_address(identifier), False)
+        )
 
     # noinspection PyShadowingNames
     def _numericOperationStatic(self, a: int, b: int, operator: BinaryOperator) -> NumberResource:

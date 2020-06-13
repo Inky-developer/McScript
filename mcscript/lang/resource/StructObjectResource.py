@@ -36,7 +36,11 @@ class StructObjectResource(ObjectResource):
                                          f"Expected at most {len(variables)}", compileState)
         for var, value in zip(variables[:], parameters):
             key, varType = var
-            value = compileState.load(value)
+
+            # Todo? Are the problems that occur when not loading a parameter so it can be copied over nbt?
+            # I think there are no problems and it should definitely not be done if not necessary
+            # value = compileState.load(value)
+
             if not compareTypes(value, varType.value):
                 raise McScriptArgumentsError(
                     f"Struct object {struct.name} got identifier {key} with invalid type {value.type().name}, "
@@ -46,7 +50,7 @@ class StructObjectResource(ObjectResource):
             if not isinstance(value, ValueResource):
                 # raise NotImplementedError
                 pass
-            self.context[key] = value
+            self.context.add_var(key, value)
             variables.remove(var)
 
         identifierKeys = [key for key, varType in variables]
@@ -61,7 +65,7 @@ class StructObjectResource(ObjectResource):
             if not isinstance(value, ValueResource):
                 raise NotImplementedError
             # value.isStatic = False
-            self.context[key] = value
+            self.context.add_var(key, value)
 
         if variables:
             raise McScriptArgumentsError(
@@ -72,8 +76,9 @@ class StructObjectResource(ObjectResource):
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> Resource:
         self.nbtPath = stack
-        for key in self.context:
-            self.context[key] = self.context[key].storeToNbt(stack + NbtAddressResource(key), compileState)
+        for key in self.context.namespace:
+            res = self.context.namespace[key].resource
+            self.context.set_var(key, res.storeToNbt(stack + NbtAddressResource(key), compileState))
         return self
 
     def setAttribute(self, compileState: CompileState, name: str, value: Resource) -> Resource:
@@ -81,12 +86,13 @@ class StructObjectResource(ObjectResource):
             raise ReferenceError("Trying to set an attribute for an enum that has no nbtPath")
         if name not in self.context:
             raise McScriptNameError(f"Cannot set variable '{name}' for {self} which was never declared!", compileState)
-        self.context[name] = value.storeToNbt(self.nbtPath + NbtAddressResource(name), compileState)
+
+        self.context.set_var(name, value.storeToNbt(self.nbtPath + NbtAddressResource(name), compileState))
         return value
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         try:
-            return self.context[name]
+            return self.context.find_resource(name)
         except KeyError:
             try:
                 return self.struct.getAttribute(compileState, name)

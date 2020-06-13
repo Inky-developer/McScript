@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import List, TYPE_CHECKING, Tuple
 
-from mcscript.compiler.Context import Context
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
+    from mcscript.compiler.Context import Context
     from mcscript.lang.resource.TypeResource import TypeResource
     from mcscript.compiler.CompileState import CompileState
 
@@ -52,8 +52,8 @@ class StructResource(ObjectResource):
 
     def getDeclaredVariables(self) -> List[Tuple[str, TypeResource]]:
         """ Returns all declared type resources """
-        return [(i, self.context[i]) for i in self.context.namespace if
-                self.context[i].type() == ResourceType.TYPE]
+        return [(i, self.context.namespace[i].resource) for i in self.context.namespace if
+                self.context.namespace[i].resource.type() == ResourceType.TYPE]
 
     def __str__(self):
         return f"Struct<{self.name}>"
