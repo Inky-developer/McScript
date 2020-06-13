@@ -72,6 +72,11 @@ class Analyzer:
         [self.visit(i) for i in tree.children]
         self.popContext()
 
+    def struct_block(self, tree: Tree):
+        self.pushContext()
+        [self.visit(i) for i in tree.children]
+        self.popContext()
+
     def declaration(self, tree: Tree):
         accessor, expression = tree.children
         self.visit(expression)
