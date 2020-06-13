@@ -98,6 +98,25 @@ class Context:
         """
         return None if (var := self.find_var(name)) is None else var.resource
 
+    def find_resource_name(self, resource: Resource) -> Optional[str]:
+        """
+        Searches for a stored Resource that is `resource` and, if found, returns its name-
+
+        Args:
+            resource: The resource of which the name is searched
+
+        Returns:
+            The name of the resource if found
+        """
+        for name, variable in self.namespace.items():
+            if variable.resource is resource:
+                return name
+
+        if self.predecessor is None:
+            return None
+
+        return self.predecessor.find_resource_name(resource)
+
     def add_var(self, name: str, value: Resource) -> Resource:
         """
         Adds a variable to this context and assigns it the correct variable context.

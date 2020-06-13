@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Union
 
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
-from mcscript.lang.resource.ArrayResource import ArrayResource
 from mcscript.lang.resource.NullResource import NullResource
+from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
@@ -25,7 +25,7 @@ class ArrayFunction(BuiltinFunction):
         return "array"
 
     def returnType(self) -> ResourceType:
-        return ResourceType.ARRAY
+        return ResourceType.TUPLE
 
     def requireRawParameters(self) -> bool:
         """ If possible, use static resources"""
@@ -33,4 +33,4 @@ class ArrayFunction(BuiltinFunction):
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> Union[str, FunctionResult]:
         size, = parameters
-        return FunctionResult(None, ArrayResource(*[NullResource() for _ in range(size.toNumber())]))
+        return FunctionResult(None, TupleResource(*[NullResource() for _ in range(size.toNumber())]))

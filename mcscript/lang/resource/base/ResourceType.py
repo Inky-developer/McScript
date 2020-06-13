@@ -22,5 +22,5 @@ class ResourceType(Enum):
 
     RESOURCE = "Resource"
     VALUE_RESOURCE = "ValueResource"
-    ARRAY = "Array"
+    TUPLE = "Tuple"
     LIST = "List"

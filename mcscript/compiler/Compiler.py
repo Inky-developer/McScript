@@ -18,7 +18,6 @@ from mcscript.exceptions.compileExceptions import McScriptArgumentsError, \
     McScriptIsStaticError, McScriptNameError, \
     McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
 from mcscript.lang.builtins.builtins import BuiltinFunction
-from mcscript.lang.resource.ArrayResource import ArrayResource
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.DefaultFunctionResource import DefaultFunctionResource
 from mcscript.lang.resource.EnumResource import EnumResource
@@ -27,6 +26,7 @@ from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.StructMethodResource import StructMethodResource
 from mcscript.lang.resource.StructResource import StructResource
+from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.FunctionResource import Parameter
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
@@ -459,7 +459,7 @@ class Compiler(Interpreter):
         *variables, expression = tree.children
         expression = self.compileState.toResource(expression)
 
-        if not isinstance(expression, ArrayResource):
+        if not isinstance(expression, TupleResource):
             raise McScriptTypeError(
                 f"Return type deconstruction works only for arrays, but not for type {expression.type().value}",
                 self.compileState

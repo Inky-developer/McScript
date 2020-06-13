@@ -5,7 +5,9 @@ from typing import List, Optional, TYPE_CHECKING
 from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
-from mcscript.exceptions.compileExceptions import McScriptAttributeError, McScriptIndexError, McScriptTypeError
+from mcscript.compiler.common import check_context_static
+from mcscript.exceptions.compileExceptions import McScriptAttributeError, McScriptIndexError, McScriptIsStaticError, \
+    McScriptTypeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NullResource import NullResource
@@ -18,12 +20,13 @@ if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 
-class ArrayResource(Resource):
+class TupleResource(Resource):
     """
-    An Array. Has a fixed size and can thus manage it's elements without an nbt array.
-    pointers to the resources are kept internally and can be accesses via static element access or for loops.
-    This makes this class really lightweight when compiling to mcfunction files, but has some major limitations.
-    Namely, after the array was created, only read-access is possible.
+    A tuple. Has a fixed size and can thus manage its elements without an nbt array.
+    pointers to the resources are kept internally and can be accessed via static element access or for loops.
+    This makes this class really lightweight when compiling to mcfunction files, but has some limitations.
+    Namely, after the array was created, only read-access is possible in a non-static context after
+    the initialization context.
     If this is a problem, the more dynamic and heavy List resource should be used:
 
     See Also:
@@ -41,7 +44,7 @@ class ArrayResource(Resource):
 
     @staticmethod
     def type() -> ResourceType:
-        return ResourceType.ARRAY
+        return ResourceType.TUPLE
 
     def iterate(self, compileState: CompileState, varName: str, block: Tree):
         context = compileState.pushContext(ContextType.UNROLLED_LOOP)
@@ -70,6 +73,15 @@ class ArrayResource(Resource):
             raise McScriptIndexError(index, compileState, len(self.resources) - 1)
 
     def operation_set_element(self, compileState: CompileState, index: Resource, value: Resource):
+        if not check_context_static(compileState, self):
+            raise McScriptIsStaticError(
+                "Trying to modify this tuple in a non-static context",
+                compileState.currentContext().find_var(
+                    compileState.currentContext().find_resource_name(self)
+                ).context.identifier,
+                compileState
+            )
+
         try:
             # noinspection PyTypeChecker
             index = int(index)
@@ -88,7 +100,7 @@ class ArrayResource(Resource):
         except KeyError:
             raise McScriptAttributeError(f"Invalid attribute '{name}' of {self.type().value}", compileState)
 
-    def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> ArrayResource:
+    def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> TupleResource:
         self.stack = stack
         new = []
         for index, resource in enumerate(self.resources[:]):
@@ -103,7 +115,7 @@ class ArrayResource(Resource):
                     raise McScriptTypeError(f"Array cannot store resource {resource.type().value}", compileState)
             else:
                 new.append(resource)
-        return ArrayResource(*new)
+        return TupleResource(*new)
 
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         return BooleanResource.TRUE if self.resources else BooleanResource.FALSE

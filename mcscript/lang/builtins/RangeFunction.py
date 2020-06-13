@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
-from mcscript.lang.resource.ArrayResource import ArrayResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
@@ -26,7 +26,7 @@ class RangeFunction(BuiltinFunction):
         return "range"
 
     def returnType(self) -> ResourceType:
-        return ResourceType.ARRAY
+        return ResourceType.TUPLE
 
     # noinspection PyTypeChecker
     def generate(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
@@ -44,4 +44,4 @@ class RangeFunction(BuiltinFunction):
         if step < 0 and start < end:
             raise self.ArgumentsError(parameters, f"end must be less than start for negative step", compileState)
 
-        return FunctionResult(None, ArrayResource(*[NumberResource(i, True) for i in range(start, end, step)]))
+        return FunctionResult(None, TupleResource(*[NumberResource(i, True) for i in range(start, end, step)]))

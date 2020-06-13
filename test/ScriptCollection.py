@@ -63,7 +63,6 @@ fun make_disk() -> Null {
     }
 }
 """
-
 code_temp = r"""
 # s = "Hallo, Welt!"
 # 
@@ -75,9 +74,11 @@ code_temp = r"""
 # 
 # _DebugVariable("s")
 
-a = 0
-while (a < 5) {
-    a += 1
+data = arrayOf(1, 2, 3, 4);
+
+run for @a {
+    data[0] = data[0] * 2
+    print("{}", data);
 }
 """
 

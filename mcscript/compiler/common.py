@@ -8,7 +8,6 @@ from typing import List, Optional, TYPE_CHECKING
 from lark import Tree
 
 from mcscript import Logger
-from mcscript.compiler.Context import Context
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data import defaultEnums
 from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
@@ -105,25 +104,20 @@ def set_property(compileState: CompileState, accessor: Tree, value: Resource):
     obj.setAttribute(compileState, attribute, value)
 
 
-def search_non_static_namespace_until(compileState: CompileState, context: Context) -> Optional[Context]:
-    """
-    Iterates down the context stack until it hits `context` or a context is not static in which case
-    the non-static context will be returned
+def check_context_static(compileState: CompileState, resource: Resource) -> bool:
+    name = compileState.currentContext().find_resource_name(resource)
 
-    Args:
-        compileState: The compile state
-        context: The context to stop searching at
+    if name is None:
+        raise ValueError(f"The resource '{resource}' is not a variable")
 
-    Returns:
-        A context if a non-static namespace was found
-    """
-    current_context = compileState.currentContext()
-    while current_context is not context and current_context is not None:
-        if not current_context.context_type.hasStaticContext:
-            return current_context
-        current_context = context.predecessor
+    context = compileState.currentContext().find_var(name).context
 
-    return None
+    if context is None:
+        raise ValueError(f"The variable '{name}' ('{resource}') does not have an associated context")
+
+    return compileState.currentContext().search_non_static_until(
+        compileState.stack.getByIndex(context.declaration.contextId)
+    ) is None
 
 
 def conditional_loop(compileState: CompileState,
