@@ -7,16 +7,16 @@ from mcscript import Logger
 from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.ContextType import ContextType
-from mcscript.compiler.common import conditional_loop, readContextManipulator
+from mcscript.compiler.common import conditional_loop, get_property, readContextManipulator, set_property
 from mcscript.compiler.tokenConverter import convertToken
-from mcscript.data import defaultCode, defaultEnums
+from mcscript.data import defaultCode
 from mcscript.data.Config import Config
 from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Relation, UnaryOperator, \
     multiple_commands
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError, \
     McScriptChangedTypeError, McScriptDeclarationError, \
     McScriptIsStaticError, McScriptNameError, \
-    McScriptNotImplementedError, McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
+    McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
 from mcscript.lang.builtins.builtins import BuiltinFunction
 from mcscript.lang.resource.ArrayResource import ArrayResource
 from mcscript.lang.resource.BooleanResource import BooleanResource
@@ -54,7 +54,7 @@ class Compiler(Interpreter):
         self.compileState = CompileState(code, contexts, self.visit, config)
         self.compileState.fileStructure.pushFile("main.mcfunction")
         BuiltinFunction.load(self)
-        self.compileState.pushStack(ContextType.GLOBAL)
+        self.compileState.pushContext(ContextType.GLOBAL)
         self.visit(tree)
 
         # ToDO put this in default code
@@ -84,8 +84,6 @@ class Compiler(Interpreter):
 
         if isinstance(value, Tree):
             ret = self.visit(value)
-            if value.data == "accessor":
-                return ret[-1]
             return ret
         elif isinstance(value, Token):
             return convertToken(value, self.compileState)
@@ -130,31 +128,15 @@ class Compiler(Interpreter):
     def accessor(self, tree):
         """
         a variable or a list of dot separated names like a.b.c will be loaded here.
-
-        Returns:
-            a list of all objects that were accessed
         """
-        ret, *values = tree.children
-        if ret not in self.compileState.currentContext():
-            if result := defaultEnums.get(ret):
-                self.compileState.stack.stack[0].set_var(ret, result)
-            else:
-                raise McScriptNameError(f"Unknown variable '{ret}'", self.compileState)
-
-        accessed = [self.compileState.currentContext().find_resource(ret)]
-        for value in values:
-            try:
-                accessed.append(accessed[-1].getAttribute(self.compileState, value))
-            except TypeError:
-                raise McScriptTypeError(f"Cannot access property '{value}' of {accessed[-1].type().value}",
-                                        self.compileState)
-        return accessed
+        accessed = get_property(self.compileState, tree)
+        return accessed[-1]
 
     def array_accessor(self, tree):
         """ Accesses an element on an array"""
         accessor_, index_ = tree.children
 
-        accessor, = self.visit(accessor_)
+        accessor = self.visit(accessor_)
         index = self.compileState.toResource(index_)
 
         try:
@@ -166,7 +148,7 @@ class Compiler(Interpreter):
     def index_setter(self, tree):
         accessor, index, value = tree.children
 
-        accessor, = self.visit(accessor)
+        accessor = self.visit(accessor)
         index = self.compileState.toResource(index)
         value = self.compileState.toResource(value)
 
@@ -177,30 +159,8 @@ class Compiler(Interpreter):
 
     def propertySetter(self, tree):
         identifier, value = tree.children
-        obj, *rest = identifier.children
-
-        self.compileState.currentTree = obj  # manual setting because this method is called manually
-        if obj not in self.compileState.currentContext():
-            raise McScriptNameError(f"Unknown variable '{obj}'", self.compileState)
-        obj = self.compileState.currentContext().find_resource(obj)
-
-        for i in rest[:-1]:
-            self.compileState.currentTree = i
-            if not isinstance(obj, ObjectResource):
-                raise McScriptTypeError(f"resource {obj} must be an object!", self.compileState)
-
-            try:
-                obj = obj.getAttribute(self.compileState, i)
-            except AttributeError:
-                raise McScriptNameError(f"property {i} of {obj} does not exist!", self.compileState)
-
-        attribute = rest[-1]
-        if not isinstance(obj, ObjectResource):
-            raise McScriptTypeError(f"resource {obj} must be an object!", self.compileState)
-
-        value = self.compileState.load(value)
-        self.compileState.currentTree = rest[-1]
-        obj.setAttribute(self.compileState, attribute, value)
+        value = self.compileState.toResource(value)
+        set_property(self.compileState, identifier, value)
         return value
 
     def unary_operation(self, tree):
@@ -533,50 +493,81 @@ class Compiler(Interpreter):
         self.compileState.currentContext().add_var(identifier, value)
 
     def term_ip(self, tree):
-        variable, operator, _resource = tree.children
-        resource = self.compileState.load(_resource)
-        *accessed, varResource = self.visit(variable)
-        var = varResource.load(self.compileState)
-        if not isinstance(resource, ValueResource):
-            raise AttributeError(f"Cannot do an operation with '{resource}'", self.compileState)
+        """
+        calculates the result of the expression and stores the result back into the variable
 
-        try:
-            result = var.numericOperation(resource, BinaryOperator(operator), self.compileState)
-            if result == NotImplemented:
-                raise McScriptTypeError(
-                    f"Unsupported operation {operator} for {var.type().value} and {resource.type().value}",
-                    self.compileState
-                )
-        except NotImplementedError:
-            raise McScriptTypeError(
-                f"in place operation: Failed because {repr(var)} does not support the operation {operator.name}",
-                self.compileState
-            )
+        trees: variable, operator, resource
 
-        if not isinstance(result, Resource):
-            raise McScriptTypeError(f"Expected a resource, got {result}", self.compileState)
+        1. Get the variable
+        2. calculate the expression
+        3. store the result back into the variable
+            a. if the variable is not a property, just use set_var
+            b. if the variable is a property, use set_property
+        """
+        accessor, operator, expression = tree.children
 
-        self.compileState.currentTree = _resource
-        if isStatic(varResource) and not isStatic(result):
-            if accessed:
-                raise McScriptTypeError("Trying to assign a non-static value to a static property", self.compileState)
-            raise McScriptIsStaticError(
-                "Trying to assign a non-static value here",
-                self.compileState.currentContext().find_var(variable.children[0]).context.declaration.access,
-                self.compileState
-            )
+        resource = self.compileState.toResource(accessor)
+        expression = self.compileState.toResource(expression)
 
-        if len(variable.children) > 1:
-            raise McScriptNotImplementedError("In-place operations on attributes are temporarily disabled",
-                                              self.compileState)
-        if isStatic(result) and isStatic(varResource):
-            if not accessed:
-                self.compileState.currentContext().set_var(variable.children[0], result)
-            else:
-                raise NotImplementedError("TODO: Implement in-place operations for static properties")
-        else:
-            self.compileState.currentContext().set_var(variable.children[0], result)
-            result.storeToNbt(varResource.value, self.compileState)
+        if not isinstance(expression, ValueResource):
+            raise McScriptTypeError(f"in-place operation: Expected value, got {expression}", self.compileState)
+
+        # do the numeric operation
+        result = resource.load(self.compileState).numericOperation(
+            expression,
+            BinaryOperator(operator),
+            self.compileState
+        )
+
+        # store the result back
+        set_property(self.compileState, accessor, result)
+
+    # def term_ip(self, tree):
+    #     variable, operator, _resource = tree.children
+    #     resource = self.compileState.load(_resource)
+    #     *accessed, varResource = self.visit(variable)
+    #     var = varResource.load(self.compileState)
+    #     if not isinstance(resource, ValueResource):
+    #         raise AttributeError(f"Cannot do an operation with '{resource}'", self.compileState)
+    #
+    #     try:
+    #         result = var.numericOperation(resource, BinaryOperator(operator), self.compileState)
+    #         if result == NotImplemented:
+    #             raise McScriptTypeError(
+    #                 f"Unsupported operation {operator} for {var.type().value} and {resource.type().value}",
+    #                 self.compileState
+    #             )
+    #     except NotImplementedError:
+    #         raise McScriptTypeError(
+    #             f"in place operation: Failed because {repr(var)} does not support the operation {operator.name}",
+    #             self.compileState
+    #         )
+    #
+    #     if not isinstance(result, Resource):
+    #         raise McScriptTypeError(f"Expected a resource, got {result}", self.compileState)
+    #
+    #     self.compileState.currentTree = _resource
+    #     if isStatic(varResource) and not isStatic(result):
+    #         if accessed:
+    #             raise McScriptTypeError("Trying to assign a non-static value to a static property", self.compileState)
+    #         raise McScriptIsStaticError(
+    #             "Trying to assign a non-static value here",
+    #             self.compileState.currentContext().find_var(variable.children[0]).context.declaration.access,
+    #             self.compileState
+    #         )
+    #
+    #     if len(variable.children) > 1:
+    #         raise McScriptNotImplementedError("In-place operations on attributes are temporarily disabled",
+    #                                           self.compileState)
+    #     if isStatic(result) and isStatic(varResource):
+    #         if not accessed:
+    #             self.compileState.currentContext().set_var(variable.children[0], result)
+    #         else:
+    #             raise NotImplementedError("TODO: Implement in-place operations for static properties")
+    #     else:
+    #         self.compileState.currentContext().set_var(variable.children[0],
+    #                                                    result.storeToNbt(var.value, self.compileState))
+    #         result.storeToNbt(varResource.value, self.compileState)
 
     def block(self, tree):
         blockName = self.compileState.pushBlock(ContextType.BLOCK)
@@ -640,7 +631,7 @@ class Compiler(Interpreter):
         resource = self.compileState.toResource(tree.children[0])
         if self.compileState.currentContext().return_resource is not None:
             raise McScriptSyntaxError("Cannot set the return value twice.", self.compileState)
-        self.compileState.currentContext().returnedResource = resource
+        self.compileState.currentContext().return_resource = resource
 
     def function_parameter(self, tree):
         identifier, datatype = tree.children
@@ -715,7 +706,7 @@ class Compiler(Interpreter):
 
     def function_call(self, tree):
         function_name, *parameters = tree.children
-        *accessed_objects, function = self.visit(function_name)
+        *accessed_objects, function = get_property(self.compileState, function_name)
         if isinstance(function, BuiltinFunction):
             return self.builtinFunction(function, *parameters)
 
@@ -739,7 +730,7 @@ class Compiler(Interpreter):
 
     def control_struct(self, tree):
         name, block = tree.children
-        self.compileState.pushStack(ContextType.STRUCT)
+        self.compileState.pushContext(ContextType.STRUCT)
         context = self.compileState.currentContext()
 
         struct = StructResource(name, context)
@@ -749,7 +740,7 @@ class Compiler(Interpreter):
 
         for declaration in block.children:
             self.visit(declaration)
-        self.compileState.popStack()
+        self.compileState.popContext()
         self.compileState.currentContext().add_var(name, struct)
 
     def context_manipulator(self, tree):

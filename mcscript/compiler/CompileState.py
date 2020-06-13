@@ -65,7 +65,7 @@ class CompileState:
         Returns:
             A nbt address
         """
-        return self.currentContext().nbt_format.format(name)
+        return self.currentContext().nbt_format.with_name(name)
 
     def getConstant(self, constant: int) -> AddressResource:
         """ Wrapper for compilerConstant"""
@@ -146,11 +146,11 @@ class CompileState:
         """ creates a new file and context and returns the block id."""
         blockName = blockName or self.codeBlockStack.next()
         self.fileStructure.pushFile(blockName)
-        self.pushStack(contextType)
+        self.pushContext(contextType)
         return blockName
 
     def popBlock(self):
-        self.popStack()
+        self.popContext()
         self.fileStructure.popFile()
 
     def commit(self):
@@ -196,16 +196,31 @@ class CompileState:
     def currentContext(self) -> Context:
         return self.stack.tail()
 
-    def popStack(self):
+    def popContext(self):
         self.stack.pop()
 
-    def pushStack(self, contextType: ContextType) -> Context:
+    def pushContext(self, contextType: ContextType) -> Context:
         # namespace = Namespace(self.stack.index(), contextType, self.currentContext())
 
-        # the context index is always one above self.contexts because the first context is used for default stuff
-        context = Context(self.stack.index(), contextType, self.contexts[self.stack.index() - 1])
+        context = Context(self.stack.index(), contextType, self.contexts[self.stack.index()], self.stack.tail())
         self.stack.append(context)
         return context
+
+    def clearUntilContext(self, context: Context):
+        """
+        Pops contexts from the stack until the context `context` is found.
+        Fails if the stack is empty.
+
+        Args:
+            context: the context to find
+
+        Returns:
+            None
+        """
+        while (last_data := self.stack.data[-1]) != context:
+            if last_data in self.stack.stack:
+                self.stack.stack.remove(last_data)
+            self.stack.data.pop()
 
     def getDebugLines(self, a, _):
         return self.code[a - 1].strip()

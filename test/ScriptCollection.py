@@ -65,14 +65,20 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-s = "Hallo, Welt!"
-while (s.length < 100) {
-    s += " Was ein Tag!"
-    # s[0] = s[1]
-}
-run for @a print("The length of string '[b]{}[/]' is: {}", s, s.length)
+# s = "Hallo, Welt!"
+# 
+# while (s.length < 100) {
+#     s += " Was ein Tag!"
+#     # s[0] = s[1]
+# }
+# run for @a print("The length of string '[b]{}[/]' is: {}", s, s.length)
+# 
+# _DebugVariable("s")
 
-_DebugVariable("s")
+a = 0
+while (a < 5) {
+    a += 1
+}
 """
 
 if __name__ == '__main__':
