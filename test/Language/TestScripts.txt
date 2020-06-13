@@ -212,8 +212,8 @@ return a == 0 and b == 0.0;
 
 [struct]
 struct Test {
-    a: Number;
-    b: Number;
+    a: Number,
+    b: Number,
 }
 number = 1;
 t = Test(number, 2);
@@ -221,8 +221,8 @@ return t.a == 1 and t.b == 2;
 
 [struct_modify]
 struct Test {
-    a: Number;
-    b: Number;
+    a: Number,
+    b: Number,
 }
 
 t = Test(1, 2);
@@ -245,7 +245,7 @@ return doOperation(sum, 1, 2) == 3;
 
 [inline_function]
 struct Modifiable {
-    a: Number;
+    a: Number,
 }
 
 inline fun doSomething(a: Number, b: Modifiable) -> Null {

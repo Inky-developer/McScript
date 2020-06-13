@@ -92,12 +92,9 @@ class StructObjectResource(ObjectResource):
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         try:
-            return self.context.find_resource(name)
+            return self.context.find_resource(name) or self.struct.getAttribute(compileState, name)
         except KeyError:
-            try:
-                return self.struct.getAttribute(compileState, name)
-            except KeyError:
-                raise AttributeError(f"Invalid attribute '{name}' of {repr(self)}")
+            raise AttributeError(f"Invalid attribute '{name}' of {repr(self)}")
 
     def getBasePath(self) -> NbtAddressResource:
         if not self.nbtPath:

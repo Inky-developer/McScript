@@ -9,6 +9,6 @@ class McScriptParseException(McScriptException):
         message = f"At line {line}, column {column}:\n" \
                   f"{code}\n" \
                   f"{' ' * max(column - 1, 0)}^\n" \
-                  f"Got token '{got}' but expected one of:\n\t- " + \
+                  f"Got token '{''.join(got.split())}' but expected one of:\n\t- " + \
                   "\n\t- ".join(expected)
         super().__init__(message)

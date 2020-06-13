@@ -9,7 +9,7 @@ class ResourceType(Enum):
     NULL = "Null"
     ADDRESS = auto()
     NBT_ADDRESS = auto()
-    STRUCT = auto()
+    STRUCT = "Struct"
     STRUCT_OBJECT = "Object"
     NUMBER = "Number"
     FIXED_POINT = "Fixed"

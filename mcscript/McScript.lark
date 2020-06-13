@@ -80,7 +80,7 @@ enum_block: "{" ( enum_property _STATEMENT_SEPARATOR )* enum_property _STATEMENT
 enum_property: IDENTIFIER | (IDENTIFIER "=" NUMBER)
 
 control_struct: _KEYWORD_STRUCT IDENTIFIER struct_block
-struct_block: "{" ( (variable_declaration _STATEMENT_SEPARATOR) | function_definition )* "}"
+struct_block: "{" ( (variable_declaration ",") | function_definition )* variable_declaration? "}"
 
 context_manipulator: _KEYWORD_RUN ( context_modifier)+ block
 context_modifier: _CONTEXT_FOR expression -> context_for

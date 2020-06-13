@@ -69,7 +69,6 @@ class ArrayResource(Resource):
         except IndexError:
             raise McScriptIndexError(index, compileState, len(self.resources) - 1)
 
-    # no operation set_element because an array is a static construct and thus read-only
     def operation_set_element(self, compileState: CompileState, index: Resource, value: Resource):
         try:
             # noinspection PyTypeChecker

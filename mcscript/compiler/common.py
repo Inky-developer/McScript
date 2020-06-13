@@ -10,13 +10,99 @@ from lark import Tree
 from mcscript import Logger
 from mcscript.compiler.Context import Context
 from mcscript.compiler.ContextType import ContextType
+from mcscript.data import defaultEnums
 from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
-from mcscript.exceptions.compileExceptions import McScriptSyntaxError
+from mcscript.exceptions.compileExceptions import McScriptNameError, McScriptSyntaxError, McScriptTypeError
 from mcscript.exceptions.utils import requireType
 from mcscript.lang.resource.SelectorResource import SelectorResource
+from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
+from mcscript.lang.resource.base.VariableResource import VariableResource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
+
+
+def get_property(compileState: CompileState, accessor: Tree) -> List[Resource]:
+    """
+    Gets a (possibly nested) property of an object from the given accessor tree
+
+    Args:
+        compileState: the compile state
+        accessor: the accessor tree
+
+    Returns:
+        A list of those objects that were accessed, where the last element is the wanted value
+    """
+    if accessor.data != "accessor":
+        raise TypeError(f"Expected tree of type accessor, got type {accessor.data}")
+
+    ret, *values = accessor.children
+
+    if ret not in compileState.currentContext():
+        # enums are loaded here lazily
+        if result := defaultEnums.get(ret):
+            compileState.stack.stack[0].add_var(ret, result)
+        else:
+            raise McScriptNameError(f"Unknown variable '{ret}'", compileState)
+
+    accessed = [compileState.currentContext().find_resource(ret)]
+    for value in values:
+        try:
+            accessed.append(accessed[-1].getAttribute(compileState, value))
+        except TypeError:
+            raise McScriptTypeError(f"Cannot access property '{value}' of {accessed[-1].type().value}",
+                                    compileState)
+    return accessed
+
+
+def set_variable(compileState: CompileState, name: str, value: Resource):
+    """
+    Sets a variable which lives inside of a namespace and not inside of an object.
+
+    Args:
+        compileState: the compile state
+        name: the identifier of the variable
+        value: the value that should be assigned to the variable
+
+    Returns:
+        None
+    """
+
+    var = compileState.currentContext().find_resource(name)
+    if not isinstance(var, VariableResource):
+        raise McScriptTypeError(f"Expected '{name}' to be a variable, but got {var}", compileState)
+    compileState.currentContext().set_var(name, value.storeToNbt(var.value, compileState))
+
+
+def set_property(compileState: CompileState, accessor: Tree, value: Resource):
+    obj, *rest = accessor.children
+
+    # if there is no rest obj is a simple variable, no object
+    if not rest:
+        return set_variable(compileState, obj, value)
+
+    compileState.currentTree = obj  # manual setting because this method is called manually
+    if obj not in compileState.currentContext():
+        raise McScriptNameError(f"Unknown variable '{obj}'", compileState)
+    obj = compileState.currentContext().find_resource(obj)
+
+    for i in rest[:-1]:
+        compileState.currentTree = i
+        if not isinstance(obj, ObjectResource):
+            raise McScriptTypeError(f"resource {obj} must be an object!", compileState)
+
+        try:
+            obj = obj.getAttribute(compileState, i)
+        except AttributeError:
+            raise McScriptNameError(f"property {i} of {obj} does not exist!", compileState)
+
+    attribute = rest[-1]
+
+    if not isinstance(obj, ObjectResource):
+        raise McScriptTypeError(f"resource {obj} must be an object!", compileState)
+
+    compileState.currentTree = rest[-1]
+    obj.setAttribute(compileState, attribute, value)
 
 
 def search_non_static_namespace_until(compileState: CompileState, context: Context) -> Optional[Context]:
