@@ -53,6 +53,7 @@ value: NUMBER
      | SELECTOR
      | (/\b(True|False)\b/) -> boolean_constant
      | unary_operation
+     | tuple
      | "(" expression ")"
      | accessor
      | array_accessor
@@ -64,6 +65,8 @@ array_accessor: accessor "[" expression "]"
 unary_operation: MINUS value
                | INCR_ONE value
                | DECR_ONE value
+
+tuple: "(" ( expression "," )+ expression?  ")"
 
 comparison: term (VERIFY_EQUAL | VERIFY_NOT_EQUAL | VERIFY_GREATER | VERIFY_GREATER_OR_EQUAL | VERIFY_LESS | VERIFY_LESS_OR_EQUAL) term
 

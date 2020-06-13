@@ -74,7 +74,7 @@ code_temp = r"""
 # 
 # _DebugVariable("s")
 
-data = arrayOf(1, 2, 3, 4);
+data = (1, 2, 3, 4);
 
 run for @a {
     data[0] = data[0] * 2

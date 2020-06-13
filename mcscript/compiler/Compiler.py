@@ -89,6 +89,10 @@ class Compiler(Interpreter):
             return convertToken(value, self.compileState)
         raise McScriptNameError(f"Invalid value: {value}", self.compileState)
 
+    def tuple(self, tree):
+        elements = [self.visit(i) for i in tree.children]
+        return TupleResource(*elements)
+
     # enums
     def control_enum(self, tree):
         _, name, block = tree.children
