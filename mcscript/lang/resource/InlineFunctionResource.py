@@ -37,7 +37,7 @@ class InlineFunctionResource(FunctionResource):
 
         if not compareTypes(context.get_return_resource_or_null(), self.returnType.value):
             raise McScriptTypeError(f"Function {self.name()} should return {self.returnType.value.type().name}, "
-                                    f"but returned {context.return_resource.type().name}", compileState)
+                                    f"but returned {context.get_return_resource_or_null().type().name}", compileState)
 
         compileState.popContext()
         return context.get_return_resource_or_null()

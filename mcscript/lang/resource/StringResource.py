@@ -67,7 +67,9 @@ class StringResource(ValueResource):
         self.attributes: Dict[str, Callable] = dict(length=self.getLength)
 
         if context is not None:
-            self.setValue(self.formatter.format(self.embed(), **context.as_dict()), self.isStatic)
+            namespace_dict = context.as_dict()
+            replacements = {key: namespace_dict[key].resource for key in namespace_dict}
+            self.setValue(self.formatter.format(self.embed(), **replacements), self.isStatic)
 
     @staticmethod
     def type():

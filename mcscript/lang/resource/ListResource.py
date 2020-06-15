@@ -16,6 +16,7 @@ from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.TypeResource import TypeResource
+from mcscript.lang.utility import isStatic
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
 if TYPE_CHECKING:
@@ -165,12 +166,12 @@ class ListResource(Resource):
         ))
 
     def operation_get_element(self, compileState: CompileState, index: Resource) -> Resource:
-        if not isinstance(index, NumberResource):
+        if index.type() != ResourceType.NUMBER:
             raise McScriptTypeError(f"Expected type number as index but got {index.type().value}", compileState)
-        if not index.isStatic:
-            raise McScriptTypeError(f"Not yet implemented for non-static numbers!", compileState)
+        if not isStatic(index):
+            raise McScriptTypeError(f"Not yet implemented for non-static numbers! sorry :(", compileState)
         self._assertNbtAddress(compileState)
-        return self.ContentResource(self.nbtAddress[int(index)], False)
+        return self.ContentResource(self.nbtAddress[index.toNumber()], False)
 
     def operation_set_element(self, compileState: CompileState, index: Resource, value: Resource):
         if not isinstance(index, NumberResource):

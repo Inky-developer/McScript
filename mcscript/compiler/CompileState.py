@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from contextlib import contextmanager
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
@@ -110,7 +112,10 @@ class CompileState:
         Returns:
             a Resource
         """
-        if isinstance(value, Resource):
+        from mcscript.lang.builtins.builtins import BuiltinFunction
+
+        # ToDo: Make BuiltinFunction a resource
+        if isinstance(value, (Resource, BuiltinFunction)):
             return value
         # the condition tree evaluates to a conditional execute. Convert to a boolean here
         if isinstance(value, ConditionalExecute):

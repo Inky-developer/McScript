@@ -64,8 +64,10 @@ class TupleResource(Resource):
             # noinspection PyTypeChecker
             index = int(index)
         except TypeError:
-            raise McScriptTypeError(f"Expected a resource that can be converted to a number but got {repr(index)}",
-                                    compileState)
+            raise McScriptTypeError(
+                f"Expected a resource that can be converted to a static number but got {repr(index)}",
+                compileState
+            )
         try:
             return self.resources[index]
         except IndexError:

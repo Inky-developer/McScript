@@ -492,10 +492,11 @@ class Compiler(Interpreter):
         identifier, = identifier.children
         value = self.compileState.toResource(value)
 
-        if not isinstance(value, ValueResource):
+        if isinstance(value, ObjectResource):
             raise McScriptTypeError(f"Only simple datatypes can be assigned using static, not {value.type().value}",
                                     self.compileState)
-        if not value.hasStaticValue:
+
+        if isinstance(value, ValueResource) and not value.hasStaticValue:
             raise McScriptNotStaticError("static declaration needs a static value", self.compileState)
 
         self.compileState.currentContext().add_var(identifier, value)

@@ -1,4 +1,4 @@
-from enum import Enum, auto
+from enum import auto, Enum
 
 
 class ResourceType(Enum):
@@ -24,3 +24,4 @@ class ResourceType(Enum):
     VALUE_RESOURCE = "ValueResource"
     TUPLE = "Tuple"
     LIST = "List"
+

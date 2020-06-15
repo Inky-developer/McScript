@@ -13,13 +13,13 @@ run for @a at @s {
 run for @a print("Hello world!")
 
 # Selectors can be printed as well:
-run for @a print("Hello, ", @s, "!")
+run for @a print("Hello, {}!", @s)
 
 # one problem with selectors is that the entities that select might change during the program
 # consider:
-const armor_stands = @e[type=armor_stand]
+static armor_stands = @e[type=armor_stand]
 execute("summon armor_stand ~ ~ ~ {Tags:['mcscript_demo']}")
-run for @a print(armor_stands)
+run for @a print("{}", armor_stands)
 
 # It might not be the intention of the programmer to print the newly summoned armor stand.
 # To circumvent problems like this, mcscript allows rvalue selectors. Basically this means:
@@ -39,11 +39,11 @@ for (player in @a) {
 # Here is a little example to show how powerful selectors can be
 for (entity in @e) {
     # Run for all players and print the name of 'entity'
-    run for @a print("message for player ", @s, ": Found entity ", entity)
+    run for @a print("message for player {}: Found entity {}", @s, entity)
 }
 
 # kill the summoned armor stand
-run for @a print(kill(@e[tag=mcscript_demo]))
+run for @a print("{}", kill(@e[tag=mcscript_demo]))
 
 # Using the $-placeholder syntax which is also used for strings, constants can be embedded into the selector
 # at compile time:

@@ -14,7 +14,7 @@ inline fun raycast(onRaycastHit: Function) -> Boolean {
 
 
 inline fun onHit(steps: Number) -> Boolean {
-    actionbar("[color=black]Hit after [color=red]{}[/color] block(s)[/color]", steps)
+    actionbar("[color=black]Hit after [color=red]{}[/] block(s)[/]", steps)
     setBlock(blocks.red_stained_glass)
     return True
 }
@@ -22,7 +22,7 @@ inline fun onHit(steps: Number) -> Boolean {
 fun execute() {
     run anchored "eyes" {
         if (not raycast(onHit)) {
-            actionbar("[color=black]Exceeded max distance of [color=red]{}[/color] blocks![/color]", MAX_ITERATIONS)
+            actionbar("[color=black]Exceeded max distance of [color=red]{}[/] blocks![/]", MAX_ITERATIONS)
         }
     }
 }

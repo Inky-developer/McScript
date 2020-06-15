@@ -1,5 +1,3 @@
-
-
 static i = 0
 
 # reassignment in global context

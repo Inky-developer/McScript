@@ -1,7 +1,7 @@
 
 struct Complex {
-    real: Fixed
-    imag: Fixed
+    real: Fixed,
+    imag: Fixed,
 }
 
 run for @a at @s {

@@ -68,9 +68,16 @@ def set_variable(compileState: CompileState, name: str, value: Resource):
     """
 
     var = compileState.currentContext().find_resource(name)
-    if not isinstance(var, VariableResource):
-        raise McScriptTypeError(f"Expected '{name}' to be a variable, but got {var}", compileState)
-    compileState.currentContext().set_var(name, value.storeToNbt(var.value, compileState))
+
+    # A variable does not have to be a variable resource, because it can be stored as static.
+    # if not isinstance(var, VariableResource):
+    #     raise McScriptTypeError(f"Expected '{name}' to be a variable, but got {var}", compileState)
+
+    # if the previous value was not static, the new one should not be either
+    if isinstance(var, VariableResource):
+        value = value.storeToNbt(var.value, compileState)
+
+    compileState.currentContext().set_var(name, value)
 
 
 def set_property(compileState: CompileState, accessor: Tree, value: Resource):

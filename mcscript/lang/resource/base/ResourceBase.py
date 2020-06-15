@@ -11,6 +11,7 @@ from mcscript.analyzer.VariableContext import VariableContext
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import BinaryOperator, ConditionalExecute, Relation
 from mcscript.exceptions.compileExceptions import McScriptTypeError
+from mcscript.lang.resource import import_sub_modules
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
@@ -354,6 +355,10 @@ class Resource(ABC):
             return Resource
         elif resourceType == ResourceType.VALUE_RESOURCE:
             return ValueResource
+
+        # if the resource type is not already registered, import all resources
+        if resourceType not in cls._reference:
+            import_sub_modules()
 
         return cls._reference[resourceType]
 

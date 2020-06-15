@@ -28,7 +28,9 @@ class SelectorResource(ValueResource):
     def __init__(self, value: str, isStatic: bool, compileState: CompileState = None, context: Context = None):
         if isStatic:
             if context:
-                value = StringResource.StringFormatter().format(value, **context.as_dict())
+                namespace_dict = context.as_dict()
+                replacements = {key: namespace_dict[key].resource for key in namespace_dict}
+                value = StringResource.StringFormatter().format(value, **replacements)
 
             value = Selector.from_string(value, compileState)
 
@@ -162,6 +164,6 @@ class SelectorResource(ValueResource):
         ))
 
     def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
-        return formatter.createFromResources(
+        return formatter.handlers[self.type()](
             self.embed_non_static(compileState)
         )

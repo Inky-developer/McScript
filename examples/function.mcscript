@@ -4,4 +4,4 @@ fun sum_and_square(a: Number, b: Number) -> Number {
 }
 
 result = sum_and_square(6,6) + 6
-run for @a print(result)
+run for @a print("{}", result)

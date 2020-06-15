@@ -26,20 +26,20 @@ run for @a {
 
 # Furthermore, as simple text markdown format can be used:
 run for @a {
-    print("styles: [b]bold[/b], [i]italic[/i], [u]underlined[/u], [s]strikethrough[/s], [o]obfuscated[/o]")
+    print("styles: [b]bold[/], [i]italic[/], [u]underlined[/], [s]strikethrough[/], [o]obfuscated[/]")
     # available colors are:
     # white, black, yellow, gold, aqua, dark_aqua, blue, dark_blue, light_purple, dark_purple, red, dark_red, green,
     # dark_green, gray, dark_gray
     # since snapshot 20w17a hexadecimal rgb colors are also allowed: [color=#rrggbb]...[/color]
     # this syntax is obviously only available if compiling for a version >= 20w17a
-    print("Specifiy colors with \[color=<color>\]: [color=red]This should be red[/color]")
+    print("Specifiy colors with \[color=<color>\]: [color=red]This should be red[/]")
 
     # The markup codes can be nested:
-    print("This [b]is [i]a [u]nested [color=green]chat [s]message[/s][/color][/u][/i][/b]")
+    print("This [b]is [i]a [u]nested [color=green]chat [s]message[/][/][/][/][/]")
 
     # Basic support for click and hover events is available, too:
-    print("[link=https://google.com]Open [u]Google[/u][/link]")
-    print("[command=/kill @e][hover=get free bucks!]click to run a [color=gold]command[/color]![/hover][/command]")
+    print("[link=https://google.com]Open [u]Google[/][/]")
+    print("[command=/kill @e][hover=get free bucks!]click to run a [color=gold]command[/]![/][/]")
     # it is not possible to specify both the command tag and the link tag for a given range.
 
 
@@ -47,8 +47,8 @@ run for @a {
     static DO_LOG = True;
     inline fun log(message: String) {
         if (DO_LOG)
-            print("\[[color=gold][hover=open github repo][link=https://github.com/Inky-developer/McScript]mcscript[/link][/hover][/color]\] $message")
+            print("\[[color=gold][hover=open github repo][link=https://github.com/Inky-developer/McScript]mcscript[/][/][/]\] $message")
     }
 
-    log("This message is logged by my [b]log-function[/b]: [i]$log[/i]")
+    log("This message is logged by my [b]log-function[/]: [i]$log[/]")
 }

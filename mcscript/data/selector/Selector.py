@@ -3,9 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Literal, TYPE_CHECKING
 
+from lark import LarkError
+
 from mcscript.data.selector import selectorGrammar
-from mcscript.data.selector.selectorData import Integer, Nbt, Range, Repeat, SelectorArgument, String, getByName, \
-    getSelectors
+from mcscript.data.selector.selectorData import (
+    getByName, getSelectors, Integer, Nbt, Range, Repeat, SelectorArgument,
+    String,
+)
 from mcscript.exceptions.compileExceptions import McScriptInvalidSelectorError
 
 if TYPE_CHECKING:
@@ -102,7 +106,14 @@ class Selector:
         Returns:
             A selector
         """
-        ast = selectorGrammar.parse(_selector)
+        try:
+            ast = selectorGrammar.parse(_selector)
+        except LarkError as e:
+            raise McScriptInvalidSelectorError(
+                f"Failed to parse selector '{_selector}'\n"
+                f"Got Error: {e}",
+                compileState
+            )
         selector, *arguments = ast.children
         arguments = arguments[0].children if arguments else []
 
