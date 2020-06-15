@@ -439,7 +439,7 @@ class Compiler(Interpreter):
         try:
             # var = value.load(self.compileState).storeToNbt(stack, self.compileState)
             var = value.storeToNbt(stack, self.compileState) if force_new_stack else value
-        except TypeErroro:
+        except TypeError:
             var = value
             # The null resource is kinda special because it only ever has one value
             if not isinstance(value, NullResource):
