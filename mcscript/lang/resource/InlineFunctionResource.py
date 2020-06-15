@@ -18,27 +18,33 @@ if TYPE_CHECKING:
 class InlineFunctionResource(FunctionResource):
     isDefault = False
 
-    def __init__(self, name: str, parameters: List, return_type: TypeResource, block: Tree = None):
+    def __init__(self, compileState: CompileState, name: str, parameters: List, return_type: TypeResource,
+                 block: Tree = None):
         super().__init__(name, parameters, return_type, block)
+
+        # Maybe it was not the best idea to rely on contexts to be evaluated in the order they were defined...
+        self.context = compileState.pushContext(ContextType.INLINE_FUNCTION)
+        compileState.popContext()
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keywordParameters: Resource) -> Resource:
         parameters = self.signature.matchParameters(compileState, parameters)
-        context = compileState.pushContext(ContextType.INLINE_FUNCTION)
+        self.context.clear()
+        compileState.stack.append(self.context)
 
         for pTemplate, parameter in zip(self.parameters, parameters):
             pName, pType = pTemplate
             parameter = self._loadParameter(parameter, pName, pType, compileState)
-            context.add_var(pName, parameter)
+            self.context.add_var(pName, parameter)
 
         self.executeBody(compileState)
 
-        if not compareTypes(context.get_return_resource_or_null(), self.returnType.value):
+        if not compareTypes(self.context.get_return_resource_or_null(), self.returnType.value):
             raise McScriptTypeError(f"Function {self.name()} should return {self.returnType.value.type().name}, "
-                                    f"but returned {context.return_resource.type().name}", compileState)
+                                    f"but returned {self.context.return_resource.type().name}", compileState)
 
         compileState.popContext()
-        return context.get_return_resource_or_null()
+        return self.context.get_return_resource_or_null()
 
     def executeBody(self, compileState: CompileState):
         if not self.block:

@@ -44,7 +44,7 @@ class DefaultFunctionResource(FunctionResource):
         for child in self.block.children:
             compileState.compileFunction(child)
 
-        self.returnValue = compileState.currentContext().return_resource
+        self.returnValue = compileState.currentContext().return_resource or self.returnValue
         if self.returnValue.type() != self.returnType.value.type():
             raise McScriptTypeError(f"{repr(self)} should return {self.returnType.value.type().name} "
                                     f"but returned {self.returnValue.type().name}", compileState)

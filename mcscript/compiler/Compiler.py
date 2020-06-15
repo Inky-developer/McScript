@@ -526,53 +526,6 @@ class Compiler(Interpreter):
         # store the result back
         set_property(self.compileState, accessor, result)
 
-    # def term_ip(self, tree):
-    #     variable, operator, _resource = tree.children
-    #     resource = self.compileState.load(_resource)
-    #     *accessed, varResource = self.visit(variable)
-    #     var = varResource.load(self.compileState)
-    #     if not isinstance(resource, ValueResource):
-    #         raise AttributeError(f"Cannot do an operation with '{resource}'", self.compileState)
-    #
-    #     try:
-    #         result = var.numericOperation(resource, BinaryOperator(operator), self.compileState)
-    #         if result == NotImplemented:
-    #             raise McScriptTypeError(
-    #                 f"Unsupported operation {operator} for {var.type().value} and {resource.type().value}",
-    #                 self.compileState
-    #             )
-    #     except NotImplementedError:
-    #         raise McScriptTypeError(
-    #             f"in place operation: Failed because {repr(var)} does not support the operation {operator.name}",
-    #             self.compileState
-    #         )
-    #
-    #     if not isinstance(result, Resource):
-    #         raise McScriptTypeError(f"Expected a resource, got {result}", self.compileState)
-    #
-    #     self.compileState.currentTree = _resource
-    #     if isStatic(varResource) and not isStatic(result):
-    #         if accessed:
-    #             raise McScriptTypeError("Trying to assign a non-static value to a static property", self.compileState)
-    #         raise McScriptIsStaticError(
-    #             "Trying to assign a non-static value here",
-    #             self.compileState.currentContext().find_var(variable.children[0]).context.declaration.access,
-    #             self.compileState
-    #         )
-    #
-    #     if len(variable.children) > 1:
-    #         raise McScriptNotImplementedError("In-place operations on attributes are temporarily disabled",
-    #                                           self.compileState)
-    #     if isStatic(result) and isStatic(varResource):
-    #         if not accessed:
-    #             self.compileState.currentContext().set_var(variable.children[0], result)
-    #         else:
-    #             raise NotImplementedError("TODO: Implement in-place operations for static properties")
-    #     else:
-    #         self.compileState.currentContext().set_var(variable.children[0],
-    #                                                    result.storeToNbt(var.value, self.compileState))
-    #         result.storeToNbt(varResource.value, self.compileState)
-
     def block(self, tree):
         blockName = self.compileState.pushBlock(ContextType.BLOCK)
         newNamespace = self.compileState.currentContext()
@@ -672,7 +625,7 @@ class Compiler(Interpreter):
 
         FunctionCls = StructMethodResource if isMethod else InlineFunctionResource
 
-        function = FunctionCls(function_name, parameter_list, return_type, block)
+        function = FunctionCls(self.compileState, function_name, parameter_list, return_type, block)
         self.compileState.currentContext().add_var(function.name(), function)
 
     def function_definition_normal(self, function_name: str, parameter_list: List[Parameter], return_type: TypeResource,

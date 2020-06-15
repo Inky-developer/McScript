@@ -10,7 +10,7 @@ inline fun zeroPadHoursMinutes(printFunction: Function, hours: Number, minutes: 
     if (minutes < 10)
         sMinutes = "0"
 
-    printFunction("[color=gold]{}{}[/color]:[color=red]{}{}[/color]", sHours, hours, sMinutes, minutes)
+    printFunction("[color=gold]{}{}[/]:[color=red]{}{}[/]", sHours, hours, sMinutes, minutes)
 
 }
 

@@ -67,6 +67,7 @@ class Context:
             None
         """
         self.namespace.clear()
+        self.return_resource = None
 
     def find_var(self, name: str) -> Optional[Context.Variable]:
         """

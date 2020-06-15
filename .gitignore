@@ -13,3 +13,4 @@ venv/
 
 docs/update_doc.cmd
 latest.log
+stats.py
