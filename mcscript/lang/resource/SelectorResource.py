@@ -5,14 +5,14 @@ from typing import Optional, TYPE_CHECKING
 from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
+from mcscript.data.commands import Command, ExecuteCommand, multiple_commands, Selector as CmdSelector, Struct
 from mcscript.data.Scoreboard import Scoreboard
-from mcscript.data.commands import Command, ExecuteCommand, Selector as CmdSelector, Struct, multiple_commands
 from mcscript.data.selector.Selector import Selector
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
+from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.StringResource import StringResource
-from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.Context import Context
@@ -141,7 +141,7 @@ class SelectorResource(ValueResource):
     def iterate(self, compileState: CompileState, varName: str, tree: Tree):
         """ identical to `run for @. at @s` """
 
-        block = compileState.pushBlock(ContextType.LOOP)
+        block = compileState.pushBlock(ContextType.LOOP, tree.line, tree.column)
         compileState.currentContext().add_var(
             varName,
             SelectorResource(CmdSelector.CURRENT_ENTITY(), True, compileState).storeToNbt(None, compileState)

@@ -1,23 +1,26 @@
-from typing import List
+from typing import Dict, List, Tuple
 
 from lark import Token, Tree
 from lark.visitors import Interpreter
 
 from mcscript import Logger
 from mcscript.analyzer.Analyzer import NamespaceContext
+from mcscript.compiler.common import conditional_loop, get_property, readContextManipulator, set_property
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.ContextType import ContextType
-from mcscript.compiler.common import conditional_loop, get_property, readContextManipulator, set_property
 from mcscript.compiler.tokenConverter import convertToken
 from mcscript.data import defaultCode
+from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, multiple_commands, Relation, UnaryOperator
 from mcscript.data.Config import Config
-from mcscript.data.commands import BinaryOperator, Command, ExecuteCommand, Relation, UnaryOperator, \
-    multiple_commands
-from mcscript.exceptions.compileExceptions import McScriptArgumentsError, \
-    McScriptChangedTypeError, McScriptDeclarationError, \
-    McScriptIsStaticError, McScriptNameError, \
-    McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError
+from mcscript.exceptions.compileExceptions import (
+    McScriptArgumentsError,
+    McScriptChangedTypeError, McScriptDeclarationError,
+    McScriptIsStaticError, McScriptNameError,
+    McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError,
+)
 from mcscript.lang.builtins.builtins import BuiltinFunction
+from mcscript.lang.resource.base.FunctionResource import Parameter
+from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.DefaultFunctionResource import DefaultFunctionResource
 from mcscript.lang.resource.EnumResource import EnumResource
@@ -28,8 +31,6 @@ from mcscript.lang.resource.StructMethodResource import StructMethodResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.TypeResource import TypeResource
-from mcscript.lang.resource.base.FunctionResource import Parameter
-from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 from mcscript.lang.utility import compareTypes, isStatic
 from mcscript.utils.Datapack import Datapack
 
@@ -50,11 +51,12 @@ class Compiler(Interpreter):
         self.compileState.currentTree = previous
         return result
 
-    def compile(self, tree: Tree, contexts: List[NamespaceContext], code: str, config: Config) -> Datapack:
+    def compile(self, tree: Tree, contexts: Dict[Tuple[int, int], NamespaceContext], code: str,
+                config: Config) -> Datapack:
         self.compileState = CompileState(code, contexts, self.visit, config)
         self.compileState.fileStructure.pushFile("main.mcfunction")
         BuiltinFunction.load(self)
-        self.compileState.pushContext(ContextType.GLOBAL)
+        self.compileState.pushContext(ContextType.GLOBAL, 0, 0)
         self.visit(tree)
 
         # ToDO put this in default code
@@ -526,8 +528,8 @@ class Compiler(Interpreter):
         # store the result back
         set_property(self.compileState, accessor, result)
 
-    def block(self, tree):
-        blockName = self.compileState.pushBlock(ContextType.BLOCK)
+    def block(self, tree: Tree):
+        blockName = self.compileState.pushBlock(ContextType.BLOCK, tree.line, tree.column)
         newNamespace = self.compileState.currentContext()
         self.visit_children(tree)
         self.compileState.popBlock()
@@ -551,14 +553,14 @@ class Compiler(Interpreter):
                 Logger.debug(f"If statement at line {tree.line} column {tree.column} is always False")
             return
 
-        blockName = self.compileState.pushBlock(ContextType.CONDITIONAL)
+        blockName = self.compileState.pushBlock(ContextType.CONDITIONAL, block.line, block.column)
         self.visit_children(block)
         self.compileState.popBlock()
 
         if block_else is not None:
             cond_if, cond_else = condition.if_else(self.compileState)
 
-            blockElseName = self.compileState.pushBlock(ContextType.CONDITIONAL)
+            blockElseName = self.compileState.pushBlock(ContextType.CONDITIONAL, block_else.line, block_else.column)
             self.visit_children(block_else)
             self.compileState.popBlock()
 
@@ -625,7 +627,7 @@ class Compiler(Interpreter):
 
         FunctionCls = StructMethodResource if isMethod else InlineFunctionResource
 
-        function = FunctionCls(self.compileState, function_name, parameter_list, return_type, block)
+        function = FunctionCls(function_name, parameter_list, return_type, block)
         self.compileState.currentContext().add_var(function.name(), function)
 
     def function_definition_normal(self, function_name: str, parameter_list: List[Parameter], return_type: TypeResource,
@@ -654,9 +656,10 @@ class Compiler(Interpreter):
             if result.inline:
                 self.compileState.writeline(result.code)
             else:
-                addr = self.compileState.pushBlock(ContextType.BLOCK)
+                addr = self.compileState.fileStructure.pushFile(self.compileState.codeBlockStack.next())
                 self.compileState.writeline(result.code)
-                self.compileState.popBlock()
+                self.compileState.fileStructure.popFile()
+
                 self.compileState.writeline(Command.RUN_FUNCTION(function=addr))
 
         return result.resource
@@ -687,7 +690,7 @@ class Compiler(Interpreter):
 
     def control_struct(self, tree):
         name, block = tree.children
-        self.compileState.pushContext(ContextType.STRUCT)
+        self.compileState.pushContext(ContextType.STRUCT, block.line, block.column)
         context = self.compileState.currentContext()
 
         struct = StructResource(name, context)
@@ -700,10 +703,10 @@ class Compiler(Interpreter):
         self.compileState.popContext()
         self.compileState.currentContext().add_var(name, struct)
 
-    def context_manipulator(self, tree):
+    def context_manipulator(self, tree: Tree):
         *modifiers, block = tree.children
 
-        blockName = self.compileState.pushBlock(ContextType.CONTEXT_MANIPULATOR)
+        blockName = self.compileState.pushBlock(ContextType.CONTEXT_MANIPULATOR, block.line, block.column)
         self.visit_children(block)
         self.compileState.popBlock()
 

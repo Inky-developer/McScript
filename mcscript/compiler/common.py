@@ -13,9 +13,9 @@ from mcscript.data import defaultEnums
 from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
 from mcscript.exceptions.compileExceptions import McScriptNameError, McScriptSyntaxError, McScriptTypeError
 from mcscript.exceptions.utils import requireType
-from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
 from mcscript.lang.resource.base.VariableResource import VariableResource
+from mcscript.lang.resource.SelectorResource import SelectorResource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -125,7 +125,7 @@ def conditional_loop(compileState: CompileState,
                      conditionTree: Tree,
                      check_start: bool,
                      context: Optional[Tree] = None):
-    blockName = compileState.pushBlock(ContextType.LOOP)
+    blockName = compileState.pushBlock(ContextType.LOOP, block.line, block.column)
     for child in block.children:
         compileState.compileFunction(child)
 

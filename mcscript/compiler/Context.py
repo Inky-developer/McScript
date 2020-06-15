@@ -6,8 +6,8 @@ from typing import Dict, List, Optional
 from mcscript import Logger
 from mcscript.analyzer.VariableContext import VariableContext
 from mcscript.compiler.ContextType import ContextType
-from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.base.ResourceBase import Resource
+from mcscript.lang.resource.NullResource import NullResource
 from mcscript.utils.Address import Address
 from mcscript.utils.NbtAddress import NbtAddress
 
@@ -18,7 +18,7 @@ class Context:
 
     A `Context` keeps track of:
         * The previous `Context`
-        * The numerical id of this `Context`
+        * The numerical id of this `Context` (deprecated, unused)
         * The variables unique to this context
         * The type of context, ia. if it can be evaluated at compile time (not influenced by inner non-static contexts)
         * A template string for context specific variable names

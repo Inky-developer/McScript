@@ -6,9 +6,9 @@ from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
 from mcscript.exceptions.compileExceptions import McScriptTypeError
-from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.FunctionResource import FunctionResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
+from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.utility import compareTypes
 
 if TYPE_CHECKING:
@@ -18,37 +18,31 @@ if TYPE_CHECKING:
 class InlineFunctionResource(FunctionResource):
     isDefault = False
 
-    def __init__(self, compileState: CompileState, name: str, parameters: List, return_type: TypeResource,
-                 block: Tree = None):
+    def __init__(self, name: str, parameters: List, return_type: TypeResource,
+                 block: Tree):
         super().__init__(name, parameters, return_type, block)
-
-        # Maybe it was not the best idea to rely on contexts to be evaluated in the order they were defined...
-        self.context = compileState.pushContext(ContextType.INLINE_FUNCTION)
-        compileState.popContext()
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keywordParameters: Resource) -> Resource:
         parameters = self.signature.matchParameters(compileState, parameters)
-        self.context.clear()
-        compileState.stack.append(self.context)
+
+        context = compileState.pushContext(ContextType.INLINE_FUNCTION, self.block.line, self.block.column)
 
         for pTemplate, parameter in zip(self.parameters, parameters):
             pName, pType = pTemplate
             parameter = self._loadParameter(parameter, pName, pType, compileState)
-            self.context.add_var(pName, parameter)
+            context.add_var(pName, parameter)
 
         self.executeBody(compileState)
 
-        if not compareTypes(self.context.get_return_resource_or_null(), self.returnType.value):
+        if not compareTypes(context.get_return_resource_or_null(), self.returnType.value):
             raise McScriptTypeError(f"Function {self.name()} should return {self.returnType.value.type().name}, "
-                                    f"but returned {self.context.return_resource.type().name}", compileState)
+                                    f"but returned {context.return_resource.type().name}", compileState)
 
         compileState.popContext()
-        return self.context.get_return_resource_or_null()
+        return context.get_return_resource_or_null()
 
     def executeBody(self, compileState: CompileState):
-        if not self.block:
-            raise ValueError("No block to execute")
         for child in self.block.children:
             compileState.compileFunction(child)
 

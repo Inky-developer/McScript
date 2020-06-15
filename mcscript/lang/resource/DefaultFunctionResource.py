@@ -9,10 +9,10 @@ from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import Command
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptTypeError
 from mcscript.lang.resource.AddressResource import AddressResource
-from mcscript.lang.resource.NullResource import NullResource
-from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.FunctionResource import FunctionResource, Parameter
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
+from mcscript.lang.resource.NullResource import NullResource
+from mcscript.lang.resource.TypeResource import TypeResource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -37,7 +37,7 @@ class DefaultFunctionResource(FunctionResource):
     def compile(self, compileState: CompileState):
         blockName = self.blockName = self.name() if self.canUseOwnName(compileState) else \
             compileState.codeBlockStack.next()
-        compileState.pushBlock(ContextType.FUNCTION, blockName)
+        compileState.pushBlock(ContextType.FUNCTION, self.block.line, self.block.column, blockName)
 
         self.initNamespace(compileState)
 

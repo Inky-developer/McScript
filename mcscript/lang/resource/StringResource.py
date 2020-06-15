@@ -2,18 +2,18 @@ from __future__ import annotations
 
 import re
 from string import Formatter
-from typing import Callable, Dict, Optional, TYPE_CHECKING, Tuple, Union
+from typing import Callable, Dict, Optional, Tuple, TYPE_CHECKING, Union
 
 from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import Command, Storage, Struct
 from mcscript.exceptions.compileExceptions import McScriptTypeError
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
+from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.utils.JsonTextFormat.objectFormatter import format_nbt
 
 if TYPE_CHECKING:
@@ -223,21 +223,17 @@ class StringResource(ValueResource):
             raise McScriptTypeError(f"Cannot iterate over a string with unknown length (ToDo implement that)",
                                     compileState)
 
-        context = compileState.pushContext(ContextType.UNROLLED_LOOP)
-
         for i in range(self.length):
-            context.clear()
-            # see array resource iterate
-            compileState.clearUntilContext(context)
+            context = compileState.pushContext(ContextType.UNROLLED_LOOP, block.line, block.column)
 
-            compileState.currentContext().add_var(
+            context.add_var(
                 varName,
                 self.operation_get_element(compileState, NumberResource(i, True))
             )
             for child in block.children:
                 compileState.compileFunction(child)
 
-        compileState.popContext()
+            compileState.popContext()
 
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         if self.isStatic:

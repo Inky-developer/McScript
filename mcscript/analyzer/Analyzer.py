@@ -1,4 +1,5 @@
-from typing import List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
 
 from lark import Tree
 
@@ -8,9 +9,19 @@ from mcscript.analyzer.VariableContext import VariableAccess, VariableContext
 NamespaceContext = List[VariableContext]
 
 
-def getVar(contexts: List[NamespaceContext], name: str) -> Optional[VariableContext]:
+@dataclass()
+class ContextData:
+    line: int
+    column: int
+    context: NamespaceContext
+
+    def append(self, context: VariableContext):
+        self.context.append(context)
+
+
+def getVar(contexts: List[ContextData], name: str) -> Optional[VariableContext]:
     for context in reversed(contexts):
-        for var in context:
+        for var in context.context:
             if var.identifier == name:
                 return var
     return None
@@ -29,19 +40,16 @@ class Analyzer:
     """
 
     def __init__(self):
-        self.state = []
-        self.stack = []
+        # A context is identified by its line and column
+        self.contexts: List[ContextData] = []
+        self.stack: List[ContextData] = []
 
-    def pushContext(self):
-        context = []
-        self.state.append(context)
-        self.stack.append(context)
+    def pushContext(self, line: int, column: int):
+        self.contexts.append(ContextData(line, column, []))
+        self.stack.append(self.contexts[-1])
 
-    def popContext(self):
+    def pop_context(self):
         self.stack.pop()
-
-    def getCurrentIndex(self) -> int:
-        return len(self.stack) - 1
 
     def visit(self, tree: Tree):
         return getattr(self, tree.data, self._default)(tree)
@@ -49,7 +57,7 @@ class Analyzer:
     def _default(self, tree: Tree):
         return [self.visit(i) for i in tree.children if isinstance(i, Tree)]
 
-    def analyze(self, tree: Tree) -> Tuple[Tree, List[NamespaceContext]]:
+    def analyze(self, tree: Tree) -> Tuple[Tree, Dict[Tuple[int, int], NamespaceContext]]:
         """
         Analyzes the tree and returns information per context that were found per variable.
 
@@ -59,23 +67,23 @@ class Analyzer:
         Returns:
             the original tree and a list of context which contain a list of `VariableContext`
         """
-        self.state = []
-        self.stack = []
-        self.pushContext()
+        self.contexts = []
+        # the global context
+        self.pushContext(0, 0)
 
         self.visit(tree)
 
-        return tree, self.state
+        return tree, {(i.line, i.column): i.context for i in self.contexts}
 
     def block(self, tree: Tree):
-        self.pushContext()
+        self.pushContext(tree.line, tree.column)
         [self.visit(i) for i in tree.children]
-        self.popContext()
+        self.pop_context()
 
     def struct_block(self, tree: Tree):
-        self.pushContext()
+        self.pushContext(tree.line, tree.column)
         [self.visit(i) for i in tree.children]
-        self.popContext()
+        self.pop_context()
 
     def declaration(self, tree: Tree):
         accessor, expression = tree.children
@@ -86,11 +94,11 @@ class Analyzer:
             return
 
         if var := getVar(self.stack, identifier):
-            var.writes.append(VariableAccess(tree, self.getCurrentIndex()))
+            var.writes.append(VariableAccess(tree))
         else:
             self.stack[-1].append(VariableContext(
                 identifier,
-                VariableAccess(tree, self.getCurrentIndex()),
+                VariableAccess(tree),
                 False,
                 False
             ))
@@ -102,11 +110,11 @@ class Analyzer:
         identifier, *_ = accessor.children
 
         if var := getVar(self.stack, identifier):
-            var.writes.append(VariableAccess(tree, self.getCurrentIndex()))
+            var.writes.append(VariableAccess(tree))
         else:
             self.stack[-1].append(VariableContext(
                 identifier,
-                VariableAccess(tree, self.getCurrentIndex()),
+                VariableAccess(tree),
                 True,
                 False
             ))
@@ -120,7 +128,7 @@ class Analyzer:
             return
 
         if var := getVar(self.stack, identifier):
-            var.writes.append(VariableAccess(tree, self.getCurrentIndex()))
+            var.writes.append(VariableAccess(tree))
         else:
             # otherwise the user tries to access an undefined variable
             Logger.error(f"[Analyzer] invalid variable access: '{identifier}' is not defined")
@@ -134,7 +142,7 @@ class Analyzer:
             return
 
         if var := getVar(self.stack, identifier):
-            var.writes.append(VariableAccess(tree, self.getCurrentIndex()))
+            var.writes.append(VariableAccess(tree))
         else:
             Logger.error(f"[Analyzer] invalid variable array setter: '{identifier}' is not defined")
 
@@ -150,7 +158,7 @@ class Analyzer:
             if not not_implemented:
                 var = getVar(self.stack, identifier)
                 if var:
-                    var.reads.append(VariableAccess(tree, self.getCurrentIndex()))
+                    var.reads.append(VariableAccess(tree))
         elif isinstance(value, Tree):
             for child in value.children:
                 if isinstance(child, Tree):

@@ -7,7 +7,6 @@ from lark import Token, Tree
 @dataclass()
 class VariableAccess:
     access: Tree
-    contextId: int
 
 
 @dataclass()

@@ -1,21 +1,21 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Optional, TYPE_CHECKING, Type, Union
+from typing import Callable, Dict, Optional, Type, TYPE_CHECKING, Union
 
 from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.commands import Command, ExecuteCommand
 from mcscript.exceptions.compileExceptions import McScriptAttributeError, McScriptTypeError
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
+from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.lang.resource.base.VariableResource import VariableResource
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.InternalFunctionResource import InternalFunctionResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.TypeResource import TypeResource
-from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.lang.resource.base.VariableResource import VariableResource
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
 if TYPE_CHECKING:
@@ -129,7 +129,7 @@ class ListResource(Resource):
         tempStack = NbtAddressResource(compileState.temporaryStorageStack.next().embed())
         tempArray = self.copy(tempStack, compileState)
 
-        block = compileState.pushBlock(ContextType.LOOP)
+        block = compileState.pushBlock(ContextType.LOOP, tree.line, tree.column)
         var = self.ContentResource(tempStack[0], False)
         compileState.currentContext().add_var(varName, var)
 

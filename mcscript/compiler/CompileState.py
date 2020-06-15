@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Callable, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 from lark import Tree
 
@@ -8,12 +8,12 @@ from mcscript.compiler.CompilerConstants import CompilerConstants
 from mcscript.compiler.Context import Context
 from mcscript.compiler.ContextStack import ContextStack
 from mcscript.compiler.ContextType import ContextType
+from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
 from mcscript.data.Config import Config
 from mcscript.data.Scoreboard import Scoreboard
-from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
 from mcscript.lang.resource.AddressResource import AddressResource
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource
+from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.utils.Address import Address
 from mcscript.utils.Datapack import Datapack
 
@@ -23,7 +23,8 @@ class CompileState:
     This class keeps track of the current state of the compilation
     """
 
-    def __init__(self, code: str, contexts: List[NamespaceContext], compileFunction: Callable, config: Config):
+    def __init__(self, code: str, contexts: Dict[Tuple[int, int], NamespaceContext], compileFunction: Callable,
+                 config: Config):
         self.compileFunction = compileFunction
 
         self.code = code.split("\n")
@@ -142,11 +143,11 @@ class CompileState:
             ))
         raise ValueError(f"Unknown type {result}")
 
-    def pushBlock(self, contextType: ContextType, blockName: str = None) -> AddressResource:
+    def pushBlock(self, contextType: ContextType, line: int, column: int, blockName: str = None) -> AddressResource:
         """ creates a new file and context and returns the block id."""
         blockName = blockName or self.codeBlockStack.next()
         self.fileStructure.pushFile(blockName)
-        self.pushContext(contextType)
+        self.pushContext(contextType, line, column)
         return blockName
 
     def popBlock(self):
@@ -199,28 +200,23 @@ class CompileState:
     def popContext(self):
         self.stack.pop()
 
-    def pushContext(self, contextType: ContextType) -> Context:
-        # namespace = Namespace(self.stack.index(), contextType, self.currentContext())
-
-        context = Context(self.stack.index(), contextType, self.contexts[self.stack.index()], self.stack.tail())
-        self.stack.append(context)
-        return context
-
-    def clearUntilContext(self, context: Context):
+    def pushContext(self, contextType: ContextType, line: int, column: int) -> Context:
         """
-        Pops contexts from the stack until the context `context` is found.
-        Fails if the stack is empty.
+        Creates a new context and pushes it on the stack.
+        Line and column are used to associate the variable context data.
 
         Args:
-            context: the context to find
+            contextType: The type of the context
+            line: The line of the definition
+            column: The column of the definition
 
         Returns:
-            None
+            The new context
         """
-        while (last_data := self.stack.data[-1]) != context:
-            if last_data in self.stack.stack:
-                self.stack.stack.remove(last_data)
-            self.stack.data.pop()
+
+        context = Context(self.stack.index(), contextType, self.contexts[line, column], self.stack.tail())
+        self.stack.append(context)
+        return context
 
     def getDebugLines(self, a, _):
         return self.code[a - 1].strip()
