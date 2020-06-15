@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 
-def compare_scoreboard_value(compileState: CompileState, a: ValueResource, relation: Relation,
+def compare_scoreboard_value(_: CompileState, a: ValueResource, relation: Relation,
                              b: ValueResource) -> ConditionalExecute:
     """ compares to resources. Tries to optimize if one or both are static"""
     if a.isStatic and b.isStatic:

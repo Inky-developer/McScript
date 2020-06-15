@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING
 from mcscript import Logger
 from mcscript.exceptions.utils.sourceAnnotation import SourceAnnotation, SourceAnnotationList
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
-from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.lang.resource.StringResource import StringResource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -42,7 +42,7 @@ class _DebugVariableInfoFunction(BuiltinFunction):
         source_annotations += SourceAnnotation.from_token(compileState.code, variableData.declaration.access,
                                                           "Declared here")
         for accessType, var in variableData.history():
-            context = compileState.stack.getByIndex(var.contextId)
+            # context = compileState.stack.search_by_pos(*var.master_context)
             message = "Read access here" if accessType == "read" else "Write access here"
 
             # what should that mean?

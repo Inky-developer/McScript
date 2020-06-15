@@ -7,10 +7,10 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from mcscript.data import getDictionaryResource
-from mcscript.data.Config import Config
 from mcscript.data.blockStorage.BlockTree import BlockTree
 from mcscript.data.blockStorage.Generator import BlockFunctionGenerator, BlockTagGenerator, IdToBlockGenerator
 from mcscript.data.commands import stringFormat
+from mcscript.data.Config import Config
 from mcscript.data.minecraftData import blocks
 from mcscript.data.predicates.BiomePredicate import BiomePredicate
 from mcscript.data.predicates.FeaturePredicate import FeaturePredicate
@@ -106,7 +106,6 @@ class Directory:
             value = structure[filename]
             function = getattr(self, f"on_{filename.replace('.', '_')}", None)
             # noinspection PyUnusedLocal wtf?
-            file = None
             if value is None:
                 if "." in filename:
                     file = self.addFile(filename)

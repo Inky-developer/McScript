@@ -16,7 +16,6 @@ class McScriptException(Exception):
 
     def get_stack(self):
         stack = inspect.stack()
-        here = 2
         log = []
 
         # don't include last three stacks: this method, this init, init of subclass error

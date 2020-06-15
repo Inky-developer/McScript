@@ -16,6 +16,10 @@ class GetBiomeFunction(CachedFunction):
     returns the biome id of the current biome the executor is in.
     """
 
+    def __init__(self):
+        super().__init__()
+        self.predicates = None
+
     def name(self) -> str:
         return "getBiome"
 

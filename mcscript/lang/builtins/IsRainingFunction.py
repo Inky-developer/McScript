@@ -5,9 +5,9 @@ from typing import Any, TYPE_CHECKING, Union
 from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.data.predicates.WeatherPredicate import WeatherPredicate
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
-from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.lang.resource.BooleanResource import BooleanResource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -17,6 +17,10 @@ class IsRaining(BuiltinFunction):
     """
     returns whether it is currently raining
     """
+
+    def __init__(self):
+        super().__init__()
+        self.rainingPredicate = None
 
     def name(self) -> str:
         return "isRaining"

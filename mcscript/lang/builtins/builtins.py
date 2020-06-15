@@ -6,20 +6,20 @@ from dataclasses import dataclass
 from functools import cached_property
 from inspect import isabstract
 from textwrap import dedent
-from typing import Dict, List, Optional, Sequence, TYPE_CHECKING, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, TYPE_CHECKING, Union
 
 from mcscript.data.commands import Command
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.lang.resource.AddressResource import AddressResource
+from mcscript.lang.resource.base.functionSignature import FunctionParameter, FunctionSignature
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
+from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.TypeResource import TypeResource
-from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.lang.resource.base.functionSignature import FunctionParameter, FunctionSignature
 
 if TYPE_CHECKING:
     from mcscript import Compiler
@@ -109,7 +109,6 @@ class BuiltinFunction(ABC):
         for line in doc.split("\n"):
             if match := self._PATTERN_PARAMETER.match(line.strip()):
                 modifiers, *count, name, type_, parameter_doc = match.groups()
-                is_optional = False
                 mode = FunctionParameter.ResourceMode.STATIC | FunctionParameter.ResourceMode.NON_STATIC
 
                 if not count[0]:

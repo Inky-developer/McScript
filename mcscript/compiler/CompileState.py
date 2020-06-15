@@ -48,7 +48,7 @@ class CompileState:
         self.contexts = contexts
         self.stack: ContextStack = ContextStack()
         # self.stack.append(Namespace(0, namespaceType=NamespaceType.GLOBAL))
-        self.stack.append(Context(0, ContextType.GLOBAL, []))
+        self.stack.append(Context(0, None, ContextType.GLOBAL, []))
 
         self.fileStructure = self.datapack.getMainDirectory().getPath("functions").fileStructure
         self.lineCount = 0
@@ -178,14 +178,6 @@ class CompileState:
             else:
                 self.fileStructure.popFile()
 
-    @property
-    def nextNamespaceDefaults(self):
-        return self._nextNamespaceDefaults
-
-    @nextNamespaceDefaults.setter
-    def nextNamespaceDefaults(self, value: List[str]):
-        self._nextNamespaceDefaults = value
-
     def write(self, string: str):
         self.lineCount += string.count("\n")
         self.fileStructure.get().write(string)
@@ -214,7 +206,8 @@ class CompileState:
             The new context
         """
 
-        context = Context(self.stack.index(), contextType, self.contexts[line, column], self.stack.tail())
+        context = Context(self.stack.index(), (line, column), contextType, self.contexts[line, column],
+                          self.stack.tail())
         self.stack.append(context)
         return context
 

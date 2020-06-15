@@ -63,6 +63,7 @@ fun make_disk() -> Null {
     }
 }
 """
+
 code_temp = r"""
 # s = "Hallo, Welt!"
 # 
@@ -74,14 +75,14 @@ code_temp = r"""
 # 
 # _DebugVariable("s")
 
-data = (1, 2, 3, 4);
 
 run for @a {
+    data = (1, 2, 3, 4);
     data[0] = data[0] * 2
+    
     print("{}", data);
 }
 """
-
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")
     # mcDir = r"C:\Users\david\AppData\Roaming\.minecraft\Entwicklungsversionen\saves"

@@ -17,6 +17,10 @@ class GetLightLevel(CachedFunction):
     Range: -1..15; -1 if the function could not execute correctly, this *should* never happen.
     """
 
+    def __init__(self):
+        super().__init__()
+        self.predicates = None
+
     def name(self) -> str:
         return "getLightLevel"
 

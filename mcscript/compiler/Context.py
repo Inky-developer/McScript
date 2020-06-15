@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from mcscript import Logger
 from mcscript.analyzer.VariableContext import VariableContext
@@ -18,6 +18,7 @@ class Context:
 
     A `Context` keeps track of:
         * The previous `Context`
+        * The definition of this context as (line, column)
         * The numerical id of this `Context` (deprecated, unused)
         * The variables unique to this context
         * The type of context, ia. if it can be evaluated at compile time (not influenced by inner non-static contexts)
@@ -37,11 +38,13 @@ class Context:
     def __init__(
             self,
             index: int,
+            definition: Optional[Tuple[int, int]],
             ctx_type: ContextType,
             variable_context: List[VariableContext],
             predecessor: Context = None
     ):
         self.index = index
+        self.definition = definition
         self.context_type = ctx_type
         self.predecessor = predecessor
 

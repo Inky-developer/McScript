@@ -72,6 +72,8 @@ class Compiler(Interpreter):
 
     #  called by every registered builtin function
     def loadFunction(self, function: BuiltinFunction):
+        # ToDo: Make BuiltinFunction officially a resource
+        # noinspection PyTypeChecker
         self.compileState.currentContext().add_var(function.name(), function)
 
     #######################
@@ -395,7 +397,7 @@ class Compiler(Interpreter):
                     )
 
                 non_static_context = self.compileState.currentContext().search_non_static_until(
-                    self.compileState.stack.getByIndex(variable_data.declaration.contextId)
+                    self.compileState.stack.search_by_pos(*variable_data.declaration.master_context)
                 )
 
                 if non_static_context is not None:
@@ -437,7 +439,7 @@ class Compiler(Interpreter):
         try:
             # var = value.load(self.compileState).storeToNbt(stack, self.compileState)
             var = value.storeToNbt(stack, self.compileState) if force_new_stack else value
-        except TypeError as e:
+        except TypeErroro:
             var = value
             # The null resource is kinda special because it only ever has one value
             if not isinstance(value, NullResource):

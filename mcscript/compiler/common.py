@@ -110,13 +110,13 @@ def check_context_static(compileState: CompileState, resource: Resource) -> bool
     if name is None:
         raise ValueError(f"The resource '{resource}' is not a variable")
 
-    context = compileState.currentContext().find_var(name).context
+    variable_context = compileState.currentContext().find_var(name).context
 
-    if context is None:
+    if variable_context is None:
         raise ValueError(f"The variable '{name}' ('{resource}') does not have an associated context")
 
     return compileState.currentContext().search_non_static_until(
-        compileState.stack.getByIndex(context.declaration.contextId)
+        compileState.stack.search_by_pos(*variable_context.declaration.master_context)
     ) is None
 
 

@@ -94,11 +94,11 @@ class Analyzer:
             return
 
         if var := getVar(self.stack, identifier):
-            var.writes.append(VariableAccess(tree))
+            var.writes.append(VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)))
         else:
             self.stack[-1].append(VariableContext(
                 identifier,
-                VariableAccess(tree),
+                VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)),
                 False,
                 False
             ))
@@ -110,11 +110,11 @@ class Analyzer:
         identifier, *_ = accessor.children
 
         if var := getVar(self.stack, identifier):
-            var.writes.append(VariableAccess(tree))
+            var.writes.append(VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)))
         else:
             self.stack[-1].append(VariableContext(
                 identifier,
-                VariableAccess(tree),
+                VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)),
                 True,
                 False
             ))
@@ -128,7 +128,7 @@ class Analyzer:
             return
 
         if var := getVar(self.stack, identifier):
-            var.writes.append(VariableAccess(tree))
+            var.writes.append(VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)))
         else:
             # otherwise the user tries to access an undefined variable
             Logger.error(f"[Analyzer] invalid variable access: '{identifier}' is not defined")
@@ -142,7 +142,7 @@ class Analyzer:
             return
 
         if var := getVar(self.stack, identifier):
-            var.writes.append(VariableAccess(tree))
+            var.writes.append(VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)))
         else:
             Logger.error(f"[Analyzer] invalid variable array setter: '{identifier}' is not defined")
 
@@ -158,7 +158,7 @@ class Analyzer:
             if not not_implemented:
                 var = getVar(self.stack, identifier)
                 if var:
-                    var.reads.append(VariableAccess(tree))
+                    var.reads.append(VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)))
         elif isinstance(value, Tree):
             for child in value.children:
                 if isinstance(child, Tree):

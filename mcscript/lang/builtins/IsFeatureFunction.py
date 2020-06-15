@@ -23,6 +23,10 @@ class IsFeatureFunction(CachedFunction):
         -> 1 or 0
     """
 
+    def __init__(self):
+        super().__init__()
+        self.predicates = None
+
     def name(self) -> str:
         return "isFeature"
 

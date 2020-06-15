@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from enum import Enum, auto
+from enum import auto, Enum
 from inspect import isabstract
-from typing import ClassVar, Dict, List, Optional, TYPE_CHECKING, Type, Union
+from typing import ClassVar, Dict, List, Optional, Type, TYPE_CHECKING, Union
 
 from lark import Tree
 
@@ -465,7 +465,7 @@ class ObjectResource(Resource, ABC):
         super().__init__()
         # the empty context is a dummy
         from mcscript.compiler.Context import Context
-        self.context = context or Context(0, ContextType.STRUCT, [])
+        self.context = context or Context(0, None, ContextType.STRUCT, [])
 
     @staticmethod
     @abstractmethod

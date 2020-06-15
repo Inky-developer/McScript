@@ -18,6 +18,10 @@ class RandomFunction(CachedFunction):
     generates a random value between 0 and 2**bits - 1
     """
 
+    def __init__(self):
+        super().__init__()
+        self.predicate = None
+
     def name(self) -> str:
         return "random"
 
