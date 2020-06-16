@@ -27,7 +27,7 @@ class McScriptError(McScriptException):
 
             # if custom annotations specified, include them and sort everything by line numbers
             if source_annotations:
-                msg += SourceAnnotationList(*source_annotations)
+                msg += SourceAnnotationList(*[i for i in source_annotations if i is not None])
                 msg = msg.sorted()
 
             msg = header + str(msg)

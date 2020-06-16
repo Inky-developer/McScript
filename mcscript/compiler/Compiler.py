@@ -18,6 +18,7 @@ from mcscript.exceptions.compileExceptions import (
     McScriptIsStaticError, McScriptNameError,
     McScriptNotStaticError, McScriptSyntaxError, McScriptTypeError,
 )
+from mcscript.exceptions.utils.sourceAnnotation import SourceAnnotation
 from mcscript.lang.builtins.builtins import BuiltinFunction
 from mcscript.lang.resource.base.FunctionResource import Parameter
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
@@ -401,11 +402,24 @@ class Compiler(Interpreter):
                 )
 
                 if non_static_context is not None:
+                    source_annotation = None
+                    if non_static_context.definition:
+                        line, col = non_static_context.definition
+                        source_annotation = SourceAnnotation(
+                            self.compileState.code,
+                            line - 1,
+                            col - 1,
+                            line,
+                            col,
+                            "Non-static context starts here"
+                        )
+
                     raise McScriptIsStaticError(
-                        f"Trying to change the value here\nIn between is a non-static namespace "
-                        f"{non_static_context.context_type.name} (ToDo show line for this)",
+                        f"Trying to change the value here\nIn between is a non-static context "
+                        f"{non_static_context.context_type.name}",
                         variable_data.declaration.access,
                         self.compileState,
+                        source_annotation
                     )
 
             if isinstance(stack, ValueResource) and isinstance(stack.value, NbtAddressResource):
