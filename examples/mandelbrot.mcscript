@@ -14,8 +14,8 @@ fun start() {
 }
 
 struct Complex {
-    real: Fixed;
-    imag: Fixed;
+    real: Fixed,
+    imag: Fixed,
 
     fun add(self: Complex, other: Complex) -> Complex {
         return Complex(self.real + other.real, self.imag + other.imag);
@@ -32,10 +32,10 @@ struct Complex {
 
 
 struct MandelbrotManager {
-    currentX: Fixed;
-    currentY: Fixed;
-    workerCount: Number;
-    step: Number;
+    currentX: Fixed,
+    currentY: Fixed,
+    workerCount: Number,
+    step: Number,
 
     fun tick(self: MandelbrotManager) {
         if (self.workerCount < size) {
@@ -70,8 +70,8 @@ struct MandelbrotManager {
 
 
 fun mandelbrot(x: Fixed, y: Fixed) -> Boolean {
-    c = Complex(x, y);
-    z = Complex(0.0, 0.0);
+    c = Complex(x, y)
+    z = Complex(0.0, 0.0)
     i = 0
     while (z.absSquared() < 4.0 and i < maxIterations) {
         z = z.square();

@@ -1,8 +1,8 @@
-lark-parser~=0.8.5
+lark-parser~=0.9.0
 mcrcon~=0.6.0
 NBT~=1.5.0
-setuptools~=46.1.3
-appdirs~=1.4.3
+setuptools~=49.1.3
+appdirs~=1.4.4
 
 # fix ssl verification problem
 certifi

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from functools import cached_property
-from tkinter.tix import Tree
 from typing import List, TYPE_CHECKING, Tuple
 
 from mcscript.lang.resource.BooleanResource import BooleanResource

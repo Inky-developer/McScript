@@ -1,0 +1,16 @@
+
+[static_variable_declaration]
+#FAIL_WITH = McScriptIsStaticError
+static var = 1
+
+# this loop is non-static which means that we can't possibly know at compile time if var will have the value
+# 1 or 2 after this block. For this reason this code should fail
+run for @a {
+    var = 2
+}
+
+[static_tuple]
+#FAIL_WITH = McScriptIsStaticError
+
+tuple = (1, 2, 3)
+run for @a tuple[0] = 2

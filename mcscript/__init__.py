@@ -34,7 +34,7 @@ Grammar = Lark(
     resources.read_text("mcscript", "McScript.lark"),
     parser="lalr",
     propagate_positions=True,
-    maybe_placeholders=True
+    maybe_placeholders=True,
 )
 
 Compiler = _Compiler()
