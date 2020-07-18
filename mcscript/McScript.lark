@@ -63,8 +63,6 @@ accessor: IDENTIFIER ("." IDENTIFIER)*
 array_accessor: accessor "[" expression "]"
 
 unary_operation: MINUS value
-               | INCR_ONE value
-               | DECR_ONE value
 
 tuple: "(" ( expression "," )+ expression?  ")"
 

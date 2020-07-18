@@ -6,20 +6,22 @@ from dataclasses import dataclass
 from functools import cached_property
 from inspect import isabstract
 from textwrap import dedent
-from typing import Dict, List, Optional, Sequence, Tuple, TYPE_CHECKING, Union
+from typing import Dict, List, Sequence, Tuple, TYPE_CHECKING
 
-from mcscript.data.commands import Command
+from mcscript.compiler.ContextType import ContextType
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError
-from mcscript.lang.resource.AddressResource import AddressResource
-from mcscript.lang.resource.base.functionSignature import FunctionParameter, FunctionSignature
-from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.ir import IRNode
+from mcscript.ir.components import FunctionCallNode, StoreFastVarNode
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.TypeResource import TypeResource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
+from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.lang.resource.base.functionSignature import FunctionParameter, FunctionSignature
+from mcscript.utils.resources import ResourceSpecifier
 
 if TYPE_CHECKING:
     from mcscript import Compiler
@@ -28,7 +30,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class FunctionResult:
-    code: Optional[str]
+    ir: List[IRNode]
     # the returned resource
     resource: Resource
     inline: bool = True
@@ -58,10 +60,11 @@ class BuiltinFunction(ABC):
     def create(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
         parameters = self.check_parameters(compileState, parameters)
         self._checkUsed(compileState)
-        result = self._makeResult(self.generate(compileState, *parameters), compileState)
+        with compileState.ir.with_buffer() as buffer:
+            result = self.generate(compileState, *parameters)
         # some functions need include afterwards (see setBlocks)
         self._checkUsed(compileState)
-        return result
+        return FunctionResult(buffer, result, self.inline())
 
     def check_parameters(self, compileState: CompileState, parameters: Sequence[Resource]) -> List[Resource]:
         return self.getFunctionSignature.matchParameters(compileState, parameters)
@@ -162,7 +165,7 @@ class BuiltinFunction(ABC):
         )
 
     @abstractmethod
-    def generate(self, compileState: CompileState, *parameters: Resource) -> Union[str, FunctionResult]:
+    def generate(self, compileState: CompileState, *parameters: Resource) -> Resource:
         """ throw a ArgumentError for invalid parameters."""
         pass
 
@@ -171,24 +174,6 @@ class BuiltinFunction(ABC):
         Called when the function is used in the script
         if returns False, this function might be called again on the next use of this builtin
         """
-
-    def _makeResult(self, result: Union[str, FunctionResult], compileState: CompileState) -> FunctionResult:
-        """
-        converts the result to a function result if it is a string
-        :param result: the result
-        :return: a function result dataclass
-        """
-        if isinstance(result, FunctionResult):
-            return result
-
-        if self.returnType() == ResourceType.NULL:
-            resource = NullResource()
-        else:
-            resourceCls = Resource.getResourceClass(self.returnType())
-            if not issubclass(resourceCls, ValueResource):
-                raise TypeError(f"Function {self} returned invalid resource type '{resourceCls.__name__}'")
-            resource = resourceCls(compileState.config.RETURN_SCORE, False)
-        return FunctionResult(str(result), resource=resource)
 
     def _checkUsed(self, compileState):
         if not self.used:
@@ -201,28 +186,30 @@ class CachedFunction(BuiltinFunction, ABC):
 
     def __init__(self):
         super().__init__()
-        self._cache: Dict[Tuple[Resource], AddressResource] = {}
+        self._cache: Dict[Tuple[Resource], ResourceSpecifier] = {}
 
     def create(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
         parameters = tuple(self.check_parameters(compileState, parameters))
         isStatic = all(isinstance(i, ValueResource) and i.hasStaticValue for i in parameters)
         if isStatic:
             if parameters not in self._cache:
-                blockName = compileState.codeBlockStack.next()
-                compileState.fileStructure.pushFile(blockName)
+                # ToDO: avoid hack with line number and column
+                with compileState.node_block(ContextType.MACRO, -1, -1) as block_name:
+                    self._checkUsed(compileState)
+                    ir_nodes = self.generate(compileState, *parameters)
+                    compileState.ir.append_all(ir_nodes)
 
-                self._checkUsed(compileState)
-                result = self.generate(compileState, *parameters)
-                compileState.writeline(result)
-
-                compileState.fileStructure.popFile()
-                self._cache[parameters] = blockName
+                self._cache[parameters] = compileState.resource_specifier_main(block_name)
 
             function = self._cache[parameters]
             stack = compileState.expressionStack.next()
-            cmd = Command.RUN_FUNCTION(function=function)
+
+            cmd_nodes = [FunctionCallNode(function)]
             if self.returnType() != NullResource:
-                cmd += "\n" + Command.SET_VALUE_EQUAL(stack=stack, stack2=compileState.config.RETURN_SCORE)
+                cmd_nodes.append(StoreFastVarNode(
+                    stack, compileState.scoreboard_value(compileState.config.RETURN_SCORE)
+                ))
+
                 resourceCls = Resource.getResourceClass(self.returnType())
                 if not issubclass(resourceCls, ValueResource):
                     raise TypeError(f"Function {self} returned invalid resource type '{resourceCls.__name__}'")
@@ -230,7 +217,7 @@ class CachedFunction(BuiltinFunction, ABC):
             else:
                 resource = NullResource()
 
-            return FunctionResult(cmd, inline=True, resource=resource)
+            return FunctionResult(cmd_nodes, inline=True, resource=resource)
         # if any of the parameters is dynamic just use the normal behavior
         return super().create(compileState, *parameters)
 
@@ -239,5 +226,5 @@ class CachedFunction(BuiltinFunction, ABC):
         return False
 
     @abstractmethod
-    def generate(self, compileState: CompileState, *parameters: Resource) -> str:
+    def generate(self, compileState: CompileState, *parameters: Resource) -> List[IRNode]:
         pass

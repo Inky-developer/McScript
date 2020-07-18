@@ -5,7 +5,6 @@ from mcscript import Logger
 from mcscript.assets import setCurrentData
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
-from mcscript.utils import rcon
 from mcscript.utils.cmdHelper import generateFiles, getWorld, setCurrentWorld
 
 
@@ -65,21 +64,9 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-# s = "Hallo, Welt!"
-# 
-# while (s.length < 100) {
-#     s += " Was ein Tag!"
-#     # s[0] = s[1]
-# }
-# run for @a print("The length of string '[b]{}[/]' is: {}", s, s.length)
-# 
-# _DebugVariable("s")
-
-static tuple = (1, 2,3)
-
-tuple[0] = 2
-
-run for @a tuple[0] = 3
+s = 1
+t = s
+t = 2
 """
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")
@@ -92,8 +79,8 @@ if __name__ == '__main__':
     config = Config("config.ini")
     # print(precompileInstructions.getPrecompileInstructions(code_temp))
     # config.get("name")
-    # code = code_temp
-    code = getScript("mandelbrot")
+    code = code_temp
+    # code = getScript("mandelbrot")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     generateFiles(world, datapack)
-    rcon.send("reload")
+    # rcon.send("reload")

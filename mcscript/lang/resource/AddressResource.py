@@ -1,5 +1,6 @@
 from mcscript.lang.resource.base.ResourceBase import ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.utils.resources import ScoreboardValue
 
 
 class AddressResource(ValueResource):
@@ -16,4 +17,4 @@ class AddressResource(ValueResource):
         return self.value
 
     def typeCheck(self) -> bool:
-        return isinstance(self.value, str)
+        return isinstance(self.value, ScoreboardValue)

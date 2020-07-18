@@ -1,10 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
 from typing import List
 
 from mcscript import Logger
-from mcscript.data import Config
-from mcscript.utils.FileStructure import FileStructure
+from mcscript.data.Config import Config
 
 
 def _char_range(start, end) -> List[str]:
@@ -19,6 +18,7 @@ class Scoreboard:
     name: str
     use_real_name: bool
     index: int
+    criteria: str = field(default="dummy")
 
     def __post_init__(self):
         if len(self.name) > 16:
@@ -27,13 +27,6 @@ class Scoreboard:
             raise ValueError(
                 f"Maximum id exceeded: {self.index} expected at most {len(VALID_OBJECTIVE_CHARACTERS) ** 3 - 1}")
         Logger.info(f"[Scoreboard] created {self.name} with id {self.get_name()}")
-
-    def writeInit(self, filestructure: FileStructure):
-        """ Writes add / remove commands"""
-        filestructure.get().write(
-            f"scoreboard objectives remove {self.get_name()}\n"
-            f"scoreboard objectives add {self.get_name()} dummy\n"
-        )
 
     def get_name(self) -> str:
         if self.use_real_name:

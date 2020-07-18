@@ -7,13 +7,12 @@ from typing import Callable, Dict, Optional, Tuple, TYPE_CHECKING, Union
 from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
-from mcscript.data.commands import Command, Storage, Struct
 from mcscript.exceptions.compileExceptions import McScriptTypeError
-from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
+from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.utils.JsonTextFormat.objectFormatter import format_nbt
 
 if TYPE_CHECKING:

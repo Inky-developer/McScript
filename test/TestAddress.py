@@ -1,11 +1,11 @@
 import unittest
 
-from mcscript.utils.Address import Address
+from mcscript.utils.addressCounter import ScoreboardAddressCounter
 
 
 class TestAddress(unittest.TestCase):
     def testAddress(self):
-        a = Address(".{}")
+        a = ScoreboardAddressCounter(".{}")
 
         self.assertEqual(a.next().embed(), ".0")
         self.assertEqual(a.next().embed(), ".1")

@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Dict, TYPE_CHECKING, Union
 
-from mcscript.data.commands import BinaryOperator, Command, ConditionalExecute, ExecuteCommand, Relation, Struct, \
-    Type, multiple_commands
 from mcscript.data.commandsCommon import compare_scoreboard_value
 from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.lang.resource.AddressResource import AddressResource
@@ -218,7 +216,7 @@ class FixedNumberResource(ValueResource):
             ))
 
         if other.isStatic:
-            b = compileState.compilerConstants.getConstant(other.value)
+            b = compileState.compilerConstants.get_constant(other.value)
             commands.append(Command.OPERATION(
                 stack=a.value,
                 operator=BinaryOperator.DIVIDE.value,

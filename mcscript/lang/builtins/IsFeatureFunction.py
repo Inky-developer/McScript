@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Dict, TYPE_CHECKING
 
-from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.data.minecraftData import features
 from mcscript.data.minecraftData.features import Feature
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError

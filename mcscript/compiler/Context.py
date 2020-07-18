@@ -6,10 +6,11 @@ from typing import Dict, List, Optional, Tuple
 from mcscript import Logger
 from mcscript.analyzer.VariableContext import VariableContext
 from mcscript.compiler.ContextType import ContextType
-from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.NullResource import NullResource
-from mcscript.utils.Address import Address
-from mcscript.utils.NbtAddress import NbtAddress
+from mcscript.lang.resource.base.ResourceBase import Resource
+from mcscript.utils.Scoreboard import Scoreboard
+from mcscript.utils.addressCounter import ScoreboardAddressCounter, StorageAddressCounter
+from mcscript.utils.resources import DataPath
 
 
 class Context:
@@ -41,7 +42,9 @@ class Context:
             definition: Optional[Tuple[int, int]],
             ctx_type: ContextType,
             variable_context: List[VariableContext],
-            predecessor: Context = None
+            main_scoreboard: Scoreboard,
+            base_path: DataPath,
+            predecessor: Context = None,
     ):
         self.index = index
         self.definition = definition
@@ -49,15 +52,15 @@ class Context:
         self.predecessor = predecessor
 
         # make a simple lookup table name -> ctx
-        self.variable_context = {i.identifier: i for i in variable_context}
+        self.variable_context: Dict[str, VariableContext] = {i.identifier: i for i in variable_context}
 
         # the namespace of variables unique to this context
         self.namespace: Dict[str, Context.Variable] = {}
 
-        # formats variables to ".exp<x>_<varId>"
-        self.format_string = Address(f".exp{self.index}_{{}}")
+        # formats scoreboard variables to ".exp<x>_<varId>"
+        self.scoreboard_formatter = ScoreboardAddressCounter(main_scoreboard, f".exp{self.index}_{{}}")
         # for nbt names
-        self.nbt_format = NbtAddress(f"{self.index}_{{}}" if self.index != 0 else "{}")
+        self.nbt_format = StorageAddressCounter(base_path, f"{self.index}_{{}}" if self.index != 0 else "{}")
 
         # A resource which is returned when this context is popped
         self.return_resource: Optional[Resource] = None
@@ -125,7 +128,7 @@ class Context:
         """
         Adds a variable to this context and assigns it the correct variable context.
         Note that there must be a valid variable context!
-        Fails if the variable does already exist.
+        Fails if the variable name does already exist.
 
         Args:
             name: the name of the variable

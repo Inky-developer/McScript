@@ -1,12 +1,12 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import List
 
 from mcscript.data import getDictionaryResource
 from mcscript.data.blockStorage import BlockTree
-from mcscript.data.commands import Command, Config, ExecuteCommand, multiple_commands
 from mcscript.data.minecraftData import blocks
 from mcscript.data.minecraftData.blocks import Block, Blockstate, BlockstateValue
-from mcscript.utils.FileStructure import FileStructure
 
 
 def resetToZero():

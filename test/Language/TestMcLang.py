@@ -88,4 +88,4 @@ class TestMcLang(unittest.TestCase):
         rcon.send("reload")
         result = rcon.send(f"data get storage {self.config.NAME}:main state.vars.testResult")
         result = result.split(": ")[-1]
-        self.assertEqual(result, "1", str(pack.getMainDirectory().getPath("functions").fileStructure).strip())
+        self.assertEqual(result, "1", str(pack.getMainDirectory().getPath("functions").files).strip())

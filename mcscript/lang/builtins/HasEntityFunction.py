@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.SelectorResource import SelectorResource

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.data.predicates.RandomChancePredicate import RandomChancePredicate
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.lang.builtins.builtins import CachedFunction
@@ -52,7 +51,7 @@ class RandomChanceFunction(CachedFunction):
             raise McScriptArgumentsError(f"parameter chance must be between 0 and 1, got {number}", compileState)
 
         # generate the predicate
-        filestructure = compileState.datapack.getUtilsDirectory().getPath("predicates").fileStructure
+        filestructure = compileState.datapack.getUtilsDirectory().getPath("predicates").files
         predicate, = RandomChancePredicate(number).generate(filestructure)
 
         # execute if the predicate succeeds

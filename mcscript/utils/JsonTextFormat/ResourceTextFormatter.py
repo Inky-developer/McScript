@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Dict, List, TYPE_CHECKING, Union
 
 from mcscript.data import Config
-from mcscript.data.commands import Storage
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType

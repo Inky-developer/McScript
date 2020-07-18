@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from mcscript import Logger
-from mcscript.data.commands import Command, multiple_commands
 from mcscript.utils.Datapack import Datapack
 
 
@@ -10,9 +11,9 @@ def addDefaults(datapack: Datapack) -> Datapack:
 
 def addDynamicDefaults(datapack: Datapack) -> Datapack:
     # adds functions
-    files = datapack.getMainDirectory().getPath("functions").fileStructure
+    files = datapack.getMainDirectory().getPath("functions").files
     for default in DEFAULTS:
-        files.pushFile(f"{default}.mcfunction")
+        files.push(f"{default}.mcfunction")
         try:
             text = DEFAULTS[default](datapack, files.pois)
         except KeyError:
@@ -23,8 +24,9 @@ def addDynamicDefaults(datapack: Datapack) -> Datapack:
     return datapack
 
 
+# ToDO re-add this
 MAGIC_FUNCTIONS = {
-    "onTick": 0
+    # "onTick": 0
 }
 """
 A lookup table for the compiler. Keys are all magic functions and the values are the number of required parameters.
@@ -43,5 +45,5 @@ def tick(datapack: Datapack, pois) -> str:
 
 # noinspection SpellCheckingInspection
 DEFAULTS = {
-    "tick": tick
+    # "tick": tick
 }

@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand, Relation
 from mcscript.lang.resource.base.ResourceBase import ValueResource
 
 if TYPE_CHECKING:

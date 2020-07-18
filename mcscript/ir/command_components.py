@@ -2,10 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Set, List
-
-from mcscript.data.Scoreboard import Scoreboard
-from mcscript.utils.resourceSpecifier import ResourceSpecifier
 
 
 class PositionKind(Enum):
@@ -26,37 +22,30 @@ class Position:
     y: PositionAxis
     z: PositionAxis
 
+    @staticmethod
+    def with_kind(x: float, y: float, z: float, kind: PositionKind) -> Position:
+        return Position(
+            PositionAxis(x, kind),
+            PositionAxis(y, kind),
+            PositionAxis(z, kind)
+        )
+
+    @staticmethod
+    def absolute(x: float, y: float, z: float) -> Position:
+        return Position.with_kind(x, y, z, PositionKind.ABSOLUTE)
+
+    @staticmethod
+    def relative(x: float, y: float, z: float) -> Position:
+        return Position.with_kind(x, y, z, PositionKind.RELATIVE)
+
+    @staticmethod
+    def local(x: float, y: float, z: float) -> Position:
+        return Position.with_kind(x, y, z, PositionKind.LOCAL)
+
 
 class ExecuteAnchor(Enum):
-    FEET = auto()
-    EYES = auto()
-
-
-class Identifier(str):
-    allowed_identifiers: Set[str] = {chr(i) for i in range(ord('a'), ord('z') + 1)} \
-                                    | {chr(i) for i in range(ord('A'), ord('Z') + 1)} \
-                                    | {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} \
-                                    | {'_', '.', '-', '+'}
-
-    def __new__(cls, content):
-        for char in content:
-            if char not in cls.allowed_identifiers:
-                raise ValueError(f"Failed to create Identifier({content}): Character '{char}' is not allowed.\n"
-                                 f"Use one of {list(sorted(cls.allowed_identifiers))}")
-        # noinspection PyArgumentList
-        return str.__new__(cls, content)
-
-
-@dataclass()
-class DataPath:
-    storage: ResourceSpecifier
-    path: List[str]
-
-
-@dataclass()
-class ScoreboardValue:
-    value: Identifier
-    scoreboard: Scoreboard
+    FEET = "feet"
+    EYES = "eyes"
 
 
 class ScoreRelation(Enum):
@@ -108,9 +97,13 @@ class ScoreRange:
                + str(int(self.max) if abs(self.max) != float("inf") else "")
 
 
-class BooleanOperator(Enum):
+class BinaryOperator(Enum):
     PLUS = "+"
     MINUS = "-"
     TIMES = "*"
     DIVIDE = "/"
     MODULO = "%"
+
+
+class UnaryOperator(Enum):
+    MINUS = "-"

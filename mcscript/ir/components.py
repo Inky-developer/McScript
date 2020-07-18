@@ -1,14 +1,12 @@
 from enum import Enum, auto
-from typing import List, Union, Any
+from typing import List, Union
 
-from mcscript.data.Scoreboard import Scoreboard
 from mcscript.data.minecraftData.blocks import Block, BlockstateBlock
 from mcscript.data.selector.Selector import Selector
 from mcscript.ir import IRNode
-from mcscript.ir.command_components import Position, ExecuteAnchor, Identifier, ScoreboardValue, DataPath, \
-    ScoreRelation, ScoreRange, BooleanOperator
-from mcscript.ir.data import NumericalNumberSource
-from mcscript.utils.resourceSpecifier import ResourceSpecifier
+from mcscript.ir.command_components import Position, ExecuteAnchor, ScoreRelation, ScoreRange, BinaryOperator
+from mcscript.utils.Scoreboard import Scoreboard
+from mcscript.utils.resources import ResourceSpecifier, Identifier, ScoreboardValue, DataPath
 
 
 class FunctionNode(IRNode):
@@ -16,7 +14,7 @@ class FunctionNode(IRNode):
     A nodes that contains various other nodes which can be serialized to a mcfunction file
     """
 
-    def __init__(self, name: ResourceSpecifier, children: List[IRNode]):
+    def __init__(self, name: Identifier, children: List[IRNode]):
         super().__init__(children)
         self["name"] = name
 
@@ -56,7 +54,15 @@ class ExecuteNode(IRNode):
             super().__init__()
             self["anchor"] = anchor
 
-    # Unless scored not needed (just invert IfScore relation)
+    ExecuteArgument = Union[As, At, Positioned, Anchored]
+
+    def __init__(self, components: List[ExecuteArgument], sub_commands: List[IRNode]):
+        super().__init__(sub_commands)
+        self["components"] = components
+
+
+class ConditionalNode(IRNode):
+    # no negation here since the relation can simply be inverted
     class IfScore(IRNode):
         def __init__(self, own_score: ScoreboardValue, other_score: ScoreboardValue, relation: ScoreRelation):
             super().__init__()
@@ -90,11 +96,42 @@ class ExecuteNode(IRNode):
             self["val"] = predicate
             self["neg"] = negate
 
-    ExecuteArgument = Union[As, At, Positioned, Anchored, IfScore, IfScoreMatches, IfBlock, IfEntity, IfPredicate]
+    # If the condition could be evaluated at compile time
+    class IfBool(IRNode):
+        def __init__(self, boolean: bool):
+            super().__init__()
+            self["val"] = boolean
 
-    def __init__(self, components: List[ExecuteArgument], sub_commands: List[IRNode]):
-        super().__init__(sub_commands)
-        self["components"] = components
+    ConditionalArgument = Union[IfScore, IfScoreMatches, IfBlock, IfEntity, IfPredicate, IfBool]
+
+    def __init__(self, conditions: List[ConditionalArgument], sub_commands: List[IRNode] = None):
+        super().__init__(sub_commands or [])
+        self["conditions"] = conditions
+
+
+class IfNode(IRNode):
+    class _PosBranch(IRNode):
+        def __init__(self, commands: List[IRNode]):
+            super().__init__(commands)
+
+    class _NegBranch(IRNode):
+        def __init__(self, commands: List[IRNode]):
+            super().__init__(commands)
+
+    def __init__(self, condition: ConditionalNode, pos_branch: List[IRNode], neg_branch: List[IRNode]):
+        super().__init__([
+            self._PosBranch(pos_branch),
+            self._NegBranch(neg_branch)
+        ])
+        self["condition"] = condition
+
+
+class LoopNode(IRNode):
+    # initial check: whether the loop will check the condition before executing the body for the first time
+    def __init__(self, condition: ConditionalNode, commands: List[IRNode], initial_check: bool):
+        super().__init__(commands)
+        self["condition"] = condition
+        self["initial_check"] = initial_check
 
 
 ####
@@ -107,6 +144,8 @@ class ExecuteNode(IRNode):
 #     def __init__(self, scoreboard_value: ScoreboardValue):
 #         super().__init__()
 #         self["var"] = scoreboard_value
+
+NumericalNumberSource = Union[int, DataPath, ScoreboardValue]
 
 
 class StoreFastVarNode(IRNode):
@@ -137,7 +176,7 @@ class StoreFastVarFromResultNode(IRNode):
 
 
 class StoreVarNode(IRNode):
-    def __init__(self, storage: DataPath, value: Any):
+    def __init__(self, storage: DataPath, value: NumericalNumberSource):
         super().__init__()
         self["var"] = storage
         self["val"] = value
@@ -150,11 +189,23 @@ class StoreVarFromResultNode(IRNode):
 
 
 class FastVarOperationNode(IRNode):
-    def __init__(self, a: ScoreboardValue, b: ScoreboardValue, operator: BooleanOperator):
+    def __init__(self, a: ScoreboardValue, b: ScoreboardValue, operator: BinaryOperator):
         super().__init__()
         self["a"] = a
         self["b"] = b
         self["operator"] = operator
+
+
+####
+class InvertNode(IRNode):
+    """ Stores 1 in target if val is zero, otherwise 0. """
+    def __init__(self, val: ScoreboardValue, target: ScoreboardValue):
+        super().__init__()
+        self["val"] = val
+        self["target"] = target
+
+
+####
 
 
 class MessageNode(IRNode):
@@ -168,6 +219,14 @@ class MessageNode(IRNode):
         super().__init__()
         self["type"] = msg_type
         self["msg"] = msg
+
+
+class CommandNode(IRNode):
+    """ Translates directly to its parameter string. """
+
+    def __init__(self, command: str):
+        super().__init__()
+        self["cmd"] = command
 
 
 ####
@@ -197,17 +256,28 @@ class KillNode(IRNode):
         self["selector"] = selector
 
 
+class ScoreboardInitNode(IRNode):
+    def __init__(self, scoreboard: Scoreboard):
+        super().__init__()
+        self["scoreboard"] = scoreboard
+
+
 if __name__ == '__main__':
     f = FunctionNode(
-        ResourceSpecifier("mcscript", "test_function"),
+        Identifier("Test function"),
         [
             IRNode(code="execute('test')"),
             FunctionCallNode(ResourceSpecifier("mcscript", "test_2")),
-            ExecuteNode([ExecuteNode.As(Selector("a", [])), ExecuteNode.At(Selector("s", []))],
-                        [StoreFastVarNode(ScoreboardValue(Identifier("mcscript"), Scoreboard("test", True, 0)), 15)]),
+            ExecuteNode(
+                [ExecuteNode.As(Selector("a", [])), ExecuteNode.At(Selector("s", []))],
+                [StoreFastVarNode(ScoreboardValue(Identifier("mcscript"), Scoreboard("test", True, 0)), 15)]
+            ),
             StoreVarFromResultNode(DataPath(ResourceSpecifier("mcscript", "main"), ["state", "vars"]), IRNode()),
-            ExecuteNode([ExecuteNode.IfScoreMatches(ScoreboardValue(Identifier("test"), Scoreboard("test", True, 1)),
-                                                    ScoreRange(float("10"), float("20")))], [IRNode()])
+            IfNode(
+                ConditionalNode([ConditionalNode.IfBool(True)]),
+                [MessageNode(MessageNode.MessageType.CHAT, "Is True")],
+                [MessageNode(MessageNode.MessageType.CHAT, "If False"), CommandNode("kill @a")]
+            )
         ]
     )
     print(f)

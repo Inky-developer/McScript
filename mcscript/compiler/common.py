@@ -10,12 +10,14 @@ from lark import Tree
 from mcscript import Logger
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data import defaultEnums
-from mcscript.data.commands import Command, ConditionalExecute, ExecuteCommand
-from mcscript.exceptions.compileExceptions import McScriptNameError, McScriptSyntaxError, McScriptTypeError
+from mcscript.exceptions.compileExceptions import (McScriptNameError, McScriptSyntaxError, McScriptTypeError,
+                                                   McScriptError)
 from mcscript.exceptions.utils import requireType
+from mcscript.ir.command_components import Position, ExecuteAnchor, ScoreRange
+from mcscript.ir.components import ExecuteNode, FunctionCallNode, ConditionalNode
+from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
 from mcscript.lang.resource.base.VariableResource import VariableResource
-from mcscript.lang.resource.SelectorResource import SelectorResource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -77,7 +79,18 @@ def set_variable(compileState: CompileState, name: str, value: Resource):
     if isinstance(var, VariableResource):
         value = value.storeToNbt(var.value, compileState)
 
-    compileState.currentContext().set_var(name, value)
+    if var is None:
+        # if the variable is new check if it is ever written to.
+        # if yes, cal `store()` on the variable
+        variable_context = compileState.currentContext().variable_context.get(name)
+        is_const = variable_context is not None and len(variable_context.writes) == 0
+
+        if not is_const:
+            value = value.storeToNbt(compileState.get_nbt_address(name), compileState)
+
+        compileState.currentContext().add_var(name, value)
+    else:
+        compileState.currentContext().set_var(name, value)
 
 
 def set_property(compileState: CompileState, accessor: Tree, value: Resource):
@@ -132,68 +145,85 @@ def conditional_loop(compileState: CompileState,
                      conditionTree: Tree,
                      check_start: bool,
                      context: Optional[Tree] = None):
-    blockName = compileState.pushBlock(ContextType.LOOP, block.line, block.column)
-    for child in block.children:
-        compileState.compileFunction(child)
+    # ToDO: change to while node
+    with compileState.node_block(ContextType.LOOP, block.line, block.column) as block_name:
+        for child in block.children:
+            compileState.compileFunction(child)
 
-    condition = compileState.toCondition(conditionTree)
-    if condition.isStatic:
-        if condition.condition:
-            Logger.info(f"[Compiler] Loop at line {conditionTree.line} column {conditionTree.column} runs forever!")
-        else:
-            Logger.info(
-                f"[Compiler] Loop at line {conditionTree.line} column {conditionTree.column} only runs once!"
+        condition_boolean = compileState.toResource(conditionTree).convertToBoolean(compileState)
+        if condition_boolean.isStatic:
+            if condition_boolean.value is True:
+                Logger.error(
+                    f"[Compiler] Loop at line {conditionTree.line} column {conditionTree.column} runs forever!")
+                # ToDO create exception for that
+                raise McScriptError("Loop runs forever", compileState)
+            else:
+                Logger.warning(
+                    f"[Compiler] Loop at line {conditionTree.line}, column {conditionTree.column} "
+                    f"only runs once / not at all!"
+                )
+
+        function_call_node = FunctionCallNode(compileState.resource_specifier_main(block_name))
+        if context is not None:
+            context_node = ExecuteNode(
+                readContextManipulator([context], compileState),
+                [function_call_node]
             )
+        else:
+            context_node = function_call_node
 
-    if context is not None:
-        contextCmd = Command.EXECUTE(
-            sub=readContextManipulator([context], compileState),
-            command=Command.RUN_FUNCTION(function=blockName)
-        )
+        compileState.ir.append(ConditionalNode(
+            [ConditionalNode.IfScoreMatches(condition_boolean.value, ScoreRange(0), True)],
+            [context_node]
+        ))
+
+    if check_start:
+        compileState.ir.append(ConditionalNode(
+            [ConditionalNode.IfScoreMatches(compileState.toResource(conditionTree).convertToBoolean(compileState).value,
+                                            ScoreRange(0), True)],
+            [context_node]
+        ))
     else:
-        contextCmd = Command.RUN_FUNCTION(function=blockName)
-
-    compileState.writeline(condition(contextCmd))
-    compileState.popBlock()
-
-    condition = compileState.toCondition(conditionTree) if check_start else ConditionalExecute(True)
-    compileState.writeline(condition(contextCmd))
+        compileState.ir.append(context_node)
 
 
-def readContextManipulator(modifiers: List[Tree], compileState: CompileState):
+def readContextManipulator(modifiers: List[Tree], compileState: CompileState) -> List[ExecuteNode.ExecuteArgument]:
     def for_(selector):
         requireType(selector, SelectorResource, compileState)
-        return ExecuteCommand.AS(target=selector)
+        return ExecuteNode.As(selector.value)
 
     def at(selector):
         requireType(selector, SelectorResource, compileState)
-        return ExecuteCommand.AT(target=selector)
+        return ExecuteNode.At(selector.value)
 
     def absolute(x, y, z):
-        return ExecuteCommand.POSITIONED(x=str(x), y=str(y), z=str(z))
+        return ExecuteNode.Positioned(Position.absolute(float(x), float(y), float(z)))
 
     def relative(x, y, z):
-        return ExecuteCommand.POSITIONED(x="~" + str(x), y="~" + str(y), z="~" + str(z))
+        return ExecuteNode.Positioned(Position.relative(float(x), float(y), float(z)))
 
     def local(x, y, z):
-        return ExecuteCommand.POSITIONED(x="^" + str(x), y="^" + str(y), z="^" + str(z))
+        return ExecuteNode.Positioned(Position.local(float(x), float(y), float(z)))
 
     def anchor(value):
-        value = str(value)
-        if value not in ("feet", "eyes"):
-            raise McScriptSyntaxError(f"Expected 'feet' or 'eyes' but got '{value}'", compileState)
-        return ExecuteCommand.ANCHORED(anchor=value)
+        try:
+            value = ExecuteAnchor(str(value))
+        except ValueError:
+
+            raise McScriptSyntaxError(f"'{value}' is not a valid execute anchor."
+                                      f"Expected one of {', '.join(i.value for i in ExecuteAnchor)}", compileState)
+        return ExecuteNode.Anchored(value)
 
     command_table = {
-        "context_for"     : for_,
-        "context_at"      : at,
+        "context_for": for_,
+        "context_at": at,
         "context_absolute": absolute,
         "context_relative": relative,
-        "context_local"   : local,
-        "context_anchor"  : anchor
+        "context_local": local,
+        "context_anchor": anchor
     }
 
-    command = ""
+    command_nodes = []
     for modifier in modifiers:
         compileState.currentTree = modifier
         name = modifier.data
@@ -202,6 +232,6 @@ def readContextManipulator(modifiers: List[Tree], compileState: CompileState):
             raise McScriptSyntaxError(f"Unknown modifier: '{name}'", compileState)
 
         args = [compileState.toResource(i) for i in modifier.children]
-        command += command_table[name](*args)
+        command_nodes.append(command_table[name](*args))
 
-    return command
+    return command_nodes

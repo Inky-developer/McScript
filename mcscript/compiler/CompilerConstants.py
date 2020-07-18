@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from typing import Dict, TYPE_CHECKING
 
-from mcscript.data.commands import Command
+from mcscript.ir.components import StoreFastVarNode
+from mcscript.utils.Scoreboard import Scoreboard
+from mcscript.utils.resources import ScoreboardValue, Identifier
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -15,7 +17,7 @@ class CompilerConstants:
     values get multiplied and this result then gets divide by 1000 (BASE). Because Minecraft only supports arithmetic
     operations with scoreboard values (there are some exceptions) the numeric value 1000 would have to be store on a
     scoreboard. This is problematic because I designed the scoreboard expression system as a "throwaway" system which
-    uses a values only for a single operation and then discards it. This has some advantages but also means that for
+    uses a value only for a single operation and then discards it. This has some advantages but also means that for
     every single fixed-number multiplication the value 1000 would have to be stored on a scoreboard and there are
     many other cases which are similar.
 
@@ -24,11 +26,12 @@ class CompilerConstants:
     with .const instead of .exp.
     """
 
-    def __init__(self, stackFmt: str = ".const_{}"):
+    def __init__(self, scoreboard: Scoreboard, stackFmt: str = ".const_{}"):
+        self.scoreboard = scoreboard
         self.stackFmt = stackFmt
         self.cache: Dict[int, str] = {}
 
-    def getConstant(self, constant: int) -> str:
+    def get_constant(self, constant: int) -> ScoreboardValue:
         """
         Returns a stack address of a player who has the score specified in `constant`.
         This address is not unique and should not be modified.
@@ -42,7 +45,7 @@ class CompilerConstants:
         if constant not in self.cache:
             self.cache[constant] = self.stackFmt.format(constant)
 
-        return self.cache[constant]
+        return ScoreboardValue(Identifier(self.cache[constant]), self.scoreboard)
 
     def write_constants(self, compileState: CompileState):
         """
@@ -53,7 +56,7 @@ class CompilerConstants:
         """
 
         for number in sorted(self.cache):
-            compileState.writeline(Command.SET_VALUE(
-                stack=self.cache[number],
-                value=number
+            compileState.ir.append(StoreFastVarNode(
+                self.get_constant(number),
+                number
             ))

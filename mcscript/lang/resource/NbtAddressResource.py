@@ -1,5 +1,6 @@
 from mcscript.lang.resource.base.ResourceBase import ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.utils.resources import DataPath
 
 
 class NbtAddressResource(ValueResource):
@@ -8,27 +9,20 @@ class NbtAddressResource(ValueResource):
     """
     _hasStaticValue = False
 
-    def __init__(self, value: str):
+    def __init__(self, value: DataPath):
         super().__init__(value, True)
-        *self.address, self.name = value.split(".")
-        self.address = ".".join(self.address)
 
     @staticmethod
     def type():
         return ResourceType.NBT_ADDRESS
 
     def embed(self) -> str:
-        return self.value
+        return str(self.value)
 
     def typeCheck(self) -> bool:
-        return isinstance(self.value, str)
+        return isinstance(self.value, DataPath)
 
-    def __add__(self, other):
-        if not isinstance(other, NbtAddressResource):
-            return NotImplemented
-        return NbtAddressResource(f"{self.embed()}.{other.embed()}")
-
-    def __getitem__(self, item):
+    def __getitem__(self, item: int):
         if not isinstance(item, int):
             return NotImplemented
-        return NbtAddressResource(f"{self.embed()}[{item}]")
+        return NbtAddressResource(self.value.last_element_indexed(int))

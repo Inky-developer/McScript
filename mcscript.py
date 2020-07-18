@@ -1,3 +1,6 @@
+"""
+A command line interface for mcscript.
+"""
 import re
 import sys
 from argparse import ArgumentParser
@@ -14,10 +17,6 @@ from mcscript.data.Config import Config
 from mcscript.documentation import generate_json
 from mcscript.utils.cmdHelper import MCPATH, generateFiles, getWorld, getWorlds, setCurrentWorld
 from mcscript.utils.precompileInstructions import getPrecompileInstructions
-
-"""
-A command line interface for mcscript.
-"""
 
 
 def main():

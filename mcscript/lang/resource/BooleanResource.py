@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import BinaryOperator, Command, ConditionalExecute, Relation, Struct
 from mcscript.data.commandsCommon import compare_scoreboard_value
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
@@ -10,7 +9,6 @@ from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.utils.utils import deprecated
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -25,10 +23,6 @@ class BooleanResource(ValueResource):
 
     TRUE: BooleanResource
     FALSE: BooleanResource
-
-    @deprecated("Boolean arithmetic expression will be removed when boolean operators get implemented")
-    def numericOperation(self, other: ValueResource, operator: BinaryOperator, compileState: CompileState) -> Resource:
-        return self.convertToNumber(compileState).numericOperation(other, operator, compileState)
 
     @staticmethod
     def type() -> ResourceType:

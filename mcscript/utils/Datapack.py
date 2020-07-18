@@ -7,17 +7,17 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from mcscript.data import getDictionaryResource
+from mcscript.data.Config import Config
 from mcscript.data.blockStorage.BlockTree import BlockTree
 from mcscript.data.blockStorage.Generator import BlockFunctionGenerator, BlockTagGenerator, IdToBlockGenerator
-from mcscript.data.commands import stringFormat
-from mcscript.data.Config import Config
 from mcscript.data.minecraftData import blocks
 from mcscript.data.predicates.BiomePredicate import BiomePredicate
 from mcscript.data.predicates.FeaturePredicate import FeaturePredicate
 from mcscript.data.predicates.LightPredicate import LightPredicate
 from mcscript.data.predicates.RandomPredicate import RandomPredicate
 from mcscript.data.predicates.WeatherPredicate import WeatherPredicate
-from mcscript.utils.FileStructure import FileStructure
+from mcscript.utils.Files import Files
+from mcscript.utils.utils import string_format
 
 
 class Directory:
@@ -25,7 +25,7 @@ class Directory:
 
     def __init__(self, config: Config, structure=None, listeners=None):
         self.config = config
-        self.fileStructure: FileStructure = FileStructure()
+        self.files: Files = Files()
         self.subDirectories: Dict[str, Directory] = {}
         self.listeners = listeners or {}
 
@@ -33,8 +33,7 @@ class Directory:
             self._createStructure(structure, self.listeners)
 
     def addFile(self, name: str) -> io.StringIO:
-        self.fileStructure.pushFile(name)
-        return self.fileStructure.get()
+        return self.files.push(name)
 
     def addDirectory(self, name: str, *args, **kwargs) -> Directory:
         directory = Directory(self.config, *args, **kwargs)
@@ -70,7 +69,7 @@ class Directory:
             return self
 
         try:
-            return self.fileStructure[file]
+            return self.files[file]
         except KeyError:
             raise AttributeError(f"Non-existing file {file}")
 
@@ -80,10 +79,10 @@ class Directory:
         # if base.exists():
         #     shutil.rmtree(base)
         base.mkdir(exist_ok=True)
-        for file in self.fileStructure.subFiles:
+        for file_name in self.files:
             # noinspection PyTypeChecker
-            with open(base.joinpath(self.getFileName(name, file)), "w", encoding="utf-8") as f:
-                f.write(self.fileStructure[file].getvalue())
+            with open(base.joinpath(self.getFileName(name, file_name)), "w", encoding="utf-8") as f:
+                f.write(self.files[file_name].getvalue())
 
         for directory in self.subDirectories:
             self.subDirectories[directory].write(directory, base)
@@ -139,36 +138,29 @@ class Namespace(Directory):
     def __init__(self, config: Config):
         super().__init__(config, {
             "advancements": None,
-            "functions"   : FunctionDirectory,
-            "loot_tables" : None,
-            "predicates"  : None,
-            "recipes"     : None,
-            "structures"  : None,
-            "tags"        : {
-                "blocks"      : None,
+            "functions": FunctionDirectory,
+            "loot_tables": None,
+            "predicates": None,
+            "recipes": None,
+            "structures": None,
+            "tags": {
+                "blocks": None,
                 "entity_types": None,
-                "fluids"      : None,
-                "functions"   : None,
-                "items"       : None,
+                "fluids": None,
+                "functions": None,
+                "items": None,
             },
         })
 
 
 class MinecraftNamespace(Namespace):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # whether the worldborder should be used get precise timings within a tick
-        # Is set in the getTickTime Function and read in defaultCode.py
-        self.hasSubTickClock = False
-
     def on_tags_functions(self, directory: Directory):
         data = getDictionaryResource("DefaultFiles.txt")
 
         # add tick and loadToScoreboard tags
-        directory.addFile("tick.json").write(stringFormat(data["tag_tick"]))
+        directory.addFile("tick.json").write(string_format(self.config, data["tag_tick"]))
 
-        directory.addFile("load.json").write(stringFormat(data["tag_load"]))
+        directory.addFile("load.json").write(string_format(self.config, data["tag_load"]))
 
 
 class MainNamespace(Namespace):
@@ -180,7 +172,7 @@ class MainNamespace(Namespace):
 
         file = "load_lite" if not self.config.get_compiler("load_debug") else "load"
         # add loadToScoreboard function
-        string = stringFormat(data[file])
+        string = string_format(self.config, data[file])
         directory.addFile("load.mcfunction").write(string)
 
 
@@ -204,14 +196,14 @@ class HelperNamespace(Namespace):
         if self.hasGetBlockFunction:
             return
         self.hasGetBlockFunction = True
-        BlockTagGenerator(self.blockTree).generate(self.getPath("tags/blocks").fileStructure)
-        BlockFunctionGenerator(self.blockTree).generate(self.getPath("functions").fileStructure)
+        BlockTagGenerator(self.blockTree).generate(self.getPath("tags/blocks").files)
+        BlockFunctionGenerator(self.blockTree).generate(self.getPath("functions").files)
 
     def addSetBlockFunction(self):
         if self.hasSetBlockFunction:
             return
         self.hasSetBlockFunction = True
-        IdToBlockGenerator().generate(self.getPath("functions").fileStructure, self.config.RETURN_SCORE,
+        IdToBlockGenerator().generate(self.getPath("functions").files, self.config.RETURN_SCORE,
                                       self.config.BLOCK_SCORE)
 
     @lru_cache()
@@ -219,7 +211,7 @@ class HelperNamespace(Namespace):
         if self.hasWeatherPredicate:
             return
         self.hasWeatherPredicate = True
-        filestructure = self.getPath("predicates").fileStructure
+        filestructure = self.getPath("predicates").files
         return WeatherPredicate().generate(filestructure)
 
     @lru_cache()
@@ -227,7 +219,7 @@ class HelperNamespace(Namespace):
         if self.hasLightPredicate:
             return
         self.hasLightPredicate = True
-        filestructure = self.getPath("predicates").fileStructure
+        filestructure = self.getPath("predicates").files
         return LightPredicate().generate(filestructure)
 
     @lru_cache()
@@ -235,7 +227,7 @@ class HelperNamespace(Namespace):
         if self.hasBiomePredicate:
             return
         self.hasBiomePredicate = True
-        filestructure = self.getPath("predicates").fileStructure
+        filestructure = self.getPath("predicates").files
         return BiomePredicate().generate(filestructure)
 
     @lru_cache()
@@ -243,7 +235,7 @@ class HelperNamespace(Namespace):
         if self.hasFeaturePredicate:
             return
         self.hasFeaturePredicate = True
-        filestructure = self.getPath("predicates").fileStructure
+        filestructure = self.getPath("predicates").files
         return FeaturePredicate().generate(filestructure)
 
     @lru_cache()
@@ -251,7 +243,7 @@ class HelperNamespace(Namespace):
         if self.hasRandomPredicate:
             return
         self.hasFeaturePredicate = True
-        filestructure = self.getPath("predicates").fileStructure
+        filestructure = self.getPath("predicates").files
         return RandomPredicate().generate(filestructure)
 
 
@@ -259,9 +251,9 @@ class Datapack(Directory):
     def __init__(self, config: Config):
         super().__init__(config, {
             "pack.mcmeta": None,
-            "data"       : {
-                "minecraft"                 : MinecraftNamespace,
-                config.get_compiler("name") : MainNamespace,
+            "data": {
+                "minecraft": MinecraftNamespace,
+                config.get_compiler("name"): MainNamespace,
                 config.get_compiler("utils"): HelperNamespace
             },
         })
@@ -273,4 +265,4 @@ class Datapack(Directory):
         return self.getPathFromList(["data", self.config.UTILS])
 
     def on_pack_mcmeta(self, file):
-        file.write(stringFormat(getDictionaryResource("DefaultFiles.txt")["mcmeta"]))
+        file.write(string_format(self.config, getDictionaryResource("DefaultFiles.txt")["mcmeta"]))

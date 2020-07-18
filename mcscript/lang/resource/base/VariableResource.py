@@ -3,11 +3,12 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional, TYPE_CHECKING
 
-from mcscript.data.commands import Command, ConditionalExecute, Relation
+from mcscript.ir.components import StoreFastVarNode
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import MinecraftDataStorage, Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.utils.resources import ScoreboardValue
 
 if TYPE_CHECKING:
     from mcscript.lang.resource.BooleanResource import BooleanResource
@@ -39,10 +40,6 @@ class VariableResource(ValueResource, ABC):
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> Resource:
         return self.copy(stack, compileState)
 
-    def operation_test_relation(self, compileState: CompileState, relation: Relation,
-                                other: Resource) -> ConditionalExecute:
-        return self.load(compileState).operation_test_relation(compileState, relation, other)
-
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         return self.load(compileState).convertToBoolean(compileState)
 
@@ -52,13 +49,15 @@ class VariableResource(ValueResource, ABC):
     def convertToFixedNumber(self, compileState: CompileState) -> FixedNumberResource:
         return self.load(compileState).convertToFixedNumber(compileState)
 
-    def _load(self, compileState: CompileState, stack: Optional[AddressResource], scale=1) -> AddressResource:
+    def _load(self, compileState: CompileState, stack: Optional[ScoreboardValue], scale=1) -> ScoreboardValue:
         stack = stack or compileState.expressionStack.next()
-        compileState.writeline(Command.LOAD_SCORE(
-            stack=stack,
-            var=self.embed(),
-            scale=scale
+
+        # ToDo missing scale
+        compileState.ir.append(StoreFastVarNode(
+            stack,
+            self.value
         ))
+
         return stack
 
     def _copy(self, compileState: CompileState, target: ValueResource) -> ValueResource:
@@ -66,8 +65,9 @@ class VariableResource(ValueResource, ABC):
             if isinstance(target, AddressResource):
                 return self.load(compileState, target)
             raise ValueError(f"{type(self).__name__} expected NbtAddressResource, got {repr(target)}")
-        compileState.writeline(Command.COPY_VARIABLE(
-            address=target,
-            address2=self.value
+
+        compileState.ir.append(StoreFastVarNode(
+            target.value,
+            self.value
         ))
         return target

@@ -6,13 +6,12 @@ from typing import Dict, List, Optional, TYPE_CHECKING
 from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
-from mcscript.data.commands import Command
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptTypeError
 from mcscript.lang.resource.AddressResource import AddressResource
-from mcscript.lang.resource.base.FunctionResource import FunctionResource, Parameter
-from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.TypeResource import TypeResource
+from mcscript.lang.resource.base.FunctionResource import FunctionResource, Parameter
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState

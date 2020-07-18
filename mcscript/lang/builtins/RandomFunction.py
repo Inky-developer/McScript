@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import List, TYPE_CHECKING
 
-from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError
 from mcscript.lang.builtins.builtins import CachedFunction
 from mcscript.lang.resource.base.ResourceBase import Resource

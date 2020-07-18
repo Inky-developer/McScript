@@ -5,14 +5,13 @@ from typing import Optional, TYPE_CHECKING
 from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
-from mcscript.data.commands import Command, ExecuteCommand, multiple_commands, Selector as CmdSelector, Struct
-from mcscript.data.Scoreboard import Scoreboard
 from mcscript.data.selector.Selector import Selector
-from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.StringResource import StringResource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
+from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.utils.Scoreboard import Scoreboard
 
 if TYPE_CHECKING:
     from mcscript.compiler.Context import Context

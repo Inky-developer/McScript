@@ -3,14 +3,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import auto, Enum
 from inspect import isabstract
-from typing import ClassVar, Dict, List, Optional, Type, TYPE_CHECKING, Union
+from typing import ClassVar, Dict, List, Optional, Type, TYPE_CHECKING, Union, Any
 
 from lark import Tree
 
 from mcscript.analyzer.VariableContext import VariableContext
 from mcscript.compiler.ContextType import ContextType
-from mcscript.data.commands import BinaryOperator, ConditionalExecute, Relation
 from mcscript.exceptions.compileExceptions import McScriptTypeError
+from mcscript.ir.command_components import BinaryOperator
 from mcscript.lang.resource import import_sub_modules
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
@@ -203,9 +203,8 @@ class Resource(ABC):
         raise TypeError
 
     # operations that can be performed on a resource
-    # include addition, subtraction, multiplication, division, unary operators -, --, ++
+    # include addition, subtraction, multiplication, division, unary operators
     def numericOperation(self, other: ValueResource, operator: BinaryOperator, compileState: CompileState) -> Resource:
-        from mcscript.data.commands import BinaryOperator
         other = self.checkOtherOperator(other, compileState)
         try:
             if operator == BinaryOperator.PLUS:
@@ -406,9 +405,9 @@ class ValueResource(Resource, ABC):
 
     storage = MinecraftDataStorage.SCOREBOARD
 
-    def __init__(self, value, isStatic):
+    def __init__(self, value: Any, isStatic):
         super().__init__()
-        self.value = None
+        self.value: Any = None
         self.isStatic = False
         self.setValue(value, isStatic)
 

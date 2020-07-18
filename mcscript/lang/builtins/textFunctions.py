@@ -1,23 +1,14 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from enum import Enum
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import Command
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.utils.JsonTextFormat.MarkupParser import MarkupParser
-
-
-class PrintCommand(Enum):
-    TELLRAW = Command.TELLRAW
-    ACTIONBAR = Command.ACTIONBAR
-    TITLE = Command.TITLE
-    SUBTITLE = Command.SUBTITLE
 
 
 class TextFunction(BuiltinFunction, ABC):

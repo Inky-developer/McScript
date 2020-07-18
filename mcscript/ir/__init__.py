@@ -5,7 +5,7 @@ Great potential for optimization.
 """
 from __future__ import annotations
 
-from typing import List, Dict
+from typing import List, Dict, Any
 
 
 class IRNode:
@@ -15,7 +15,7 @@ class IRNode:
         self.inner_nodes = inner_nodes or []
 
         # A dictionary used to store other important data about this node
-        self.data = {}
+        self.data: Dict[str, Any] = {}
 
         # metadata which can be used for debug information or optimizations
         self.metadata: Dict[str, any] = metadata or {}
@@ -26,7 +26,7 @@ class IRNode:
 
         # get all other set attrs
         attributes = ", ".join(
-            f"{i}={self.data[i]}" for i in self.data)
+            f"{i}={str(self.data[i])}" for i in self.data)
 
         metadata = ",".join(f"{key}: \"{self.metadata[key]}\"" for key in self.metadata)
 
@@ -34,7 +34,7 @@ class IRNode:
                + (" # " + metadata if self.metadata else "") \
                + (f"\n{spacer}|-{children}" if children else "")
 
-    def __repr__(self):
+    def __str__(self):
         return self.as_tree()
 
     def __setitem__(self, key, value):

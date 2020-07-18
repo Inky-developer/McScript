@@ -1,9 +1,9 @@
+from __future__ import annotations
+
 from typing import Tuple
 
 from mcscript.data import getDictionaryResource
-from mcscript.data.commands import stringFormat
 from mcscript.data.predicates.predicateGenerator import PredicateGenerator
-from mcscript.utils.FileStructure import FileStructure
 
 
 class LightPredicate(PredicateGenerator):

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import Command, ExecuteCommand
 from mcscript.lang.builtins.builtins import BuiltinFunction
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
