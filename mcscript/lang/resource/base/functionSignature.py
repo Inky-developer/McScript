@@ -65,7 +65,7 @@ class FunctionParameter:
         if compareTypes(parameter, self.type.value):
             if not isinstance(parameter, ValueResource):
                 return FunctionParameterMatch.MATCHES
-            if parameter.isStatic:
+            if parameter.is_static:
                 if self.accepts & self.ResourceMode.STATIC:
                     return FunctionParameterMatch.MATCHES
                 return FunctionParameterMatch.MUST_NOT_BE_STATIC

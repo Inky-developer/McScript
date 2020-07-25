@@ -57,7 +57,7 @@ class CompileState:
         # the ir master class
         self.ir = IrMaster()
 
-    def get_nbt_address(self, name: str) -> NbtAddressResource:
+    def get_nbt_address(self, name: str) -> DataPath:
         """
         formats the variable name so that it can be used as an nbt name
 
@@ -67,7 +67,7 @@ class CompileState:
         Returns:
             A nbt address
         """
-        return NbtAddressResource(self.currentContext().nbt_format.format(name))
+        return self.currentContext().nbt_format.format(name)
 
     def getConstant(self, constant: int) -> ScoreboardValue:
         """ Wrapper for compilerConstant"""
@@ -93,14 +93,9 @@ class CompileState:
         """
         if isinstance(value, Tree):
             return self.load(self.compileFunction(value))
-        # ToDO: check if new class needs special treatment
-        # if isinstance(value, ConditionalExecute):
-        #     return value.toResource(self)
-        try:
-            return value.load(self)
-        except TypeError:
-            raise ValueError(
-                f"Cannot load resource of type {type(value)}. It cannot be converted to a Number.")
+        if not isinstance(value, Resource):
+            raise ValueError(f"Expected a resource, but got '{value}'")
+        return value
 
     def toResource(self, value: Union[Resource, Tree]) -> Resource:
         """

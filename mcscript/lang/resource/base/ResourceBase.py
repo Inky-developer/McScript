@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from enum import auto, Enum
+from abc import ABC, abstractmethod, abstractstaticmethod
+from enum import Enum, auto
 from inspect import isabstract
-from typing import ClassVar, Dict, List, Optional, Type, TYPE_CHECKING, Union, Any
+from typing import (TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Type,
+                    Union, TypeVar, Generic)
 
 from lark import Tree
 
@@ -13,6 +14,7 @@ from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.ir.command_components import BinaryOperator
 from mcscript.lang.resource import import_sub_modules
 from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.utils.resources import ScoreboardValue
 
 if TYPE_CHECKING:
     from mcscript.compiler.Context import Context
@@ -64,22 +66,16 @@ class Resource(ABC):
     def __init_subclass__(cls, **kwargs):
         if not isabstract(cls):
             # implementation validity checks
-            if not cls.requiresInlineFunc and (
-                    cls.createEmptyResource.__func__ == Resource.createEmptyResource.__func__ or
-                    cls.copy == Resource.copy
-            ):
-                raise NotImplementedError(
-                    F"every subclass of resource that does not require an inline function "
-                    F"must implement 'createEmptyResource' and 'copy', {cls.__name__} does not."
-                )
             if cls.isDefault or cls.type() not in Resource._reference:
                 if cls.type() in Resource._reference and Resource._reference[cls.type()].isDefault and cls.isDefault:
-                    raise ReferenceError(f"Multiple resources of type {cls.type().name} register as default.")
+                    raise ReferenceError(
+                        f"Multiple resources of type {cls.type().name} register as default.")
                 if cls.type() not in Resource._reference or not Resource._reference[cls.type()].isDefault:
                     Resource._reference[cls.type()] = cls
 
             if cls.type() in Resource._reference_variables and cls.isVariable:
-                raise ReferenceError("Multiple resources of type {cls.type().name} register as variable.")
+                raise ReferenceError(
+                    "Multiple resources of type {cls.type().name} register as variable.")
 
             if cls.isVariable:
                 Resource._reference_variables[cls.type()] = cls
@@ -100,29 +96,13 @@ class Resource(ABC):
         """
         raise TypeError()
 
-    def convertToNumber(self, compileState: CompileState) -> NumberResource:
-        """ Convert this to a number resource"""
-        raise TypeError(f"{repr(self)} cannot be converted to a number.")
-
-    def convertToFixedNumber(self, compileState: CompileState) -> FixedNumberResource:
-        """ Convert this resource to a fixed point number"""
-        raise TypeError(f"{repr(self)} cannot be converted to a fixed point number.")
-
-    def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
-        """ Convert this resource to a boolean resource"""
-        raise TypeError(f"{repr(self)} cannot be converted to a boolean.")
-
-    def load(self, compileState: CompileState, stack: ValueResource = None) -> Resource:
+    def store(self, compileState: CompileState) -> Resource:
         """
-        Default: just return this and do nothing
-        loads this resource. A NumberVariableResource would load to a scoreboard, A StringResource would check
-        for variables.
-
-        Args:
-            compileState: the compile state
-            stack: an optional stack to load this variable to
+        Unlike storeToNbt, it does not matter how this resource is stored.
+        Used if a resource that might be static should exist in the datapack.
+        A NumberResource could decide to return a NumberResource or a NumberVariableResource.
         """
-        return self
+        raise TypeError(f"Resource {self} cannot be stored.")
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> Resource:
         """
@@ -135,7 +115,7 @@ class Resource(ABC):
         """
         raise TypeError(f"{repr(self)} does not support this operation")
 
-    def copy(self, target: ValueResource, compileState: CompileState) -> Resource:
+    def copy(self, target: ScoreboardValue, compileState: CompileState) -> Resource:
         """
         Non-static operation. Must be implemented if this resource does not require inline-functions.
         Move the value of this resource to the target resource and return the new resource
@@ -202,10 +182,19 @@ class Resource(ABC):
         """
         raise TypeError
 
-    # operations that can be performed on a resource
-    # include addition, subtraction, multiplication, division, unary operators
+    def integer_value(self) -> int:
+        """ Returns the associated integer value"""
+        raise TypeError
+
+    def string_value(self) -> str:
+        """ Returns the associated string value"""
+        raise TypeError
+
     def numericOperation(self, other: ValueResource, operator: BinaryOperator, compileState: CompileState) -> Resource:
-        other = self.checkOtherOperator(other, compileState)
+        """
+        Performes a numeric operation with this resource.
+        The operation should be performed in-place
+        """
         try:
             if operator == BinaryOperator.PLUS:
                 return self.operation_plus(other, compileState)
@@ -218,18 +207,9 @@ class Resource(ABC):
             elif operator == BinaryOperator.MODULO:
                 return self.operation_modulo(other, compileState)
         except TypeError:
-            raise McScriptTypeError(f"{repr(self)} does not support the binary operation {operator.name}", compileState)
+            raise McScriptTypeError(
+                f"{repr(self)} does not support the binary operation {operator.name}", compileState)
         raise ValueError("Unknown operator: " + repr(operator))
-
-    def checkOtherOperator(self, other: ValueResource, compileState: CompileState) -> ValueResource:
-        """
-        Called before an operation to convert the operator to a more fitting type
-
-        Args:
-            other: the other value
-            compileState: the compile state
-        """
-        return other
 
     def operation_plus(self, other: ValueResource, compileState: CompileState) -> ValueResource:
         raise TypeError
@@ -273,32 +253,8 @@ class Resource(ABC):
         """
         raise TypeError
 
-    def operation_increment_one(self, compileState: CompileState) -> Resource:
-        """
-        Returns a resource which has the value +1 of this resource
-
-        Args:
-            compileState: the compileState
-
-        Returns:
-            the new resource
-        """
-        raise TypeError
-
-    def operation_decrement_one(self, compileState: CompileState) -> Resource:
-        """
-        Returns a resource which has the value of -1 of this resource
-
-        Args:
-            compileState: the compileState
-
-        Returns:
-            the new resource
-        """
-        raise TypeError
-
     def operation_call(self, compileState: CompileState, *parameters: Resource,
-                       **keywordParameters: Resource) -> Resource:
+                       **keyword_parameters: Resource) -> Resource:
         """
         If this method is implemented, the resource can be treated like a function
 
@@ -382,84 +338,53 @@ class Resource(ABC):
         raise TypeError
 
     @staticmethod
+    @abstractmethod
     def type() -> ResourceType:
         """ return the type of resource that is represented by this object"""
         return ResourceType.RESOURCE
 
-    @abstractmethod
-    def toNumber(self) -> int:
-        """ This resource as a number. If not supported raise a TypeError."""
 
-    @abstractmethod
-    def toString(self) -> str:
-        """ This resource as a string. If not supported raise a TypeError"""
+VT = TypeVar("VT")
 
 
-class ValueResource(Resource, ABC):
+class ValueResource(Generic[VT], Resource):
     """
     Used for atomics in the build process
     """
 
-    # whether this resource has a static value like a number - False for AddressResource
-    _hasStaticValue = True
+    storage: ClassVar[MinecraftDataStorage] = MinecraftDataStorage.SCOREBOARD
 
-    storage = MinecraftDataStorage.SCOREBOARD
-
-    def __init__(self, value: Any, isStatic):
+    def __init__(self, static_value: Optional[VT], scoreboard_value: Optional[ScoreboardValue] = None):
         super().__init__()
-        self.value: Any = None
-        self.isStatic = False
-        self.setValue(value, isStatic)
+        # the value that is known at compile time. May be None.
+        self.static_value: Optional[VT] = static_value
 
+        # The Scoreboard identifier which holds the value at runtime
+        self.scoreboard_value: Optional[ScoreboardValue] = scoreboard_value
+
+        if self.static_value is None and self.scoreboard_value is None:
+            raise ValueError("Expected at least a static value or a scoreboard value, got none.")
+    
     @property
-    def hasStaticValue(self):
-        return self.isStatic and self._hasStaticValue
-
-    def setValue(self, value, isStatic: bool):
-        self.value = value
-        self.isStatic = isStatic
-        if self.isStatic and not self.typeCheck():
-            raise ValueError(f"Invalid value for {repr(self)}: " + repr(value))
-
-    def toNumber(self) -> int:
-        value = self.embed()
-        try:
-            return int(value)
-        except ValueError:
-            raise TypeError
-
-    def toString(self) -> str:
-        return self.embed()
-
-    def copyUnlessStatic(self, target: ValueResource, compileState: CompileState):
-        return self if self.isStatic else self.copy(target, compileState)
+    def is_static(self) -> bool:
+        """ 
+        A Resource is considered static if its value is only known at compile-time,
+        but not (directly) at runtime
+        """
+        return self.scoreboard_value is None
 
     @staticmethod
     def type() -> ResourceType:
         return ResourceType.VALUE_RESOURCE
 
-    @abstractmethod
-    def embed(self) -> str:
-        """ return a string that can be embedded into a mc function"""
-
-    @abstractmethod
-    def typeCheck(self) -> bool:
-        """ return whether this is a legal value for this resource"""
-
     def __eq__(self, other):
-        return isinstance(other, type(self)) and self.value == other.value
+        return isinstance(other, type(self)) and self.static_value == other.value
 
     def __hash__(self):
-        return hash(self.value)
-
-    def __str__(self):
-        return self.toString()
-
+        return hash(self.static_value)
+    
     def __repr__(self):
-        return f"{self.type().name}({self.toString()})"
-
-    def __int__(self):
-        return self.toNumber()
+        return f"{type(self).__name__}({self.static_value}, {self.scoreboard_value})"
 
 
 class ObjectResource(Resource, ABC):
@@ -482,7 +407,8 @@ class ObjectResource(Resource, ABC):
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         if name not in self.context:
-            raise AttributeError(f"Property {name} does not exist for {type(self)}.")
+            raise AttributeError(
+                f"Property {name} does not exist for {type(self)}.")
         return self.context.find_resource(name)
 
     def setAttribute(self, compileState: CompileState, name: str, value: Resource) -> Resource:

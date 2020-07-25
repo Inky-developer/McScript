@@ -35,10 +35,10 @@ class FixedNumberResource(ValueResource):
     requiresInlineFunc = False
 
     def embed(self) -> str:
-        return str("{}d".format(self.value / self.BASE) if self.isStatic else self.value)
+        return str("{}d".format(self.static_value / self.BASE) if self.isStatic else self.static_value)
 
     def typeCheck(self) -> bool:
-        return isinstance(self.value, int)
+        return isinstance(self.static_value, int)
 
     def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
         if self.isStatic:
@@ -58,15 +58,15 @@ class FixedNumberResource(ValueResource):
     def convertToNumber(self, compileState: CompileState) -> NumberResource:
         from mcscript.lang.resource.NumberResource import NumberResource
         if self.isStatic:
-            return NumberResource(self.value // self.BASE, True)
+            return NumberResource(self.static_value // self.BASE, True)
 
         tmpStack = compileState.getConstant(self.BASE)
         compileState.writeline(Command.OPERATION(
-            stack=self.value,
+            stack=self.static_value,
             operator=BinaryOperator.DIVIDE.value,
             stack2=tmpStack
         ))
-        return NumberResource(self.value, False)
+        return NumberResource(self.static_value, False)
 
     def convertToFixedNumber(self, compileState: CompileState) -> FixedNumberResource:
         return self
@@ -75,7 +75,7 @@ class FixedNumberResource(ValueResource):
         """ return True if the value of this resource does not match 0"""
         from mcscript.lang.resource.BooleanResource import BooleanResource
         if self.isStatic:
-            return BooleanResource.FALSE if self.value == 0 else BooleanResource.TRUE
+            return BooleanResource.FALSE if self.static_value == 0 else BooleanResource.TRUE
 
         stack = compileState.expressionStack.next()
         compileState.writeline(Command.SET_VALUE(
@@ -84,7 +84,7 @@ class FixedNumberResource(ValueResource):
         ))
         compileState.writeline(Command.EXECUTE(
             sub=ExecuteCommand.IF_SCORE_RANGE(
-                stack=self.value,
+                stack=self.static_value,
                 range=0
             ),
             command=Command.SET_VALUE(
@@ -110,7 +110,7 @@ class FixedNumberResource(ValueResource):
                     var=stack,
                     scale=1 / self.BASE,
                     type=Type.DOUBLE,
-                    command=Command.GET_SCOREBOARD_VALUE(stack=self.value)
+                    command=Command.GET_SCOREBOARD_VALUE(stack=self.static_value)
                 )
             )
         return FixedNumberVariableResource(stack, False)
@@ -126,7 +126,7 @@ class FixedNumberResource(ValueResource):
 
     def operation_plus(self, other: FixedNumberResource, compileState: CompileState) -> FixedNumberResource:
         if self.isStatic and other.isStatic:
-            return FixedNumberResource(self.value + other.value, True)
+            return FixedNumberResource(self.static_value + other.value, True)
 
         a, b = self, other
         if a.isStatic:
@@ -135,12 +135,12 @@ class FixedNumberResource(ValueResource):
         # if one of the values is static, just do scoreboard players add
         if b.isStatic:
             command = Command.ADD_SCORE if b.value >= 0 else Command.REMOVE_SCORE
-            compileState.writeline(command(stack=a.value, value=abs(b.value)))
+            compileState.writeline(command(stack=a.static_value, value=abs(b.value)))
             return a
 
         # else do a normal operation
         compileState.writeline(Command.OPERATION(
-            stack=a.value,
+            stack=a.static_value,
             operator=BinaryOperator.PLUS.value,
             stack2=b.value
         ))
@@ -148,7 +148,7 @@ class FixedNumberResource(ValueResource):
 
     def operation_minus(self, other: FixedNumberResource, compileState: CompileState) -> FixedNumberResource:
         if self.isStatic and other.isStatic:
-            return FixedNumberResource(self.value - other.value, True)
+            return FixedNumberResource(self.static_value - other.value, True)
         a, b = self, other
         if a.isStatic:
             a, b = b, a
@@ -156,12 +156,12 @@ class FixedNumberResource(ValueResource):
         # if one of the values is static, just do scoreboard players add
         if b.isStatic:
             command = Command.ADD_SCORE if b.value <= 0 else Command.REMOVE_SCORE
-            compileState.writeline(command(stack=a.value, value=abs(b.value)))
+            compileState.writeline(command(stack=a.static_value, value=abs(b.value)))
             return a
 
         # else do a normal operation
         compileState.writeline(Command.OPERATION(
-            stack=a.value,
+            stack=a.static_value,
             operator=BinaryOperator.MINUS.value,
             stack2=b.value
         ))
@@ -169,7 +169,7 @@ class FixedNumberResource(ValueResource):
 
     def operation_times(self, other: FixedNumberResource, compileState: CompileState) -> FixedNumberResource:
         if self.isStatic and other.isStatic:
-            return FixedNumberResource(self.value * other.value // self.BASE, True)
+            return FixedNumberResource(self.static_value * other.value // self.BASE, True)
 
         # 1. a *= b
         # 2. a += base // 2 (for correct rounding, round(a) = int(a+0.5)), rounding not implemented for now(performance)
@@ -182,7 +182,7 @@ class FixedNumberResource(ValueResource):
         tmpStack = compileState.getConstant(self.BASE)
         compileState.writeline(multiple_commands(
             Command.OPERATION(
-                stack=a.value,
+                stack=a.static_value,
                 operator=BinaryOperator.TIMES.value,
                 stack2=b.value
             ),
@@ -191,7 +191,7 @@ class FixedNumberResource(ValueResource):
             #     value=self.BASE // 2
             # ),
             Command.OPERATION(
-                stack=a.value,
+                stack=a.static_value,
                 operator=BinaryOperator.DIVIDE.value,
                 stack2=tmpStack
             )
@@ -201,16 +201,16 @@ class FixedNumberResource(ValueResource):
 
     def operation_divide(self, other: FixedNumberResource, compileState: CompileState) -> FixedNumberResource:
         if self.isStatic and other.isStatic:
-            return FixedNumberResource(self.value * self.BASE // other.value, True)
+            return FixedNumberResource(self.static_value * self.BASE // other.value, True)
 
         commands = []
 
         if self.isStatic:
-            a = FixedNumberResource(self.value * self.BASE, True).toScoreboard(compileState)
+            a = FixedNumberResource(self.static_value * self.BASE, True).toScoreboard(compileState)
         else:
             a = self.toScoreboard(compileState)
             commands.append(Command.OPERATION(
-                stack=a.value,
+                stack=a.static_value,
                 operator=BinaryOperator.TIMES.value,
                 stack2=compileState.getConstant(self.BASE)
             ))
@@ -218,25 +218,25 @@ class FixedNumberResource(ValueResource):
         if other.isStatic:
             b = compileState.compilerConstants.get_constant(other.value)
             commands.append(Command.OPERATION(
-                stack=a.value,
+                stack=a.static_value,
                 operator=BinaryOperator.DIVIDE.value,
                 stack2=b
             ))
         else:
             b = other.toScoreboard(compileState)
             commands.append(Command.OPERATION(
-                stack=a.value,
+                stack=a.static_value,
                 operator=BinaryOperator.DIVIDE.value,
                 stack2=b.value
             ))
 
         compileState.writeline(multiple_commands(*commands))
 
-        return FixedNumberResource(a.value, False)
+        return FixedNumberResource(a.static_value, False)
 
     def operation_modulo(self, other: FixedNumberResource, compileState: CompileState) -> FixedNumberResource:
         if self.isStatic and other.isStatic:
-            return FixedNumberResource(self.value % other.value, True)
+            return FixedNumberResource(self.static_value % other.value, True)
 
         a = self.toScoreboard(compileState)
         b = other.toScoreboard(compileState)
@@ -250,7 +250,7 @@ class FixedNumberResource(ValueResource):
 
     def operation_negate(self, compileState: CompileState) -> Resource:
         if self.hasStaticValue:
-            return FixedNumberResource(-self.value, True)
+            return FixedNumberResource(-self.static_value, True)
 
         # else multiply this by -1
         compileState.writeline(multiple_commands(
@@ -261,21 +261,21 @@ class FixedNumberResource(ValueResource):
             )
         ))
         compileState.expressionStack.previous()
-        return FixedNumberResource(self.value, False)
+        return FixedNumberResource(self.static_value, False)
 
     def toScoreboard(self, compileState) -> FixedNumberResource:
         if not self.isStatic:
             return self
 
         stack = compileState.expressionStack.next()
-        compileState.writeline(Command.SET_VALUE(stack=stack, value=self.value))
+        compileState.writeline(Command.SET_VALUE(stack=stack, value=self.static_value))
         return FixedNumberResource(stack, False)
 
     def toNumber(self) -> int:
         # is this really what should happen?
         # update comparisons for custom implementations
         if self.isStatic:
-            return self.value
+            return self.static_value
         raise TypeError
 
     def checkOtherOperator(self, other: ValueResource, compileState: CompileState) -> FixedNumberResource:
@@ -294,13 +294,13 @@ class FixedNumberResource(ValueResource):
         if self.isStatic:
             compileState.writeline(Command.SET_VALUE(
                 stack=target,
-                value=self.value
+                value=self.static_value
             ))
         else:
             compileState.writeline(Command.SET_VALUE_FROM(
                 stack=target,
                 command=Command.GET_SCOREBOARD_VALUE(
-                    stack=self.value
+                    stack=self.static_value
                 )
             ))
         return FixedNumberResource(target, False)

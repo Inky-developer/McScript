@@ -39,7 +39,7 @@ class MarkupParser(Interpreter):
         self.state: Dict = {}
         self.compileState = compileState
 
-    def toJsonString(self, markup: str, *args: Resource) -> str:
+    def to_json_string(self, markup: str, *args: Resource) -> str:
         result = self.toJson(markup, *args)
         # if isinstance(result, list):
         #     result =

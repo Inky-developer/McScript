@@ -1,4 +1,6 @@
 from os import getcwd
+import sys
+sys.path.insert(0, ".") # fix for vscode dont know what exactly is wrong
 from os.path import join
 
 from mcscript import Logger
@@ -64,23 +66,30 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-s = 1
-t = s
-t = 2
+player_count = 0
+
+run for @a {
+    player_count = player_count + 1
+}
+
+run for @a {
+    print("There are {} players.", player_count)
+}
 """
 if __name__ == '__main__':
-    mcDir = join(getcwd(), "server")
+
+    # mcDir = join(getcwd(), "server")
     # mcDir = r"C:\Users\david\AppData\Roaming\.minecraft\Entwicklungsversionen\saves"
     # world = getWorld("20w18a", mcDir)
-    world = getWorld("McScript", mcDir)
-    setCurrentWorld(world)
+    # world = getWorld("McScript", mcDir)
+    # setCurrentWorld(world)
 
-    setCurrentData(str(world.mcVersion["Name"]))
+    # setCurrentData(str(world.mcVersion["Name"]))
     config = Config("config.ini")
     # print(precompileInstructions.getPrecompileInstructions(code_temp))
     # config.get("name")
     code = code_temp
     # code = getScript("mandelbrot")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
-    generateFiles(world, datapack)
+    # generateFiles(world, datapack)
     # rcon.send("reload")

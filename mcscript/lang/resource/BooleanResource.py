@@ -29,13 +29,13 @@ class BooleanResource(ValueResource):
         return ResourceType.BOOLEAN
 
     def embed(self) -> str:
-        return ("true" if self.value else "false") if self.isStatic else str(self.value)
+        return ("true" if self.static_value else "false") if self.isStatic else str(self.static_value)
 
     def typeCheck(self) -> bool:
-        return isinstance(self.value, (int, bool))
+        return isinstance(self.static_value, (int, bool))
 
     def convertToNumber(self, compileState) -> NumberResource:
-        return NumberResource(self.value if not self.isStatic else int(self.value), self.isStatic)
+        return NumberResource(self.static_value if not self.isStatic else int(self.static_value), self.isStatic)
 
     def convertToFixedNumber(self, compileState) -> FixedNumberResource:
         return self.convertToNumber(compileState).convertToFixedNumber(compileState)
@@ -45,7 +45,7 @@ class BooleanResource(ValueResource):
 
     def toNumber(self) -> int:
         if self.isStatic:
-            return int(self.value)
+            return int(self.static_value)
         raise TypeError
 
     def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> ValueResource:
@@ -84,13 +84,13 @@ class BooleanResource(ValueResource):
         if self.isStatic:
             compileState.writeline(Command.SET_VALUE(
                 stack=target,
-                value=self.value
+                value=self.static_value
             ))
         else:
             compileState.writeline(Command.SET_VALUE_FROM(
                 stack=target,
                 command=Command.GET_SCOREBOARD_VALUE(
-                    stack=self.value
+                    stack=self.static_value
                 )
             ))
         return BooleanResource(target, False)

@@ -42,7 +42,7 @@ def convertToken(token: Union[Token, str], compileState: CompileState) -> Union[
 
 
 def NUMBER(token: Token, _: CompileState) -> Resource:
-    return NumberResource(int(token), True)
+    return NumberResource(int(token), None)
 
 
 def DECIMAL(token: Token, _: CompileState) -> Resource:
@@ -50,7 +50,7 @@ def DECIMAL(token: Token, _: CompileState) -> Resource:
 
 
 def STRING(token: Token, compileState: CompileState) -> Resource:
-    return StringResource(token[1:-1], True, context=compileState.currentContext())
+    return StringResource(token[1:-1], context=compileState.currentContext())
 
 
 def SELECTOR(token: Token, compileState: CompileState):

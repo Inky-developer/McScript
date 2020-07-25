@@ -45,7 +45,7 @@ class RandomChanceFunction(CachedFunction):
         parameter: FixedNumberResource
         parameter, = parameters
 
-        number = parameter.value / parameter.BASE
+        number = parameter.static_value / parameter.BASE
 
         if 1 < number or 0 > number:
             raise McScriptArgumentsError(f"parameter chance must be between 0 and 1, got {number}", compileState)

@@ -13,13 +13,6 @@ if TYPE_CHECKING:
 
 
 class ResourceTextFormatter:
-    handlers = {
-        ResourceType.ADDRESS    : lambda r: format_score(Config.currentConfig.NAME, str(r)),
-        ResourceType.NBT_ADDRESS: lambda r: format_nbt(f"{Config.currentConfig.NAME}:{Storage.NAME}", str(r)),
-        ResourceType.SELECTOR   : lambda r: format_selector(str(r)),
-        None                    : lambda r: format_text(str(r))
-    }
-
     def __init__(self, compileState: CompileState):
         self.compileState = compileState
 
@@ -32,21 +25,12 @@ class ResourceTextFormatter:
 
     def createFromResource(self, resource: Union[Resource, str]) -> Dict:
         if isinstance(resource, str):
-            resource = StringResource(resource, True)
-        handler = self.handlers.get(resource.type(), None)
-        if handler is None:
-            if isinstance(resource, ValueResource):
-                handler = self.handlers.get(resource.value.type() if isinstance(resource.value,
-                                                                                Resource) else None, None)
-            else:
-                # the resource might not be a value resource
-                handler = self.handlers[None]
+            resource = StringResource(resource)
 
         try:
             return resource.toTextJson(self.compileState, self)
         except TypeError:
-            value = str(resource)
-            return self._getFormattedString(handler, value)
+            raise ValueError(f"Cannot use resource {resource} as a json string")
 
     def _getFormattedString(self, handler, resource) -> Dict:
         return handler(resource)

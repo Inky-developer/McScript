@@ -9,8 +9,10 @@ from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import MinecraftDataStorage, Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.utils.resources import ScoreboardValue
+from mcscript.utils.resources import DataPath
 
 if TYPE_CHECKING:
+    from typing import Any
     from mcscript.lang.resource.BooleanResource import BooleanResource
     from mcscript.lang.resource.NumberResource import NumberResource
     from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
@@ -26,28 +28,22 @@ class VariableResource(ValueResource, ABC):
     isVariable = True
     storage = MinecraftDataStorage.STORAGE
 
+    def __init__(self, value, isStatic: bool, static_value: Optional[Any] = None):
+        super().__init__(value, isStatic)
+
+        # if this resource is not static, but a value is for (only) this resource known
+        self.static_value = static_value
+
     @staticmethod
     @abstractmethod
     def type() -> ResourceType:
         pass
 
-    def embed(self) -> str:
-        return str(self.value)
-
     def typeCheck(self) -> bool:
-        return isinstance(self.value, NbtAddressResource) and self.isStatic
+        return isinstance(self.static_value, DataPath) and self.isStatic
 
-    def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> Resource:
+    def storeToNbt(self, stack: DataPath, compileState: CompileState) -> Resource:
         return self.copy(stack, compileState)
-
-    def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
-        return self.load(compileState).convertToBoolean(compileState)
-
-    def convertToNumber(self, compileState: CompileState) -> NumberResource:
-        return self.load(compileState).convertToNumber(compileState)
-
-    def convertToFixedNumber(self, compileState: CompileState) -> FixedNumberResource:
-        return self.load(compileState).convertToFixedNumber(compileState)
 
     def _load(self, compileState: CompileState, stack: Optional[ScoreboardValue], scale=1) -> ScoreboardValue:
         stack = stack or compileState.expressionStack.next()
@@ -55,19 +51,7 @@ class VariableResource(ValueResource, ABC):
         # ToDo missing scale
         compileState.ir.append(StoreFastVarNode(
             stack,
-            self.value
+            self.static_value
         ))
 
         return stack
-
-    def _copy(self, compileState: CompileState, target: ValueResource) -> ValueResource:
-        if not isinstance(target, NbtAddressResource):
-            if isinstance(target, AddressResource):
-                return self.load(compileState, target)
-            raise ValueError(f"{type(self).__name__} expected NbtAddressResource, got {repr(target)}")
-
-        compileState.ir.append(StoreFastVarNode(
-            target.value,
-            self.value
-        ))
-        return target

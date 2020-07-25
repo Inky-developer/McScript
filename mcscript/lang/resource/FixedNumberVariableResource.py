@@ -41,7 +41,7 @@ class FixedNumberVariableResource(VariableResource):
         # 3. store back
         number = self.load(compileState)
         number = number.operation_plus(FixedNumberResource.fromNumber(1), compileState)
-        return number.storeToNbt(self.value, compileState)
+        return number.storeToNbt(self.static_value, compileState)
 
     def operation_decrement_one(self, compileState: CompileState) -> FixedNumberVariableResource:
         # 1. load self
@@ -49,4 +49,4 @@ class FixedNumberVariableResource(VariableResource):
         # 3. store back
         number = self.load(compileState)
         number = number.operation_minus(FixedNumberResource.fromNumber(1), compileState)
-        return number.storeToNbt(self.value, compileState)
+        return number.storeToNbt(self.static_value, compileState)

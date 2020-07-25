@@ -14,7 +14,7 @@ class AddressResource(ValueResource):
         return ResourceType.ADDRESS
 
     def embed(self) -> str:
-        return self.value
+        return self.static_value
 
     def typeCheck(self) -> bool:
-        return isinstance(self.value, ScoreboardValue)
+        return isinstance(self.static_value, ScoreboardValue)

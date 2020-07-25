@@ -312,6 +312,7 @@ class Compiler(Interpreter):
                 number1 = result
             except NotImplementedError:
                 raise TypeError(f"Expected operand that supports numeric operations, not {repr(number1)}")
+
         return number1
 
     def term(self, tree):
@@ -493,7 +494,7 @@ class Compiler(Interpreter):
         )
 
         if (any(parameter.value.requiresInlineFunc for _, parameter in
-                parameter_list) or return_type.value.requiresInlineFunc) and not inline:
+                parameter_list) or return_type.static_value.requiresInlineFunc) and not inline:
             raise McScriptTypeError(f"Some parameters (or the return type) can only be used in an inline context. "
                                     f"Consider declaring this function using 'inline fun'.", self.compileState)
 

@@ -42,12 +42,22 @@ class IrMaster:
             self.function_nodes.append(FunctionNode(Identifier(name), self.active_nodes.pop()))
 
     @contextmanager
-    def with_buffer(self) -> Generator[List[IRNode], None, None]:
+    def with_buffer(self, buffer=None) -> Generator[List[IRNode], None, None]:
         """ Buffers all nodes and yields their holding list"""
-        buffer = []
+        buffer = [] if buffer is None else buffer
         self.active_nodes.append(buffer)
 
         try:
             yield buffer
         finally:
             self.active_nodes.pop()
+    
+    @contextmanager
+    def with_previous(self):
+        """ 
+        adds a reference to the previous node to the top of the stack
+        so that temporary writes to the parent node list are possible.
+        Fails if no previous stack exists.
+        """
+        with self.with_buffer(self.active_nodes[-2]) as buffer:
+            yield buffer

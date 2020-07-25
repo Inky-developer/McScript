@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from enum import Flag, auto
 from inspect import isclass
+from typing import Type
 
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
@@ -17,9 +18,9 @@ class TypeModifiers(Flag):
         return TypeModifiers[string.strip().upper()]
 
 
-class TypeResource(ValueResource):
-    def __init__(self, value, isStatic=True, *stringFlags):
-        super().__init__(value, isStatic)
+class TypeResource(Resource):
+    def __init__(self, value: Type[Resource], *stringFlags):
+        self.value = value
 
         self.modifierFlags = TypeModifiers(sum(TypeModifiers.fromString(i).value for i in stringFlags if i is not None))
 
@@ -30,7 +31,7 @@ class TypeResource(ValueResource):
         """
         Accepts a subclass of resource and structs.
         """
-        return (isclass(self.value) and issubclass(self.value, Resource)) or isinstance(self.value, StructResource)
+        return (isclass(self.static_value) and issubclass(self.static_value, Resource)) or isinstance(self.static_value, StructResource)
 
     @classmethod
     def fromType(cls, resourceType: ResourceType) -> TypeResource:

@@ -7,6 +7,7 @@ from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.base.VariableResource import VariableResource
+from mcscript.utils.resources import ScoreboardValue
 
 if TYPE_CHECKING:
     from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
@@ -22,19 +23,8 @@ class NumberVariableResource(VariableResource):
     def type() -> ResourceType:
         return ResourceType.NUMBER
 
-    def convertToFixedNumber(self, compileState: CompileState) -> FixedNumberResource:
-        """ An efficient way to convert a storage number to a fixed is to load with a factor of 1000"""
-        from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
-        if self.isStatic:
-            return FixedNumberResource.fromNumber(self.value)
-        return FixedNumberResource(self._load(compileState, None, FixedNumberResource.BASE), False)
-
-    def load(self, compileState: CompileState, stack: ValueResource = None) -> NumberResource:
+    def load(self, compileState: CompileState, stack: ScoreboardValue = None) -> NumberResource:
+        if self.static_value is not None:
+            return NumberResource(self.static_value, True)
         stack = self._load(compileState, stack)
         return NumberResource(stack, False)
-
-    def copy(self, target: ValueResource, compileState: CompileState) -> Resource:
-        stack = self._copy(compileState, target)
-        if not isinstance(stack, NbtAddressResource):
-            return stack
-        return NumberVariableResource(target, False)

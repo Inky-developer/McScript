@@ -40,14 +40,14 @@ class SelectorResource(ValueResource):
         super().__init__(value, isStatic)
 
     def embed(self) -> str:
-        return str(self.value)
+        return str(self.static_value)
 
     def embed_non_static(self, compileState: CompileState) -> str:
         if self.isStatic:
             return self.embed()
         scoreboard, = filter(lambda x: x.name == "entities", compileState.scoreboards)
         return CmdSelector.ALL_ENTITIES.filter(scores=Struct.fromDict({
-            scoreboard.get_name(): self.value
+            scoreboard.get_name(): self.static_value
         }))
 
     @staticmethod
@@ -55,7 +55,7 @@ class SelectorResource(ValueResource):
         return ResourceType.SELECTOR
 
     def typeCheck(self) -> bool:
-        return isinstance(self.value, Selector)
+        return isinstance(self.static_value, Selector)
 
     def storeToNbt(self, _: Optional[NbtAddressResource], compileState: CompileState) -> SelectorResource:
         """

@@ -17,12 +17,12 @@ class NbtAddressResource(ValueResource):
         return ResourceType.NBT_ADDRESS
 
     def embed(self) -> str:
-        return str(self.value)
+        return str(self.static_value)
 
     def typeCheck(self) -> bool:
-        return isinstance(self.value, DataPath)
+        return isinstance(self.static_value, DataPath)
 
     def __getitem__(self, item: int):
         if not isinstance(item, int):
             return NotImplemented
-        return NbtAddressResource(self.value.last_element_indexed(int))
+        return NbtAddressResource(self.static_value.last_element_indexed(int))
