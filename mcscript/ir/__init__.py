@@ -5,14 +5,22 @@ Great potential for optimization.
 """
 from __future__ import annotations
 
-from typing import List, Dict, Any, Optional
+from functools import cached_property
+from typing import List, Dict, Any, Optional, Type, TYPE_CHECKING, Tuple
 from dataclasses import dataclass, field
+
+from mcscript.utils.utils import camel_case_to_snake_case
+from mcscript.utils.resources import SourceLocation
+
+if TYPE_CHECKING:
+    from mcscript.ir.IrMaster import IrMaster
 
 @dataclass()
 class IrNodeMetadata:
     # line and column which cause this node to generate
-    line: Optional[int] = field(default=None)
-    column: Optional[int] = field(default=None)
+    source_location: Optional[SourceLocation] = field(default=None)
+
+    index: Optional[int] = field(default=None)
     
 
 class IRNode:
@@ -26,6 +34,28 @@ class IRNode:
 
         # metadata which can be used for debug information or optimizations
         self.metadata: IrNodeMetadata = metadata or IrNodeMetadata()
+    
+    def optimized(self, ir_master: IrMaster) -> Tuple[IRNode, bool]:
+        """
+        Optimizing the node tree logically.
+        If not optimizations can be made, return self.
+        """
+        changed = False
+        index = 0
+        while index < len(self.inner_nodes):
+            node = self.inner_nodes[index]
+            optimized_node, has_changed = node.optimized(ir_master)
+            if has_changed:
+                self.inner_nodes[index] = optimized_node
+                changed = True
+            else:
+                index += 1
+        
+        return self, changed
+    
+    @cached_property
+    def node_id(self) -> str:
+        return camel_case_to_snake_case(type(self).__name__)
 
     def as_tree(self, level=1) -> str:
         spacer = "  " * level

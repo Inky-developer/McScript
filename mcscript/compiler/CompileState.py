@@ -6,7 +6,6 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 from lark import Tree
 
 from mcscript.analyzer.Analyzer import NamespaceContext
-from mcscript.compiler.CompilerConstants import CompilerConstants
 from mcscript.compiler.Context import Context
 from mcscript.compiler.ContextStack import ContextStack
 from mcscript.compiler.ContextType import ContextType
@@ -14,10 +13,9 @@ from mcscript.data.Config import Config
 from mcscript.ir.IrMaster import IrMaster
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource
-from mcscript.utils.Datapack import Datapack
 from mcscript.utils.Scoreboard import Scoreboard
 from mcscript.utils.addressCounter import ScoreboardAddressCounter, AddressCounter
-from mcscript.utils.resources import DataPath, ScoreboardValue, Identifier, ResourceSpecifier
+from mcscript.utils.resources import DataPath, ScoreboardValue, Identifier, ResourceSpecifier, SourceLocation, CodeView
 
 
 class CompileState:
@@ -30,11 +28,10 @@ class CompileState:
         self.compileFunction = compileFunction
 
         self.code = code.split("\n")
-        self.currentTree: Optional[Tree] = None
+        self._currentTree: Optional[Tree] = None
 
         self.config = config
-        self.datapack = Datapack(config)
-
+        
         self.scoreboards: List[Scoreboard] = [
             Scoreboard(self.config.get_scoreboard("main"), True, 0),
             Scoreboard("entities", False, 1)
@@ -42,8 +39,6 @@ class CompileState:
 
         self.scoreboard_main = self.scoreboards[0]
         self.data_path_main = DataPath(self.config.storage_id, self.config.get_storage("vars").split("."))
-
-        self.compilerConstants = CompilerConstants(self.scoreboard_main)
 
         # ToDo: maybe move to ir gen code?
         self.node_block_counter = AddressCounter("block_{}_")
@@ -56,6 +51,26 @@ class CompileState:
 
         # the ir master class
         self.ir = IrMaster()
+    
+    @property
+    def currentTree(self) -> Optional[Tree]:
+        return self._currentTree
+    
+    @currentTree.setter
+    def currentTree(self, value: Tree):
+        self._currentTree = value
+        if value is None:
+            return
+
+        # source_location = SourceLocation(
+        #     value.meta.line,
+        #     value.meta.column,
+        #     value.meta.end_line,
+        #     value.meta.end_column,
+        #     CodeView(value.meta.line, value.meta.end_line, value.meta.column, value.meta.end_column, self.code)
+        # )
+
+        # self.ir.set_current_source_location(source_location)
 
     def get_nbt_address(self, name: str) -> DataPath:
         """

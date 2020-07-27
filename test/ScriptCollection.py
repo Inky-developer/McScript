@@ -2,6 +2,7 @@ from os import getcwd
 import sys
 sys.path.insert(0, ".") # fix for vscode dont know what exactly is wrong
 from os.path import join
+from pathlib import Path
 
 from mcscript import Logger
 from mcscript.assets import setCurrentData
@@ -81,7 +82,7 @@ if __name__ == '__main__':
     # mcDir = join(getcwd(), "server")
     # mcDir = r"C:\Users\david\AppData\Roaming\.minecraft\Entwicklungsversionen\saves"
     # world = getWorld("20w18a", mcDir)
-    # world = getWorld("McScript", mcDir)
+    world = getWorld("McScript")
     # setCurrentWorld(world)
 
     # setCurrentData(str(world.mcVersion["Name"]))
@@ -91,5 +92,6 @@ if __name__ == '__main__':
     code = code_temp
     # code = getScript("mandelbrot")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
-    # generateFiles(world, datapack)
+    # datapack.write(config.NAME, Path.cwd().joinpath("out"))
+    generateFiles(world, datapack)
     # rcon.send("reload")

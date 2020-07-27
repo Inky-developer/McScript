@@ -16,6 +16,7 @@ docs/build
 htmlcov/
 test/server
 venv/
+out/
 
 docs/update_doc.cmd
 latest.log

@@ -8,20 +8,12 @@ from typing import Dict, List, Optional, Union
 
 from mcscript.data import getDictionaryResource
 from mcscript.data.Config import Config
-from mcscript.data.blockStorage.BlockTree import BlockTree
-from mcscript.data.blockStorage.Generator import BlockFunctionGenerator, BlockTagGenerator, IdToBlockGenerator
-from mcscript.data.minecraftData import blocks
-from mcscript.data.predicates.BiomePredicate import BiomePredicate
-from mcscript.data.predicates.FeaturePredicate import FeaturePredicate
-from mcscript.data.predicates.LightPredicate import LightPredicate
-from mcscript.data.predicates.RandomPredicate import RandomPredicate
-from mcscript.data.predicates.WeatherPredicate import WeatherPredicate
 from mcscript.utils.Files import Files
 from mcscript.utils.utils import string_format
 
 
 class Directory:
-    """ Contains files (A FileStructure class) and sub-directories"""
+    """ Contains files (A `Files` class) and sub-directories"""
 
     def __init__(self, config: Config, structure=None, listeners=None):
         self.config = config
@@ -176,93 +168,18 @@ class MainNamespace(Namespace):
         directory.addFile("load.mcfunction").write(string)
 
 
-class HelperNamespace(Namespace):
-    def __init__(self, config: Config):
-        super().__init__(config)
-        self.hasGetBlockFunction = False
-        self.hasSetBlockFunction = False
-        self.hasWeatherPredicate = False
-        self.hasLightPredicate = False
-        self.hasBiomePredicate = False
-        self.hasFeaturePredicate = False
-        self.hasRandomPredicate = False
-
-    # cached blockTree for later
-    @cached_property
-    def blockTree(self):
-        return BlockTree.fromList(blocks.getBlocks())
-
-    def addGetBlockFunction(self):
-        if self.hasGetBlockFunction:
-            return
-        self.hasGetBlockFunction = True
-        BlockTagGenerator(self.blockTree).generate(self.getPath("tags/blocks").files)
-        BlockFunctionGenerator(self.blockTree).generate(self.getPath("functions").files)
-
-    def addSetBlockFunction(self):
-        if self.hasSetBlockFunction:
-            return
-        self.hasSetBlockFunction = True
-        IdToBlockGenerator().generate(self.getPath("functions").files, self.config.RETURN_SCORE,
-                                      self.config.BLOCK_SCORE)
-
-    @lru_cache()
-    def addWeatherPredicate(self):
-        if self.hasWeatherPredicate:
-            return
-        self.hasWeatherPredicate = True
-        filestructure = self.getPath("predicates").files
-        return WeatherPredicate().generate(filestructure)
-
-    @lru_cache()
-    def addLightPredicate(self):
-        if self.hasLightPredicate:
-            return
-        self.hasLightPredicate = True
-        filestructure = self.getPath("predicates").files
-        return LightPredicate().generate(filestructure)
-
-    @lru_cache()
-    def addBiomePredicate(self):
-        if self.hasBiomePredicate:
-            return
-        self.hasBiomePredicate = True
-        filestructure = self.getPath("predicates").files
-        return BiomePredicate().generate(filestructure)
-
-    @lru_cache()
-    def addFeaturePredicate(self):
-        if self.hasFeaturePredicate:
-            return
-        self.hasFeaturePredicate = True
-        filestructure = self.getPath("predicates").files
-        return FeaturePredicate().generate(filestructure)
-
-    @lru_cache()
-    def addRandomPredicate(self):
-        if self.hasRandomPredicate:
-            return
-        self.hasFeaturePredicate = True
-        filestructure = self.getPath("predicates").files
-        return RandomPredicate().generate(filestructure)
-
-
 class Datapack(Directory):
     def __init__(self, config: Config):
         super().__init__(config, {
             "pack.mcmeta": None,
             "data": {
                 "minecraft": MinecraftNamespace,
-                config.get_compiler("name"): MainNamespace,
-                config.get_compiler("utils"): HelperNamespace
+                config.get_compiler("name"): MainNamespace
             },
         })
 
     def getMainDirectory(self) -> Directory:
         return self.getPathFromList(["data", self.config.NAME])
-
-    def getUtilsDirectory(self) -> Directory:
-        return self.getPathFromList(["data", self.config.UTILS])
 
     def on_pack_mcmeta(self, file):
         file.write(string_format(self.config, getDictionaryResource("DefaultFiles.txt")["mcmeta"]))

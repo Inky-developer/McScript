@@ -30,10 +30,3 @@ class Files:
     # Debug representation
     def __str__(self):
         return "\n===\n".join(f"{name}\n{len(name) * '-'}\n{self.files[name].getvalue()}" for name in self.files)
-
-
-if __name__ == '__main__':
-    f = Files()
-    f.push("Hallo").write("Welt!")
-    f.push("Foo").write("Bar")
-    print(f)

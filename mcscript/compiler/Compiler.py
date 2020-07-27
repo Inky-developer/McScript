@@ -13,6 +13,7 @@ from mcscript.data import defaultCode
 from mcscript.data.Config import Config
 from mcscript.exceptions.compileExceptions import (McScriptDeclarationError, McScriptNameError, McScriptNotStaticError,
                                                    McScriptSyntaxError, McScriptTypeError, )
+from mcscript.ir.IrMaster import IrMaster
 from mcscript.ir.command_components import UnaryOperator, ScoreRange, BinaryOperator, ScoreRelation
 from mcscript.ir.components import (ScoreboardInitNode, ConditionalNode, StoreFastVarNode, InvertNode, IfNode,
                                     FunctionCallNode, ExecuteNode)
@@ -29,7 +30,6 @@ from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.FunctionResource import Parameter
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 from mcscript.lang.utility import isStatic
-from mcscript.utils.Datapack import Datapack
 
 
 class Compiler(Interpreter):
@@ -49,7 +49,7 @@ class Compiler(Interpreter):
         return result
 
     def compile(self, tree: Tree, contexts: Dict[Tuple[int, int], NamespaceContext], code: str,
-                config: Config) -> Datapack:
+                config: Config) -> IrMaster:
         self.compileState = CompileState(code, contexts, self.visit, config)
 
         with self.compileState.ir.with_function("main"):
@@ -57,17 +57,16 @@ class Compiler(Interpreter):
             self.compileState.pushContext(ContextType.GLOBAL, 0, 0)
             self.visit(tree)
 
-        # create file with all constants
-        with self.compileState.ir.with_function("init_constants"):
-            self.compileState.compilerConstants.write_constants(self.compileState)
-
         with self.compileState.ir.with_function("init_scoreboards"):
             for scoreboard in self.compileState.scoreboards:
                 self.compileState.ir.append(ScoreboardInitNode(scoreboard))
+        
+        self.compileState.ir.optimize()
 
         for function_node in self.compileState.ir.function_nodes:
             print(function_node)
-        return self.compileState.datapack
+        # return self.compileState.datapack
+        return self.compileState.ir
 
     #  called by every registered builtin function
     def loadFunction(self, function: BuiltinFunction):

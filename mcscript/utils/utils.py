@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import warnings
 from functools import wraps
 
 from mcscript import Logger
-from mcscript.data import Config
+from mcscript.data.Config import Config
 
 
 def requiresMcVersion(version: int, message=""):
@@ -87,3 +89,16 @@ def string_format(config: Config, string: str, **kwargs: str) -> str:
     kwargs.setdefault("ret", config.RETURN_SCORE)
     kwargs.setdefault("block", config.BLOCK_SCORE)
     return string.format(**kwargs)
+
+def camel_case_to_snake_case(string: str) -> str:
+    """ 
+    Converts a CamelCase word to a snake_case word.
+    """
+    characters = []
+    for index, character in enumerate(string):
+        if character.isupper() and index != 0:
+            characters.append("_")
+        characters.append(character.lower())
+    
+    return "".join(characters)
+

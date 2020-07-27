@@ -1,9 +1,10 @@
+from __future__ import annotations
 from contextlib import contextmanager
-from typing import List, Union, Generator, Iterable
+from typing import List, Union, Generator, Iterable, Optional
 
 from mcscript.ir import IRNode
 from mcscript.ir.components import FunctionNode
-from mcscript.utils.resources import Identifier
+from mcscript.utils.resources import Identifier, SourceLocation, ResourceSpecifier
 
 
 class IrMaster:
@@ -18,8 +19,19 @@ class IrMaster:
         # A list of list of nodes. Popped after the end of `with_function` and added to function_nodes as a function.
         self.active_nodes: List[List[IRNode]] = []
 
+        self.node_counter = 0
+        self._source_location: SourceLocation = None  # set by compile state
+    
+    def optimize(self):
+        """ Optimizes the contained function nodes"""
+        function_nodes = [i.optimized(self)[0] for i in self.function_nodes]
+        self.function_nodes = [i for i in function_nodes if not i["drop"]]
+
     def append(self, node: IRNode):
         self.active_nodes[-1].append(node)
+
+        # Done after the function node is created
+        # self._incr_index(node)
 
     def append_all(self, first: Union[IRNode, Iterable[IRNode]], *nodes: IRNode):
         if isinstance(first, Iterable):
@@ -30,6 +42,12 @@ class IrMaster:
         for node in nodes:
             self.append(node)
 
+    def find_function_node(self, name: ResourceSpecifier) -> Optional[FunctionNode]:
+        return next((i for i in self.function_nodes if i["name"] == name.path), None)
+
+    def set_current_source_location(self, source_location: SourceLocation):
+        self._source_location = source_location
+
     @contextmanager
     def with_function(self, name: str):
         """ Useful for procedurally generating a function file """
@@ -39,7 +57,11 @@ class IrMaster:
         try:
             yield
         finally:
-            self.function_nodes.append(FunctionNode(Identifier(name), self.active_nodes.pop()))
+            node = FunctionNode(
+                Identifier(name), self.active_nodes.pop()
+            )
+            self._incr_index(node)
+            self.function_nodes.append(node)
 
     @contextmanager
     def with_buffer(self, buffer=None) -> Generator[List[IRNode], None, None]:
@@ -51,7 +73,7 @@ class IrMaster:
             yield buffer
         finally:
             self.active_nodes.pop()
-    
+
     @contextmanager
     def with_previous(self):
         """ 
@@ -61,3 +83,10 @@ class IrMaster:
         """
         with self.with_buffer(self.active_nodes[-2]) as buffer:
             yield buffer
+
+    def _incr_index(self, node: IRNode):
+        node.metadata.index = self.node_counter
+        self.node_counter += 1
+
+        for child in node.inner_nodes:
+            self._incr_index(child)

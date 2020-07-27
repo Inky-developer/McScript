@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Dict, TYPE_CHECKING, Union
 
-from mcscript.data.commandsCommon import compare_scoreboard_value
 from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource

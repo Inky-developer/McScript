@@ -37,7 +37,7 @@ class NumberResource(ValueResource[int]):
 
         scoreboard_address = compileState.expressionStack.next()
         compileState.ir.append(StoreFastVarNode(
-            scoreboard_address, self.static_value
+            scoreboard_address, self.static_value, self.is_static
         ))
 
         return NumberResource(self.static_value, scoreboard_address)
