@@ -67,14 +67,15 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-player_count = 0
-
+a = 0
 run for @a {
-    player_count = player_count + 1
+    a = a + 1
 }
 
 run for @a {
-    print("There are {} players.", player_count)
+    if a == 1 {
+        print("one")
+    }
 }
 """
 if __name__ == '__main__':

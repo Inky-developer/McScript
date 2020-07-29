@@ -15,9 +15,12 @@ from mcscript.ir.command_components import BinaryOperator
 from mcscript.lang.resource import import_sub_modules
 from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.utils.resources import ScoreboardValue
+from mcscript.utils.JsonTextFormat.objectFormatter import format_score, format_text
 
 if TYPE_CHECKING:
     from mcscript.compiler.Context import Context
+    from mcscript.ir.command_components import ScoreRelation
+    from mcscript.ir.components import ConditionalNode
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
     from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
@@ -57,6 +60,7 @@ class Resource(ABC):
     when this is set to False, an implementation of createEmptyResource is required.
     """
 
+    # ToDo wtf is this
     _context: Optional[VariableContext]
     """
     If this resource directly corresponds to a variable, this field will contain its context.
@@ -238,8 +242,8 @@ class Resource(ABC):
         """
         raise TypeError
 
-    def operation_test_relation(self, compileState: CompileState, relation: Relation,
-                                other: Resource) -> ConditionalExecute:
+    def operation_test_relation(self, compileState: CompileState, relation: ScoreRelation,
+                                other: Resource) -> ConditionalNode:
         """
         Checks if the `relation` evaluates to true for both resources
 
@@ -376,6 +380,11 @@ class ValueResource(Generic[VT], Resource):
     @staticmethod
     def type() -> ResourceType:
         return ResourceType.VALUE_RESOURCE
+    
+    def toTextJson(self, compile_state: CompileState, formatter: ResourceTextFormatter):
+        if self.static_value is not None:
+            return format_text(str(self.static_value))
+        return format_score(self.scoreboard_value.scoreboard.unique_name, self.scoreboard_value.value)
 
     def __eq__(self, other):
         return isinstance(other, type(self)) and self.static_value == other.value

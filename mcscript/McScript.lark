@@ -17,7 +17,6 @@ statement: declaration _STATEMENT_SEPARATOR
          | COMMENT -> comment
 
 block: "{" statement* "}"
-     | statement
 
 function_parameter: IDENTIFIER ":" IDENTIFIER
 parameter_list: "(" (function_parameter "," )* function_parameter? ")"
@@ -69,12 +68,12 @@ tuple: "(" ( expression "," )+ expression?  ")"
 comparison: term (VERIFY_EQUAL | VERIFY_NOT_EQUAL | VERIFY_GREATER | VERIFY_GREATER_OR_EQUAL | VERIFY_LESS | VERIFY_LESS_OR_EQUAL) term
 
 // control flow
-control_if: _KEYWORD_IF "(" expression ")" block [_KEYWORD_ELSE block]
+control_if: _KEYWORD_IF expression block [_KEYWORD_ELSE block]
 // hack to enable recursive context changes. ToDo: fix this
-control_while: _KEYWORD_WHILE "(" expression ")" [ context_modifier ] block
-control_do_while: _KEYWORD_DO [ context_modifier ] block _KEYWORD_WHILE "(" expression ")"
+control_while: _KEYWORD_WHILE expression [ context_modifier ] block
+control_do_while: _KEYWORD_DO [ context_modifier ] block _KEYWORD_WHILE expression
 
-control_for: /\bfor\b/ "(" IDENTIFIER /\bin\b/ expression ")" block
+control_for: /\bfor\b/ IDENTIFIER /\bin\b/ expression block
 
 control_enum: /\benum\b/ IDENTIFIER enum_block
 enum_block: "{" ( enum_property _STATEMENT_SEPARATOR )* enum_property _STATEMENT_SEPARATOR "}"

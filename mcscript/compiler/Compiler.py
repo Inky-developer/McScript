@@ -5,30 +5,43 @@ from lark.visitors import Interpreter
 
 from mcscript import Logger
 from mcscript.analyzer.Analyzer import NamespaceContext
+from mcscript.compiler.common import (conditional_loop, get_property,
+                                      readContextManipulator, set_property,
+                                      set_variable)
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.ContextType import ContextType
-from mcscript.compiler.common import conditional_loop, get_property, readContextManipulator, set_property, set_variable
 from mcscript.compiler.tokenConverter import convertToken
 from mcscript.data import defaultCode
 from mcscript.data.Config import Config
-from mcscript.exceptions.compileExceptions import (McScriptDeclarationError, McScriptNameError, McScriptNotStaticError,
-                                                   McScriptSyntaxError, McScriptTypeError, )
+from mcscript.exceptions.compileExceptions import (McScriptDeclarationError,
+                                                   McScriptNameError,
+                                                   McScriptNotStaticError,
+                                                   McScriptSyntaxError,
+                                                   McScriptTypeError)
+from mcscript.ir.command_components import (BinaryOperator, ScoreRange,
+                                            ScoreRelation, UnaryOperator)
+from mcscript.ir.components import (ConditionalNode, ExecuteNode,
+                                    FunctionCallNode, IfNode, InvertNode,
+                                    ScoreboardInitNode,
+                                    StoreFastVarFromResultNode,
+                                    StoreFastVarNode,
+                                    IfNode)
 from mcscript.ir.IrMaster import IrMaster
-from mcscript.ir.command_components import UnaryOperator, ScoreRange, BinaryOperator, ScoreRelation
-from mcscript.ir.components import (ScoreboardInitNode, ConditionalNode, StoreFastVarNode, InvertNode, IfNode,
-                                    FunctionCallNode, ExecuteNode)
 from mcscript.lang.builtins.builtins import BuiltinFunction
+from mcscript.lang.resource.base.FunctionResource import Parameter
+from mcscript.lang.resource.base.ResourceBase import (
+    ObjectResource, Resource, ValueResource)
 from mcscript.lang.resource.BooleanResource import BooleanResource
-from mcscript.lang.resource.DefaultFunctionResource import DefaultFunctionResource
+from mcscript.lang.resource.DefaultFunctionResource import \
+    DefaultFunctionResource
 from mcscript.lang.resource.EnumResource import EnumResource
-from mcscript.lang.resource.InlineFunctionResource import InlineFunctionResource
+from mcscript.lang.resource.InlineFunctionResource import \
+    InlineFunctionResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.StructMethodResource import StructMethodResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.TypeResource import TypeResource
-from mcscript.lang.resource.base.FunctionResource import Parameter
-from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 from mcscript.lang.utility import isStatic
 
 
@@ -42,7 +55,8 @@ class Compiler(Interpreter):
         try:
             self.compileState.currentTree = tree
         except AttributeError:
-            raise ValueError("Cannot visit without a compile state. Use ´compile´ instead.")
+            raise ValueError(
+                "Cannot visit without a compile state. Use ´compile´ instead.")
 
         result = super().visit(tree)
         self.compileState.currentTree = previous
@@ -60,7 +74,7 @@ class Compiler(Interpreter):
         with self.compileState.ir.with_function("init_scoreboards"):
             for scoreboard in self.compileState.scoreboards:
                 self.compileState.ir.append(ScoreboardInitNode(scoreboard))
-        
+
         self.compileState.ir.optimize()
 
         for function_node in self.compileState.ir.function_nodes:
@@ -78,7 +92,7 @@ class Compiler(Interpreter):
     #    tree handlers    #
     #######################
     def boolean_constant(self, tree):
-        return BooleanResource(tree.children[0] == "True", True)
+        return BooleanResource(tree.children[0] == "True", None)
 
     def value(self, tree):
         """ a value is a simple token or expression that can be converted to a resource"""
@@ -117,7 +131,8 @@ class Compiler(Interpreter):
             name, *value = self.visit(child)
 
             if name in properties:
-                raise McScriptNameError(f"Enum member {name} was already defined for this enum", self.compileState)
+                raise McScriptNameError(
+                    f"Enum member {name} was already defined for this enum", self.compileState)
             if value:
                 value_properties[name] = value[0]
             else:
@@ -149,7 +164,8 @@ class Compiler(Interpreter):
             self.compileState.currentTree = index_
             return accessor.operation_get_element(self.compileState, index)
         except TypeError:
-            raise McScriptTypeError(f"{accessor.type().value} does not support reading index access", self.compileState)
+            raise McScriptTypeError(
+                f"{accessor.type().value} does not support reading index access", self.compileState)
 
     def index_setter(self, tree):
         accessor, index, value = tree.children
@@ -161,7 +177,8 @@ class Compiler(Interpreter):
         try:
             return accessor.operation_set_element(self.compileState, index, value)
         except TypeError:
-            raise McScriptTypeError(f"{accessor.type().value} does not support writing index access", self.compileState)
+            raise McScriptTypeError(
+                f"{accessor.type().value} does not support writing index access", self.compileState)
 
     def propertySetter(self, tree):
         identifier, value = tree.children
@@ -174,7 +191,8 @@ class Compiler(Interpreter):
         def doOperation(operator: UnaryOperator, value: Resource):
             if operator == UnaryOperator.MINUS:
                 return value.operation_negate(self.compileState)
-            raise ValueError(f"Unknown unary operator {operator.name} in unary_operation")
+            raise ValueError(
+                f"Unknown unary operator {operator.name} in unary_operation")
 
         operator, value = tree.children
         value = self.compileState.toResource(value)
@@ -203,16 +221,19 @@ class Compiler(Interpreter):
 
         conditions = []
         for condition in _conditions:
-            condition = self.compileState.load(condition).convertToBoolean(self.compileState)
+            condition = self.compileState.load(
+                condition).convertToBoolean(self.compileState)
             if condition.isStatic:
                 if condition.value:
                     continue
-                Logger.warn(f"[Compiler] boolean and at {tree.line}:{tree.column} is always False.")
+                Logger.warn(
+                    f"[Compiler] boolean and at {tree.line}:{tree.column} is always False.")
                 return BooleanResource.FALSE
             conditions.append(condition)
 
         if not conditions:
-            Logger.warning(f"[Compiler] boolean and {tree.line}:{tree.column} is always True.")
+            Logger.warning(
+                f"[Compiler] boolean and {tree.line}:{tree.column} is always True.")
             return BooleanResource.TRUE
 
         stack = self.compileState.expressionStack.next()
@@ -220,13 +241,12 @@ class Compiler(Interpreter):
         # None of the conditions will be static
         condition_node = ConditionalNode(
             [ConditionalNode.IfScoreMatches(self.compileState.scoreboard_value(condition.value), ScoreRange(1), False)
-             for condition in conditions],
-            [StoreFastVarNode(stack, 1)]
+             for condition in conditions]
         )
 
         self.compileState.ir.append_all(
-            StoreFastVarNode(stack, 0),
-            condition_node
+            StoreFastVarNode(stack, 0, True),
+            IfNode(condition_node, [StoreFastVarNode(stack, 1, False)], [])
         )
 
         return BooleanResource(stack, False)
@@ -242,10 +262,12 @@ class Compiler(Interpreter):
         conditions = []
 
         for condition in _conditions:
-            value = self.compileState.toResource(condition).convertToBoolean(self.compileState)
+            value = self.compileState.toResource(
+                condition).convertToBoolean(self.compileState)
             if value.isStatic:
                 if value.value:
-                    Logger.debug(f"[Compiler] boolean or is always True at line {tree.line} column {tree.column}")
+                    Logger.debug(
+                        f"[Compiler] boolean or is always True at line {tree.line} column {tree.column}")
                     return BooleanResource.TRUE
                 # always False boolean does not matter, so it will be discarded
                 continue
@@ -253,26 +275,34 @@ class Compiler(Interpreter):
             conditions.append(value)
 
         if not conditions:
-            Logger.debug(f"[Compiler] boolean or is always False at {tree.line} column {tree.column} ")
+            Logger.debug(
+                f"[Compiler] boolean or is always False at {tree.line} column {tree.column} ")
             return BooleanResource.FALSE
 
         stack = self.compileState.expressionStack.next()
 
         # If there are still conditions left, none of them are static
         if conditions:
-            self.compileState.ir.append(StoreFastVarNode(stack, 0))
-            self.compileState.ir.append_all(ConditionalNode(
-                [ConditionalNode.IfScoreMatches(
-                    self.compileState.scoreboard_value(condition.value), ScoreRange(1), False
-                )],
-                [StoreFastVarNode(stack, 1)]
-            ) for condition in conditions)
+            self.compileState.ir.append(StoreFastVarNode(stack, 0, True))
+            self.compileState.ir.append_all(
+                IfNode(
+                    ConditionalNode(
+                        [ConditionalNode.IfScoreMatches(
+                            self.compileState.scoreboard_value(
+                                condition.value),
+                            ScoreRange(1),
+                            False
+                        )]),
+                    [StoreFastVarNode(stack, 1, False)],
+                    []
+                ) for condition in conditions)
 
             return BooleanResource(stack, False)
 
     def boolean_not(self, tree):
         _, value = tree.children
-        value = self.compileState.toResource(value).convertToBoolean(self.compileState)
+        value = self.compileState.toResource(
+            value).convertToBoolean(self.compileState)
 
         if value.isStatic:
             return BooleanResource(not value.value, True)
@@ -301,16 +331,19 @@ class Compiler(Interpreter):
             number2 = self.compileState.load(number2)
 
             if not isinstance(number2, ValueResource):
-                raise ValueError("ToDO: Implement boolean operations for non value-resources")
+                raise ValueError(
+                    "ToDO: Implement boolean operations for non value-resources")
 
             try:
-                result = number1.numericOperation(number2, operator, self.compileState)
+                result = number1.numericOperation(
+                    number2, operator, self.compileState)
                 if result == NotImplemented:
                     raise McScriptTypeError(f"Operation <{operator.name}> not supported between operands "
                                             f"'{number1.type().value}' and '{number2.type().value}'", self.compileState)
                 number1 = result
             except NotImplementedError:
-                raise TypeError(f"Expected operand that supports numeric operations, not {repr(number1)}")
+                raise TypeError(
+                    f"Expected operand that supports numeric operations, not {repr(number1)}")
 
         return number1
 
@@ -321,26 +354,30 @@ class Compiler(Interpreter):
         return self.visit(term)
 
     def comparison(self, tree):
-        # ToDO: change comparison behavior
-        left, operator, right = tree.children
-        left = self.compileState.toResource(left)
-        right = self.compileState.toResource(right)
-        operator = ScoreRelation.get(operator.type)
+        token_a, token_operator, token_b = tree.children
+
+        a = self.compileState.toResource(token_a)
+        b = self.compileState.toResource(token_b)
+        operator = ScoreRelation(token_operator)
 
         try:
-            # if this operation goes wrong, the contextmanager discards all writes
-            with self.compileState.ir.with_buffer() as nodes:
-                relation = left.operation_test_relation(self.compileState, operator, right)
-                self.compileState.ir.append_all(nodes)
+            node = a.operation_test_relation(self.compileState, operator, b)
         except TypeError:
-            # if this operation is not possible, try the other way around
-            try:
-                relation = right.operation_test_relation(self.compileState, operator.swap(), left)
-            except TypeError:
-                raise McScriptTypeError(f"Comparison not available for {left.type().value} "
-                                        f"and {right.type().value}", self.compileState)
+            raise McScriptTypeError(
+                f"Relation {operator.name} is not defined for {{{a.type().value}}} and {{{b.type().value}}}",
+                self.compileState
+            )
 
-        return relation
+        if len(node["conditions"]) == 1 and isinstance(node["conditions"][0], ConditionalNode.IfBool):
+            cond = node["conditions"][0]
+            return BooleanResource(cond["val"], None)
+        
+        stack = self.compileState.expressionStack.next()
+        self.compileState.ir.append(StoreFastVarFromResultNode(
+            stack,
+            node
+        ))
+        return BooleanResource(None, stack)
 
     def declaration(self, tree):
         identifier, _value = tree.children
@@ -379,7 +416,8 @@ class Compiler(Interpreter):
         declaration = tree.children[0]
         identifier, value = declaration.children
         if len(identifier.children) > 1:
-            raise McScriptSyntaxError(f"Cannot set a static value on an object.", self.compileState)
+            raise McScriptSyntaxError(
+                f"Cannot set a static value on an object.", self.compileState)
         identifier, = identifier.children
         value = self.compileState.toResource(value)
 
@@ -388,7 +426,8 @@ class Compiler(Interpreter):
                                     self.compileState)
 
         if isinstance(value, ValueResource) and not value.hasStaticValue:
-            raise McScriptNotStaticError("static declaration needs a static value", self.compileState)
+            raise McScriptNotStaticError(
+                "static declaration needs a static value", self.compileState)
 
         self.compileState.currentContext().add_var(identifier, value)
 
@@ -410,7 +449,8 @@ class Compiler(Interpreter):
         expression = self.compileState.toResource(expression)
 
         if not isinstance(expression, ValueResource):
-            raise McScriptTypeError(f"in-place operation: Expected value, got {expression}", self.compileState)
+            raise McScriptTypeError(
+                f"in-place operation: Expected value, got {expression}", self.compileState)
 
         # do the numeric operation
         result = resource.load(self.compileState).numericOperation(
@@ -433,7 +473,8 @@ class Compiler(Interpreter):
         # ToDO: This could quite easily turned into an expression
         condition, block, block_else = tree.children
 
-        condition_boolean = self.compileState.toResource(condition).convertToBoolean(self.compileState)
+        condition_boolean = self.compileState.toResource(
+            condition).convertToBoolean(self.compileState)
 
         if isStatic(condition_boolean):
             return condition_boolean.value
@@ -445,7 +486,8 @@ class Compiler(Interpreter):
             self.visit_children(block_else)
 
         self.compileState.ir.append(IfNode(
-            ConditionalNode([ConditionalNode.IfScoreMatches(condition_boolean.value, ScoreRange(0), True)]),
+            ConditionalNode([ConditionalNode.IfScoreMatches(
+                condition_boolean.value, ScoreRange(0), True)]),
             pos_branch,
             neg_branch
         ))
@@ -465,13 +507,15 @@ class Compiler(Interpreter):
         try:
             resource.iterate(self.compileState, var_name, block)
         except TypeError:
-            raise McScriptTypeError(f"type {resource.type().value} does not support iteration", self.compileState)
+            raise McScriptTypeError(
+                f"type {resource.type().value} does not support iteration", self.compileState)
 
     def return_(self, tree):
         # ToDO: make return an ir node
         resource = self.compileState.toResource(tree.children[0])
         if self.compileState.currentContext().return_resource is not None:
-            raise McScriptSyntaxError("Cannot set the return value twice.", self.compileState)
+            raise McScriptSyntaxError(
+                "Cannot set the return value twice.", self.compileState)
         self.compileState.currentContext().return_resource = resource
 
     def function_parameter(self, tree):
@@ -488,7 +532,8 @@ class Compiler(Interpreter):
 
         # the return type can be omitted. In this case, it will be Null
         return_type = TypeResource(
-            convertToken(return_type, self.compileState) if return_type else NullResource,
+            convertToken(
+                return_type, self.compileState) if return_type else NullResource,
             True
         )
 
@@ -505,16 +550,19 @@ class Compiler(Interpreter):
     def function_definition_inline(self, function_name: str, parameter_list: List[Parameter], return_type: TypeResource,
                                    block: Tree, isMethod: bool):
         if function_name in defaultCode.MAGIC_FUNCTIONS:
-            raise McScriptSyntaxError("Special functions must not be inlined", self.compileState)
+            raise McScriptSyntaxError(
+                "Special functions must not be inlined", self.compileState)
 
         FunctionCls = StructMethodResource if isMethod else InlineFunctionResource
 
-        function = FunctionCls(function_name, parameter_list, return_type, block)
+        function = FunctionCls(
+            function_name, parameter_list, return_type, block)
         self.compileState.currentContext().add_var(function.name(), function)
 
     def function_definition_normal(self, function_name: str, parameter_list: List[Parameter], return_type: TypeResource,
                                    block: Tree):
-        function = DefaultFunctionResource(function_name, parameter_list, return_type, block)
+        function = DefaultFunctionResource(
+            function_name, parameter_list, return_type, block)
         function.compile(self.compileState)
         self.compileState.currentContext().add_var(function.name(), function)
 
@@ -531,7 +579,8 @@ class Compiler(Interpreter):
 
     def builtinFunction(self, function: BuiltinFunction, *parameters: Resource):
         # ToDo: make raw parameters default
-        loadFunction = self.compileState.load if not function.requireRawParameters() else self.compileState.toResource
+        loadFunction = self.compileState.load if not function.requireRawParameters(
+        ) else self.compileState.toResource
         # noinspection PyArgumentList
         parameters = [loadFunction(i) for i in parameters]
 
@@ -544,7 +593,8 @@ class Compiler(Interpreter):
                     self.compileState.ir.append_all(result.ir)
 
                 # after adding the function make sure to also call it
-                self.compileState.ir.append(FunctionCallNode(self.compileState.resource_specifier_main(block_name)))
+                self.compileState.ir.append(FunctionCallNode(
+                    self.compileState.resource_specifier_main(block_name)))
 
         return result.resource
 
@@ -574,7 +624,8 @@ class Compiler(Interpreter):
 
     def control_struct(self, tree):
         name, block = tree.children
-        self.compileState.pushContext(ContextType.STRUCT, block.line, block.column)
+        self.compileState.pushContext(
+            ContextType.STRUCT, block.line, block.column)
         context = self.compileState.currentContext()
 
         struct = StructResource(name, context)
@@ -595,7 +646,8 @@ class Compiler(Interpreter):
 
         self.compileState.ir.append(ExecuteNode(
             readContextManipulator(modifiers, self.compileState),
-            [FunctionCallNode(self.compileState.resource_specifier_main(block_name))]
+            [FunctionCallNode(
+                self.compileState.resource_specifier_main(block_name))]
         ))
 
     def expression(self, tree):

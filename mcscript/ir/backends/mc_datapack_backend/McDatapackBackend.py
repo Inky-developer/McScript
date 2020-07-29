@@ -16,7 +16,7 @@ class McDatapackBackend(IRBackend[Datapack]):
 
         # A list of all constants used by this backend
         self.constant_scores: Dict[int, ScoreboardValue] = {}
-    
+
     def _get_constant(self, value: int, scoreboard: Scoreboard) -> ScoreboardValue:
         if value in self.constant_scores:
             return self.constant_scores[value]
@@ -28,28 +28,28 @@ class McDatapackBackend(IRBackend[Datapack]):
 
         self.constant_scores[value] = scoreboard_value
         return scoreboard_value
-    
+
     def write_line(self, text: str):
         self.files.get().write(f"{text}\n")
-    
+
     @classmethod
     def _identifier(cls):
         return "mc_datapack"
-    
+
     def _get_value(self) -> Datapack:
         return self.datapack
-    
+
     def on_finish(self):
         # Add constant values
-        nodes = [StoreFastVarNode(self.constant_scores[i], i) for i in self.constant_scores]
+        nodes = [StoreFastVarNode(self.constant_scores[i], i)
+                 for i in self.constant_scores]
         function = FunctionNode("init_constants", nodes)
         self.handle(function)
 
-    
     def handle_function_node(self, node: FunctionNode):
         self.files.push(f"{node['name']}.mcfunction")
         self.handle_children(node)
-    
+
     def handle_function_call_node(self, node: FunctionCallNode):
         value = node["name"]
         self.write_line(
@@ -64,7 +64,8 @@ class McDatapackBackend(IRBackend[Datapack]):
             ExecuteNode.Anchored: lambda node: f"anchored {node['anchor'].value}"
         }
 
-        sub_nodes = [SUB_NODE_TO_STRING[type(i)](i) for i in node["components"]] 
+        sub_nodes = [SUB_NODE_TO_STRING[type(i)](
+            i) for i in node["components"]]
         if not sub_nodes:
             raise ValueError("Empty execute node")
         execute_base = f"execute {' '.join(sub_nodes)} run "
@@ -74,9 +75,24 @@ class McDatapackBackend(IRBackend[Datapack]):
             self.files.get().write(execute_base)
             self.handle(command)
 
-
     def handle_conditional_node(self, node: ConditionalNode):
-        ...
+        SUB_NODE_TO_STRING = {
+            ConditionalNode.IfBlock: lambda node: f"block {position_to_str(node['pos'])} {node['block']}",
+            ConditionalNode.IfEntity: lambda node: f"enitity {node['selector']}",
+            ConditionalNode.IfPredicate: lambda node: f"predicate {node['val'].base}:{node['val'].path}",
+            ConditionalNode.IfScore: lambda node: f"score {node['own'].value} {node['own'].scoreboard.unique_name} "
+                                                  f"{node['relation'].value} {node['other'].value} {node['other'].scoreboard.unique_name}",
+            ConditionalNode.IfScoreMatches: lambda node: f"score {node['own'].value} {node['own'].scoreboard.unique_name} "
+                                                         f"matches {node['range']}"
+        }
+
+        sub_nodes = [("unless " if i.data.get("neg", False) else "if ") +
+                     SUB_NODE_TO_STRING[type(i)](i) for i in node["conditions"]]
+        if not sub_nodes:
+            raise ValueError("Empty condition node")
+        execute_base = f"execute {' '.join(sub_nodes)}"
+
+        self.write_line(execute_base)
 
     def handle_if_node(self, node: IfNode):
         ...
@@ -93,7 +109,7 @@ class McDatapackBackend(IRBackend[Datapack]):
             # if the value is zero, the operation can be omitted (if init is true).
             if value != 0 or not init:
                 self.write_line(
-                    f"scoreboard players set {variable.value} " 
+                    f"scoreboard players set {variable.value} "
                     f"{variable.scoreboard.unique_name} {value}"
                 )
         elif isinstance(value, ScoreboardValue):
@@ -103,7 +119,7 @@ class McDatapackBackend(IRBackend[Datapack]):
                 f"= {value.value} {value.scoreboard.unique_name}"
             )
         elif isinstance(value, DataPath):
-            # execute store result score a objective run data get storage mcsscript:test a.b.c 
+            # execute store result score a objective run data get storage mcsscript:test a.b.c
             self.write_line(
                 f"execute store result score {variable.value} {variable.scoreboard.unique_name} "
                 f"run data get storage {value.storage.base}:{value.storage.path} {value.dotted_path()}"
@@ -113,8 +129,9 @@ class McDatapackBackend(IRBackend[Datapack]):
 
     def handle_store_fast_var_from_result_node(self, node: StoreFastVarFromResultNode):
         var = node["var"]
-        self.files.get().write(f"execute store result score {var.value} {var.scoreboard.unique_name} ")
-        
+        self.files.get().write(
+            f"execute store result score {var.value} {var.scoreboard.unique_name} run ")
+
         child, *error = node.inner_nodes
         if error:
             raise ValueError(f"Node {node} should only have one child!")
@@ -139,14 +156,14 @@ class McDatapackBackend(IRBackend[Datapack]):
 
         if isinstance(b, ScoreboardValue):
             self.write_line(
-                f"scoreboard players operation {a.value} {a.scoreboard.unique_name} " \
+                f"scoreboard players operation {a.value} {a.scoreboard.unique_name} "
                 f"{operator.value}= {b.value} {b.scoreboard.unique_name}"
             )
         elif isinstance(b, int):
             # only defined for operations plus and minus
             if operator == BinaryOperator.MINUS:
                 b *= -1
-            
+
             mode = "add" if b >= 0 else "remove"
 
             self.write_line(
@@ -154,7 +171,6 @@ class McDatapackBackend(IRBackend[Datapack]):
             )
         else:
             raise ValueError(f"Invalid b value for operation: {b}")
-            
 
     def handle_invert_node(self, node: InvertNode):
         raise NotImplementedError()
@@ -189,6 +205,7 @@ class McDatapackBackend(IRBackend[Datapack]):
 
     def handle_scoreboard_init_node(self, node: ScoreboardInitNode):
         scoreboard = node["scoreboard"]
-        self.write_line(f"scoreboard objectives remove {scoreboard.unique_name}")
-        self.write_line(f"scoreboard objectives add {scoreboard.unique_name} dummy")
-
+        self.write_line(
+            f"scoreboard objectives remove {scoreboard.unique_name}")
+        self.write_line(
+            f"scoreboard objectives add {scoreboard.unique_name} dummy")

@@ -132,8 +132,8 @@ class ConditionalNode(IRNode):
     ConditionalArgument = Union[IfScore, IfScoreMatches,
                                 IfBlock, IfEntity, IfPredicate, IfBool]
 
-    def __init__(self, conditions: List[ConditionalArgument], sub_commands: List[IRNode] = None):
-        super().__init__(sub_commands or [])
+    def __init__(self, conditions: List[ConditionalArgument]):
+        super().__init__([])
         self["conditions"] = conditions
 
 

@@ -50,7 +50,7 @@ class ExecuteAnchor(Enum):
 
 
 class ScoreRelation(Enum):
-    EQUAL = "="
+    EQUAL = "=="
     NOT_EQUAL = "!="
     GREATER = ">"
     GREATER_OR_EQUAL = ">="
@@ -79,6 +79,47 @@ class ScoreRelation(Enum):
         elif self == ScoreRelation.GREATER_OR_EQUAL:
             return ScoreRelation.LESS_OR_EQUAL
         raise ValueError("What am I?")
+
+    def apply(self, a, b) -> bool:
+        """
+        Returns whether this relation holds true for a and b
+        Note: a and b must be comparable
+        """
+        if self == ScoreRelation.EQUAL:
+            return a == b
+        elif self == ScoreRelation.NOT_EQUAL:
+            return a != b
+        elif self == ScoreRelation.LESS:
+            return a < b
+        elif self == ScoreRelation.LESS_OR_EQUAL:
+            return a <= b
+        elif self == ScoreRelation.GREATER:
+            return a > b
+        elif self == ScoreRelation.GREATER_OR_EQUAL:
+            return a >= b
+        raise ValueError("What am I?")
+
+    def get_score_range(self, a: int) -> Tuple[ScoreRange, bool]:
+        """
+        Returns a score range and a boolean
+        The score range will contain every value 'x' for which:
+        relation(x, a) is True.
+        if the bool is set, the score range is inverted
+        """
+        if self == ScoreRelation.EQUAL:
+            return ScoreRange(a), False
+        elif self == ScoreRelation.NOT_EQUAL:
+            return ScoreRange(a), True
+        elif self == ScoreRelation.LESS:
+            return ScoreRange(float("-inf"), a-1)
+        elif self == ScoreRelation.LESS_OR_EQUAL:
+            return ScoreRange(float("-inf"), a)
+        elif self == ScoreRelation.GREATER:
+            return ScoreRange(a+1, float("inf"))
+        elif self == ScoreRelation.GREATER_OR_EQUAL:
+            return ScoreRange(a, float("inf"))
+        raise ValueError("What am I?")
+        
 
 
 class ScoreRange:

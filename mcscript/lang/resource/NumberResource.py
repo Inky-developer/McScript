@@ -2,19 +2,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, ClassVar, Dict
 
-from mcscript.ir.command_components import BinaryOperator
-from mcscript.ir.components import FastVarOperationNode, StoreVarNode, StoreFastVarNode, FastVarOperationNode
+from mcscript.ir.command_components import BinaryOperator, ScoreRelation, ScoreRange
+from mcscript.ir.components import FastVarOperationNode, StoreVarNode, StoreFastVarNode, FastVarOperationNode, ConditionalNode
 from mcscript.lang.resource.AddressResource import AddressResource
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
 from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.utils.JsonTextFormat.objectFormatter import format_score, format_text
 from mcscript.utils.resources import ScoreboardValue, DataPath
+from mcscript.exceptions.compileExceptions import McScriptTypeError
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
-    from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.lang.resource.NumberVariableResource import NumberVariableResource
     from mcscript.lang.resource.BooleanResource import BooleanResource
 
@@ -48,7 +47,8 @@ class NumberResource(ValueResource[int]):
 
         compileState.ir.append(StoreFastVarNode(
             target,
-            own_value
+            own_value,
+            False
         ))
 
         return NumberResource(target, self.static_value)
@@ -56,7 +56,7 @@ class NumberResource(ValueResource[int]):
     def numericOperation(self, other: ValueResource, operator: BinaryOperator, compileState: CompileState) -> NumberResource:
         if not isinstance(other, NumberResource):
             raise TypeError()
-        
+
         if self.static_value is not None and other.static_value is not None:
             return self._numericOperationStatic(self.static_value, other.static_value, operator)
 
@@ -78,12 +78,38 @@ class NumberResource(ValueResource[int]):
         )
 
         return NumberResource(None, a)
-    
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
-        if self.static_value is not None:
-            return format_text(str(self.static_value))
-        return format_score(self.scoreboard_value.scoreboard.unique_name, self.scoreboard_value.value)
-    
+
+    def operation_test_relation(self, compile_state: CompileState, relation: ScoreRelation, other: Resource) -> ConditionalNode:        
+        if not isinstance(other, NumberResource):
+            raise TypeError()
+        
+        a, b = self, other
+        if a.is_static:
+            a, b = b, a
+            relation = relation.swap()
+
+        if a is b:
+            node = ConditionalNode.IfBool(relation in 
+                (ScoreRelation.EQUAL, ScoreRelation.GREATER_OR_EQUAL, ScoreRelation.LESS_OR_EQUAL)
+            )
+        elif a.is_static:
+            node = ConditionalNode.IfBool(relation.apply(self.static_value, other.static_value))
+        elif b.is_static:
+            score_range, invert = relation.get_score_range(b.static_value)
+            node = ConditionalNode.IfScoreMatches(
+                a.scoreboard_value, 
+                score_range,
+                invert
+            )
+        else:
+            node = ConditionalNode.IfScore(
+                a.scoreboard_value,
+                b.scoreboard_value,
+                relation
+            )
+        
+        return ConditionalNode([node])
+
     def __int__(self) -> int:
         if self.static_value is not None:
             return self.static_value
