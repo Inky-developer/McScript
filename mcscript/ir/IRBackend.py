@@ -1,13 +1,17 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import Dict, Type, TypeVar, Generic
+from typing import TypeVar, Generic
 
-from mcscript.ir.IrMaster import IrMaster
-from mcscript.ir.components import *
 from mcscript.data.Config import Config
-from mcscript.utils.utils import camel_case_to_snake_case
+from mcscript.ir.components import *
+
+if TYPE_CHECKING:
+    from mcscript.ir.IrMaster import IrMaster
 
 T = TypeVar("T")
+
 
 class IRBackend(Generic[T], ABC):
     """ 
@@ -20,15 +24,14 @@ class IRBackend(Generic[T], ABC):
 
     def __init__(self, config: Config):
         self.config = config
-    
+
     def generate(self, ir_master: IrMaster) -> T:
         for function_node in ir_master.function_nodes:
             self.handle_function_node(function_node)
-        
-        self.on_finish()
-        
-        return self._get_value()
 
+        self.on_finish()
+
+        return self._get_value()
 
     def handle(self, node: IRNode):
         """
@@ -42,27 +45,28 @@ class IRBackend(Generic[T], ABC):
                 f"Backend cannot handle node of type {node.node_id}")
 
         handler_fn(node)
-    
+
     def handle_children(self, node: IRNode):
         """
         Handles each child of this node
         """
         for child in node.inner_nodes:
             self.handle(child)
-    
+
     def on_finish(self):
         """ Called when the generation is finished. Used to clean up."""
         pass
 
+    # noinspection PyNestedDecorators,PyPropertyDefinition
     @cached_property
     @classmethod
     def identifier(cls) -> str:
         return cls._identifier()
-    
+
     @abstractmethod
     def _get_value(self) -> T:
         ...
-    
+
     @classmethod
     @abstractmethod
     def _identifier(cls) -> str:

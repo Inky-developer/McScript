@@ -1,10 +1,13 @@
 from __future__ import annotations
+
+from contextlib import contextmanager
 from typing import Dict
+
 from mcscript.data.Config import Config
 from mcscript.ir.IRBackend import IRBackend
-from mcscript.ir.components import *
 from mcscript.ir.backends.mc_datapack_backend.Datapack import Datapack
 from mcscript.ir.backends.mc_datapack_backend.utils import position_to_str
+from mcscript.ir.components import *
 
 
 class McDatapackBackend(IRBackend[Datapack]):
@@ -13,6 +16,9 @@ class McDatapackBackend(IRBackend[Datapack]):
 
         self.datapack = Datapack(self.config)
         self.files = self.datapack.getMainDirectory().getPath("functions").files
+
+        # A List of pending commands
+        self.command_buffer: List[List[str]] = []
 
         # A list of all constants used by this backend
         self.constant_scores: Dict[int, ScoreboardValue] = {}
@@ -29,6 +35,18 @@ class McDatapackBackend(IRBackend[Datapack]):
         self.constant_scores[value] = scoreboard_value
         return scoreboard_value
 
+    @contextmanager
+    def assemble_command(self):
+        """
+        Assembles a single command from multiple nodes
+        """
+        temp = []
+        self.command_buffer.append(temp)
+        try:
+            yield temp
+        finally:
+            self.command_buffer.pop()
+
     def write_line(self, text: str):
         self.files.get().write(f"{text}\n")
 
@@ -41,22 +59,29 @@ class McDatapackBackend(IRBackend[Datapack]):
 
     def on_finish(self):
         # Add constant values
-        nodes = [StoreFastVarNode(self.constant_scores[i], i)
+        nodes = [StoreFastVarNode(self.constant_scores[i], i, True)
                  for i in self.constant_scores]
-        function = FunctionNode("init_constants", nodes)
+        function = FunctionNode(Identifier("init_constants"), nodes)
         self.handle(function)
 
     def handle_function_node(self, node: FunctionNode):
         self.files.push(f"{node['name']}.mcfunction")
-        self.handle_children(node)
+        for child in node.inner_nodes:
+            self.command_buffer.append([])
+            self.handle(child)
+
+        for command in self.command_buffer:
+            for line in command:
+                self.write_line(line)
+        self.command_buffer.clear()
 
     def handle_function_call_node(self, node: FunctionCallNode):
         value = node["name"]
-        self.write_line(
+        self.command_buffer[-1].append(
             f"function {value.base}:{value.path}"
         )
 
-    def handle_execute_node(self, node: ExecuteNode):
+    def handle_execute_node(self, execute: ExecuteNode):
         SUB_NODE_TO_STRING = {
             ExecuteNode.As: lambda node: f"as {node['selector']}",
             ExecuteNode.At: lambda node: f"at {node['selector']}",
@@ -65,37 +90,61 @@ class McDatapackBackend(IRBackend[Datapack]):
         }
 
         sub_nodes = [SUB_NODE_TO_STRING[type(i)](
-            i) for i in node["components"]]
+            i) for i in execute["components"]]
         if not sub_nodes:
             raise ValueError("Empty execute node")
-        execute_base = f"execute {' '.join(sub_nodes)} run "
+        execute_base = f"execute {' '.join(sub_nodes)} run"
 
         # ToDO: when optimizing, create a new file for multiple inner nodes
-        for command in node.inner_nodes:
-            self.files.get().write(execute_base)
-            self.handle(command)
+        for command in execute.inner_nodes:
+            with self.assemble_command() as parts:
+                self.command_buffer[-1].append(execute_base)
+                self.handle(command)
+            base, command = parts
+            self.command_buffer[-1].append(f"{base} {command}")
 
-    def handle_conditional_node(self, node: ConditionalNode):
+    def handle_conditional_node(self, conditional: ConditionalNode):
+        def if_score_matches(node):
+            return f"score {node['own'].value} {node['own'].scoreboard.unique_name} matches {node['range']}"
+
+        def if_score(node):
+            return f"score {node['own'].value} {node['own'].scoreboard.unique_name} {node['relation'].value} " \
+                   f"{node['other'].value} {node['other'].scoreboard.unique_name}"
+
         SUB_NODE_TO_STRING = {
             ConditionalNode.IfBlock: lambda node: f"block {position_to_str(node['pos'])} {node['block']}",
             ConditionalNode.IfEntity: lambda node: f"enitity {node['selector']}",
             ConditionalNode.IfPredicate: lambda node: f"predicate {node['val'].base}:{node['val'].path}",
-            ConditionalNode.IfScore: lambda node: f"score {node['own'].value} {node['own'].scoreboard.unique_name} "
-                                                  f"{node['relation'].value} {node['other'].value} {node['other'].scoreboard.unique_name}",
-            ConditionalNode.IfScoreMatches: lambda node: f"score {node['own'].value} {node['own'].scoreboard.unique_name} "
-                                                         f"matches {node['range']}"
+            ConditionalNode.IfScore: if_score,
+            ConditionalNode.IfScoreMatches: if_score_matches
         }
 
         sub_nodes = [("unless " if i.data.get("neg", False) else "if ") +
-                     SUB_NODE_TO_STRING[type(i)](i) for i in node["conditions"]]
+                     SUB_NODE_TO_STRING[type(i)](i) for i in conditional["conditions"]]
         if not sub_nodes:
             raise ValueError("Empty condition node")
         execute_base = f"execute {' '.join(sub_nodes)}"
 
-        self.write_line(execute_base)
+        self.command_buffer[-1].append(execute_base)
 
     def handle_if_node(self, node: IfNode):
-        ...
+        condition: ConditionalNode = node["condition"]
+        pos_branch, neg_branch = node.inner_nodes
+
+        if len(pos_branch.inner_nodes) != 1:
+            raise ValueError("Can only handle one inner node of pos branch")
+
+        if len(neg_branch.inner_nodes) > 1:
+            raise ValueError("Can handle at most one inner node of neg branch")
+
+        with self.assemble_command() as parts:
+            self.handle(condition)
+            self.handle(pos_branch.inner_nodes[0])
+        execute, command = parts
+        self.command_buffer[-1].append(f"{execute} run {command}")
+
+        if len(neg_branch.inner_nodes) != 0:
+            raise ValueError("Cannot handle else branch right now")
 
     def handle_loop_node(self, node: LoopNode):
         ...
@@ -108,19 +157,19 @@ class McDatapackBackend(IRBackend[Datapack]):
         if isinstance(value, int):
             # if the value is zero, the operation can be omitted (if init is true).
             if value != 0 or not init:
-                self.write_line(
+                self.command_buffer[-1].append(
                     f"scoreboard players set {variable.value} "
                     f"{variable.scoreboard.unique_name} {value}"
                 )
         elif isinstance(value, ScoreboardValue):
             # scoreboard players operation a objective = b objective
-            self.write_line(
+            self.command_buffer[-1].append(
                 f"scoreboard players operation {variable.value} {variable.scoreboard.unique_name} "
                 f"= {value.value} {value.scoreboard.unique_name}"
             )
         elif isinstance(value, DataPath):
             # execute store result score a objective run data get storage mcsscript:test a.b.c
-            self.write_line(
+            self.command_buffer[-1].append(
                 f"execute store result score {variable.value} {variable.scoreboard.unique_name} "
                 f"run data get storage {value.storage.base}:{value.storage.path} {value.dotted_path()}"
             )
@@ -129,14 +178,19 @@ class McDatapackBackend(IRBackend[Datapack]):
 
     def handle_store_fast_var_from_result_node(self, node: StoreFastVarFromResultNode):
         var = node["var"]
-        self.files.get().write(
-            f"execute store result score {var.value} {var.scoreboard.unique_name} run ")
 
-        child, *error = node.inner_nodes
-        if error:
-            raise ValueError(f"Node {node} should only have one child!")
+        with self.assemble_command() as parts:
+            self.command_buffer[-1].append(
+                f"execute store result score {var.value} {var.scoreboard.unique_name} run")
 
-        self.handle(child)
+            child, *error = node.inner_nodes
+            if error:
+                raise ValueError(f"Node {node} should only have one child!")
+
+            self.handle(child)
+
+        execute, command = parts
+        self.command_buffer[-1].append(f"{execute} {command}")
 
     def handle_store_var_node(self, node: StoreVarNode):
         raise NotImplementedError()
@@ -155,7 +209,7 @@ class McDatapackBackend(IRBackend[Datapack]):
             b = self._get_constant(b, a.scoreboard)
 
         if isinstance(b, ScoreboardValue):
-            self.write_line(
+            self.command_buffer[-1].append(
                 f"scoreboard players operation {a.value} {a.scoreboard.unique_name} "
                 f"{operator.value}= {b.value} {b.scoreboard.unique_name}"
             )
@@ -166,7 +220,7 @@ class McDatapackBackend(IRBackend[Datapack]):
 
             mode = "add" if b >= 0 else "remove"
 
-            self.write_line(
+            self.command_buffer[-1].append(
                 f"scoreboard players {mode} {a.value} {a.scoreboard.unique_name} {b}"
             )
         else:
@@ -181,18 +235,18 @@ class McDatapackBackend(IRBackend[Datapack]):
         selector = node["selector"]
 
         if message_type == MessageNode.MessageType.CHAT:
-            self.write_line(f"tellraw {selector} {message}")
+            self.command_buffer[-1].append(f"tellraw {selector} {message}")
         elif message_type == MessageNode.MessageType.TITLE:
-            self.write_line(f"title {selector} title {message}")
+            self.command_buffer[-1].append(f"title {selector} title {message}")
         elif message_type == MessageNode.MessageType.SUBTITLE:
-            self.write_line(f"title {selector} subtitle {message}")
+            self.command_buffer[-1].append(f"title {selector} subtitle {message}")
         elif message_type == MessageNode.MessageType.ACTIONBAR:
-            self.write_line(f"title {selector} actionbar {message}")
+            self.command_buffer[-1].append(f"title {selector} actionbar {message}")
         else:
             raise ValueError(f"Unknown message type: {message_type}")
 
     def handle_command_node(self, node: CommandNode):
-        self.write_line(node["cmd"])
+        self.command_buffer[-1].append(node["cmd"])
 
     def handle_set_block_node(self, node: SetBlockNode):
         raise NotImplementedError()
@@ -205,7 +259,7 @@ class McDatapackBackend(IRBackend[Datapack]):
 
     def handle_scoreboard_init_node(self, node: ScoreboardInitNode):
         scoreboard = node["scoreboard"]
-        self.write_line(
+        self.command_buffer[-1].append(
             f"scoreboard objectives remove {scoreboard.unique_name}")
-        self.write_line(
+        self.command_buffer[-1].append(
             f"scoreboard objectives add {scoreboard.unique_name} dummy")

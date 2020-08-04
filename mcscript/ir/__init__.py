@@ -5,15 +5,16 @@ Great potential for optimization.
 """
 from __future__ import annotations
 
-from functools import cached_property
-from typing import List, Dict, Any, Optional, Type, TYPE_CHECKING, Tuple
 from dataclasses import dataclass, field
+from functools import cached_property
+from typing import List, Dict, Any, Optional, TYPE_CHECKING, Tuple
 
-from mcscript.utils.utils import camel_case_to_snake_case
 from mcscript.utils.resources import SourceLocation
+from mcscript.utils.utils import camel_case_to_snake_case
 
 if TYPE_CHECKING:
     from mcscript.ir.IrMaster import IrMaster
+
 
 @dataclass()
 class IrNodeMetadata:
@@ -21,38 +22,55 @@ class IrNodeMetadata:
     source_location: Optional[SourceLocation] = field(default=None)
 
     index: Optional[int] = field(default=None)
-    
+
 
 class IRNode:
     """ Base node for the intermediate representation."""
 
     def __init__(self, inner_nodes: List[IRNode] = None, metadata: Optional[IrNodeMetadata] = None):
-        self.inner_nodes = inner_nodes or []
+        self.inner_nodes: List[IRNode] = inner_nodes or []
 
         # A dictionary used to store other important data about this node
         self.data: Dict[str, Any] = {}
 
         # metadata which can be used for debug information or optimizations
         self.metadata: IrNodeMetadata = metadata or IrNodeMetadata()
-    
-    def optimized(self, ir_master: IrMaster) -> Tuple[IRNode, bool]:
+
+        # A list of nodes that should be discarded
+        self.discarded_inner_nodes: List[IRNode] = []
+
+    def optimized(self, ir_master: IrMaster, parent: Optional[IRNode]) -> Tuple[IRNode, bool]:
         """
-        Optimizing the node tree logically.
-        If not optimizations can be made, return self.
+        Optimizes this node.
+        If no optimizations can be made, the same node should be returned.
+
+        Args:
+            ir_master: the ir master object
+            parent: all neighbouring nodes of this node (same level)
+
+        Returns:
+            The new IrNode and whether an optimization could be made
         """
         changed = False
         index = 0
         while index < len(self.inner_nodes):
             node = self.inner_nodes[index]
-            optimized_node, has_changed = node.optimized(ir_master)
+            optimized_node, has_changed = node.optimized(ir_master, self)
             if has_changed:
                 self.inner_nodes[index] = optimized_node
                 changed = True
             else:
                 index += 1
-        
+
+            for node in self.discarded_inner_nodes:
+                node_index = self.inner_nodes.index(node)
+                if node_index <= index:
+                    index -= 1
+                del self.inner_nodes[node_index]
+            self.discarded_inner_nodes.clear()
+
         return self, changed
-    
+
     @cached_property
     def node_id(self) -> str:
         return camel_case_to_snake_case(type(self).__name__)

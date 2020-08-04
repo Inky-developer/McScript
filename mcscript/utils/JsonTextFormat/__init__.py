@@ -7,6 +7,7 @@ from mcscript import Logger
 markupGrammar = Lark(
     resources.read_text("mcscript", "textMarkup.lark"),
     parser="lalr",
-    maybe_placeholders=True
+    maybe_placeholders=True,
+    # cache=True
 )
 Logger.info("[JsonTextFormat] Loaded grammar textMarkup")

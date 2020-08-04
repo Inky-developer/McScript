@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from contextlib import contextmanager
 from typing import List, Union, Generator, Iterable, Optional
 
@@ -24,7 +25,7 @@ class IrMaster:
     
     def optimize(self):
         """ Optimizes the contained function nodes"""
-        function_nodes = [i.optimized(self)[0] for i in self.function_nodes]
+        function_nodes = [i.optimized(self, None)[0] for i in self.function_nodes]
         self.function_nodes = [i for i in function_nodes if not i["drop"]]
 
     def append(self, node: IRNode):

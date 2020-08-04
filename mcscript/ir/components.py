@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from enum import Enum, auto
 from typing import List, Union, TYPE_CHECKING, Tuple
 
@@ -34,15 +35,16 @@ class FunctionCallNode(IRNode):
         super().__init__()
         self["name"] = function_name
 
-    def optimized(self, ir_master: IrMaster) -> Tuple[IRNode, bool]:
+    def optimized(self, ir_master: IrMaster, parent: IRNode) -> Tuple[IRNode, bool]:
         if function_node := ir_master.find_function_node(self["name"]):
             # inline if the called function only has one child
             if len(function_node.inner_nodes) == 1:
                 node = function_node.inner_nodes[0]
                 function_node["drop"] = True
                 return node, True
-        
-        return super().optimized(ir_master)
+
+        return super().optimized(ir_master, parent)
+
 
 class ExecuteNode(IRNode):
     """
@@ -74,8 +76,8 @@ class ExecuteNode(IRNode):
     def __init__(self, components: List[ExecuteArgument], sub_commands: List[IRNode]):
         super().__init__(sub_commands)
         self["components"] = components
-    
-    def optimized(self, ir_master: IrMaster) -> Tuple[IRNode, bool]:
+
+    def optimized(self, ir_master: IrMaster, parent: IRNode) -> Tuple[IRNode, bool]:
         components = self["components"]
         children = self.inner_nodes
 
@@ -85,8 +87,9 @@ class ExecuteNode(IRNode):
                 if children[0]["selector"] == Selector("s", []):
                     children[0]["selector"] = components[0]["selector"]
                     return children[0], True
-        
-        return super().optimized(ir_master)
+
+        return super().optimized(ir_master, parent)
+
 
 class ConditionalNode(IRNode):
     # no negation here since the relation can simply be inverted
@@ -153,6 +156,24 @@ class IfNode(IRNode):
         ])
         self["condition"] = condition
 
+    def optimized(self, ir_master: IrMaster, parent: IRNode) -> Tuple[IRNode, bool]:
+        # Check if the previous node is a ´StoreFastVarFromResultNode´ and contains a ´ConditionalNode´
+        # if so, we can replace this condition with the condition of the previous node
+        index = -1
+        for index, node in enumerate(parent.inner_nodes):
+            if node is self:
+                break
+        prev_node_index = index - 1
+        if prev_node_index >= 0:
+            prev_node = parent.inner_nodes[prev_node_index]
+            if isinstance(prev_node, StoreFastVarFromResultNode):
+                if len(prev_node.inner_nodes) == 1 and isinstance(prev_node.inner_nodes[0], ConditionalNode):
+                    parent.discarded_inner_nodes.append(prev_node)
+                    self["condition"] = prev_node.inner_nodes[0]
+                    return self, True
+
+        return super().optimized(ir_master, parent)
+
 
 class LoopNode(IRNode):
     # initial check: whether the loop will check the condition before executing the body for the first time
@@ -165,13 +186,6 @@ class LoopNode(IRNode):
 ####
 # Fast Variables are stored in a scoreboard
 ####
-
-# class _GetFastVarNode(IRNode):
-#     """ ***Returns*** a scoreboard value. """
-#
-#     def __init__(self, scoreboard_value: ScoreboardValue):
-#         super().__init__()
-#         self["var"] = scoreboard_value
 
 NumericalNumberSource = Union[int, DataPath, ScoreboardValue]
 
@@ -196,14 +210,6 @@ class StoreFastVarFromResultNode(IRNode):
 ####
 # 'Normal' Variables are stored in a data storage
 ####
-
-# class _GetVarNode(IRNode):
-#     """ ***Returns*** a value from a data storage.  """
-#
-#     def __init__(self, storage: DataPath):
-#         super().__init__()
-#         self["storage"] = DataPath
-
 
 class StoreVarNode(IRNode):
     def __init__(self, storage: DataPath, value: NumericalNumberSource):
@@ -248,6 +254,7 @@ class MessageNode(IRNode):
     """
     Json message. The default selector is @s.
     """
+
     class MessageType(Enum):
         CHAT = auto()
         TITLE = auto()
@@ -258,7 +265,7 @@ class MessageNode(IRNode):
         super().__init__()
         self["type"] = msg_type
         self["msg"] = msg
-        self["selector"] = Selector("s", [])
+        self["selector"] = selector or Selector("s", [])
 
 
 class CommandNode(IRNode):

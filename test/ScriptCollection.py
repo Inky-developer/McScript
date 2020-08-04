@@ -1,14 +1,15 @@
-from os import getcwd
 import sys
-sys.path.insert(0, ".") # fix for vscode dont know what exactly is wrong
+from os import getcwd
 from os.path import join
-from pathlib import Path
 
 from mcscript import Logger
 from mcscript.assets import setCurrentData
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
 from mcscript.utils.cmdHelper import generateFiles, getWorld, setCurrentWorld
+
+# fix for vscode dont know what exactly is wrong
+sys.path.insert(0, ".")
 
 
 def getScript(name: str) -> str:
@@ -72,21 +73,21 @@ run for @a {
     a = a + 1
 }
 
-run for @a {
-    if a == 1 {
+
+if a == 1 {
+    run for @a {
         print("one")
     }
 }
+
 """
 if __name__ == '__main__':
-
-    # mcDir = join(getcwd(), "server")
-    # mcDir = r"C:\Users\david\AppData\Roaming\.minecraft\Entwicklungsversionen\saves"
+    mcDir = join(getcwd(), "server")
     # world = getWorld("20w18a", mcDir)
-    world = getWorld("McScript")
-    # setCurrentWorld(world)
+    world = getWorld("McScript", mcDir)
+    setCurrentWorld(world)
 
-    # setCurrentData(str(world.mcVersion["Name"]))
+    setCurrentData(str(world.mcVersion["Name"]))
     config = Config("config.ini")
     # print(precompileInstructions.getPrecompileInstructions(code_temp))
     # config.get("name")

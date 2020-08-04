@@ -5,32 +5,28 @@ from lark.visitors import Interpreter
 
 from mcscript import Logger
 from mcscript.analyzer.Analyzer import NamespaceContext
+from mcscript.compiler.CompileState import CompileState
+from mcscript.compiler.ContextType import ContextType
 from mcscript.compiler.common import (conditional_loop, get_property,
                                       readContextManipulator, set_property,
                                       set_variable)
-from mcscript.compiler.CompileState import CompileState
-from mcscript.compiler.ContextType import ContextType
 from mcscript.compiler.tokenConverter import convertToken
 from mcscript.data import defaultCode
 from mcscript.data.Config import Config
 from mcscript.exceptions.compileExceptions import (McScriptDeclarationError,
                                                    McScriptNameError,
-                                                   McScriptNotStaticError,
                                                    McScriptSyntaxError,
                                                    McScriptTypeError)
+from mcscript.ir.IrMaster import IrMaster
 from mcscript.ir.command_components import (BinaryOperator, ScoreRange,
                                             ScoreRelation, UnaryOperator)
 from mcscript.ir.components import (ConditionalNode, ExecuteNode,
-                                    FunctionCallNode, IfNode, InvertNode,
+                                    FunctionCallNode, InvertNode,
                                     ScoreboardInitNode,
                                     StoreFastVarFromResultNode,
                                     StoreFastVarNode,
                                     IfNode)
-from mcscript.ir.IrMaster import IrMaster
 from mcscript.lang.builtins.builtins import BuiltinFunction
-from mcscript.lang.resource.base.FunctionResource import Parameter
-from mcscript.lang.resource.base.ResourceBase import (
-    ObjectResource, Resource, ValueResource)
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.DefaultFunctionResource import \
     DefaultFunctionResource
@@ -42,7 +38,9 @@ from mcscript.lang.resource.StructMethodResource import StructMethodResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.TypeResource import TypeResource
-from mcscript.lang.utility import isStatic
+from mcscript.lang.resource.base.FunctionResource import Parameter
+from mcscript.lang.resource.base.ResourceBase import (
+    ObjectResource, Resource, ValueResource)
 
 
 class Compiler(Interpreter):
@@ -203,12 +201,8 @@ class Compiler(Interpreter):
         try:
             return doOperation(operator, value)
         except TypeError:
-            value = value.load(self.compileState)
-            try:
-                return doOperation(operator, value)
-            except TypeError:
-                raise McScriptTypeError(f"Could not perform operation {operator.name} on {repr(value)}",
-                                        self.compileState)
+            raise McScriptTypeError(f"Could not perform operation {operator.name} on {repr(value)}",
+                                    self.compileState)
 
     def boolean_and(self, tree):
         rest = tree.children
@@ -222,25 +216,23 @@ class Compiler(Interpreter):
         conditions = []
         for condition in _conditions:
             condition = self.compileState.load(
-                condition).convertToBoolean(self.compileState)
-            if condition.isStatic:
-                if condition.value:
+                condition)
+            if not isinstance(condition, BooleanResource):
+                raise McScriptTypeError(f"Expected bool, got {{{condition.type().value}}}", self.compileState)
+            if condition.is_static:
+                if condition.static_value:
                     continue
-                Logger.warn(
-                    f"[Compiler] boolean and at {tree.line}:{tree.column} is always False.")
-                return BooleanResource.FALSE
+                return BooleanResource(False, None)
             conditions.append(condition)
 
         if not conditions:
-            Logger.warning(
-                f"[Compiler] boolean and {tree.line}:{tree.column} is always True.")
-            return BooleanResource.TRUE
+            return BooleanResource(True, None)
 
         stack = self.compileState.expressionStack.next()
 
         # None of the conditions will be static
         condition_node = ConditionalNode(
-            [ConditionalNode.IfScoreMatches(self.compileState.scoreboard_value(condition.value), ScoreRange(1), False)
+            [ConditionalNode.IfScoreMatches(condition.scoreboard_value, ScoreRange(1), False)
              for condition in conditions]
         )
 
@@ -249,7 +241,7 @@ class Compiler(Interpreter):
             IfNode(condition_node, [StoreFastVarNode(stack, 1, False)], [])
         )
 
-        return BooleanResource(stack, False)
+        return BooleanResource(None, stack)
 
     def boolean_or(self, tree):
         rest = tree.children
@@ -263,21 +255,19 @@ class Compiler(Interpreter):
 
         for condition in _conditions:
             value = self.compileState.toResource(
-                condition).convertToBoolean(self.compileState)
-            if value.isStatic:
-                if value.value:
-                    Logger.debug(
-                        f"[Compiler] boolean or is always True at line {tree.line} column {tree.column}")
-                    return BooleanResource.TRUE
+                condition)
+            if not isinstance(value, BooleanResource):
+                raise McScriptTypeError(f"Expected bool, got {{{value.type().value}}}", self.compileState)
+            if value.is_static:
+                if value.static_value:
+                    return BooleanResource(True, None)
                 # always False boolean does not matter, so it will be discarded
                 continue
 
             conditions.append(value)
 
         if not conditions:
-            Logger.debug(
-                f"[Compiler] boolean or is always False at {tree.line} column {tree.column} ")
-            return BooleanResource.FALSE
+            return BooleanResource(False, None)
 
         stack = self.compileState.expressionStack.next()
 
@@ -288,8 +278,7 @@ class Compiler(Interpreter):
                 IfNode(
                     ConditionalNode(
                         [ConditionalNode.IfScoreMatches(
-                            self.compileState.scoreboard_value(
-                                condition.value),
+                            condition.scoreboard_value,
                             ScoreRange(1),
                             False
                         )]),
@@ -297,19 +286,21 @@ class Compiler(Interpreter):
                     []
                 ) for condition in conditions)
 
-            return BooleanResource(stack, False)
+            return BooleanResource(None, stack)
 
     def boolean_not(self, tree):
         _, value = tree.children
         value = self.compileState.toResource(
-            value).convertToBoolean(self.compileState)
+            value)
+        if not isinstance(value, BooleanResource):
+            raise McScriptTypeError(f"Expected bool, got {{{value.type().value}}}", self.compileState)
 
-        if value.isStatic:
-            return BooleanResource(not value.value, True)
+        if value.is_static:
+            return BooleanResource(not value.static_value, None)
 
         stack = self.compileState.expressionStack.next()
-        self.compileState.ir.append(InvertNode(value.value, stack))
-        return BooleanResource(stack, False)
+        self.compileState.ir.append(InvertNode(value.scoreboard_value, value.scoreboard_value))
+        return BooleanResource(None, stack)
 
     def binaryOperation(self, *args):
         number1, *values = args
@@ -371,7 +362,7 @@ class Compiler(Interpreter):
         if len(node["conditions"]) == 1 and isinstance(node["conditions"][0], ConditionalNode.IfBool):
             cond = node["conditions"][0]
             return BooleanResource(cond["val"], None)
-        
+
         stack = self.compileState.expressionStack.next()
         self.compileState.ir.append(StoreFastVarFromResultNode(
             stack,
@@ -425,10 +416,6 @@ class Compiler(Interpreter):
             raise McScriptTypeError(f"Only simple datatypes can be assigned using static, not {value.type().value}",
                                     self.compileState)
 
-        if isinstance(value, ValueResource) and not value.hasStaticValue:
-            raise McScriptNotStaticError(
-                "static declaration needs a static value", self.compileState)
-
         self.compileState.currentContext().add_var(identifier, value)
 
     def term_ip(self, tree):
@@ -453,7 +440,7 @@ class Compiler(Interpreter):
                 f"in-place operation: Expected value, got {expression}", self.compileState)
 
         # do the numeric operation
-        result = resource.load(self.compileState).numericOperation(
+        result = resource.numericOperation(
             expression,
             BinaryOperator(operator),
             self.compileState
@@ -474,22 +461,38 @@ class Compiler(Interpreter):
         condition, block, block_else = tree.children
 
         condition_boolean = self.compileState.toResource(
-            condition).convertToBoolean(self.compileState)
+            condition)
 
-        if isStatic(condition_boolean):
-            return condition_boolean.value
+        if not isinstance(condition_boolean, BooleanResource):
+            raise McScriptTypeError(f"Expected bool, got {{{condition_boolean.type().value}}}", self.compileState)
 
+        if condition_boolean.static_value is not None:
+            line_and_column = (block.line, block.column) if condition_boolean else (block_else.line, block_else.column)
+            with self.compileState.pushContext(ContextType.BLOCK, *line_and_column):
+                if condition_boolean.static_value is True:
+                    self.visit_children(block)
+                else:
+                    self.visit_children(block_else)
+                return
+
+        self.compileState.pushContext(ContextType.CONDITIONAL, block.line, block.column)
         with self.compileState.ir.with_buffer() as pos_branch:
             self.visit_children(block)
+        self.compileState.popContext()
 
-        with self.compileState.ir.with_buffer() as neg_branch:
-            self.visit_children(block_else)
+        if block_else is not None:
+            self.compileState.pushContext(ContextType.CONDITIONAL, block_else.line, block_else.column)
+            with self.compileState.ir.with_buffer() as neg_branch:
+                self.visit_children(block_else)
+            self.compileState.popContext()
+        else:
+            neg_branch = None
 
         self.compileState.ir.append(IfNode(
             ConditionalNode([ConditionalNode.IfScoreMatches(
-                condition_boolean.value, ScoreRange(0), True)]),
+                condition_boolean.scoreboard_value, ScoreRange(0), True)]),
             pos_branch,
-            neg_branch
+            neg_branch or []
         ))
 
     def control_do_while(self, tree):
