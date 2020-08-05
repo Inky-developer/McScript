@@ -19,7 +19,7 @@ class Identifier(str):
     allowed_identifiers: Set[str] = {chr(i) for i in range(ord('a'), ord('z') + 1)} \
                                     | {chr(i) for i in range(ord('A'), ord('Z') + 1)} \
                                     | {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} \
-                                    | {'_', '.', '-', '+'}
+                                    | {'_', '.', '-', '+', '#'}
 
     def __new__(cls, content):
         for char in content:

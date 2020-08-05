@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod, abstractstaticmethod
+from abc import ABC, abstractmethod
 from enum import Enum, auto
 from inspect import isabstract
-from typing import (TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Type,
+from typing import (TYPE_CHECKING, ClassVar, Dict, List, Optional, Type,
                     Union, TypeVar, Generic)
 
 from lark import Tree
@@ -14,8 +14,8 @@ from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.ir.command_components import BinaryOperator
 from mcscript.lang.resource import import_sub_modules
 from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.utils.resources import ScoreboardValue
 from mcscript.utils.JsonTextFormat.objectFormatter import format_score, format_text
+from mcscript.utils.resources import ScoreboardValue
 
 if TYPE_CHECKING:
     from mcscript.compiler.Context import Context
@@ -23,9 +23,6 @@ if TYPE_CHECKING:
     from mcscript.ir.components import ConditionalNode
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
-    from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
-    from mcscript.lang.resource.NumberResource import NumberResource
-    from mcscript.lang.resource.BooleanResource import BooleanResource
     from mcscript.compiler.CompileState import CompileState
 
 
@@ -199,6 +196,8 @@ class Resource(ABC):
         Performes a numeric operation with this resource.
         The operation should be performed in-place
         """
+        if not isinstance(other, type(self)):
+            raise TypeError
         try:
             if operator == BinaryOperator.PLUS:
                 return self.operation_plus(other, compileState)

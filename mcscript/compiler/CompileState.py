@@ -11,11 +11,10 @@ from mcscript.compiler.ContextStack import ContextStack
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.Config import Config
 from mcscript.ir.IrMaster import IrMaster
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.Scoreboard import Scoreboard
 from mcscript.utils.addressCounter import ScoreboardAddressCounter, AddressCounter
-from mcscript.utils.resources import DataPath, ScoreboardValue, Identifier, ResourceSpecifier, SourceLocation, CodeView
+from mcscript.utils.resources import DataPath, ScoreboardValue, Identifier, ResourceSpecifier
 
 
 class CompileState:
@@ -31,14 +30,15 @@ class CompileState:
         self._currentTree: Optional[Tree] = None
 
         self.config = config
-        
+
         self.scoreboards: List[Scoreboard] = [
             Scoreboard(self.config.get_scoreboard("main"), True, 0),
             Scoreboard("entities", False, 1)
         ]
 
         self.scoreboard_main = self.scoreboards[0]
-        self.data_path_main = DataPath(self.config.storage_id, self.config.get_storage("vars").split("."))
+        self.data_path_main = DataPath(self.config.storage_id, self.config.get_storage("stack").split("."))
+        self.data_path_temp = DataPath(self.config.storage_id, self.config.get_storage("temp").split("0"))
 
         # ToDo: maybe move to ir gen code?
         self.node_block_counter = AddressCounter("block_{}_")

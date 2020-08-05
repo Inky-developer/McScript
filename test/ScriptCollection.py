@@ -68,23 +68,14 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-a = 0
+a = 0.5
 run for @a {
-    a = a + 1
+    a = a + 1.0
 }
-
-
-if a != 1 {
-    run for @a {
-        print("one")
-        print("Another one!")
-    }
-} else {
-    run for @a {
-        print("Not one")
-    }
+b = 0.5
+run for @a { 
+    print("{}", a * b) 
 }
-
 """
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")

@@ -326,15 +326,13 @@ class Compiler(Interpreter):
                     "ToDO: Implement boolean operations for non value-resources")
 
             try:
-                result = number1.numericOperation(
+                number1 = number1.numericOperation(
                     number2, operator, self.compileState)
-                if result == NotImplemented:
-                    raise McScriptTypeError(f"Operation <{operator.name}> not supported between operands "
-                                            f"'{number1.type().value}' and '{number2.type().value}'", self.compileState)
-                number1 = result
-            except NotImplementedError:
-                raise TypeError(
-                    f"Expected operand that supports numeric operations, not {repr(number1)}")
+            except TypeError:
+                raise McScriptTypeError(
+                    f"The Operation {operator.value} is not supported between {{{number1.type().value}}} and "
+                    f"{{{number2.type().value}}}",
+                    self.compileState)
 
         return number1
 

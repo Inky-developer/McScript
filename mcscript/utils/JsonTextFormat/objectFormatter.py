@@ -1,6 +1,6 @@
 from typing import Dict
 
-from mcscript.data import commands
+from mcscript.utils.resources import ScoreboardValue, DataPath
 from mcscript.utils.utils import requiresMcVersion
 
 
@@ -8,19 +8,19 @@ def format_text(text: str) -> Dict:
     return {"text": text}
 
 
-def format_score(scoreboard: str, player: str) -> Dict:
+def format_score(scoreboard_value: ScoreboardValue) -> Dict:
     return {
         "score": {
-            "name"     : player,
-            "objective": scoreboard
+            "name": scoreboard_value.value,
+            "objective": scoreboard_value.scoreboard.unique_name
         }
     }
 
 
-def format_nbt(storage: str, nbt: str, interpret: bool = False) -> Dict:
+def format_nbt(path: DataPath, interpret: bool = False) -> Dict:
     ret = {
-        "nbt"    : f"{commands.Storage.VARS.value}.{nbt}",
-        "storage": storage
+        "nbt": f"{path.dotted_path()}",
+        "storage": f"{path.storage}"
     }
     if interpret:
         ret["interpret"] = True
@@ -62,7 +62,7 @@ def format_open_url(data: Dict, url: str) -> Dict:
         **data,
         "clickEvent": {
             "action": "open_url",
-            "value" : url
+            "value": url
         }
     }
 
@@ -79,7 +79,7 @@ def format_run_command(data: Dict, command: str) -> Dict:
         **data,
         "clickEvent": {
             "action": "run_command",
-            "value" : command
+            "value": command
         }
     }
 
@@ -91,7 +91,7 @@ def format_hover(data: Dict, hover_text: str) -> Dict:
         **data,
         "hoverEvent": {
             "action": "show_text",
-            "value" : hover_text
+            "value": hover_text
         }
     }
 

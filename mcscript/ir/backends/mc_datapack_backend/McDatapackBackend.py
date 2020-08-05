@@ -28,7 +28,7 @@ class McDatapackBackend(IRBackend[Datapack]):
             return self.constant_scores[value]
 
         scoreboard_value = ScoreboardValue(
-            Identifier(f".const_{value}"),
+            Identifier(f"#{value}"),
             scoreboard
         )
 
@@ -145,6 +145,10 @@ class McDatapackBackend(IRBackend[Datapack]):
             condition.invert()
             assemble_branch(neg_branch)
 
+    def handle_get_fast_var_node(self, node: GetFastVarNode):
+        val = node["val"]
+        self.command_buffer[-1].append(f"scoreboard players get {val.value} {val.scoreboard.unique_name}")
+
     def handle_store_fast_var_node(self, node: StoreFastVarNode):
         value = node["val"]
         variable = node["var"]
@@ -189,7 +193,17 @@ class McDatapackBackend(IRBackend[Datapack]):
         raise NotImplementedError()
 
     def handle_store_var_from_result_node(self, node: StoreVarFromResultNode):
-        raise NotImplementedError()
+        var = node["var"]
+        dtype = node["dtype"]
+        scale = node["scale"]
+
+        with self.assemble_command() as parts:
+            self.command_buffer[-1].append(
+                f"execute store result storage {var.storage} {var.dotted_path()} {dtype.value} {scale} run")
+            self.handle_children(node)
+
+        base, command = parts
+        self.command_buffer[-1].append(f"{base} {command}")
 
     def handle_fast_var_operation_node(self, node: FastVarOperationNode):
         a = node["a"]

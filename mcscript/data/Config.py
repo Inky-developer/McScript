@@ -40,7 +40,7 @@ class Config:
 
         self.config["storage"] = {
             "name": "main",
-            "vars": "state.vars",
+            "stack": "state.stack",
             "temp": "state.temp"
         }
 

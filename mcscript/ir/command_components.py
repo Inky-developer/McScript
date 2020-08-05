@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Tuple
 
 
 class PositionKind(Enum):
@@ -110,13 +111,13 @@ class ScoreRelation(Enum):
         elif self == ScoreRelation.NOT_EQUAL:
             return ScoreRange(a), True
         elif self == ScoreRelation.LESS:
-            return ScoreRange(float("-inf"), a - 1)
+            return ScoreRange(float("-inf"), a - 1), False
         elif self == ScoreRelation.LESS_OR_EQUAL:
-            return ScoreRange(float("-inf"), a)
+            return ScoreRange(float("-inf"), a), False
         elif self == ScoreRelation.GREATER:
-            return ScoreRange(a + 1, float("inf"))
+            return ScoreRange(a + 1, float("inf")), False
         elif self == ScoreRelation.GREATER_OR_EQUAL:
-            return ScoreRange(a, float("inf"))
+            return ScoreRange(a, float("inf")), False
         raise ValueError("What am I?")
 
 
@@ -147,3 +148,12 @@ class BinaryOperator(Enum):
 
 class UnaryOperator(Enum):
     MINUS = "-"
+
+
+class StorageDataType(Enum):
+    BYTE = "byte"
+    DOUBLE = "double"
+    FLOAT = "float"
+    LONG = "long"
+    SHORT = "short"
+    INT = "int"

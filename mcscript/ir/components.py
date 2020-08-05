@@ -6,7 +6,8 @@ from typing import List, Union, TYPE_CHECKING, Tuple
 from mcscript.data.minecraftData.blocks import Block, BlockstateBlock
 from mcscript.data.selector.Selector import Selector
 from mcscript.ir import IRNode
-from mcscript.ir.command_components import Position, ExecuteAnchor, ScoreRelation, ScoreRange, BinaryOperator
+from mcscript.ir.command_components import (Position, ExecuteAnchor, ScoreRelation, ScoreRange, BinaryOperator,
+                                            StorageDataType)
 from mcscript.utils.Scoreboard import Scoreboard
 from mcscript.utils.resources import ResourceSpecifier, Identifier, ScoreboardValue, DataPath
 
@@ -203,6 +204,12 @@ class IfNode(IRNode):
 NumericalNumberSource = Union[int, DataPath, ScoreboardValue]
 
 
+class GetFastVarNode(IRNode):
+    def __init__(self, scoreboard_value: ScoreboardValue):
+        super().__init__()
+        self["val"] = scoreboard_value
+
+
 class StoreFastVarNode(IRNode):
     def __init__(self, scoreboard_value: ScoreboardValue, value: NumericalNumberSource):
         super().__init__()
@@ -230,9 +237,11 @@ class StoreVarNode(IRNode):
 
 
 class StoreVarFromResultNode(IRNode):
-    def __init__(self, storage: DataPath, command: IRNode):
+    def __init__(self, storage: DataPath, command: IRNode, dtpye: StorageDataType, scale: float = 1.0):
         super().__init__([command])
         self["var"] = storage
+        self["dtype"] = dtpye
+        self["scale"] = scale
 
 
 class FastVarOperationNode(IRNode):
