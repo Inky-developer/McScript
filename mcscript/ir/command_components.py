@@ -43,7 +43,6 @@ class Position:
         return Position.with_kind(x, y, z, PositionKind.LOCAL)
 
 
-
 class ExecuteAnchor(Enum):
     FEET = "feet"
     EYES = "eyes"
@@ -111,15 +110,14 @@ class ScoreRelation(Enum):
         elif self == ScoreRelation.NOT_EQUAL:
             return ScoreRange(a), True
         elif self == ScoreRelation.LESS:
-            return ScoreRange(float("-inf"), a-1)
+            return ScoreRange(float("-inf"), a - 1)
         elif self == ScoreRelation.LESS_OR_EQUAL:
             return ScoreRange(float("-inf"), a)
         elif self == ScoreRelation.GREATER:
-            return ScoreRange(a+1, float("inf"))
+            return ScoreRange(a + 1, float("inf"))
         elif self == ScoreRelation.GREATER_OR_EQUAL:
             return ScoreRange(a, float("inf"))
         raise ValueError("What am I?")
-        
 
 
 class ScoreRange:

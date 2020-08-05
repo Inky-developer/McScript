@@ -40,8 +40,10 @@ class FunctionCallNode(IRNode):
             # inline if the called function only has one child
             if len(function_node.inner_nodes) == 1:
                 node = function_node.inner_nodes[0]
-                function_node["drop"] = True
-                return node, True
+                if node.allow_inline_optimization():
+                    # Drop this node because it will be inlined everywhere
+                    function_node["drop"] = True
+                    return node, True
 
         return super().optimized(ir_master, parent)
 
@@ -84,7 +86,7 @@ class ExecuteNode(IRNode):
         # inline message node
         if len(components) == 1 and isinstance(components[0], self.As):
             if len(children) == 1 and isinstance(children[0], MessageNode):
-                if children[0]["selector"] == Selector("s", []):
+                if children[0]["selector"] == Selector("s", []) and children[0].allow_inline_optimization():
                     children[0]["selector"] = components[0]["selector"]
                     return children[0], True
 
@@ -92,13 +94,14 @@ class ExecuteNode(IRNode):
 
 
 class ConditionalNode(IRNode):
-    # no negation here since the relation can simply be inverted
     class IfScore(IRNode):
-        def __init__(self, own_score: ScoreboardValue, other_score: ScoreboardValue, relation: ScoreRelation):
+        def __init__(self, own_score: ScoreboardValue, other_score: ScoreboardValue, relation: ScoreRelation,
+                     neg: bool = False):
             super().__init__()
             self["own"] = own_score
             self["other"] = other_score
             self["relation"] = relation
+            self["neg"] = neg
 
     class IfScoreMatches(IRNode):
         def __init__(self, own_score: ScoreboardValue, range_: ScoreRange, negate: bool):
@@ -139,22 +142,39 @@ class ConditionalNode(IRNode):
         super().__init__([])
         self["conditions"] = conditions
 
+    def invert(self):
+        if len(self["conditions"]) > 1:
+            raise ValueError("This is deprecated. Just use one condition")
+        self["conditions"][0]["neg"] = not self["conditions"][0]["neg"]
+
 
 class IfNode(IRNode):
-    class _PosBranch(IRNode):
-        def __init__(self, commands: List[IRNode]):
-            super().__init__(commands)
+    # class _PosBranch(IRNode):
+    #     def __init__(self, commands: List[IRNode]):
+    #         super().__init__(commands)
+    #
+    # class _NegBranch(IRNode):
+    #     def __init__(self, commands: List[IRNode]):
+    #         super().__init__(commands)
 
-    class _NegBranch(IRNode):
-        def __init__(self, commands: List[IRNode]):
-            super().__init__(commands)
-
-    def __init__(self, condition: ConditionalNode, pos_branch: List[IRNode], neg_branch: List[IRNode]):
-        super().__init__([
-            self._PosBranch(pos_branch),
-            self._NegBranch(neg_branch)
-        ])
+    def __init__(self, condition: ConditionalNode, pos_branch: IRNode, neg_branch: IRNode = None):
+        nodes = [pos_branch]
+        if neg_branch is not None:
+            nodes.append(neg_branch)
+        super().__init__(nodes)
         self["condition"] = condition
+
+    @property
+    def pos_branch(self):
+        return self.inner_nodes[0]
+
+    @property
+    def neg_branch(self):
+        return None if len(self.inner_nodes) < 2 else self.inner_nodes[1]
+
+    def allow_inline_optimization(self) -> bool:
+        # inline of no else branch exists
+        return self.neg_branch is None
 
     def optimized(self, ir_master: IrMaster, parent: IRNode) -> Tuple[IRNode, bool]:
         # Check if the previous node is a ´StoreFastVarFromResultNode´ and contains a ´ConditionalNode´
@@ -168,19 +188,12 @@ class IfNode(IRNode):
             prev_node = parent.inner_nodes[prev_node_index]
             if isinstance(prev_node, StoreFastVarFromResultNode):
                 if len(prev_node.inner_nodes) == 1 and isinstance(prev_node.inner_nodes[0], ConditionalNode):
-                    parent.discarded_inner_nodes.append(prev_node)
-                    self["condition"] = prev_node.inner_nodes[0]
-                    return self, True
+                    if prev_node.allow_inline_optimization():
+                        parent.discarded_inner_nodes.append(prev_node)
+                        self["condition"] = prev_node.inner_nodes[0]
+                        return self, True
 
         return super().optimized(ir_master, parent)
-
-
-class LoopNode(IRNode):
-    # initial check: whether the loop will check the condition before executing the body for the first time
-    def __init__(self, condition: ConditionalNode, commands: List[IRNode], initial_check: bool):
-        super().__init__(commands)
-        self["condition"] = condition
-        self["initial_check"] = initial_check
 
 
 ####
@@ -191,12 +204,10 @@ NumericalNumberSource = Union[int, DataPath, ScoreboardValue]
 
 
 class StoreFastVarNode(IRNode):
-    def __init__(self, scoreboard_value: ScoreboardValue, value: NumericalNumberSource, init: bool):
+    def __init__(self, scoreboard_value: ScoreboardValue, value: NumericalNumberSource):
         super().__init__()
         self["var"] = scoreboard_value
         self["val"] = value
-        # whether this operation will initially set `var`
-        self["init"] = init
 
 
 class StoreFastVarFromResultNode(IRNode):
@@ -226,7 +237,7 @@ class StoreVarFromResultNode(IRNode):
 
 class FastVarOperationNode(IRNode):
     """
-    performes the operation in-place on a.
+    performs the operation in-place on a.
     b may be either another scoreboard value or an integer
     """
 
@@ -307,3 +318,6 @@ class ScoreboardInitNode(IRNode):
     def __init__(self, scoreboard: Scoreboard):
         super().__init__()
         self["scoreboard"] = scoreboard
+
+    def allow_inline_optimization(self) -> bool:
+        return False

@@ -39,6 +39,13 @@ class IRNode:
         # A list of nodes that should be discarded
         self.discarded_inner_nodes: List[IRNode] = []
 
+    def allow_inline_optimization(self) -> bool:
+        """
+        Returns:
+            whether this node can be safely inlined
+        """
+        return len(self.inner_nodes) <= 1
+
     def optimized(self, ir_master: IrMaster, parent: Optional[IRNode]) -> Tuple[IRNode, bool]:
         """
         Optimizes this node.

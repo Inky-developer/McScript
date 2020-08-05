@@ -59,7 +59,7 @@ class McDatapackBackend(IRBackend[Datapack]):
 
     def on_finish(self):
         # Add constant values
-        nodes = [StoreFastVarNode(self.constant_scores[i], i, True)
+        nodes = [StoreFastVarNode(self.constant_scores[i], i)
                  for i in self.constant_scores]
         function = FunctionNode(Identifier("init_constants"), nodes)
         self.handle(function)
@@ -128,39 +128,32 @@ class McDatapackBackend(IRBackend[Datapack]):
         self.command_buffer[-1].append(execute_base)
 
     def handle_if_node(self, node: IfNode):
+        def assemble_branch(branch: IRNode):
+            with self.assemble_command() as parts:
+                self.handle(condition)
+                self.handle(branch)
+
+            execute, command = parts
+            self.command_buffer[-1].append(f"{execute} run {command}")
+
         condition: ConditionalNode = node["condition"]
-        pos_branch, neg_branch = node.inner_nodes
+        pos_branch, neg_branch = node.pos_branch, node.neg_branch
 
-        if len(pos_branch.inner_nodes) != 1:
-            raise ValueError("Can only handle one inner node of pos branch")
+        assemble_branch(pos_branch)
 
-        if len(neg_branch.inner_nodes) > 1:
-            raise ValueError("Can handle at most one inner node of neg branch")
-
-        with self.assemble_command() as parts:
-            self.handle(condition)
-            self.handle(pos_branch.inner_nodes[0])
-        execute, command = parts
-        self.command_buffer[-1].append(f"{execute} run {command}")
-
-        if len(neg_branch.inner_nodes) != 0:
-            raise ValueError("Cannot handle else branch right now")
-
-    def handle_loop_node(self, node: LoopNode):
-        ...
+        if neg_branch:
+            condition.invert()
+            assemble_branch(neg_branch)
 
     def handle_store_fast_var_node(self, node: StoreFastVarNode):
         value = node["val"]
         variable = node["var"]
-        init = node["init"]
 
         if isinstance(value, int):
-            # if the value is zero, the operation can be omitted (if init is true).
-            if value != 0 or not init:
-                self.command_buffer[-1].append(
-                    f"scoreboard players set {variable.value} "
-                    f"{variable.scoreboard.unique_name} {value}"
-                )
+            self.command_buffer[-1].append(
+                f"scoreboard players set {variable.value} "
+                f"{variable.scoreboard.unique_name} {value}"
+            )
         elif isinstance(value, ScoreboardValue):
             # scoreboard players operation a objective = b objective
             self.command_buffer[-1].append(

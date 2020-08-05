@@ -4,18 +4,12 @@ from abc import ABC, abstractmethod
 from typing import Optional, TYPE_CHECKING
 
 from mcscript.ir.components import StoreFastVarNode
-from mcscript.lang.resource.AddressResource import AddressResource
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.base.ResourceBase import MinecraftDataStorage, Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.utils.resources import ScoreboardValue
-from mcscript.utils.resources import DataPath
+from mcscript.utils.resources import ScoreboardValue, DataPath
 
 if TYPE_CHECKING:
     from typing import Any
-    from mcscript.lang.resource.BooleanResource import BooleanResource
-    from mcscript.lang.resource.NumberResource import NumberResource
-    from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
     from mcscript.compiler.CompileState import CompileState
 
 
@@ -49,9 +43,6 @@ class VariableResource(ValueResource, ABC):
         stack = stack or compileState.expressionStack.next()
 
         # ToDo missing scale
-        compileState.ir.append(StoreFastVarNode(
-            stack,
-            self.static_value
-        ))
+        compileState.ir.append(StoreFastVarNode(stack, self.static_value))
 
         return stack

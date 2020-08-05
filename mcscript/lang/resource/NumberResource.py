@@ -1,21 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Dict
+from typing import TYPE_CHECKING, ClassVar
 
-from mcscript.ir.command_components import BinaryOperator, ScoreRelation, ScoreRange
-from mcscript.ir.components import FastVarOperationNode, StoreVarNode, StoreFastVarNode, FastVarOperationNode, ConditionalNode
-from mcscript.lang.resource.AddressResource import AddressResource
-from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
+from mcscript.ir.command_components import BinaryOperator, ScoreRelation
+from mcscript.ir.components import StoreFastVarNode, FastVarOperationNode, ConditionalNode
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.utils.resources import ScoreboardValue, DataPath
-from mcscript.exceptions.compileExceptions import McScriptTypeError
+from mcscript.utils.resources import ScoreboardValue
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
-    from mcscript.lang.resource.NumberVariableResource import NumberVariableResource
-    from mcscript.lang.resource.BooleanResource import BooleanResource
 
 
 class NumberResource(ValueResource[int]):
@@ -35,9 +29,7 @@ class NumberResource(ValueResource[int]):
             return NumberResource(self.static_value, self.scoreboard_value)
 
         scoreboard_address = compileState.expressionStack.next()
-        compileState.ir.append(StoreFastVarNode(
-            scoreboard_address, self.static_value, self.is_static
-        ))
+        compileState.ir.append(StoreFastVarNode(scoreboard_address, self.static_value))
 
         return NumberResource(self.static_value, scoreboard_address)
 
@@ -45,11 +37,7 @@ class NumberResource(ValueResource[int]):
         # Just write the static value if available, otherwise copy from own scoreboard value
         own_value = self.static_value or self.scoreboard_value
 
-        compileState.ir.append(StoreFastVarNode(
-            target,
-            own_value,
-            False
-        ))
+        compileState.ir.append(StoreFastVarNode(target, own_value))
 
         return NumberResource(target, self.static_value)
 

@@ -206,9 +206,8 @@ class CachedFunction(BuiltinFunction, ABC):
 
             cmd_nodes = [FunctionCallNode(function)]
             if self.returnType() != NullResource:
-                cmd_nodes.append(StoreFastVarNode(
-                    stack, compileState.scoreboard_value(compileState.config.RETURN_SCORE)
-                ))
+                cmd_nodes.append(
+                    StoreFastVarNode(stack, compileState.scoreboard_value(compileState.config.RETURN_SCORE)))
 
                 resourceCls = Resource.getResourceClass(self.returnType())
                 if not issubclass(resourceCls, ValueResource):

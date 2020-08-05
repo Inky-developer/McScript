@@ -237,8 +237,8 @@ class Compiler(Interpreter):
         )
 
         self.compileState.ir.append_all(
-            StoreFastVarNode(stack, 0, True),
-            IfNode(condition_node, [StoreFastVarNode(stack, 1, False)], [])
+            StoreFastVarNode(stack, 0),
+            IfNode(condition_node, [StoreFastVarNode(stack, 1)], [])
         )
 
         return BooleanResource(None, stack)
@@ -273,7 +273,7 @@ class Compiler(Interpreter):
 
         # If there are still conditions left, none of them are static
         if conditions:
-            self.compileState.ir.append(StoreFastVarNode(stack, 0, True))
+            self.compileState.ir.append(StoreFastVarNode(stack, 0))
             self.compileState.ir.append_all(
                 IfNode(
                     ConditionalNode(
@@ -282,7 +282,7 @@ class Compiler(Interpreter):
                             ScoreRange(1),
                             False
                         )]),
-                    [StoreFastVarNode(stack, 1, False)],
+                    [StoreFastVarNode(stack, 1)],
                     []
                 ) for condition in conditions)
 
@@ -479,12 +479,14 @@ class Compiler(Interpreter):
         with self.compileState.ir.with_buffer() as pos_branch:
             self.visit_children(block)
         self.compileState.popContext()
+        pos_branch, = pos_branch
 
         if block_else is not None:
             self.compileState.pushContext(ContextType.CONDITIONAL, block_else.line, block_else.column)
             with self.compileState.ir.with_buffer() as neg_branch:
                 self.visit_children(block_else)
             self.compileState.popContext()
+            neg_branch, = neg_branch
         else:
             neg_branch = None
 
@@ -492,7 +494,7 @@ class Compiler(Interpreter):
             ConditionalNode([ConditionalNode.IfScoreMatches(
                 condition_boolean.scoreboard_value, ScoreRange(0), True)]),
             pos_branch,
-            neg_branch or []
+            neg_branch
         ))
 
     def control_do_while(self, tree):

@@ -74,9 +74,14 @@ run for @a {
 }
 
 
-if a == 1 {
+if a != 1 {
     run for @a {
         print("one")
+        print("Another one!")
+    }
+} else {
+    run for @a {
+        print("Not one")
     }
 }
 

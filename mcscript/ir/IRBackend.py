@@ -97,10 +97,6 @@ class IRBackend(Generic[T], ABC):
         ...
 
     @abstractmethod
-    def handle_loop_node(self, node: LoopNode):
-        ...
-
-    @abstractmethod
     def handle_store_fast_var_node(self, node: StoreFastVarNode):
         ...
 
