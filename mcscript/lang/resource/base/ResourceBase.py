@@ -379,7 +379,7 @@ class GenericFunctionResource(Resource, ABC):
     """
 
     @abstractmethod
-    def handle_parameters(self, compile_state: CompileState, parameters: List[Resource]) -> List[Resource]:
+    def handle_parameters(self, compile_state: CompileState, parameters: Tuple[Resource]) -> List[Resource]:
         """
         Handles the parameters. Raises if the parameters are invalid.
 
@@ -392,7 +392,7 @@ class GenericFunctionResource(Resource, ABC):
         """
 
     @abstractmethod
-    def call(self, compile_state: CompileState, parameters: Tuple[Resource],
+    def call(self, compile_state: CompileState, parameters: List[Resource],
              keyword_parameters: Dict[str, Resource]) -> Resource:
         """
         Generates the ir code and returns a resource.
@@ -408,6 +408,7 @@ class GenericFunctionResource(Resource, ABC):
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keyword_parameters: Resource) -> Resource:
+        parameters = self.handle_parameters(compileState, parameters)
         return self.call(compileState, parameters, keyword_parameters)
 
 

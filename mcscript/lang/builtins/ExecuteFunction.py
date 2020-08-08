@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.ir import IRNode
 from mcscript.ir.components import CommandNode
 from mcscript.lang.builtins.builtins import BuiltinFunction
 from mcscript.lang.resource.NullResource import NullResource
@@ -26,7 +25,7 @@ class ExecuteFunction(BuiltinFunction):
     def returnType(self) -> ResourceType:
         return ResourceType.NULL
 
-    def generate(self, compileState: CompileState, *parameters: Resource) -> IRNode:
+    def generate(self, compileState: CompileState, *parameters: Resource) -> Resource:
         string: StringResource
         string, = parameters
 

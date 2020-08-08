@@ -58,7 +58,7 @@ class FunctionParameter:
         return self._check_parameter(parameters[0])
 
     def _check_parameter(self, parameter: Resource) -> FunctionParameterMatch:
-        if parameter.type() == self.type:
+        if parameter.type().is_subtype(self.type):
             if not isinstance(parameter, ValueResource):
                 return FunctionParameterMatch.MATCHES
             if parameter.is_static:
@@ -133,14 +133,14 @@ class FunctionSignature:
             elif match == FunctionParameterMatch.FAIL_WRONG_TYPE:
                 raise McScriptArgumentsError(self.format_string.format(
                     self.arguments_format(original_parameters),
-                    f"Expected type {parameter.type.value.type().value} for parameter '{parameter.name}' but got "
+                    f"Expected type {parameter.type.value} for parameter '{parameter.name}' but got "
                     f"type {parameters[0].type().value}"
                 ), compileState)
             elif match == FunctionParameterMatch.FAIL_MULTIPLE_PARAMETERS:
                 raise McScriptArgumentsError(self.format_string.format(
                     self.arguments_format(original_parameters),
                     f"All parameters for '{parameter.name}' must be of type "
-                    f"{parameter.type.value.type().value} but got ({', '.join(i.type().value for i in parameters)})"
+                    f"{parameter.type.value} but got ({', '.join(i.type().value for i in parameters)})"
                 ), compileState)
             elif match == FunctionParameterMatch.MUST_BE_STATIC:
                 raise McScriptArgumentsError(self.format_string.format(

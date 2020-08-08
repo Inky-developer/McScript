@@ -24,7 +24,7 @@ from mcscript.ir.components import (ConditionalNode, ExecuteNode,
                                     StoreFastVarFromResultNode,
                                     StoreFastVarNode,
                                     IfNode)
-from mcscript.lang.builtins.builtins import BuiltinFunction
+from mcscript.lang import std
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.EnumResource import EnumResource
 from mcscript.lang.resource.FunctionResource import FunctionResource
@@ -57,8 +57,12 @@ class Compiler(Interpreter):
                 config: Config) -> IrMaster:
         self.compileState = CompileState(code, contexts, self.visit, config)
 
+        # load the stdlib - for now just builtins
+        builtins = std.include()
+        for builtin in builtins:
+            self.compileState.currentContext().add_var(builtin.name, builtin)
+
         with self.compileState.ir.with_function("main"):
-            BuiltinFunction.load(self)
             self.compileState.pushContext(ContextType.GLOBAL, 0, 0)
             self.visit(tree)
 
@@ -72,12 +76,6 @@ class Compiler(Interpreter):
             print(function_node)
         # return self.compileState.datapack
         return self.compileState.ir
-
-    #  called by every registered builtin function
-    def loadFunction(self, function: BuiltinFunction):
-        # ToDo: Make BuiltinFunction officially a resource
-        # noinspection PyTypeChecker
-        self.compileState.currentContext().add_var(function.name(), function)
 
     #######################
     #    tree handlers    #
@@ -531,32 +529,9 @@ class Compiler(Interpreter):
 
         self.compileState.currentContext().add_var(function_name, function)
 
-    def builtinFunction(self, function: BuiltinFunction, *parameters: Resource):
-        # ToDo: make raw parameters default
-        loadFunction = self.compileState.load if not function.requireRawParameters(
-        ) else self.compileState.toResource
-        # noinspection PyArgumentList
-        parameters = [loadFunction(i) for i in parameters]
-
-        result = function.create(self.compileState, *parameters)
-        if result.ir:
-            if result.inline:
-                self.compileState.ir.append_all(result.ir)
-            else:
-                with self.compileState.node_block(ContextType.MACRO, -1, -1) as block_name:
-                    self.compileState.ir.append_all(result.ir)
-
-                # after adding the function make sure to also call it
-                self.compileState.ir.append(FunctionCallNode(
-                    self.compileState.resource_specifier_main(block_name)))
-
-        return result.resource
-
     def function_call(self, tree):
         function_name, *parameters = tree.children
         *accessed_objects, function = get_property(self.compileState, function_name)
-        if isinstance(function, BuiltinFunction):
-            return self.builtinFunction(function, *parameters)
 
         visited_params = [self.visit(i) for i in parameters]
 
