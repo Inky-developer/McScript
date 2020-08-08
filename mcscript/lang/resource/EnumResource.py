@@ -52,7 +52,7 @@ class EnumResource(ObjectResource):
             raise McScriptAttributeError(f"Unknown member {name} of enum.\n"
                                          f"Expected one of: {', '.join(i for i in self.context)}", compileState)
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
+    def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
         parameters = []
         for value in self.context:
             parameters.append(value)

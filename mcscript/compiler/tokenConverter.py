@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 
-def convertToken(token: Union[Token, str], compileState: CompileState) -> Union[Resource, Type[Resource]]:
+def convertToken(token: Union[Token, str], compileState: CompileState) -> Union[Resource, ResourceType]:
     """
     Converts a by lark generated token to the appropriate resource class.
 
@@ -41,7 +41,7 @@ def convertToken(token: Union[Token, str], compileState: CompileState) -> Union[
         raise McScriptTypeError(f"Could not interpret token '{token}' as a resource", compileState)
 
 
-def NUMBER(token: Token, _: CompileState) -> Resource:
+def INTEGER(token: Token, _: CompileState) -> Resource:
     return NumberResource(int(token), None)
 
 
@@ -59,7 +59,7 @@ def SELECTOR(token: Token, compileState: CompileState):
 
 def DATATYPE(token: Token, compileState: CompileState) -> Union[Type[Resource], StructResource]:
     try:
-        return Resource.getResourceClass(ResourceType(token.value))
+        return ResourceType(token.value)
     except ValueError:
         datatype = compileState.currentContext().find_resource(token)
         if datatype is not None and datatype.type() == ResourceType.STRUCT:

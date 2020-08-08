@@ -6,7 +6,6 @@ from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.selector.Selector import Selector
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
@@ -162,7 +161,7 @@ class SelectorResource(ValueResource):
             command=Command.RUN_FUNCTION(function=block)
         ))
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
+    def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
         return formatter.handlers[self.type()](
             self.embed_non_static(compileState)
         )

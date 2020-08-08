@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import re
 from string import Formatter
-from typing import Callable, Dict, Optional, Tuple, TYPE_CHECKING, Union
+from typing import Callable, Dict, Optional, Tuple, TYPE_CHECKING
 
 from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
 from mcscript.exceptions.compileExceptions import McScriptTypeError
-from mcscript.lang.resource.BooleanResource import BooleanResource
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -165,7 +163,7 @@ class StringResource(Resource):
                 for child in block.children:
                     compileState.compileFunction(child)
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
+    def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
         return format_text(self.static_value)
 
     def format(self, *args, **kwargs) -> StringResource:

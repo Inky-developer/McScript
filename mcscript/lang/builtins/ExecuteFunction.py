@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
-from mcscript.exceptions.compileExceptions import McScriptArgumentsError
-from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
+from mcscript.ir import IRNode
+from mcscript.ir.components import CommandNode
+from mcscript.lang.builtins.builtins import BuiltinFunction
+from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -24,15 +26,13 @@ class ExecuteFunction(BuiltinFunction):
     def returnType(self) -> ResourceType:
         return ResourceType.NULL
 
-    def generate(self, compileState: CompileState, *parameters: Resource) -> Union[str, FunctionResult]:
+    def generate(self, compileState: CompileState, *parameters: Resource) -> IRNode:
         string: StringResource
         string, = parameters
 
-        if string.isStatic:
-            return str(string)
-
-        raise McScriptArgumentsError(f"Function execute cannot work with non-static strings yet. "
-                                     f"Use execute with a const string", compileState)
+        if True:
+            compileState.ir.append(CommandNode(string.static_value))
+        return NullResource()
 
         # # else set a command block at 0, 0
         # return FunctionResult(

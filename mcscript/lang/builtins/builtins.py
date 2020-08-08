@@ -17,7 +17,6 @@ from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
-from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.base.functionSignature import FunctionParameter, FunctionSignature
@@ -125,7 +124,7 @@ class BuiltinFunction(ABC):
                     if mod_match.lower().startswith("optional"):
                         raw: str = mod_match.split("=")[1]
                         if raw.isdecimal():
-                            default = NumberResource(int(raw), True)
+                            default = NumberResource(int(raw), None)
                         elif all(i in "0123456789." for i in raw):
                             default = FixedNumberResource.fromNumber(float(raw))
                         elif raw.lower() == "null":
@@ -133,7 +132,7 @@ class BuiltinFunction(ABC):
                         elif raw.startswith("@"):
                             default = SelectorResource(raw, True)
                         else:
-                            default = StringResource(raw, True)
+                            default = StringResource(raw)
                     elif mod_match.lower() == "static":
                         mode = FunctionParameter.ResourceMode.STATIC
                     elif mod_match.lower() == "non_static":
@@ -147,7 +146,7 @@ class BuiltinFunction(ABC):
                     resourceType = Resource.getResourceClass(ResourceType(type_))
                 parameters.append(FunctionParameter(
                     name,
-                    TypeResource(resourceType),
+                    resourceType.type(),
                     count=count,
                     defaultValue=default,
                     accepts=mode,
@@ -157,10 +156,8 @@ class BuiltinFunction(ABC):
                 real_doc.append(line)
 
         return FunctionSignature(
-            self,
             parameters,
             self.returnType(),
-            inline=self.inline(),
             documentation="\n".join(real_doc)
         )
 

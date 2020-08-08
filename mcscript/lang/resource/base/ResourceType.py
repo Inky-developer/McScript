@@ -1,4 +1,4 @@
-from enum import auto, Enum
+from enum import Enum
 
 
 class ResourceType(Enum):
@@ -7,21 +7,17 @@ class ResourceType(Enum):
     The values are the names that can be used in mcscript.
     """
     NULL = "Null"
-    ADDRESS = auto()
-    NBT_ADDRESS = auto()
     STRUCT = "Struct"
     STRUCT_OBJECT = "Object"
-    NUMBER = "Number"
+    INTEGER = "Int"
     FIXED_POINT = "Fixed"
     BOOLEAN = "Boolean"
     STRING = "String"
     SELECTOR = "Selector"
     ENUM = "Enum"
-    FUNCTION = "Function"
     TYPE = "Type"
+    FUNCTION = "Function"
 
-    RESOURCE = "Resource"
-    VALUE_RESOURCE = "ValueResource"
     TUPLE = "Tuple"
     LIST = "List"
 

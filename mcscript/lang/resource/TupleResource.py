@@ -4,18 +4,17 @@ from typing import List, Optional, TYPE_CHECKING
 
 from lark import Tree
 
-from mcscript.compiler.common import check_context_static
 from mcscript.compiler.ContextType import ContextType
+from mcscript.compiler.common import check_context_static
 from mcscript.exceptions.compileExceptions import (
     McScriptAttributeError, McScriptIndexError, McScriptIsStaticError,
     McScriptTypeError,
 )
-from mcscript.lang.resource.base.ResourceBase import MinecraftDataStorage, Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.BooleanResource import BooleanResource
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.resource.base.ResourceBase import MinecraftDataStorage, Resource, ValueResource
+from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
@@ -121,7 +120,7 @@ class TupleResource(Resource):
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         return BooleanResource.TRUE if self.resources else BooleanResource.FALSE
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> List:
+    def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> List:
         resources: list = [self.resources[0]] if self.resources else []
         for resource in self.resources[1:]:
             resources.append(", ")

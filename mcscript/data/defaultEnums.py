@@ -3,7 +3,6 @@ from typing import Optional
 from mcscript.data.minecraftData import biomes, blocks, features
 from mcscript.lang.resource.EnumResource import EnumResource
 from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 
@@ -24,15 +23,15 @@ def makeFeatures() -> EnumResource:
 
 def makeTypes() -> EnumResource:
     """ enum which has all named resource types as members"""
-    names = {i.value: TypeResource.fromType(i) for i in ResourceType if not isinstance(i.value, int)}
+    names = {i.value: i for i in ResourceType if not isinstance(i.value, int)}
     return EnumResource(**names)
 
 
 ENUMS = {
-    "blocks"  : makeBlocks,
-    "biomes"  : makeBiomes,
+    "blocks": makeBlocks,
+    "biomes": makeBiomes,
     "features": makeFeatures,
-    "types"   : makeTypes,
+    "types": makeTypes,
 }
 
 

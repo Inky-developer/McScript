@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from enum import Enum, auto
 from inspect import isabstract
 from typing import (TYPE_CHECKING, ClassVar, Dict, List, Optional, Type,
-                    Union, TypeVar, Generic)
+                    Union, TypeVar, Generic, Tuple)
 
 from lark import Tree
 
@@ -22,7 +22,6 @@ if TYPE_CHECKING:
     from mcscript.ir.command_components import ScoreRelation
     from mcscript.ir.components import ConditionalNode
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
-    from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
     from mcscript.compiler.CompileState import CompileState
 
 
@@ -81,7 +80,7 @@ class Resource(ABC):
             if cls.isVariable:
                 Resource._reference_variables[cls.type()] = cls
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List, str]:
+    def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List, str]:
         """
         Creates a string that can be used as a minecraft tellraw or title string.
 
@@ -104,17 +103,6 @@ class Resource(ABC):
         A NumberResource could decide to return a NumberResource or a NumberVariableResource.
         """
         raise TypeError(f"Resource {self} cannot be stored.")
-
-    def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> Resource:
-        """
-        Called when this resource should be stored in a variable
-        stores this variable to nbt.
-
-        Args:
-            stack: the stack on the data storage this resource should be stored to
-            compileState: the Compile state
-        """
-        raise TypeError(f"{repr(self)} does not support this operation")
 
     def copy(self, target: ScoreboardValue, compileState: CompileState) -> Resource:
         """
@@ -264,7 +252,7 @@ class Resource(ABC):
         Args:
             compileState: the compile state
             parameters: a list of parameters
-            keywordParameters: a list of keyword parameters, currently they are not yet supported
+            keyword_parameters: a list of keyword parameters, currently they are not yet supported
 
         Returns:
             a new resource
@@ -309,20 +297,11 @@ class Resource(ABC):
 
     @classmethod
     def getResourceClass(cls, resourceType: ResourceType) -> Type[Resource]:
-        if resourceType == ResourceType.RESOURCE:
-            return Resource
-        elif resourceType == ResourceType.VALUE_RESOURCE:
-            return ValueResource
-
         # if the resource type is not already registered, import all resources
         if resourceType not in cls._reference:
             import_sub_modules()
 
         return cls._reference[resourceType]
-
-    @classmethod
-    def getVariableResourceClass(cls, resourceType: ResourceType) -> Type[Resource]:
-        return cls._reference_variables[resourceType]
 
     @classmethod
     def createEmptyResource(cls, identifier: str, compileState: CompileState) -> Resource:
@@ -367,7 +346,7 @@ class ValueResource(Generic[VT], Resource):
 
         if self.static_value is None and self.scoreboard_value is None:
             raise ValueError("Expected at least a static value or a scoreboard value, got none.")
-    
+
     @property
     def is_static(self) -> bool:
         """ 
@@ -376,23 +355,60 @@ class ValueResource(Generic[VT], Resource):
         """
         return self.scoreboard_value is None
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.VALUE_RESOURCE
-    
-    def toTextJson(self, compile_state: CompileState, formatter: ResourceTextFormatter):
+    def to_json_text(self, compile_state: CompileState, formatter: ResourceTextFormatter):
         if self.static_value is not None:
             return format_text(str(self.static_value))
-        return format_score(self.scoreboard_value.scoreboard.unique_name, self.scoreboard_value.value)
+        return format_score(self.scoreboard_value)
 
-    def __eq__(self, other):
-        return isinstance(other, type(self)) and self.static_value == other.value
-
-    def __hash__(self):
-        return hash(self.static_value)
-    
     def __repr__(self):
         return f"{type(self).__name__}({self.static_value}, {self.scoreboard_value})"
+
+
+class GenericFunctionResource(Resource, ABC):
+    """
+    A generic function.
+
+    Mcscript has two types of functions:
+        - "normal" functions, defined via the `fun` keyword.
+          Can take a fixed number of variables and execute at runtime
+        - macro functions, defined via the `macro` keyword or in the stdlib.
+          Generate code a compile time
+
+    A basic function only needs a function to tell whether it accepts some parameters and, if it does,
+    a function that generates ir code.
+    """
+
+    @abstractmethod
+    def handle_parameters(self, compile_state: CompileState, parameters: List[Resource]) -> List[Resource]:
+        """
+        Handles the parameters. Raises if the parameters are invalid.
+
+        Args:
+            compile_state: The compile state
+            parameters: A list of resources
+
+        Returns:
+            the handled resources
+        """
+
+    @abstractmethod
+    def call(self, compile_state: CompileState, parameters: Tuple[Resource],
+             keyword_parameters: Dict[str, Resource]) -> Resource:
+        """
+        Generates the ir code and returns a resource.
+
+        Args:
+            compile_state: the compile state
+            parameters: the function parameters
+            keyword_parameters: named function parameters
+
+        Returns:
+            A resource as result
+        """
+
+    def operation_call(self, compileState: CompileState, *parameters: Resource,
+                       **keyword_parameters: Resource) -> Resource:
+        return self.call(compileState, parameters, keyword_parameters)
 
 
 class ObjectResource(Resource, ABC):

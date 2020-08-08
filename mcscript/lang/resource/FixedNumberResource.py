@@ -147,7 +147,7 @@ class FixedNumberResource(ValueResource):
         ))
         return FixedNumberResource(None, self.scoreboard_value)
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
+    def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
         if self.is_static:
             return formatter.createFromResource(f"{self.static_value / self.BASE}")
 

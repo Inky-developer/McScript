@@ -1,9 +1,8 @@
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 from lark import Token, Tree
 from lark.visitors import Interpreter
 
-from mcscript import Logger
 from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.ContextType import ContextType
@@ -11,7 +10,6 @@ from mcscript.compiler.common import (conditional_loop, get_property,
                                       readContextManipulator, set_property,
                                       set_variable)
 from mcscript.compiler.tokenConverter import convertToken
-from mcscript.data import defaultCode
 from mcscript.data.Config import Config
 from mcscript.exceptions.compileExceptions import (McScriptDeclarationError,
                                                    McScriptNameError,
@@ -28,19 +26,14 @@ from mcscript.ir.components import (ConditionalNode, ExecuteNode,
                                     IfNode)
 from mcscript.lang.builtins.builtins import BuiltinFunction
 from mcscript.lang.resource.BooleanResource import BooleanResource
-from mcscript.lang.resource.DefaultFunctionResource import \
-    DefaultFunctionResource
 from mcscript.lang.resource.EnumResource import EnumResource
-from mcscript.lang.resource.InlineFunctionResource import \
-    InlineFunctionResource
+from mcscript.lang.resource.FunctionResource import FunctionResource
 from mcscript.lang.resource.NullResource import NullResource
-from mcscript.lang.resource.StructMethodResource import StructMethodResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TupleResource import TupleResource
-from mcscript.lang.resource.TypeResource import TypeResource
-from mcscript.lang.resource.base.FunctionResource import Parameter
 from mcscript.lang.resource.base.ResourceBase import (
     ObjectResource, Resource, ValueResource)
+from mcscript.lang.resource.base.functionSignature import FunctionSignature, FunctionParameter
 
 
 class Compiler(Interpreter):
@@ -238,7 +231,7 @@ class Compiler(Interpreter):
 
         self.compileState.ir.append_all(
             StoreFastVarNode(stack, 0),
-            IfNode(condition_node, [StoreFastVarNode(stack, 1)], [])
+            IfNode(condition_node, StoreFastVarNode(stack, 1))
         )
 
         return BooleanResource(None, stack)
@@ -282,8 +275,7 @@ class Compiler(Interpreter):
                             ScoreRange(1),
                             False
                         )]),
-                    [StoreFastVarNode(stack, 1)],
-                    []
+                    StoreFastVarNode(stack, 1)
                 ) for condition in conditions)
 
             return BooleanResource(None, stack)
@@ -390,9 +382,9 @@ class Compiler(Interpreter):
                 self.compileState
             )
 
-        if (size := expression.getAttribute(self.compileState, "size").toNumber()) != len(variables):
+        if (size := expression.getAttribute(self.compileState, "size").integer_value()) != len(variables):
             raise McScriptDeclarationError(
-                f"Array must contain exactly {len(variables)} elements but found {size}:\n"
+                f"Tuple must contain exactly {len(variables)} elements but found {size}:\n"
                 f'({", ".join(i.type().value for i in expression.resources)})',
                 self.compileState
             )
@@ -446,13 +438,6 @@ class Compiler(Interpreter):
 
         # store the result back
         set_property(self.compileState, accessor, result)
-
-    def block(self, tree: Tree):
-        Logger.warning("Called block and I dont now if this is even necessary")
-        with self.compileState.node_block(ContextType.BLOCK, tree.line, tree.column) as block_name:
-            newNamespace = self.compileState.currentContext()
-            self.visit_children(tree)
-        return block_name, newNamespace
 
     def control_if(self, tree):
         # ToDO: This could quite easily turned into an expression
@@ -524,61 +509,27 @@ class Compiler(Interpreter):
     def function_parameter(self, tree):
         identifier, datatype = tree.children
         datatype = convertToken(datatype, self.compileState)
-        return identifier, TypeResource(datatype, True)
+        return identifier, datatype
 
     def function_definition(self, tree):
-        inline, _, function_name, parameter_list, return_type, block = tree.children
-        # a function will be inlined if so specified or if it is declared in a struct scope.
-        isMethod = self.compileState.currentContext().context_type == ContextType.STRUCT
-        inline = inline or isMethod
+        _, function_name, parameter_list, return_resource, block = tree.children
+
         parameter_list = [self.visit(i) for i in parameter_list.children]
 
         # the return type can be omitted. In this case, it will be Null
-        return_type = TypeResource(
-            convertToken(
-                return_type, self.compileState) if return_type else NullResource,
-            True
+        return_resource = convertToken(return_resource, self.compileState) if return_resource else NullResource
+
+        function = FunctionResource(
+            function_name,
+            FunctionSignature(
+                [FunctionParameter(ident, rtype) for ident, rtype in parameter_list],
+                return_resource,
+                function_name
+            ),
+            block
         )
 
-        if (any(parameter.value.requiresInlineFunc for _, parameter in
-                parameter_list) or return_type.static_value.requiresInlineFunc) and not inline:
-            raise McScriptTypeError(f"Some parameters (or the return type) can only be used in an inline context. "
-                                    f"Consider declaring this function using 'inline fun'.", self.compileState)
-
-        if not inline:
-            return self.function_definition_normal(function_name, parameter_list, return_type, block)
-
-        return self.function_definition_inline(function_name, parameter_list, return_type, block, isMethod)
-
-    def function_definition_inline(self, function_name: str, parameter_list: List[Parameter], return_type: TypeResource,
-                                   block: Tree, isMethod: bool):
-        if function_name in defaultCode.MAGIC_FUNCTIONS:
-            raise McScriptSyntaxError(
-                "Special functions must not be inlined", self.compileState)
-
-        FunctionCls = StructMethodResource if isMethod else InlineFunctionResource
-
-        function = FunctionCls(
-            function_name, parameter_list, return_type, block)
-        self.compileState.currentContext().add_var(function.name(), function)
-
-    def function_definition_normal(self, function_name: str, parameter_list: List[Parameter], return_type: TypeResource,
-                                   block: Tree):
-        function = DefaultFunctionResource(
-            function_name, parameter_list, return_type, block)
-        function.compile(self.compileState)
-        self.compileState.currentContext().add_var(function.name(), function)
-
-        # ToDo: once ir is complete, add back the functionality for magic functions
-        # is_special = function_name in defaultCode.MAGIC_FUNCTIONS
-        # if is_special:
-        #     param_count = defaultCode.MAGIC_FUNCTIONS[function_name]
-        #     if param_count != len(function.parameters):
-        #         raise McScriptArgumentsError(
-        #             f"Magic method {function.name()} must accept exactly {param_count} parameters",
-        #             self.compileState
-        #         )
-        #     self.compileState.fileStructure.setPoi(function)
+        self.compileState.currentContext().add_var(function_name, function)
 
     def builtinFunction(self, function: BuiltinFunction, *parameters: Resource):
         # ToDo: make raw parameters default
@@ -609,9 +560,6 @@ class Compiler(Interpreter):
 
         visited_params = [self.visit(i) for i in parameters]
 
-        # a method will get the object as an argument
-        if isinstance(function, StructMethodResource):
-            return function.operation_call(self.compileState, accessed_objects[-1], *visited_params)
         # any object that implements the call operator can be called. This of course includes function resources.
         try:
             return function.operation_call(self.compileState, *visited_params)
@@ -650,7 +598,7 @@ class Compiler(Interpreter):
         self.compileState.ir.append(ExecuteNode(
             readContextManipulator(modifiers, self.compileState),
             [FunctionCallNode(
-                self.compileState.resource_specifier_main(block_name))]
+                block_name)]
         ))
 
     def expression(self, tree):

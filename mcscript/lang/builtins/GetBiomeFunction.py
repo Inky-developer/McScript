@@ -23,7 +23,7 @@ class GetBiomeFunction(CachedFunction):
         return "getBiome"
 
     def returnType(self) -> ResourceType:
-        return ResourceType.NUMBER
+        return ResourceType.INTEGER
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> str:
         commands = [Command.EXECUTE(

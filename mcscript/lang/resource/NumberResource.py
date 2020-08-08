@@ -21,7 +21,7 @@ class NumberResource(ValueResource[int]):
 
     @staticmethod
     def type():
-        return ResourceType.NUMBER
+        return ResourceType.INTEGER
 
     def store(self, compileState: CompileState) -> NumberResource:
         """ Load a static number to a scoreboard or to a data storage """

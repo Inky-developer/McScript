@@ -25,7 +25,7 @@ class GetTickTimeFunction(BuiltinFunction):
         return "getTickTime"
 
     def returnType(self) -> ResourceType:
-        return ResourceType.NUMBER
+        return ResourceType.INTEGER
 
     def include(self, compileState: CompileState) -> bool:
         compileState.datapack.getMainDirectory().hasSubTickClock = True

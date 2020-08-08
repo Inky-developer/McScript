@@ -68,14 +68,20 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-a = 0.5
-run for @a {
-    a = a + 1.0
+fun num_players() -> Int {
+    a = 1
+    run for @a {
+        a += 1
+    }
+    return a
 }
-b = 0.5
-run for @a { 
-    print("{}", a * b) 
+
+fun square(val: Int) -> Int {
+    return val * val
 }
+
+val = num_players()
+b = square(val)
 """
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")

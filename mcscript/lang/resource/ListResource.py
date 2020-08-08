@@ -7,14 +7,9 @@ from lark import Tree
 from mcscript.compiler.ContextType import ContextType
 from mcscript.exceptions.compileExceptions import McScriptAttributeError, McScriptTypeError
 from mcscript.lang.resource.BooleanResource import BooleanResource
-from mcscript.lang.resource.InternalFunctionResource import InternalFunctionResource
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
-from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.lang.resource.base.VariableResource import VariableResource
 from mcscript.lang.utility import isStatic
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
@@ -165,7 +160,7 @@ class ListResource(Resource):
         ))
 
     def operation_get_element(self, compileState: CompileState, index: Resource) -> Resource:
-        if index.type() != ResourceType.NUMBER:
+        if index.type() != ResourceType.INTEGER:
             raise McScriptTypeError(f"Expected type number as index but got {index.type().value}", compileState)
         if not isStatic(index):
             raise McScriptTypeError(f"Not yet implemented for non-static numbers! sorry :(", compileState)
@@ -223,7 +218,7 @@ class ListResource(Resource):
     def toString(self) -> str:
         raise NotImplementedError()
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[list, str]:
+    def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[list, str]:
         if not self.nbtAddress:
             return "List()"
         return formatter.createFromResources(self.nbtAddress)
@@ -234,34 +229,3 @@ class ListResource(Resource):
                                     compileState)
 
     # Function classes
-    class AppendFunction(InternalFunctionResource):
-        def __init__(self, master: ListResource):
-            super().__init__(
-                [("value", TypeResource.fromType(ResourceType.RESOURCE)), ],
-                TypeResource.fromType(ResourceType.NULL)
-            )
-
-            self.master = master
-
-        # noinspection PyMethodOverriding
-        def execute(self, compileState: CompileState, value: Resource) -> Resource:
-            self.master.append(compileState, value)
-            return NullResource()
-
-    class InsertFunction(InternalFunctionResource):
-        def __init__(self, master: ListResource):
-            super().__init__(
-                [
-                    ("index", TypeResource.fromType(ResourceType.NUMBER)),
-                    ("value", TypeResource.fromType(ResourceType.RESOURCE))
-                ],
-                TypeResource.fromType(ResourceType.NULL)
-            )
-
-            self.master = master
-
-        def execute(self, compileState: CompileState, **parameters) -> Resource:
-            index = parameters.get("index")
-            value = parameters.get("value")
-            self.master.insert(compileState, index.convertToNumber(compileState), value)
-            return NullResource()

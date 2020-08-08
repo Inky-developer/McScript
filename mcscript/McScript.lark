@@ -20,7 +20,7 @@ block: "{" statement* "}"
 
 function_parameter: IDENTIFIER ":" IDENTIFIER
 parameter_list: "(" (function_parameter "," )* function_parameter? ")"
-function_definition: [ /\binline\b/ ] /\bfun\b/ IDENTIFIER parameter_list [ "->" IDENTIFIER ] block
+function_definition: /\bfun\b/ IDENTIFIER parameter_list [ "->" IDENTIFIER ] block
 
 function_call: accessor "(" (expression "," )* expression? ")"
 
@@ -46,7 +46,7 @@ _expression: comparison
 term: sum
 ?sum: product ((PLUS | MINUS) product)*
 ?product: value ((TIMES | DIVIDE | MODULO) value)*
-value: NUMBER
+value: INTEGER
      | DECIMAL
      | STRING
      | SELECTOR
@@ -77,7 +77,7 @@ control_for: /\bfor\b/ IDENTIFIER /\bin\b/ expression block
 
 control_enum: /\benum\b/ IDENTIFIER enum_block
 enum_block: "{" ( enum_property _STATEMENT_SEPARATOR )* enum_property _STATEMENT_SEPARATOR "}"
-enum_property: IDENTIFIER | (IDENTIFIER "=" NUMBER)
+enum_property: IDENTIFIER | (IDENTIFIER "=" INTEGER)
 
 control_struct: _KEYWORD_STRUCT IDENTIFIER struct_block
 struct_block: "{" ( (variable_declaration ",") | function_definition )* variable_declaration? "}"
@@ -91,7 +91,7 @@ context_modifier: _CONTEXT_FOR expression -> context_for
                 | _CONTEXT_ANCHORED expression -> context_anchor
 
 
-NUMBER: /[0-9]+/
+INTEGER: /[0-9]+/
 DECIMAL: /[0-9]*\.[0-9]+/
 STRING: /".*?"/ | /'.*?'/
 SELECTOR: /@[parse](\[\w+=!?.+\])?/

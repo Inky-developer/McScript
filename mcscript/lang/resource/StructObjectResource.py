@@ -5,7 +5,6 @@ from typing import Optional, TYPE_CHECKING
 
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptNameError
 from mcscript.lang.resource.BooleanResource import BooleanResource
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -109,7 +108,7 @@ class StructObjectResource(ObjectResource):
     def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
         return BooleanResource.TRUE
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
+    def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
         def resourceString(key):
             return [key + ": ", self.context[key]]
 

@@ -3,17 +3,13 @@ from __future__ import annotations
 import itertools
 from dataclasses import dataclass, field
 from enum import Enum, Flag, auto
-from typing import List, Optional, Sequence, TYPE_CHECKING, Union
+from typing import List, Optional, Sequence, TYPE_CHECKING
 
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError
-from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.lang.utility import compareTypes
 
 if TYPE_CHECKING:
-    from mcscript.lang.builtins.builtins import BuiltinFunction
-    from mcscript.lang.resource.base.FunctionResource import FunctionResource
     from mcscript.compiler.CompileState import CompileState
 
 
@@ -38,7 +34,7 @@ class FunctionParameter:
         NON_STATIC = auto()
 
     name: str
-    type: TypeResource
+    type: ResourceType
     count: FunctionParameter.ParameterCount = ParameterCount.ONCE
     defaultValue: Optional[Resource] = None
     accepts: FunctionParameter.ResourceMode = ResourceMode.STATIC | ResourceMode.NON_STATIC
@@ -62,7 +58,7 @@ class FunctionParameter:
         return self._check_parameter(parameters[0])
 
     def _check_parameter(self, parameter: Resource) -> FunctionParameterMatch:
-        if compareTypes(parameter, self.type.value):
+        if parameter.type() == self.type:
             if not isinstance(parameter, ValueResource):
                 return FunctionParameterMatch.MATCHES
             if parameter.is_static:
@@ -77,10 +73,9 @@ class FunctionParameter:
 
 @dataclass(unsafe_hash=True)
 class FunctionSignature:
-    function: Union[FunctionResource, BuiltinFunction]
     parameters: Sequence[FunctionParameter]
     returnType: ResourceType
-    inline: bool = field(default=False)
+    name: str = field(default="<unknown>")
     documentation: str = field(default="")
 
     format_string: str = field(init=False, default="For function {function}\n"
@@ -89,7 +84,7 @@ class FunctionSignature:
                                                    "{{}}")
 
     def __post_init__(self):
-        self.format_string = self.format_string.format(function=self.function.name(), signature=self.signature_string())
+        self.format_string = self.format_string.format(function=self.name, signature=self.signature_string())
 
     def signature_string(self) -> str:
         parameters = []
@@ -103,9 +98,9 @@ class FunctionSignature:
             # default value if given
             suffix += f" = {parameter.defaultValue}" if parameter.defaultValue else ""
 
-            parameters.append(f'{prefix}{parameter.name}: {parameter.type.value.type().value}{suffix}')
+            parameters.append(f'{prefix}{parameter.name}: {parameter.type.value}{suffix}')
 
-        return f"{'inline ' if self.inline else ''}fun {self.function.name()}" \
+        return f"fun {self.name}" \
                f"({', '.join(parameters)})" \
                f" -> {self.returnType.value}"
 

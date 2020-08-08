@@ -20,7 +20,6 @@ from mcscript.ir.components import ExecuteNode, FunctionCallNode, ConditionalNod
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
-from mcscript.lang.resource.base.VariableResource import VariableResource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -49,7 +48,7 @@ def get_property(compileState: CompileState, accessor: Tree) -> List[Resource]:
             compileState.stack.stack[0].add_var(ret, result)
         else:
             raise McScriptNameError(f"Unknown variable '{ret}'", compileState)
-        
+
     parent_var = compileState.currentContext().find_var(ret)
     parent_resource = parent_var.resource
     accessed = [parent_resource]
@@ -59,6 +58,8 @@ def get_property(compileState: CompileState, accessor: Tree) -> List[Resource]:
     # in which it is also written to, it has to be stored on a scoreboard.
     if isinstance(parent_resource, ValueResource):
         if parent_resource.static_value is not None:
+            if parent_var.context is None:
+                raise ValueError("Could not find the context for resource")
             if has_resource_writes_in_this_context(compileState, parent_resource, parent_var.context):
                 if not check_context_static(compileState, parent_resource, parent_var.context):
                     with compileState.ir.with_previous():
@@ -96,10 +97,6 @@ def set_variable(compileState: CompileState, name: str, value: Resource):
     # A variable does not have to be a variable resource, because it can be stored as static.
     # if not isinstance(var, VariableResource):
     #     raise McScriptTypeError(f"Expected '{name}' to be a variable, but got {var}", compileState)
-
-    # if the previous value was not static, the new one should not be either
-    if isinstance(var, VariableResource):
-        value = value.storeToNbt(var.value, compileState)
 
     if var is None:
         # # if the variable is new check if it is ever written to.
@@ -150,7 +147,7 @@ def set_property(compileState: CompileState, accessor: Tree, value: Resource):
     obj.setAttribute(compileState, attribute, value)
 
 
-def check_context_static(compileState: CompileState, resource: Resource, variable_context = None) -> bool:
+def check_context_static(compileState: CompileState, resource: Resource, variable_context=None) -> bool:
     """
     Core concept: Variables keep their static value (if known) as long as possible and 
     will only be stored in a data storage or a scoreboard if it is not possible to calculate
@@ -178,7 +175,9 @@ def check_context_static(compileState: CompileState, resource: Resource, variabl
             *variable_context.declaration.master_context)
     ) is None  # and not variable context? (TODO)
 
-def has_resource_writes_in_this_context(compileState: CompileState, resource: Resource, variable_context: VariableContext) -> bool:
+
+def has_resource_writes_in_this_context(compileState: CompileState, resource: Resource,
+                                        variable_context: VariableContext) -> bool:
     """
     Returns whether this resource has any writes in the current context.
     """
@@ -187,8 +186,9 @@ def has_resource_writes_in_this_context(compileState: CompileState, resource: Re
         context = compileState.stack.search_by_pos(*write.master_context)
         if context == compileState.currentContext():
             return True
-    
+
     return False
+
 
 def conditional_loop(compileState: CompileState,
                      block: Tree,
@@ -250,13 +250,16 @@ def readContextManipulator(modifiers: List[Tree], compileState: CompileState) ->
         return ExecuteNode.At(selector.value)
 
     def absolute(x: ValueResource, y: ValueResource, z: ValueResource) -> IRNode:
-        return ExecuteNode.Positioned(Position.absolute(float(x.static_value), float(y.static_value), float(z.static_value)))
+        return ExecuteNode.Positioned(
+            Position.absolute(float(x.static_value), float(y.static_value), float(z.static_value)))
 
-    def relative(x: ValueResource, y: ValueResource, z: ValueResource) ->IRNode:
-        return ExecuteNode.Positioned(Position.relative(float(x.static_value), float(y.static_value), float(z.static_value)))
+    def relative(x: ValueResource, y: ValueResource, z: ValueResource) -> IRNode:
+        return ExecuteNode.Positioned(
+            Position.relative(float(x.static_value), float(y.static_value), float(z.static_value)))
 
     def local(x: ValueResource, y: ValueResource, z: ValueResource) -> IRNode:
-        return ExecuteNode.Positioned(Position.local(float(x.static_value), float(y.static_value), float(z.static_value)))
+        return ExecuteNode.Positioned(
+            Position.local(float(x.static_value), float(y.static_value), float(z.static_value)))
 
     def anchor(value: StringResource) -> IRNode:
         try:

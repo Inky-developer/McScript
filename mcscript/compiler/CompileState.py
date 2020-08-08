@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union, ContextManager
 
 from lark import Tree
 
@@ -51,11 +51,11 @@ class CompileState:
 
         # the ir master class
         self.ir = IrMaster()
-    
+
     @property
     def currentTree(self) -> Optional[Tree]:
         return self._currentTree
-    
+
     @currentTree.setter
     def currentTree(self, value: Tree):
         self._currentTree = value
@@ -83,10 +83,6 @@ class CompileState:
             A nbt address
         """
         return self.currentContext().nbt_format.format(name)
-
-    def getConstant(self, constant: int) -> ScoreboardValue:
-        """ Wrapper for compilerConstant"""
-        return ScoreboardValue(Identifier(self.compilerConstants.get_constant(constant)), self.scoreboard_main),
 
     @property
     def expressionStack(self) -> ScoreboardAddressCounter:
@@ -127,36 +123,8 @@ class CompileState:
         # ToDo: Make BuiltinFunction a resource
         if isinstance(value, (Resource, BuiltinFunction)):
             return value
-        # # the condition tree evaluates to a conditional execute. Convert to a boolean here
-        # if isinstance(value, ConditionalExecute):
-        #     return value.toResource(self)
-        return self.toResource(self.compileFunction(value))
 
-    # def toCondition(self, value: Tree) -> ConditionalExecute:
-    #     """
-    #     Converts the tree to a conditional execute
-    #
-    #     Args:
-    #         value: the tree
-    #
-    #     Returns:
-    #         the condition
-    #     """
-    #     result = self.compileFunction(value)
-    #
-    #     if isinstance(result, ConditionalExecute):
-    #         return result
-    #     elif isinstance(result, Resource):
-    #         result = result.convertToBoolean(self)
-    #         if result.isStatic:
-    #             return ConditionalExecute(result.value == 1)
-    #         return ConditionalExecute(Command.EXECUTE(
-    #             sub=ExecuteCommand.IF_SCORE_RANGE(
-    #                 stack=result.value,
-    #                 range=1
-    #             )
-    #         ))
-    #     raise ValueError(f"Unknown type {result}")
+        return self.toResource(self.compileFunction(value))
 
     def currentContext(self) -> Context:
         return self.stack.tail()
@@ -184,10 +152,10 @@ class CompileState:
         return context
 
     @contextmanager
-    def node_block(self, context_type: ContextType, line: int, column: int):
+    def node_block(self, context_type: ContextType, line: int, column: int) -> ContextManager[ResourceSpecifier]:
         """
         Creates a new context and a new ir function.
-        Yields the name of the block
+        Yields the name of the block as a resource specifier
 
         Args:
             context_type: the type of context
@@ -199,7 +167,7 @@ class CompileState:
 
         with self.ir.with_function(block_name):
             try:
-                yield block_name
+                yield self.resource_specifier_main(block_name)
             finally:
                 self.popContext()
 
