@@ -13,7 +13,7 @@ from mcscript.exceptions.compileExceptions import (
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.base.ResourceBase import MinecraftDataStorage, Resource, ValueResource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:

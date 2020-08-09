@@ -27,6 +27,7 @@ Logger.addHandler(_ch)
 Logger.addHandler(_fh)
 
 Logger.info("Logger initialized")
+Logger.info(f"Logfile at {fPath}")
 
 from mcscript.compiler.Compiler import Compiler as _Compiler
 

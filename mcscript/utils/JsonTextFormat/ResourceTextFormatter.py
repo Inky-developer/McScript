@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, List, TYPE_CHECKING, Union
 
+from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 
@@ -27,7 +28,7 @@ class ResourceTextFormatter:
         try:
             return resource.to_json_text(self.compileState, self)
         except TypeError:
-            raise ValueError(f"Cannot use resource {resource} as a json string")
+            raise McScriptTypeError(f"Cannot use resource {resource} as a json string", self.compileState)
 
     def _getFormattedString(self, handler, resource) -> Dict:
         return handler(resource)

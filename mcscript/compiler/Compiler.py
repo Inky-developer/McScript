@@ -31,6 +31,7 @@ from mcscript.lang.resource.FunctionResource import FunctionResource
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TupleResource import TupleResource
+from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import (
     ObjectResource, Resource, ValueResource)
 from mcscript.lang.resource.base.functionSignature import FunctionSignature, FunctionParameter
@@ -545,18 +546,16 @@ class Compiler(Interpreter):
     def variable_declaration(self, tree):
         identifier, datatype = tree.children
         self.compileState.currentContext().add_var(identifier, TypeResource(
-            convertToken(datatype, self.compileState), True
+            convertToken(datatype, self.compileState)
         ))
 
     def control_struct(self, tree):
         name, block = tree.children
         self.compileState.pushContext(
-            ContextType.STRUCT, block.line, block.column)
+            ContextType.OBJECT, block.line, block.column)
         context = self.compileState.currentContext()
 
         struct = StructResource(name, context)
-
-        # this is not nice, but the struct must be referencable within itself
         self.compileState.currentContext().add_var(name, struct)
 
         for declaration in block.children:

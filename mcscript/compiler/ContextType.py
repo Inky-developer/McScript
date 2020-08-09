@@ -16,7 +16,7 @@ class ContextType(Enum):
     INLINE_FUNCTION = auto(), True
 
     # The body of a struct definition
-    STRUCT = auto(), True
+    OBJECT = auto(), True
 
     # An implicit inline function in struct bodies
     METHOD = auto(), True

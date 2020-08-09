@@ -89,9 +89,8 @@ class Analyzer:
         accessor, expression = tree.children
         self.visit(expression)
 
-        identifier, *not_implemented = accessor.children
-        if not_implemented:
-            return
+        # for now, treat every property of an object as the object itself
+        identifier, *_ignore_children = accessor.children
 
         if var := getVar(self.stack, identifier):
             var.writes.append(VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)))

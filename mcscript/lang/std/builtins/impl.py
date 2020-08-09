@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 
-# honestly I think this is the strangest code I have ever written
 def create_text_functions() -> List[MacroResource]:
     """
     Creates all text output functions and returns them
@@ -23,6 +22,24 @@ def create_text_functions() -> List[MacroResource]:
     Returns:
         A list of all text functions
     """
+
+    def make_function(f_name: str, f_msg_type: MessageNode.MessageType):
+        @macro(
+            parameters=[
+                FunctionParameter("text", ResourceType.STRING, accepts=FunctionParameter.ResourceMode.STATIC),
+                FunctionParameter("parameters", ResourceType.ANY, FunctionParameter.ParameterCount.ARBITRARY)
+            ],
+            return_type=ResourceType.NULL,
+            name=f_name
+        )
+        def function(compile_state: CompileState, string: StringResource, *parameters: Resource):
+            compile_state.ir.append(MessageNode(
+                f_msg_type,
+                MarkupParser(compile_state).to_json_string(string.static_value, *parameters)
+            ))
+
+        return function
+
     ret = []
     for name, msg_type in (
             ("print", MessageNode.MessageType.CHAT),
@@ -30,21 +47,7 @@ def create_text_functions() -> List[MacroResource]:
             ("title", MessageNode.MessageType.TITLE),
             ("subtitle", MessageNode.MessageType.SUBTITLE)
     ):
-        @macro(
-            parameters=[
-                FunctionParameter("text", ResourceType.STRING, accepts=FunctionParameter.ResourceMode.STATIC),
-                FunctionParameter("parameters", ResourceType.ANY, FunctionParameter.ParameterCount.ARBITRARY)
-            ],
-            return_type=ResourceType.NULL,
-            name=name
-        )
-        def function(compile_state: CompileState, string: StringResource, *parameters: Resource):
-            compile_state.ir.append(MessageNode(
-                msg_type,
-                MarkupParser(compile_state).to_json_string(string.static_value, *parameters)
-            ))
-
-        ret.append(function)
+        ret.append(make_function(name, msg_type))
     return ret
 
 

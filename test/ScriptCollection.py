@@ -6,6 +6,7 @@ from mcscript import Logger
 from mcscript.assets import setCurrentData
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
+from mcscript.utils import rcon
 from mcscript.utils.cmdHelper import generateFiles, getWorld, setCurrentWorld
 
 # fix for vscode dont know what exactly is wrong
@@ -68,7 +69,20 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-print("Hallo! One: {}, Two: {}, Three: {}", 1, 2, 3)
+struct HelloWorld {
+    a: Int,
+    b: Int
+}
+
+a = HelloWorld(1, 2)
+
+run for @a {
+    a.b = a.b + 1
+}
+
+run for @a {
+    print("{} and {}: {}", a.a, a.b, a)
+}
 """
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")
@@ -85,4 +99,4 @@ if __name__ == '__main__':
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     # datapack.write(config.NAME, Path.cwd().joinpath("out"))
     generateFiles(world, datapack)
-    # rcon.send("reload")
+    rcon.send("reload")

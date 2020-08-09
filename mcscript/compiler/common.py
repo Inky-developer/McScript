@@ -19,6 +19,7 @@ from mcscript.ir.command_components import Position, ExecuteAnchor, ScoreRange
 from mcscript.ir.components import ExecuteNode, FunctionCallNode, ConditionalNode
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
+from mcscript.lang.resource.StructObjectResource import StructObjectResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 
 if TYPE_CHECKING:
@@ -66,16 +67,25 @@ def get_property(compileState: CompileState, accessor: Tree) -> List[Resource]:
                         parent_resource = parent_resource.store(compileState)
                     parent_resource.static_value = None
                     accessed = [parent_resource]
-                    # ToDo: This seems a bit hacky
                     # marks the variable in all contexts as non-static
                     compileState.currentContext().set_var(ret, parent_resource)
-    else:
-        for value in values:
-            try:
-                accessed.append(accessed[-1].getAttribute(compileState, value))
-            except TypeError:
-                raise McScriptTypeError(f"Cannot access property '{value}' of {accessed[-1].type().value}",
-                                        compileState)
+    # similar applies for objects
+    elif isinstance(parent_resource, StructObjectResource) and parent_resource.is_any_static:
+        if parent_var.context is None:
+            raise ValueError("Could not find the context for the object resource")
+        if has_resource_writes_in_this_context(compileState, parent_resource, parent_var.context):
+            if not check_context_static(compileState, parent_resource, parent_var.context):
+                with compileState.ir.with_previous():
+                    parent_resource = parent_resource.store(compileState)
+                accessed = [parent_resource]
+                compileState.currentContext().set_var(ret, parent_resource)
+
+    for value in values:
+        try:
+            accessed.append(accessed[-1].getAttribute(compileState, value))
+        except TypeError:
+            raise McScriptTypeError(f"Cannot access property '{value}' of {accessed[-1].type().value}",
+                                    compileState)
     return accessed
 
 

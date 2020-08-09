@@ -1,16 +1,13 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from enum import Enum, auto
 from inspect import isabstract
 from typing import (TYPE_CHECKING, ClassVar, Dict, List, Optional, Type,
                     Union, TypeVar, Generic, Tuple)
 
 from lark import Tree
 
-from mcscript.analyzer.VariableContext import VariableContext
-from mcscript.compiler.ContextType import ContextType
-from mcscript.exceptions.compileExceptions import McScriptTypeError
+from mcscript.exceptions.compileExceptions import McScriptTypeError, McScriptAttributeError
 from mcscript.ir.command_components import BinaryOperator
 from mcscript.lang.resource import import_sub_modules
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -18,35 +15,14 @@ from mcscript.utils.JsonTextFormat.objectFormatter import format_score, format_t
 from mcscript.utils.resources import ScoreboardValue
 
 if TYPE_CHECKING:
-    from mcscript.compiler.Context import Context
     from mcscript.ir.command_components import ScoreRelation
     from mcscript.ir.components import ConditionalNode
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.compiler.CompileState import CompileState
 
 
-class MinecraftDataStorage(Enum):
-    SCOREBOARD = auto()
-    STORAGE = auto()
-    NONE = auto()
-
-
 class Resource(ABC):
     _reference: ClassVar[Dict] = {}
-    _reference_variables: ClassVar[Dict] = {}
-
-    # ToDo clean up the isDefault / isVariable mess
-    isDefault: ClassVar[bool] = True
-
-    isVariable: ClassVar[bool] = False
-    """
-    whether this class is the default implementation of all resources that have the same ResourceType.
-    """
-
-    storage: ClassVar[MinecraftDataStorage] = MinecraftDataStorage.NONE
-    """
-    How this resource is stored in minecraft
-    """
 
     requiresInlineFunc: ClassVar[bool] = True
     """ 
@@ -56,29 +32,15 @@ class Resource(ABC):
     when this is set to False, an implementation of createEmptyResource is required.
     """
 
-    # ToDo wtf is this
-    _context: Optional[VariableContext]
-    """
-    If this resource directly corresponds to a variable, this field will contain its context.
-    """
-
     # noinspection PyUnresolvedReferences
     def __init_subclass__(cls, **kwargs):
         if not isabstract(cls):
             # implementation validity checks
-            if cls.isDefault or cls.type() not in Resource._reference:
-                if cls.type() in Resource._reference and Resource._reference[cls.type()].isDefault and cls.isDefault:
-                    raise ReferenceError(
-                        f"Multiple resources of type {cls.type().name} register as default.")
-                if cls.type() not in Resource._reference or not Resource._reference[cls.type()].isDefault:
-                    Resource._reference[cls.type()] = cls
-
-            if cls.type() in Resource._reference_variables and cls.isVariable:
-                raise ReferenceError(
-                    "Multiple resources of type {cls.type().name} register as variable.")
-
-            if cls.isVariable:
-                Resource._reference_variables[cls.type()] = cls
+            if cls.type() not in Resource._reference:
+                Resource._reference[cls.type()] = cls
+            else:
+                raise TypeError(
+                    f"Resource for type {cls.type()} was already registered: {Resource._reference[cls.type()]}")
 
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List, str]:
         """
@@ -329,12 +291,10 @@ class Resource(ABC):
 VT = TypeVar("VT")
 
 
-class ValueResource(Generic[VT], Resource):
+class ValueResource(Generic[VT], Resource, ABC):
     """
     Used for atomics in the build process
     """
-
-    storage: ClassVar[MinecraftDataStorage] = MinecraftDataStorage.SCOREBOARD
 
     def __init__(self, static_value: Optional[VT], scoreboard_value: Optional[ScoreboardValue] = None):
         super().__init__()
@@ -413,32 +373,31 @@ class GenericFunctionResource(Resource, ABC):
 
 
 class ObjectResource(Resource, ABC):
-    storage = MinecraftDataStorage.STORAGE
+    """
+    A generic object.
+    Each object has an internal namespace, which should be possible to access
+    """
 
-    def __init__(self, context: Context = None):
-        super().__init__()
-        # the empty context is a dummy
-        from mcscript.compiler.Context import Context
-        self.context = context or Context(0, None, ContextType.STRUCT, [])
+    def __init__(self, public_namespace: Dict[str, Resource] = None):
+        self.public_namespace = public_namespace or {}
 
-    @staticmethod
-    @abstractmethod
-    def type() -> ResourceType:
-        pass
+    @property
+    def is_static(self) -> bool:
+        """ returns whether *ALL* public members are static"""
+        return all(i.is_static for i in self.public_namespace.values() if isinstance(i, ValueResource))
 
-    def getBasePath(self) -> NbtAddressResource:
-        """ Returns the base path which contains the attributes of this object. """
-        raise TypeError
+    @property
+    def is_any_static(self) -> bool:
+        """ returns whether *ANY* public member is static. If True `store` can be called"""
+        return any(i.is_static for i in self.public_namespace.values() if isinstance(i, ValueResource))
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
-        if name not in self.context:
-            raise AttributeError(
-                f"Property {name} does not exist for {type(self)}.")
-        return self.context.find_resource(name)
+        try:
+            return self.public_namespace[name]
+        except KeyError:
+            raise McScriptAttributeError(f"{self} has no attribute '{name}'.", compileState)
 
-    def setAttribute(self, compileState: CompileState, name: str, value: Resource) -> Resource:
-        self.context.set_var(name, value)
-        return value
-
-    def __repr__(self):
-        return f"Object {type(self).__name__}"
+    def store(self, compileState: CompileState) -> Resource:
+        # store all of the public namespace
+        self.public_namespace = {name: value.store(compileState) for name, value in self.public_namespace.items()}
+        return self
