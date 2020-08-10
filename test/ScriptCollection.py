@@ -71,7 +71,7 @@ fun make_disk() -> Null {
 code_temp = r"""
 struct HelloWorld {
     a: Int,
-    b: Int
+    b: Int,
 }
 
 a = HelloWorld(1, 2)

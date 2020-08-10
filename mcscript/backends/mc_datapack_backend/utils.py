@@ -1,5 +1,6 @@
 from mcscript.ir.command_components import Position, PositionAxis, PositionKind
 
+
 def position_to_str(pos: Position) -> str:
     def axis_to_str(axis: PositionAxis) -> str:
         if axis.kind == PositionKind.ABSOLUTE:

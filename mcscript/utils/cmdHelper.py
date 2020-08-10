@@ -13,7 +13,7 @@ from nbt.nbt import NBTFile
 
 # Default .minecraft path
 from mcscript import Logger
-from mcscript.ir.backends.mc_datapack_backend.Datapack import Datapack
+from mcscript.backends import Datapack
 
 # try to determine the default minecraft path
 # resource: https://minecraft.gamepedia.com/.minecraft

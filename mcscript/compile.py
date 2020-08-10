@@ -6,11 +6,10 @@ from lark import Tree
 
 from mcscript import Compiler, Grammar, Logger
 from mcscript.analyzer.Analyzer import Analyzer
+from mcscript.backends import get_default_backend, Datapack
 from mcscript.data.Config import Config
 from mcscript.exceptions.compileExceptions import McScriptError
 from mcscript.exceptions.parseExceptions import McScriptParseException
-from mcscript.ir.backends import get_default_backend
-from mcscript.ir.backends.mc_datapack_backend.Datapack import Datapack
 from mcscript.utils.utils import debug_log_text
 
 eventCallback = Callable[[str, float, Any], Any]

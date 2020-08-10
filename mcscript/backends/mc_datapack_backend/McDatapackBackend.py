@@ -3,10 +3,10 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import Dict
 
+from mcscript.backends.IRBackend import IRBackend
+from mcscript.backends.mc_datapack_backend.Datapack import Datapack
+from mcscript.backends.mc_datapack_backend.utils import position_to_str
 from mcscript.data.Config import Config
-from mcscript.ir.IRBackend import IRBackend
-from mcscript.ir.backends.mc_datapack_backend.Datapack import Datapack
-from mcscript.ir.backends.mc_datapack_backend.utils import position_to_str
 from mcscript.ir.components import *
 
 

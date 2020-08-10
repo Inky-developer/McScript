@@ -31,7 +31,7 @@ class NumberResource(ValueResource[int]):
         scoreboard_address = compileState.expressionStack.next()
         compileState.ir.append(StoreFastVarNode(scoreboard_address, self.static_value))
 
-        return NumberResource(self.static_value, scoreboard_address)
+        return NumberResource(None, scoreboard_address)
 
     def numericOperation(self, other: ValueResource, operator: BinaryOperator,
                          compileState: CompileState) -> NumberResource:

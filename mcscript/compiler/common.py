@@ -65,7 +65,6 @@ def get_property(compileState: CompileState, accessor: Tree) -> List[Resource]:
                 if not check_context_static(compileState, parent_resource, parent_var.context):
                     with compileState.ir.with_previous():
                         parent_resource = parent_resource.store(compileState)
-                    parent_resource.static_value = None
                     accessed = [parent_resource]
                     # marks the variable in all contexts as non-static
                     compileState.currentContext().set_var(ret, parent_resource)
