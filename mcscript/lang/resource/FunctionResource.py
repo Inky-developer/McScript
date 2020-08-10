@@ -6,9 +6,10 @@ from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
 from mcscript.ir.components import FunctionCallNode
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import Function
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.base.ResourceBase import GenericFunctionResource, Resource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -31,12 +32,13 @@ class FunctionResource(GenericFunctionResource):
     def call(self, compile_state: CompileState, parameters: Tuple[Resource],
              keyword_parameters: Dict[str, Resource]) -> Resource:
         with compile_state.node_block(ContextType.FUNCTION, self.code.line, self.code.column) as function_name:
+            for template, parameter in zip(self.function_signature.parameters, parameters):
+                compile_state.currentContext().add_var(template.name, parameter)
             compile_state.compileFunction(self.code)
             return_value = compile_state.currentContext().return_resource or NullResource()
 
         compile_state.ir.append(FunctionCallNode(function_name))
         return return_value
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.FUNCTION
+    def type(self) -> Type:
+        return Function

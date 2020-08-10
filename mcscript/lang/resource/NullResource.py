@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Type
 
+from mcscript.lang.atomic_types import Null
 from mcscript.lang.resource.base.ResourceBase import ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -22,9 +22,8 @@ class NullResource(ValueResource[None]):
     def copy(self, target: ValueResource, compileState: CompileState) -> NullResource:
         return NullResource()
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.NULL
+    def type(self) -> Type:
+        return Null
 
     @classmethod
     def createEmptyResource(cls, identifier: str, compileState: CompileState) -> NullResource:

@@ -6,24 +6,15 @@ from lark.visitors import Interpreter
 from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.ContextType import ContextType
-from mcscript.compiler.common import (conditional_loop, get_property,
-                                      readContextManipulator, set_property,
-                                      set_variable)
-from mcscript.compiler.tokenConverter import convertToken
+from mcscript.compiler.common import conditional_loop, get_property, readContextManipulator, set_property, set_variable
+from mcscript.compiler.tokenConverter import convert_token_to_resource, convert_token_to_type
 from mcscript.data.Config import Config
-from mcscript.exceptions.compileExceptions import (McScriptDeclarationError,
-                                                   McScriptNameError,
-                                                   McScriptSyntaxError,
+from mcscript.exceptions.compileExceptions import (McScriptDeclarationError, McScriptNameError, McScriptSyntaxError,
                                                    McScriptTypeError)
 from mcscript.ir.IrMaster import IrMaster
-from mcscript.ir.command_components import (BinaryOperator, ScoreRange,
-                                            ScoreRelation, UnaryOperator)
-from mcscript.ir.components import (ConditionalNode, ExecuteNode,
-                                    FunctionCallNode, InvertNode,
-                                    ScoreboardInitNode,
-                                    StoreFastVarFromResultNode,
-                                    StoreFastVarNode,
-                                    IfNode)
+from mcscript.ir.command_components import BinaryOperator, ScoreRange, ScoreRelation, UnaryOperator
+from mcscript.ir.components import (ConditionalNode, ExecuteNode, FunctionCallNode, InvertNode, ScoreboardInitNode,
+                                    StoreFastVarFromResultNode, StoreFastVarNode, IfNode)
 from mcscript.lang import std
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.EnumResource import EnumResource
@@ -32,8 +23,7 @@ from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.TypeResource import TypeResource
-from mcscript.lang.resource.base.ResourceBase import (
-    ObjectResource, Resource, ValueResource)
+from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 from mcscript.lang.resource.base.functionSignature import FunctionSignature, FunctionParameter
 
 
@@ -92,7 +82,7 @@ class Compiler(Interpreter):
             ret = self.visit(value)
             return ret
         elif isinstance(value, Token):
-            return convertToken(value, self.compileState)
+            return convert_token_to_resource(value, self.compileState)
         raise McScriptNameError(f"Invalid value: {value}", self.compileState)
 
     def tuple(self, tree):
@@ -133,7 +123,7 @@ class Compiler(Interpreter):
     def enum_property(self, tree):
         identifier, *value = tree.children
         if value:
-            return identifier, convertToken(value[0], self.compileState)
+            return identifier, convert_token_to_resource(value[0], self.compileState)
         return identifier,
 
     def accessor(self, tree):
@@ -210,7 +200,7 @@ class Compiler(Interpreter):
             condition = self.compileState.load(
                 condition)
             if not isinstance(condition, BooleanResource):
-                raise McScriptTypeError(f"Expected bool, got {{{condition.type().value}}}", self.compileState)
+                raise McScriptTypeError(f"Expected bool, got {condition.type()}", self.compileState)
             if condition.is_static:
                 if condition.static_value:
                     continue
@@ -249,7 +239,7 @@ class Compiler(Interpreter):
             value = self.compileState.toResource(
                 condition)
             if not isinstance(value, BooleanResource):
-                raise McScriptTypeError(f"Expected bool, got {{{value.type().value}}}", self.compileState)
+                raise McScriptTypeError(f"Expected bool, got {value.type()}", self.compileState)
             if value.is_static:
                 if value.static_value:
                     return BooleanResource(True, None)
@@ -284,7 +274,7 @@ class Compiler(Interpreter):
         value = self.compileState.toResource(
             value)
         if not isinstance(value, BooleanResource):
-            raise McScriptTypeError(f"Expected bool, got {{{value.type().value}}}", self.compileState)
+            raise McScriptTypeError(f"Expected bool, got {value.type()}", self.compileState)
 
         if value.is_static:
             return BooleanResource(not value.static_value, None)
@@ -321,8 +311,8 @@ class Compiler(Interpreter):
                     number2, operator, self.compileState)
             except TypeError:
                 raise McScriptTypeError(
-                    f"The Operation {operator.value} is not supported between {{{number1.type().value}}} and "
-                    f"{{{number2.type().value}}}",
+                    f"The Operation {operator.value} is not supported between {number1.type()} and "
+                    f"{number2.type()}",
                     self.compileState)
 
         return number1
@@ -344,7 +334,7 @@ class Compiler(Interpreter):
             node = a.operation_test_relation(self.compileState, operator, b)
         except TypeError:
             raise McScriptTypeError(
-                f"Relation {operator.name} is not defined for {{{a.type().value}}} and {{{b.type().value}}}",
+                f"Relation {operator.name} is not defined for {a.type()} and {b.type()}",
                 self.compileState
             )
 
@@ -377,7 +367,7 @@ class Compiler(Interpreter):
 
         if not isinstance(expression, TupleResource):
             raise McScriptTypeError(
-                f"Return type deconstruction works only for arrays, but not for type {expression.type().value}",
+                f"Return type deconstruction works only for arrays, but not for type {expression.type()}",
                 self.compileState
             )
 
@@ -402,7 +392,7 @@ class Compiler(Interpreter):
         value = self.compileState.toResource(value)
 
         if isinstance(value, ObjectResource):
-            raise McScriptTypeError(f"Only simple datatypes can be assigned using static, not {value.type().value}",
+            raise McScriptTypeError(f"Only simple datatypes can be assigned using static, not {value.type()}",
                                     self.compileState)
 
         self.compileState.currentContext().add_var(identifier, value)
@@ -446,7 +436,7 @@ class Compiler(Interpreter):
             condition)
 
         if not isinstance(condition_boolean, BooleanResource):
-            raise McScriptTypeError(f"Expected bool, got {{{condition_boolean.type().value}}}", self.compileState)
+            raise McScriptTypeError(f"Expected bool, got {condition_boolean.type()}", self.compileState)
 
         if condition_boolean.static_value is not None:
             line_and_column = (block.line, block.column) if condition_boolean else (block_else.line, block_else.column)
@@ -495,7 +485,7 @@ class Compiler(Interpreter):
             resource.iterate(self.compileState, var_name, block)
         except TypeError:
             raise McScriptTypeError(
-                f"type {resource.type().value} does not support iteration", self.compileState)
+                f"type {resource.type()} does not support iteration", self.compileState)
 
     def return_(self, tree):
         # ToDO: make return an ir node
@@ -507,7 +497,7 @@ class Compiler(Interpreter):
 
     def function_parameter(self, tree):
         identifier, datatype = tree.children
-        datatype = convertToken(datatype, self.compileState)
+        datatype = convert_token_to_type(datatype, self.compileState)
         return identifier, datatype
 
     def function_definition(self, tree):
@@ -516,7 +506,7 @@ class Compiler(Interpreter):
         parameter_list = [self.visit(i) for i in parameter_list.children]
 
         # the return type can be omitted. In this case, it will be Null
-        return_resource = convertToken(return_resource, self.compileState) if return_resource else NullResource
+        return_resource = convert_token_to_type(return_resource, self.compileState) if return_resource else NullResource
 
         function = FunctionResource(
             function_name,
@@ -546,7 +536,7 @@ class Compiler(Interpreter):
     def variable_declaration(self, tree):
         identifier, datatype = tree.children
         self.compileState.currentContext().add_var(identifier, TypeResource(
-            convertToken(datatype, self.compileState)
+            convert_token_to_type(datatype, self.compileState)
         ))
 
     def control_struct(self, tree):
@@ -555,7 +545,7 @@ class Compiler(Interpreter):
             ContextType.OBJECT, block.line, block.column)
         context = self.compileState.currentContext()
 
-        struct = StructResource(name, context)
+        struct = StructResource(name, context, self.compileState)
         self.compileState.currentContext().add_var(name, struct)
 
         for declaration in block.children:

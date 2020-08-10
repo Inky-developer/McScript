@@ -7,7 +7,7 @@ from mcscript.lang.builtins.GetBlockFunction import GetBlockFunction
 from mcscript.lang.builtins.SetBlockFunction import SetBlockFunction
 from mcscript.lang.builtins.StringFormatFunction import StringFormatFunction
 from mcscript.lang.builtins.textFunctions import PrintFunction
-from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.resource.IntegerResource import IntegerResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.functionSignature import FunctionParameter, FunctionSignature
@@ -41,26 +41,26 @@ class TestFunctionSignature(unittest.TestCase):
             [
                 FunctionParameter(
                     "block",
-                    TypeResource(NumberResource),
+                    TypeResource(IntegerResource),
                     FunctionParameter.ParameterCount.ONCE
                 ),
                 FunctionParameter(
                     "x",
-                    TypeResource(NumberResource),
+                    TypeResource(IntegerResource),
                     FunctionParameter.ParameterCount.ONCE,
-                    NumberResource(0, True)
+                    IntegerResource(0, True)
                 ),
                 FunctionParameter(
                     "y",
-                    TypeResource(NumberResource),
+                    TypeResource(IntegerResource),
                     FunctionParameter.ParameterCount.ONCE,
-                    NumberResource(0, True)
+                    IntegerResource(0, True)
                 ),
                 FunctionParameter(
                     "z",
-                    TypeResource(NumberResource),
+                    TypeResource(IntegerResource),
                     FunctionParameter.ParameterCount.ONCE,
-                    NumberResource(0, True)
+                    IntegerResource(0, True)
                 )
             ],
             TypeResource(StringResource)
@@ -84,13 +84,13 @@ class TestFunctionSignature(unittest.TestCase):
         print(parameters)
         self.assertEqual(len(parameters), 3)
 
-        parameters = [NumberResource(1, True), NumberResource(0, True), NumberResource(10, True)]
+        parameters = [IntegerResource(1, True), IntegerResource(0, True), IntegerResource(10, True)]
         parameters = self.signature2.matchParameters(self.compileState, parameters)
         print(parameters)
         self.assertEqual(len(parameters), 4)
 
     def testSignatureFailure(self):
-        parameters = [NumberResource(1, True)]
+        parameters = [IntegerResource(1, True)]
         self.assertRaisesRegex(
             McScriptArgumentsError,
             r"Expected type .+ for parameter '.+' but got type .+",
@@ -98,7 +98,7 @@ class TestFunctionSignature(unittest.TestCase):
             self.compileState, parameters
         )
 
-        parameters = [StringResource("Hello, $!", True), StringResource("World", True), NumberResource(1, True)]
+        parameters = [StringResource("Hello, $!", True), StringResource("World", True), IntegerResource(1, True)]
         self.assertRaisesRegex(
             McScriptArgumentsError,
             r"All parameters for '.+' must be of type .+ but got (.+)",

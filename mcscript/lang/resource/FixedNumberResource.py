@@ -5,8 +5,9 @@ from typing import Dict, TYPE_CHECKING, Union, ClassVar
 from mcscript.ir.command_components import StorageDataType, ScoreRelation, BinaryOperator
 from mcscript.ir.components import (StoreVarFromResultNode, GetFastVarNode, ConditionalNode, FastVarOperationNode,
                                     StoreFastVarNode)
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import Fixed
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.utility import compare_scoreboard_values, operate_scoreboard_values
 from mcscript.utils.JsonTextFormat.objectFormatter import format_nbt
 
@@ -30,9 +31,8 @@ class FixedNumberResource(ValueResource):
 
     requiresInlineFunc: ClassVar[bool] = False
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.FIXED_POINT
+    def type(self) -> Type:
+        return Fixed
 
     @classmethod
     def fromNumber(cls, number: Union[int, float]) -> FixedNumberResource:

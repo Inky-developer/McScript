@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from mcscript.lang.resource.base.ResourceType import ResourceType
+
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
+from mcscript.lang.resource.IntegerResource import IntegerResource
 from mcscript.lang.resource.NullResource import NullResource
-from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.base.ResourceBase import Resource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -44,4 +45,4 @@ class RangeFunction(BuiltinFunction):
         if step < 0 and start < end:
             raise self.ArgumentsError(parameters, f"end must be less than start for negative step", compileState)
 
-        return FunctionResult(None, TupleResource(*[NumberResource(i, True) for i in range(start, end, step)]))
+        return FunctionResult(None, TupleResource(*[IntegerResource(i, True) for i in range(start, end, step)]))

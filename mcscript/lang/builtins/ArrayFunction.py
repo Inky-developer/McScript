@@ -6,7 +6,6 @@ from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.base.ResourceBase import Resource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState

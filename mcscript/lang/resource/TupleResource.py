@@ -10,11 +10,12 @@ from mcscript.exceptions.compileExceptions import (
     McScriptAttributeError, McScriptIndexError, McScriptIsStaticError,
     McScriptTypeError,
 )
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import Tuple
 from mcscript.lang.resource.BooleanResource import BooleanResource
+from mcscript.lang.resource.IntegerResource import IntegerResource
 from mcscript.lang.resource.NullResource import NullResource
-from mcscript.lang.resource.NumberResource import NumberResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
@@ -41,11 +42,10 @@ class TupleResource(Resource):
         self.resources = list(resources)
         self.stack: Optional[NbtAddressResource] = None
 
-        self.attributes = dict(size=NumberResource(len(self.resources), True))
+        self.attributes = dict(size=IntegerResource(len(self.resources), True))
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.TUPLE
+    def type(self) -> Type:
+        return Tuple
 
     def iterate(self, compileState: CompileState, varName: str, block: Tree):
 

@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from mcscript.lang.resource.base.ResourceType import ResourceType
+
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
-from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.resource.IntegerResource import IntegerResource
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.base.ResourceBase import Resource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -31,5 +32,5 @@ class KillFunction(BuiltinFunction):
             Command.SET_VALUE_FROM(
                 stack=compileState.config.RETURN_SCORE,
                 command=Command.KILL_ENTITY(target=target.embed_non_static(compileState))
-            ), NumberResource(compileState.config.RETURN_SCORE, False)
+            ), IntegerResource(compileState.config.RETURN_SCORE, False)
         )

@@ -6,8 +6,8 @@ from enum import Enum, Flag, auto
 from typing import List, Optional, Sequence, TYPE_CHECKING
 
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError
+from mcscript.lang.Type import Type
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -34,7 +34,7 @@ class FunctionParameter:
         NON_STATIC = auto()
 
     name: str
-    type: ResourceType
+    type: Type
     count: FunctionParameter.ParameterCount = ParameterCount.ONCE
     defaultValue: Optional[Resource] = None
     accepts: FunctionParameter.ResourceMode = ResourceMode.STATIC | ResourceMode.NON_STATIC
@@ -58,7 +58,7 @@ class FunctionParameter:
         return self._check_parameter(parameters[0])
 
     def _check_parameter(self, parameter: Resource) -> FunctionParameterMatch:
-        if parameter.type().is_subtype(self.type):
+        if parameter.type().matches(self.type):
             if not isinstance(parameter, ValueResource):
                 return FunctionParameterMatch.MATCHES
             if parameter.is_static:
@@ -74,7 +74,7 @@ class FunctionParameter:
 @dataclass(unsafe_hash=True)
 class FunctionSignature:
     parameters: Sequence[FunctionParameter]
-    returnType: ResourceType
+    returnType: Type
     name: str = field(default="<unknown>")
     documentation: str = field(default="")
 
@@ -98,11 +98,11 @@ class FunctionSignature:
             # default value if given
             suffix += f" = {parameter.defaultValue}" if parameter.defaultValue else ""
 
-            parameters.append(f'{prefix}{parameter.name}: {parameter.type.value}{suffix}')
+            parameters.append(f'{prefix}{parameter.name}: {parameter.type}{suffix}')
 
         return f"fun {self.name}" \
                f"({', '.join(parameters)})" \
-               f" -> {self.returnType.value}"
+               f" -> {self.returnType}"
 
     def matchParameters(self, compileState: CompileState, parameters: Sequence[Resource]) -> List[Resource]:
         """
@@ -133,14 +133,14 @@ class FunctionSignature:
             elif match == FunctionParameterMatch.FAIL_WRONG_TYPE:
                 raise McScriptArgumentsError(self.format_string.format(
                     self.arguments_format(original_parameters),
-                    f"Expected type {parameter.type.value} for parameter '{parameter.name}' but got "
-                    f"type {parameters[0].type().value}"
+                    f"Expected type {parameter.type} for parameter '{parameter.name}' but got "
+                    f"type {parameters[0].type()}"
                 ), compileState)
             elif match == FunctionParameterMatch.FAIL_MULTIPLE_PARAMETERS:
                 raise McScriptArgumentsError(self.format_string.format(
                     self.arguments_format(original_parameters),
                     f"All parameters for '{parameter.name}' must be of type "
-                    f"{parameter.type.value} but got ({', '.join(i.type().value for i in parameters)})"
+                    f"{parameter.type} but got ({', '.join(str(i.type()) for i in parameters)})"
                 ), compileState)
             elif match == FunctionParameterMatch.MUST_BE_STATIC:
                 raise McScriptArgumentsError(self.format_string.format(
@@ -183,4 +183,4 @@ class FunctionSignature:
         return returnParameters
 
     def arguments_format(self, arguments: List[Resource]):
-        return "(" + ", ".join(i.type().value for i in arguments) + ")"
+        return "(" + ", ".join(str(i.type()) for i in arguments) + ")"

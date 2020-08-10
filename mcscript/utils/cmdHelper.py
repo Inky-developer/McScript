@@ -13,10 +13,11 @@ from nbt.nbt import NBTFile
 
 # Default .minecraft path
 from mcscript import Logger
-from mcscript.backends import Datapack
+from mcscript.backends.mc_datapack_backend.Datapack import Datapack
 
 # try to determine the default minecraft path
 # resource: https://minecraft.gamepedia.com/.minecraft
+
 if sys.platform.startswith("win"):
     MCPATH = join(getenv("APPDATA"), ".minecraft", "saves")
 elif sys.platform.startswith("darwin"):

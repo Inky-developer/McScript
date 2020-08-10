@@ -74,11 +74,17 @@ struct HelloWorld {
     b: Int,
 }
 
+fun double_a(val: HelloWorld) -> HelloWorld {
+    return HelloWorld(val.a * 2, val.b)
+}
+
 a = HelloWorld(1, 2)
 
 run for @a {
     a.b = a.b + 1
 }
+
+a = double_a(a)
 
 run for @a {
     print("{} and {}: {}", a.a, a.b, a)

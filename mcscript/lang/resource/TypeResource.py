@@ -1,5 +1,6 @@
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import MetaType
 from mcscript.lang.resource.base.ResourceBase import Resource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 
 class TypeResource(Resource):
@@ -7,9 +8,8 @@ class TypeResource(Resource):
     Holds a resource type
     """
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.TYPE
+    def type(self) -> Type:
+        return MetaType
 
-    def __init__(self, static_value: ResourceType):
+    def __init__(self, static_value: Type):
         self.static_value = static_value

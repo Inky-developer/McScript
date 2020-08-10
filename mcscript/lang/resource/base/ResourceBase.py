@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from inspect import isabstract
 from typing import (TYPE_CHECKING, ClassVar, Dict, List, Optional, Type,
                     Union, TypeVar, Generic, Tuple)
 
@@ -9,8 +8,7 @@ from lark import Tree
 
 from mcscript.exceptions.compileExceptions import McScriptTypeError, McScriptAttributeError
 from mcscript.ir.command_components import BinaryOperator
-from mcscript.lang.resource import import_sub_modules
-from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.lang.Type import Type
 from mcscript.utils.JsonTextFormat.objectFormatter import format_score, format_text
 from mcscript.utils.resources import ScoreboardValue
 
@@ -22,8 +20,6 @@ if TYPE_CHECKING:
 
 
 class Resource(ABC):
-    _reference: ClassVar[Dict] = {}
-
     requiresInlineFunc: ClassVar[bool] = True
     """ 
     whether this resource class requires an inline function to be used as a function parameters.
@@ -31,16 +27,6 @@ class Resource(ABC):
     stored in minecraft (like a selector)
     when this is set to False, an implementation of createEmptyResource is required.
     """
-
-    # noinspection PyUnresolvedReferences
-    def __init_subclass__(cls, **kwargs):
-        if not isabstract(cls):
-            # implementation validity checks
-            if cls.type() not in Resource._reference:
-                Resource._reference[cls.type()] = cls
-            else:
-                raise TypeError(
-                    f"Resource for type {cls.type()} was already registered: {Resource._reference[cls.type()]}")
 
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List, str]:
         """
@@ -258,14 +244,6 @@ class Resource(ABC):
         raise TypeError()
 
     @classmethod
-    def getResourceClass(cls, resourceType: ResourceType) -> Type[Resource]:
-        # if the resource type is not already registered, import all resources
-        if resourceType not in cls._reference:
-            import_sub_modules()
-
-        return cls._reference[resourceType]
-
-    @classmethod
     def createEmptyResource(cls, identifier: str, compileState: CompileState) -> Resource:
         """
         Creates an empty resources which is not static and has static address assigned to it.
@@ -281,11 +259,10 @@ class Resource(ABC):
         """
         raise TypeError
 
-    @staticmethod
     @abstractmethod
-    def type() -> ResourceType:
+    def type(self) -> Type:
         """ return the type of resource that is represented by this object"""
-        return ResourceType.RESOURCE
+        ...
 
 
 VT = TypeVar("VT")

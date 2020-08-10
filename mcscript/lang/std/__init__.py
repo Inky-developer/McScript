@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import Callable, TYPE_CHECKING, List
 
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import Null, Any
 from mcscript.lang.resource.MacroResource import MacroResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.base.functionSignature import FunctionSignature, FunctionParameter
 
 if TYPE_CHECKING:
@@ -18,7 +19,7 @@ def include() -> List[MacroResource]:
     return builtins.include()
 
 
-def macro(*, parameters: List[FunctionParameter] = None, return_type: ResourceType = ResourceType.NULL,
+def macro(*, parameters: List[FunctionParameter] = None, return_type: Type = Null,
           name: str = None) -> Callable[[MacroCallable], MacroResource]:
     """
     Returns a MacroResource object wrapping this function
@@ -39,7 +40,7 @@ def macro(*, parameters: List[FunctionParameter] = None, return_type: ResourceTy
         nonlocal name, parameters
         name = name or func.__name__
         parameters = parameters or [
-            FunctionParameter("parameters", ResourceType.ANY, FunctionParameter.ParameterCount.ARBITRARY)
+            FunctionParameter("parameters", Any, FunctionParameter.ParameterCount.ARBITRARY)
         ]
         return MacroResource(
             FunctionSignature(

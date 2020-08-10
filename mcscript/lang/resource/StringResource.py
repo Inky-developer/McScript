@@ -8,9 +8,10 @@ from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
 from mcscript.exceptions.compileExceptions import McScriptTypeError
-from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import String
+from mcscript.lang.resource.IntegerResource import IntegerResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.utils.JsonTextFormat.objectFormatter import format_text
 
 if TYPE_CHECKING:
@@ -57,7 +58,7 @@ class StringResource(Resource):
         super().__init__()
 
         self.static_value = value
-        self.length = len(value) 
+        self.length = len(value)
 
         self.attributes: Dict[str, Callable] = dict(length=self.getLength)
 
@@ -67,13 +68,12 @@ class StringResource(Resource):
                 key: namespace_dict[key].resource for key in namespace_dict}
             self.static_value = self.formatter.format(self.static_value, **replacements)
 
-    @staticmethod
-    def type():
-        return ResourceType.STRING
+    def type(self) -> Type:
+        return String
 
-    def getLength(self, compileState: CompileState) -> NumberResource:
+    def getLength(self, compileState: CompileState) -> IntegerResource:
         if self.length is not None:
-            return NumberResource(self.length, True)
+            return IntegerResource(self.length, True)
 
         raise ValueError("Length of string unknown")
 
@@ -158,7 +158,7 @@ class StringResource(Resource):
                 context.add_var(
                     varName,
                     self.operation_get_element(
-                        compileState, NumberResource(i, True))
+                        compileState, IntegerResource(i, True))
                 )
                 for child in block.children:
                     compileState.compileFunction(child)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Callable, Dict, List, Optional, Tuple, Union, ContextManager
+from typing import Callable, Dict, List, Optional, Tuple, Union, ContextManager, Set
 
 from lark import Tree
 
@@ -11,6 +11,7 @@ from mcscript.compiler.ContextStack import ContextStack
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.Config import Config
 from mcscript.ir.IrMaster import IrMaster
+from mcscript.lang.Type import Type
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.Scoreboard import Scoreboard
 from mcscript.utils.addressCounter import ScoreboardAddressCounter, AddressCounter
@@ -30,6 +31,10 @@ class CompileState:
         self._currentTree: Optional[Tree] = None
 
         self.config = config
+
+        # each custom type gets a unique id. Atomic types have negative uids starting at -1
+        # NEVER remove anything from this since the len is used to generate uids.
+        self.custom_types: Dict[str, Type] = {}
 
         self.scoreboards: List[Scoreboard] = [
             Scoreboard(self.config.get_scoreboard("main"), True, 0),
@@ -71,6 +76,11 @@ class CompileState:
         # )
 
         # self.ir.set_current_source_location(source_location)
+
+    def new_type(self, name: str, bases: Set[Type]) -> Type:
+        t = Type(len(self.custom_types), name, bases)
+        self.custom_types[t.name] = t
+        return t
 
     def get_nbt_address(self, name: str) -> DataPath:
         """

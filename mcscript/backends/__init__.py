@@ -1,6 +1,6 @@
 from typing import Type
 
-from mcscript.backends.mc_datapack_backend import McDatapackBackend
+from mcscript.backends.mc_datapack_backend.McDatapackBackend import McDatapackBackend
 
 BACKENDS = [McDatapackBackend]
 

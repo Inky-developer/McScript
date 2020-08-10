@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List
 
 from mcscript.ir.components import MessageNode
+from mcscript.lang.atomic_types import String, Any, Null
 from mcscript.lang.resource.MacroResource import MacroResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.base.functionSignature import FunctionParameter
 from mcscript.lang.std import macro
 from mcscript.utils.JsonTextFormat.MarkupParser import MarkupParser
@@ -26,10 +26,10 @@ def create_text_functions() -> List[MacroResource]:
     def make_function(f_name: str, f_msg_type: MessageNode.MessageType):
         @macro(
             parameters=[
-                FunctionParameter("text", ResourceType.STRING, accepts=FunctionParameter.ResourceMode.STATIC),
-                FunctionParameter("parameters", ResourceType.ANY, FunctionParameter.ParameterCount.ARBITRARY)
+                FunctionParameter("text", String, accepts=FunctionParameter.ResourceMode.STATIC),
+                FunctionParameter("parameters", Any, FunctionParameter.ParameterCount.ARBITRARY)
             ],
-            return_type=ResourceType.NULL,
+            return_type=Null,
             name=f_name
         )
         def function(compile_state: CompileState, string: StringResource, *parameters: Resource):

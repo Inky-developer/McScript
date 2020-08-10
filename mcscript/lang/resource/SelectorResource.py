@@ -6,10 +6,11 @@ from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.selector.Selector import Selector
-from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import Selector as SelectorType
+from mcscript.lang.resource.IntegerResource import IntegerResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.utils.Scoreboard import Scoreboard
 
 if TYPE_CHECKING:
@@ -49,9 +50,8 @@ class SelectorResource(ValueResource):
             scoreboard.get_name(): self.static_value
         }))
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.SELECTOR
+    def type(self) -> Type:
+        return SelectorType
 
     def typeCheck(self) -> bool:
         return isinstance(self.static_value, Selector)
@@ -96,7 +96,7 @@ class SelectorResource(ValueResource):
 
         return SelectorResource(value, False, compileState)
 
-    def operation_get_element(self, compileState: CompileState, index: Resource) -> NumberResource:
+    def operation_get_element(self, compileState: CompileState, index: Resource) -> IntegerResource:
         string = index.toString()
         ids = list(filter(lambda x: x.name == string, compileState.scoreboards))
         if not ids:
@@ -113,7 +113,7 @@ class SelectorResource(ValueResource):
             stack2=self.embed_non_static(compileState),
             name2=scoreboard.get_name()
         ))
-        return NumberResource(stack, False)
+        return IntegerResource(stack, False)
 
     def operation_set_element(self, compileState: CompileState, index: Resource, value: Resource):
         string = index.toString()

@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Type
 
 from mcscript.ir.command_components import ScoreRelation
 from mcscript.ir.components import ConditionalNode
+from mcscript.lang.atomic_types import Bool
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -16,11 +16,10 @@ class BooleanResource(ValueResource[bool]):
     Holds a boolean
     """
 
-    requiresInlineFunc: ClassVar[bool] = False
+    def type(self) -> Type:
+        return Bool
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.BOOLEAN
+    requiresInlineFunc: ClassVar[bool] = False
 
     def integer_value(self) -> int:
         if self.is_static:

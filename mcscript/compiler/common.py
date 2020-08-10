@@ -17,6 +17,7 @@ from mcscript.exceptions.utils import requireType
 from mcscript.ir import IRNode
 from mcscript.ir.command_components import Position, ExecuteAnchor, ScoreRange
 from mcscript.ir.components import ExecuteNode, FunctionCallNode, ConditionalNode
+from mcscript.lang.atomic_types import Selector as SelectorType
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.StructObjectResource import StructObjectResource
@@ -83,7 +84,7 @@ def get_property(compileState: CompileState, accessor: Tree) -> List[Resource]:
         try:
             accessed.append(accessed[-1].getAttribute(compileState, value))
         except TypeError:
-            raise McScriptTypeError(f"Cannot access property '{value}' of {accessed[-1].type().value}",
+            raise McScriptTypeError(f"Cannot access property '{value}' of {accessed[-1].type()}",
                                     compileState)
     return accessed
 
@@ -251,12 +252,12 @@ def conditional_loop(compileState: CompileState,
 
 def readContextManipulator(modifiers: List[Tree], compileState: CompileState) -> List[ExecuteNode.ExecuteArgument]:
     def for_(selector: SelectorResource) -> IRNode:
-        requireType(selector, SelectorResource, compileState)
+        requireType(selector, SelectorType, compileState)
         return ExecuteNode.As(selector.static_value)
 
     def at(selector: SelectorResource) -> IRNode:
-        requireType(selector, SelectorResource, compileState)
-        return ExecuteNode.At(selector.value)
+        requireType(selector, SelectorType, compileState)
+        return ExecuteNode.At(selector.static_value)
 
     def absolute(x: ValueResource, y: ValueResource, z: ValueResource) -> IRNode:
         return ExecuteNode.Positioned(

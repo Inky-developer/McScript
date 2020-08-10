@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Optional, Type, TYPE_CHECKING, Union
+from typing import Callable, Dict, Optional, Type as TType, TYPE_CHECKING, Union, List
 
 from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
 from mcscript.exceptions.compileExceptions import McScriptAttributeError, McScriptTypeError
+from mcscript.lang.Type import Type
 from mcscript.lang.resource.BooleanResource import BooleanResource
-from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.resource.IntegerResource import IntegerResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.utility import isStatic
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
@@ -39,7 +39,7 @@ class ListResource(Resource):
 
         # use the second order classes since they should be the scoreboard classes
         # noinspection PyTypeChecker
-        self.ContentResource: Type[VariableResource] = Resource.getResourceClass(contentType.value.type())
+        self.ContentResource: TType[VariableResource] = Resource.getResourceClass(contentType.value.type())
 
         if not issubclass(self.ContentResource, (ValueResource, VariableResource)):
             raise TypeError(f"Invalid type for Array: must be a value")
@@ -55,11 +55,10 @@ class ListResource(Resource):
             insert=self.InsertFunction(self)
         )
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.LIST
+    def type(self) -> Type:
+        return List
 
-    def getSize(self, compileState: CompileState) -> NumberResource:
+    def getSize(self, compileState: CompileState) -> IntegerResource:
         self._assertNbtAddress(compileState)
 
         stack = compileState.expressionStack.next()
@@ -67,7 +66,7 @@ class ListResource(Resource):
             stack=stack,
             var=self.nbtAddress,
         ))
-        return NumberResource(stack, False)
+        return IntegerResource(stack, False)
 
     def append(self, compileState: CompileState, value: Resource):
         if value.type() != self.ContentResource.type() or not isinstance(value, ValueResource):
@@ -92,7 +91,7 @@ class ListResource(Resource):
                 address2=address
             ))
 
-    def insert(self, compileState: CompileState, index: NumberResource, value: Resource):
+    def insert(self, compileState: CompileState, index: IntegerResource, value: Resource):
         if value.type() != self.ContentResource.type() or not isinstance(value, ValueResource):
             raise McScriptTypeError(f"Cannot insert value of type {value.type().value} to list of type "
                                     f"{self.ContentResource.type().value}", compileState)
@@ -168,7 +167,7 @@ class ListResource(Resource):
         return self.ContentResource(self.nbtAddress[index.toNumber()], False)
 
     def operation_set_element(self, compileState: CompileState, index: Resource, value: Resource):
-        if not isinstance(index, NumberResource):
+        if not isinstance(index, IntegerResource):
             raise McScriptTypeError(f"Expected type number as index but got {index.type().value}", compileState)
         if not index.isStatic:
             raise McScriptTypeError(f"Not yet implemented for non-static numbers!", compileState)

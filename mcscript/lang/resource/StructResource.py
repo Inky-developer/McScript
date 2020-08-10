@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Dict
 
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import Struct, Any
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.Context import Context
@@ -17,10 +18,11 @@ class StructResource(ObjectResource):
     Holds value definitions and functions
     """
 
-    def __init__(self, name: str, ownContext: Context):
+    def __init__(self, name: str, ownContext: Context, compile_state: CompileState):
         super().__init__()
         self.context = ownContext
         self.name = name
+        self.object_type = compile_state.new_type(self.name, {Any})
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keywordParameters: Resource) -> Resource:
@@ -44,11 +46,10 @@ class StructResource(ObjectResource):
 
         return StructObjectResource(self, compileState, keyword_parameters)
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.STRUCT
+    def type(self) -> Type:
+        return Struct
 
-    def getDeclaredVariables(self) -> Dict[str, ResourceType]:
+    def getDeclaredVariables(self) -> Dict[str, Type]:
         """ Returns all declared type resources """
         return {name: value.resource.static_value for name, value in self.context.namespace.items() if
                 isinstance(value.resource, TypeResource)}

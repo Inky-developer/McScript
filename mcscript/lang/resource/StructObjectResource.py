@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Dict, Union, List
 
 from mcscript.exceptions.compileExceptions import McScriptTypeError, McScriptArgumentsError, McScriptAttributeError
+from mcscript.lang.Type import Type
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
 if TYPE_CHECKING:
@@ -18,11 +18,11 @@ class StructObjectResource(ObjectResource):
     A struct is initialized with keyword parameters that correspond with the declared fields.
     """
 
-    def __init__(self, struct: StructResource, compileState: CompileState, keyword_parameters: Dict[str, Resource]):
+    def __init__(self, struct: StructResource, compile_state: CompileState, keyword_parameters: Dict[str, Resource]):
         super().__init__()
         self.struct = struct
 
-        self.initialize_struct(compileState, keyword_parameters)
+        self.initialize_struct(compile_state, keyword_parameters)
 
     def initialize_struct(self, compile_state: CompileState, keyword_parameters: Dict[str, Resource]):
         """ Initializes the struct and checks that the attributes get correctly set. """
@@ -34,7 +34,7 @@ class StructObjectResource(ObjectResource):
             if name not in definitions:
                 raise McScriptArgumentsError(f"Unexpected attribute: {name}", compile_state)
             # wrong parameter type
-            if not value.type().is_subtype(definitions[name]):
+            if not value.type().matches(definitions[name]):
                 raise McScriptTypeError(
                     f"Expected type {{{definitions[name]}}} but got {{{value.type()}}} for attribute {name}",
                     compile_state)
@@ -55,14 +55,13 @@ class StructObjectResource(ObjectResource):
         expected_type = self.struct.getDeclaredVariables()[name]
         if name not in self.public_namespace:
             raise McScriptAttributeError(f"Cannot set attribute {name} because it does not exist", compileState)
-        if not value.type().is_subtype(expected_type):
+        if not value.type().matches(expected_type):
             raise McScriptAttributeError(
                 f"Expected {name} to be of type {{{expected_type}}}, but got type {{{value.type()}}}", compileState)
         self.public_namespace[name] = value
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.STRUCT_OBJECT
+    def type(self) -> Type:
+        return self.struct.object_type
 
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List, str]:
         components = [f"Object<{self.struct.name}>{{"]

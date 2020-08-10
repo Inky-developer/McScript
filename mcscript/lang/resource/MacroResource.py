@@ -1,8 +1,9 @@
 from typing import Tuple, Dict, List, Callable
 
 from mcscript.compiler.CompileState import CompileState
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import Function
 from mcscript.lang.resource.base.ResourceBase import GenericFunctionResource, Resource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.lang.resource.base.functionSignature import FunctionSignature
 
 
@@ -28,9 +29,8 @@ class MacroResource(GenericFunctionResource):
         assert not keyword_parameters
         return self.macro(compile_state, *parameters)
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.MACRO
+    def type(self) -> Type:
+        return Function
 
     def __repr__(self):
         return f"macro {self.signature.signature_string()}"

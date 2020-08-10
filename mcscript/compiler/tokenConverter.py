@@ -3,66 +3,54 @@ Converts Tokens to their corresponding resources.
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type, Union
+from collections import ChainMap
+from typing import TYPE_CHECKING, Union
 
 from lark import Token
 
 from mcscript.exceptions.compileExceptions import McScriptTypeError
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import ATOMIC_TYPES
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
-from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.resource.IntegerResource import IntegerResource
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
-from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.base.ResourceBase import Resource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 
-def convertToken(token: Union[Token, str], compileState: CompileState) -> Union[Resource, ResourceType]:
+def convert_token_to_resource(token: Union[Token, str], compile_state: CompileState) -> Resource:
     """
     Converts a by lark generated token to the appropriate resource class.
 
-    ToDo: instead of returning Type[Resource] return ResourceType
-
     Args:
         token: the token
-        compileState: the compile state
+        compile_state: the compile state
 
     Returns:
-        either a resource or a resource class
+        a resource
     """
-    if token.type in globals():
-        return globals()[token.type](token, compileState)
+    functions = {
+        "INTEGER": lambda: IntegerResource(int(token), None),
+        "DECIMAL": lambda: FixedNumberResource.fromNumber(float(token)),
+        "STRING": lambda: StringResource(token[1:-1], context=compile_state.currentContext()),
+        "SELECTOR": lambda: SelectorResource(token, True, compile_state, compile_state.currentContext())
+    }
+    if token.type in functions:
+        return functions[token.type]()
+    raise McScriptTypeError(f"Could not interpret token '{token}' as a resource", compile_state)
+
+
+def convert_token_to_type(token: Token, compile_state: CompileState) -> Type:
+    if token.type != "IDENTIFIER":
+        raise ValueError(f"Invalid token: got {token.type}, expected IDENTIFIER")
+
+    all_types = ChainMap(ATOMIC_TYPES, compile_state.custom_types)
+
     try:
-        return DATATYPE(token, compileState)
+        return all_types[token]
     except KeyError:
-        raise McScriptTypeError(f"Could not interpret token '{token}' as a resource", compileState)
-
-
-def INTEGER(token: Token, _: CompileState) -> Resource:
-    return NumberResource(int(token), None)
-
-
-def DECIMAL(token: Token, _: CompileState) -> Resource:
-    return FixedNumberResource.fromNumber(float(token))
-
-
-def STRING(token: Token, compileState: CompileState) -> Resource:
-    return StringResource(token[1:-1], context=compileState.currentContext())
-
-
-def SELECTOR(token: Token, compileState: CompileState):
-    return SelectorResource(token, True, compileState, compileState.currentContext())
-
-
-def DATATYPE(token: Token, compileState: CompileState) -> Union[Type[Resource], StructResource]:
-    try:
-        return ResourceType(token.value)
-    except ValueError:
-        datatype = compileState.currentContext().find_resource(token)
-        if datatype is not None and datatype.type() == ResourceType.STRUCT:
-            # noinspection PyTypeChecker
-            return datatype
-        raise KeyError(f"Invalid datatype {token}")
+        print(all_types)
+        raise McScriptTypeError(f"Unknown type: {{{token}}}", compile_state)
