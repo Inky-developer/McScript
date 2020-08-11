@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Tuple, Dict, List, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING
 
 from lark import Tree
 
@@ -14,6 +14,7 @@ from mcscript.lang.resource.base.ResourceBase import GenericFunctionResource, Re
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
     from mcscript.lang.resource.base.functionSignature import FunctionSignature
+    from mcscript.lang.resource.StructObjectResource import StructObjectResource
 
 
 class FunctionResource(GenericFunctionResource):
@@ -26,10 +27,13 @@ class FunctionResource(GenericFunctionResource):
         self.code = code
         self.name = name
 
+    def make_method(self, self_object: StructObjectResource) -> MethodResource:
+        return MethodResource(self_object, self)
+
     def handle_parameters(self, compile_state: CompileState, parameters: List[Resource]) -> List[Resource]:
         return self.function_signature.matchParameters(compile_state, parameters)
 
-    def call(self, compile_state: CompileState, parameters: Tuple[Resource],
+    def call(self, compile_state: CompileState, parameters: List[Resource],
              keyword_parameters: Dict[str, Resource]) -> Resource:
         with compile_state.node_block(ContextType.FUNCTION, self.code.line, self.code.column) as function_name:
             for template, parameter in zip(self.function_signature.parameters, parameters):
@@ -39,6 +43,27 @@ class FunctionResource(GenericFunctionResource):
 
         compile_state.ir.append(FunctionCallNode(compile_state.ir.find_function_node(function_name)))
         return return_value
+
+    def type(self) -> Type:
+        return Function
+
+
+class MethodResource(GenericFunctionResource):
+    """
+    A method has an object, that is referred to as self
+    """
+
+    def __init__(self, self_object: StructObjectResource, function: FunctionResource):
+        self.self_object = self_object
+        self.function = function
+
+    def handle_parameters(self, compile_state: CompileState, parameters: List[Resource]) -> List[Resource]:
+        parameters = list((self.self_object, *parameters))
+        return self.function.handle_parameters(compile_state, parameters)
+
+    def call(self, compile_state: CompileState, parameters: List[Resource],
+             keyword_parameters: Dict[str, Resource]) -> Resource:
+        return self.function.call(compile_state, parameters, keyword_parameters)
 
     def type(self) -> Type:
         return Function

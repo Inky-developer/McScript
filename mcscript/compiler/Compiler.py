@@ -1,5 +1,4 @@
-from contextlib import contextmanager
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple
 
 from lark import Token, Tree
 from lark.visitors import Interpreter
@@ -17,10 +16,10 @@ from mcscript.ir.command_components import BinaryOperator, ScoreRange, ScoreRela
 from mcscript.ir.components import (ConditionalNode, ExecuteNode, FunctionCallNode, InvertNode, ScoreboardInitNode,
                                     StoreFastVarFromResultNode, StoreFastVarNode, IfNode)
 from mcscript.lang import std
+from mcscript.lang.atomic_types import Null
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.EnumResource import EnumResource
 from mcscript.lang.resource.FunctionResource import FunctionResource
-from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.TypeResource import TypeResource
@@ -32,17 +31,6 @@ class Compiler(Interpreter):
     def __init__(self):
         # noinspection PyTypeChecker
         self.compileState: CompileState = None
-
-        # The resource which is on the left side of an assignment (a = b)
-        self.assign_resource: List[Resource] = []
-
-    @contextmanager
-    def assignment(self, left_hand_value: Resource):
-        self.assign_resource.append(left_hand_value)
-        try:
-            yield
-        finally:
-            self.assign_resource.pop()
 
     def visit(self, tree):
         previous = self.compileState.currentTree
@@ -305,8 +293,7 @@ class Compiler(Interpreter):
         number1 = self.compileState.load(number1)
 
         # by default all operations are in-place. If this is not wanted, a copy has to be created
-        if self.assign_resource:
-            assign_resource = self.assign_resource[-1]
+        if assign_resource := self.compileState.get_global_data("assign_resource"):
             scoreboard_value = None
 
             if isinstance(assign_resource, ValueResource):
@@ -385,7 +372,7 @@ class Compiler(Interpreter):
 
         # if an operation happens, the variable to store to is needed
         resource = self.compileState.currentContext().find_resource(identifier)
-        with self.assignment(resource):
+        with self.compileState.new_global_data("assign_resource", resource):
             value = self.compileState.toResource(_value)
 
         self.compileState.currentTree = _value
@@ -519,19 +506,32 @@ class Compiler(Interpreter):
         return identifier, datatype
 
     def function_definition(self, tree):
-        _, function_name, parameter_list, return_resource, block = tree.children
+        _, function_name, parameter_list, return_type, block = tree.children
 
-        parameter_list = [self.visit(i) for i in parameter_list.children]
+        self_type_token, *parameters = parameter_list.children
+        parameter_list = [self.visit(i) for i in parameters]
+
+        # if self is specified, this function becomes a method and accepts an implicit first argument
+        self_type = None
+        if self_type_token is not None:
+            self_resource = self.compileState.get_global_data("struct")
+            if self_resource is None:
+                self.compileState.currentTree = self_type_token
+                raise McScriptDeclarationError("self is only allowed inside a struct", self.compileState)
+            if not isinstance(self_resource, StructResource):
+                raise ValueError("Internal Error, some idiot messed something up")
+            self_type = self_resource.object_type
 
         # the return type can be omitted. In this case, it will be Null
-        return_resource = convert_token_to_type(return_resource, self.compileState) if return_resource else NullResource
+        return_type = convert_token_to_type(return_type, self.compileState) if return_type else Null
 
         function = FunctionResource(
             function_name,
             FunctionSignature(
                 [FunctionParameter(ident, rtype) for ident, rtype in parameter_list],
-                return_resource,
-                function_name
+                return_type,
+                function_name,
+                self_type=self_type
             ),
             block
         )
@@ -566,8 +566,9 @@ class Compiler(Interpreter):
         struct = StructResource(name, context, self.compileState)
         self.compileState.currentContext().add_var(name, struct)
 
-        for declaration in block.children:
-            self.visit(declaration)
+        with self.compileState.new_global_data("struct", struct):
+            for declaration in block.children:
+                self.visit(declaration)
         self.compileState.popContext()
         self.compileState.currentContext().add_var(name, struct)
 

@@ -19,7 +19,7 @@ statement: declaration _STATEMENT_SEPARATOR
 block: "{" statement* "}"
 
 function_parameter: IDENTIFIER ":" IDENTIFIER
-parameter_list: "(" (function_parameter "," )* function_parameter? ")"
+parameter_list: "(" [ /self/ ] (function_parameter "," )* function_parameter? ")"
 function_definition: /\bfun\b/ IDENTIFIER parameter_list [ "->" IDENTIFIER ] block
 
 function_call: accessor "(" (expression "," )* expression? ")"

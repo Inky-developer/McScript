@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from contextlib import contextmanager
 from typing import Callable, Dict, List, Optional, Tuple, Union, ContextManager, Set
 
@@ -36,6 +37,10 @@ class CompileState:
         # NEVER remove anything from this since the len is used to generate uids.
         self.custom_types: Dict[str, Type] = {}
 
+        # global data are some data that are independent from context but could also stack
+        # typically used by a context manager
+        self.global_data: Dict[str, List[Resource]] = defaultdict(list)
+
         self.scoreboards: List[Scoreboard] = [
             Scoreboard(self.config.get_scoreboard("main"), True, 0),
             Scoreboard("entities", False, 1)
@@ -56,6 +61,30 @@ class CompileState:
 
         # the ir master class
         self.ir = IrMaster()
+
+    @contextmanager
+    def new_global_data(self, name: str, value: Resource):
+        """
+        Pushes value onto global data and pops after yield
+
+        Args:
+            name: the key of the data
+            value: the data value
+
+        Returns:
+            A context manager
+        """
+        self.global_data[name].append(value)
+        try:
+            yield
+        finally:
+            self.global_data[name].pop()
+
+    def get_global_data(self, name: str) -> Optional[Resource]:
+        stack = self.global_data[name]
+        if len(stack) == 0:
+            return None
+        return stack[-1]
 
     @property
     def currentTree(self) -> Optional[Tree]:

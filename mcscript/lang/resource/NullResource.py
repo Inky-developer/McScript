@@ -17,7 +17,7 @@ class NullResource(ValueResource[None]):
         """
         parameters are discarded
         """
-        super().__init__(None, None)
+        super().__init__(0, None)
 
     def copy(self, target: ValueResource, compileState: CompileState) -> NullResource:
         return NullResource()

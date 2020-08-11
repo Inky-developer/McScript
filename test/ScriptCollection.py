@@ -69,8 +69,19 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-a = (1, 2)
-print("{}", a)
+struct Main {
+    fun yeet(self) {
+        print("YEET")
+    }
+    
+    fun not_yeet() {
+        print("NO YEET")
+    }
+}
+
+m = Main()
+m.yeet()
+m.not_yeet()
 """
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")

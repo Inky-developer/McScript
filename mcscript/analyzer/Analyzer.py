@@ -89,7 +89,8 @@ class Analyzer:
     def function_definition(self, tree: Tree):
         _, _name, parameter_list, _return_type, body = tree.children
         self.pushContext(body.line, body.column)
-        [self.visit(i) for i in parameter_list.children]
+        _self_type, *parameters = parameter_list.children
+        [self.visit(i) for i in parameters]
         [self.visit(i) for i in body.children]
         self.pop_context()
 

@@ -83,7 +83,7 @@ def get_property(compileState: CompileState, accessor: Tree) -> List[Resource]:
     for value in values:
         try:
             accessed.append(accessed[-1].getAttribute(compileState, value))
-        except TypeError:
+        except (TypeError, KeyError):
             raise McScriptTypeError(f"Cannot access property '{value}' of {accessed[-1].type()}",
                                     compileState)
     return accessed

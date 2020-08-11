@@ -76,6 +76,8 @@ class FunctionSignature:
     parameters: Sequence[FunctionParameter]
     returnType: Type
     name: str = field(default="<unknown>")
+    # if not None the type of the struct of this method, otherwise normal function
+    self_type: Optional[Type] = field(default=None)
     documentation: str = field(default="")
 
     format_string: str = field(init=False, default="For function {function}\n"
@@ -84,7 +86,16 @@ class FunctionSignature:
                                                    "{{}}")
 
     def __post_init__(self):
+        if self.is_method:
+            self.parameters = [FunctionParameter("self", self.self_type, documentation="The self type")] + \
+                              list(self.parameters)
+
         self.format_string = self.format_string.format(function=self.name, signature=self.signature_string())
+
+    @property
+    def is_method(self) -> bool:
+        """ Returns whether this is a method (self_type is not None)"""
+        return self.self_type is not None
 
     def signature_string(self) -> str:
         parameters = []
@@ -100,7 +111,7 @@ class FunctionSignature:
 
             parameters.append(f'{prefix}{parameter.name}: {parameter.type.name}{suffix}')
 
-        return f"fun {self.name}" \
+        return f"{'method' if self.is_method else 'fun'} {self.name}" \
                f"({', '.join(parameters)})" \
                f" -> {self.returnType.name}"
 

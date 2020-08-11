@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import (TYPE_CHECKING, ClassVar, Dict, List, Optional, Type,
-                    Union, TypeVar, Generic, Tuple)
+                    Union, TypeVar, Generic)
 
 from lark import Tree
 
-from mcscript.exceptions.compileExceptions import McScriptTypeError, McScriptAttributeError
+from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.ir.command_components import BinaryOperator
 from mcscript.ir.components import ConditionalNode, StoreFastVarNode
 from mcscript.lang.Type import Type
@@ -323,7 +323,7 @@ class GenericFunctionResource(Resource, ABC):
     """
 
     @abstractmethod
-    def handle_parameters(self, compile_state: CompileState, parameters: Tuple[Resource]) -> List[Resource]:
+    def handle_parameters(self, compile_state: CompileState, parameters: List[Resource]) -> List[Resource]:
         """
         Handles the parameters. Raises if the parameters are invalid.
 
@@ -376,10 +376,7 @@ class ObjectResource(Resource, ABC):
         return any(i.is_static for i in self.public_namespace.values() if isinstance(i, ValueResource))
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
-        try:
-            return self.public_namespace[name]
-        except KeyError:
-            raise McScriptAttributeError(f"{self} has no attribute '{name}'.", compileState)
+        return self.public_namespace[name]
 
     def store(self, compileState: CompileState) -> Resource:
         # store all of the public namespace

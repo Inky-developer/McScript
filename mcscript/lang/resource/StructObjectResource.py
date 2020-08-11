@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Dict, Union, List
 
 from mcscript.exceptions.compileExceptions import McScriptTypeError, McScriptArgumentsError, McScriptAttributeError
 from mcscript.lang.Type import Type
+from mcscript.lang.resource.FunctionResource import FunctionResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
@@ -50,6 +51,16 @@ class StructObjectResource(ObjectResource):
         if not_specified_parameters:
             raise McScriptArgumentsError(
                 f"At least one attribute was not specified. Missing {not_specified_parameters}", compile_state)
+
+    def getAttribute(self, compileState: CompileState, name: str) -> Resource:
+        try:
+            return super().getAttribute(compileState, name)
+        except KeyError:
+            result = self.struct.getAttribute(compileState, name)
+            # return a method instead of a function
+            if isinstance(result, FunctionResource) and result.function_signature.is_method:
+                return result.make_method(self)
+            return result
 
     def setAttribute(self, compileState: CompileState, name: str, value: Resource):
         expected_type = self.struct.getDeclaredVariables()[name]

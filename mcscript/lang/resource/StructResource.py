@@ -10,6 +10,7 @@ from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
 if TYPE_CHECKING:
     from mcscript.compiler.Context import Context
     from mcscript.compiler.CompileState import CompileState
+    from mcscript.lang.resource.StructObjectResource import StructObjectResource
 
 
 class StructResource(ObjectResource):
@@ -45,6 +46,9 @@ class StructResource(ObjectResource):
         keyword_parameters = dict(zip(declared_vars.keys(), parameters))
 
         return StructObjectResource(self, compileState, keyword_parameters)
+
+    def getAttribute(self, compileState: CompileState, name: str) -> Resource:
+        return self.context.find_resource(name)
 
     def type(self) -> Type:
         return Struct
