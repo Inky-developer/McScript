@@ -69,19 +69,26 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-struct Main {
-    fun yeet(self) {
-        print("YEET")
-    }
+struct Complex {
+    real: Fixed
+    imag: Fixed
     
-    fun not_yeet() {
-        print("NO YEET")
+    fun add(self, other: Complex) -> Complex {
+        return Complex(self.real + other.real, self.imag + other.imag)
+    }
+
+    fun square(self) -> Complex {
+        return Complex(self.real * self.real - self.imag * self.imag, 2.0 * self.real * self.imag)
+    }
+
+    fun absSquared(self) -> Fixed {
+        return self.real * self.real + self.imag * self.imag;
     }
 }
 
-m = Main()
-m.yeet()
-m.not_yeet()
+a = Complex(1.0, 2.0)
+
+print("{}", a.square())
 """
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")

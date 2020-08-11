@@ -89,7 +89,16 @@ class Analyzer:
     def function_definition(self, tree: Tree):
         _, _name, parameter_list, _return_type, body = tree.children
         self.pushContext(body.line, body.column)
-        _self_type, *parameters = parameter_list.children
+        self_type, *parameters = parameter_list.children
+
+        if self_type:
+            self.stack[-1].append(VariableContext(
+                self_type,
+                VariableAccess(self_type, (self.stack[-1].line, self.stack[-1].column)),
+                False,
+                False
+            ))
+
         [self.visit(i) for i in parameters]
         [self.visit(i) for i in body.children]
         self.pop_context()
