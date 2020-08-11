@@ -69,26 +69,7 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-struct HelloWorld {
-    a: Int,
-    b: Int,
-}
 
-fun double_a(val: HelloWorld) -> HelloWorld {
-    return HelloWorld(val.a * 2, val.b)
-}
-
-a = HelloWorld(1, 2)
-
-run for @a {
-    a.b = a.b + 1
-}
-
-a = double_a(a)
-
-run for @a {
-    print("{} and {}: {}", a.a, a.b, a)
-}
 """
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")

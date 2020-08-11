@@ -8,13 +8,13 @@ from lark import Tree
 
 from mcscript.exceptions.compileExceptions import McScriptTypeError, McScriptAttributeError
 from mcscript.ir.command_components import BinaryOperator
+from mcscript.ir.components import ConditionalNode, StoreFastVarNode
 from mcscript.lang.Type import Type
 from mcscript.utils.JsonTextFormat.objectFormatter import format_score, format_text
 from mcscript.utils.resources import ScoreboardValue
 
 if TYPE_CHECKING:
     from mcscript.ir.command_components import ScoreRelation
-    from mcscript.ir.components import ConditionalNode
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
     from mcscript.compiler.CompileState import CompileState
 
@@ -283,6 +283,13 @@ class ValueResource(Generic[VT], Resource, ABC):
 
         if self.static_value is None and self.scoreboard_value is None:
             raise ValueError("Expected at least a static value or a scoreboard value, got none.")
+
+    def copy(self, target: ScoreboardValue, compileState: CompileState) -> ValueResource:
+        if self.is_static:
+            return type(self)(self.static_value, self.scoreboard_value)
+
+        compileState.ir.append(StoreFastVarNode(target, self.scoreboard_value))
+        return type(self)(self.static_value, target)
 
     @property
     def is_static(self) -> bool:

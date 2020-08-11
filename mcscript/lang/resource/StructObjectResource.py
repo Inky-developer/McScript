@@ -64,7 +64,7 @@ class StructObjectResource(ObjectResource):
         return self.struct.object_type
 
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List, str]:
-        components = [f"Object<{self.struct.name}>{{"]
+        components = [f"{self.struct.name}{{"]
 
         is_first = True
         for name, resource in self.public_namespace.items():

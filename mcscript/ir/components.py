@@ -150,14 +150,6 @@ class ConditionalNode(IRNode):
 
 
 class IfNode(IRNode):
-    # class _PosBranch(IRNode):
-    #     def __init__(self, commands: List[IRNode]):
-    #         super().__init__(commands)
-    #
-    # class _NegBranch(IRNode):
-    #     def __init__(self, commands: List[IRNode]):
-    #         super().__init__(commands)
-
     def __init__(self, condition: ConditionalNode, pos_branch: IRNode, neg_branch: IRNode = None):
         nodes = [pos_branch]
         if neg_branch is not None:
@@ -246,13 +238,15 @@ class StoreVarFromResultNode(IRNode):
 
 class FastVarOperationNode(IRNode):
     """
-    performs the operation in-place on a.
+    performs the operation on a and b and stores the result in var.
     b may be either another scoreboard value or an integer
+    Automatically creates an inner node if a has to be copied into var
     """
 
     def __init__(self, a: ScoreboardValue, b: Union[int, ScoreboardValue], operator: BinaryOperator):
         super().__init__()
-        self["a"] = a
+
+        self["var"] = a
         self["b"] = b
         self["operator"] = operator
 

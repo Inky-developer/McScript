@@ -206,7 +206,7 @@ class McDatapackBackend(IRBackend[Datapack]):
         self.command_buffer[-1].append(f"{base} {command}")
 
     def handle_fast_var_operation_node(self, node: FastVarOperationNode):
-        a = node["a"]
+        a = node["var"]
         b = node["b"]
         operator = node["operator"]
 
@@ -214,6 +214,8 @@ class McDatapackBackend(IRBackend[Datapack]):
         # use a constant to create a scoreboard value for b
         if isinstance(b, int) and operator not in (BinaryOperator.PLUS, BinaryOperator.MINUS):
             b = self._get_constant(b, a.scoreboard)
+
+        self.handle_children(node)
 
         if isinstance(b, ScoreboardValue):
             self.command_buffer[-1].append(

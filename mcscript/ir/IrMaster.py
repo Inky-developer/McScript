@@ -5,6 +5,7 @@ from typing import List, Union, Generator, Iterable, Optional
 
 from mcscript.ir import IRNode
 from mcscript.ir.components import FunctionNode
+from mcscript.ir.optimize import optimize
 from mcscript.utils.resources import Identifier, SourceLocation, ResourceSpecifier
 
 
@@ -25,6 +26,14 @@ class IrMaster:
     
     def optimize(self):
         """ Optimizes the contained function nodes"""
+        # expensive optimization pass
+        # ToDo: real Debug mode
+        DEBUG = False
+        if not DEBUG:
+            (start_node,) = [i for i in self.function_nodes if i["name"] == "main"]
+            optimize(start_node, self.function_nodes)
+
+        # simple optimization pass
         function_nodes = [i.optimized(self, None)[0] for i in self.function_nodes]
         self.function_nodes = [i for i in function_nodes if not i["drop"]]
 

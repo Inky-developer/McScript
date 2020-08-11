@@ -1,4 +1,5 @@
-from typing import Dict, Tuple
+from contextlib import contextmanager
+from typing import Dict, Tuple, Optional
 
 from lark import Token, Tree
 from lark.visitors import Interpreter
@@ -31,6 +32,17 @@ class Compiler(Interpreter):
     def __init__(self):
         # noinspection PyTypeChecker
         self.compileState: CompileState = None
+
+        # The resource which is on the left side of an assignment (a = b)
+        self.assign_resource: Optional[Resource] = None
+
+    @contextmanager
+    def assignment(self, left_hand_value: Resource):
+        self.assign_resource = left_hand_value
+        try:
+            yield
+        finally:
+            self.assign_resource = None
 
     def visit(self, tree):
         previous = self.compileState.currentTree
@@ -291,6 +303,15 @@ class Compiler(Interpreter):
             number1 = self.binaryOperation(*number1)
 
         number1 = self.compileState.load(number1)
+
+        # by default all operations are in-place. If this is not wanted, a copy has to be created
+        if isinstance(number1, ValueResource) and isinstance(self.assign_resource, ValueResource):
+            if number1.scoreboard_value != self.assign_resource.scoreboard_value and \
+                    self.assign_resource.scoreboard_value is not None:
+                self.compileState.ir.append(
+                    StoreFastVarNode(number1.scoreboard_value, self.assign_resource.scoreboard_value))
+                number1.scoreboard_value = self.assign_resource.scoreboard_value
+
         for i in range(0, len(values), 2):
             operator, number2, = values[i:i + 2]
 
@@ -356,7 +377,9 @@ class Compiler(Interpreter):
 
         identifier, = identifier.children
 
-        value = self.compileState.toResource(_value)
+        # if an operation happens, the variable to store to is needed
+        with self.assignment(self.compileState.currentContext().find_resource(identifier)):
+            value = self.compileState.toResource(_value)
 
         self.compileState.currentTree = _value
         set_variable(self.compileState, identifier, value)
