@@ -592,7 +592,7 @@ class Compiler(Interpreter):
         self.compileState.ir.append(ExecuteNode(
             readContextManipulator(modifiers, self.compileState),
             [FunctionCallNode(
-                block_name)]
+                self.compileState.ir.find_function_node(block_name))]
         ))
 
     def expression(self, tree):

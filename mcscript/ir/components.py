@@ -25,6 +25,8 @@ class FunctionNode(IRNode):
         self["name"] = name
         # whether the function is dead code and can be dropped
         self["drop"] = False
+        # modified by every FunctionCallNode that points to this function
+        self["num_callers"] = 0
 
 
 class FunctionCallNode(IRNode):
@@ -32,19 +34,23 @@ class FunctionCallNode(IRNode):
     A mcfunction call
     """
 
-    def __init__(self, function_name: ResourceSpecifier):
+    def __init__(self, function: FunctionNode):
         super().__init__()
-        self["name"] = function_name
+        self["function"] = function
+        self["function"]["num_callers"] += 1
 
-    def optimized(self, ir_master: IrMaster, parent: IRNode) -> Tuple[IRNode, bool]:
-        if function_node := ir_master.find_function_node(self["name"]):
-            # inline if the called function only has one child
-            if len(function_node.inner_nodes) == 1:
-                node = function_node.inner_nodes[0]
-                if node.allow_inline_optimization():
-                    # Drop this node because it will be inlined everywhere
-                    function_node["drop"] = True
-                    return node, True
+    def optimized(self, ir_master: IrMaster, parent: IRNode) -> Tuple[Union[IRNode, Tuple[IRNode, ...]], bool]:
+        # inline if the called function only has one child
+        if len(self["function"].inner_nodes) == 1:
+            node = self["function"].inner_nodes[0]
+            if node.allow_inline_optimization():
+                # Drop this node because it will be inlined everywhere
+                self["function"]["drop"] = True
+                return node, True
+        elif isinstance(parent, FunctionNode) and self["function"]["num_callers"] == 1:
+            # Simply remove this useless function and inline it
+            self["function"]["drop"] = True
+            return self["function"].inner_nodes, True
 
         return super().optimized(ir_master, parent)
 

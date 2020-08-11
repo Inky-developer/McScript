@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import List, Dict, Any, Optional, TYPE_CHECKING, Tuple, Iterator, TypeVar, Type
+from typing import List, Dict, Any, Optional, TYPE_CHECKING, Tuple, Iterator, TypeVar, Type, Union
 
 from mcscript.utils.resources import SourceLocation
 from mcscript.utils.utils import camel_case_to_snake_case
@@ -53,7 +53,8 @@ class IRNode:
         """
         return len(self.inner_nodes) <= 1
 
-    def optimized(self, ir_master: IrMaster, parent: Optional[IRNode]) -> Tuple[IRNode, bool]:
+    def optimized(self, ir_master: IrMaster, parent: Optional[IRNode]) -> \
+            Tuple[Union[IRNode, Tuple[IRNode, ...]], bool]:
         """
         Optimizes this node.
         If no optimizations can be made, the same node should be returned.
@@ -71,7 +72,11 @@ class IRNode:
             node = self.inner_nodes[index]
             optimized_node, has_changed = node.optimized(ir_master, self)
             if has_changed:
-                self.inner_nodes[index] = optimized_node
+                if isinstance(optimized_node, IRNode):
+                    self.inner_nodes[index] = optimized_node
+                else:
+                    # insert the list of new nodes
+                    self.inner_nodes = self.inner_nodes[:index] + list(optimized_node) + self.inner_nodes[index + 1:]
                 changed = True
             else:
                 index += 1

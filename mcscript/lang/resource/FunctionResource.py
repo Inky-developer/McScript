@@ -37,7 +37,7 @@ class FunctionResource(GenericFunctionResource):
             compile_state.compileFunction(self.code)
             return_value = compile_state.currentContext().return_resource or NullResource()
 
-        compile_state.ir.append(FunctionCallNode(function_name))
+        compile_state.ir.append(FunctionCallNode(compile_state.ir.find_function_node(function_name)))
         return return_value
 
     def type(self) -> Type:
