@@ -24,7 +24,7 @@ from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.StructResource import StructResource
 from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.TypeResource import TypeResource
-from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.functionSignature import FunctionSignature, FunctionParameter
 
 
@@ -401,10 +401,10 @@ class Compiler(Interpreter):
                 self.compileState
             )
 
-        if (size := expression.getAttribute(self.compileState, "size").integer_value()) != len(variables):
+        if (size := expression.size()) != len(variables):
             raise McScriptDeclarationError(
                 f"Tuple must contain exactly {len(variables)} elements but found {size}:\n"
-                f'({", ".join(i.type().value for i in expression.resources)})',
+                f'({", ".join(str(i.type()) for i in expression.resources)})',
                 self.compileState
             )
 
@@ -413,19 +413,7 @@ class Compiler(Interpreter):
             set_variable(self.compileState, variable, value)
 
     def static_declaration(self, tree):
-        declaration = tree.children[0]
-        identifier, value = declaration.children
-        if len(identifier.children) > 1:
-            raise McScriptSyntaxError(
-                f"Cannot set a static value on an object.", self.compileState)
-        identifier, = identifier.children
-        value = self.compileState.toResource(value)
-
-        if isinstance(value, ObjectResource):
-            raise McScriptTypeError(f"Only simple datatypes can be assigned using static, not {value.type()}",
-                                    self.compileState)
-
-        self.compileState.currentContext().add_var(identifier, value)
+        raise NotImplementedError("Static declarations are shelved.")
 
     def term_ip(self, tree):
         """
