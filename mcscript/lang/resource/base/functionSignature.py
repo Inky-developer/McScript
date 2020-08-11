@@ -98,11 +98,11 @@ class FunctionSignature:
             # default value if given
             suffix += f" = {parameter.defaultValue}" if parameter.defaultValue else ""
 
-            parameters.append(f'{prefix}{parameter.name}: {parameter.type}{suffix}')
+            parameters.append(f'{prefix}{parameter.name}: {parameter.type.name}{suffix}')
 
         return f"fun {self.name}" \
                f"({', '.join(parameters)})" \
-               f" -> {self.returnType}"
+               f" -> {self.returnType.name}"
 
     def matchParameters(self, compileState: CompileState, parameters: Sequence[Resource]) -> List[Resource]:
         """

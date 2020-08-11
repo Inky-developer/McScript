@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, List
 
 from lark import Token, Tree
 from lark.visitors import Interpreter
@@ -34,15 +34,15 @@ class Compiler(Interpreter):
         self.compileState: CompileState = None
 
         # The resource which is on the left side of an assignment (a = b)
-        self.assign_resource: Optional[Resource] = None
+        self.assign_resource: List[Resource] = []
 
     @contextmanager
     def assignment(self, left_hand_value: Resource):
-        self.assign_resource = left_hand_value
+        self.assign_resource.append(left_hand_value)
         try:
             yield
         finally:
-            self.assign_resource = None
+            self.assign_resource.pop()
 
     def visit(self, tree):
         previous = self.compileState.currentTree
@@ -305,12 +305,18 @@ class Compiler(Interpreter):
         number1 = self.compileState.load(number1)
 
         # by default all operations are in-place. If this is not wanted, a copy has to be created
-        if isinstance(number1, ValueResource) and isinstance(self.assign_resource, ValueResource):
-            if number1.scoreboard_value != self.assign_resource.scoreboard_value and \
-                    self.assign_resource.scoreboard_value is not None:
-                self.compileState.ir.append(
-                    StoreFastVarNode(number1.scoreboard_value, self.assign_resource.scoreboard_value))
-                number1.scoreboard_value = self.assign_resource.scoreboard_value
+        if self.assign_resource:
+            assign_resource = self.assign_resource[-1]
+            scoreboard_value = None
+
+            if isinstance(assign_resource, ValueResource):
+                scoreboard_value = assign_resource.scoreboard_value
+            elif assign_resource is None:
+                scoreboard_value = self.compileState.expressionStack.next()
+
+            if isinstance(number1, ValueResource) and scoreboard_value is not None:
+                if number1.scoreboard_value != scoreboard_value:
+                    number1 = number1.copy(scoreboard_value, self.compileState)
 
         for i in range(0, len(values), 2):
             operator, number2, = values[i:i + 2]
@@ -378,7 +384,8 @@ class Compiler(Interpreter):
         identifier, = identifier.children
 
         # if an operation happens, the variable to store to is needed
-        with self.assignment(self.compileState.currentContext().find_resource(identifier)):
+        resource = self.compileState.currentContext().find_resource(identifier)
+        with self.assignment(resource):
             value = self.compileState.toResource(_value)
 
         self.compileState.currentTree = _value

@@ -37,6 +37,7 @@ class Analyzer:
         - index_setter?
         - term_ip
         - value
+        - function parameters
     """
 
     def __init__(self):
@@ -85,6 +86,22 @@ class Analyzer:
         [self.visit(i) for i in tree.children]
         self.pop_context()
 
+    def function_definition(self, tree: Tree):
+        _, _name, parameter_list, _return_type, body = tree.children
+        self.pushContext(body.line, body.column)
+        [self.visit(i) for i in parameter_list.children]
+        [self.visit(i) for i in body.children]
+        self.pop_context()
+
+    def function_parameter(self, tree: Tree):
+        name, _type = tree.children
+        self.stack[-1].append(VariableContext(
+            name,
+            VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)),
+            False,
+            False
+        ))
+
     def declaration(self, tree: Tree):
         accessor, expression = tree.children
         self.visit(expression)
@@ -122,9 +139,7 @@ class Analyzer:
         accessor, operator, expression = tree.children
         self.visit(expression)
 
-        identifier, *not_implemented = accessor.children
-        if not_implemented:
-            return
+        identifier, *_ = accessor.children
 
         if var := getVar(self.stack, identifier):
             var.writes.append(VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)))
