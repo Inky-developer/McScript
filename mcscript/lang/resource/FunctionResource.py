@@ -47,6 +47,9 @@ class FunctionResource(GenericFunctionResource):
     def type(self) -> Type:
         return Function
 
+    def __str__(self):
+        return self.function_signature.signature_string()
+
 
 class MethodResource(GenericFunctionResource):
     """
@@ -67,3 +70,6 @@ class MethodResource(GenericFunctionResource):
 
     def type(self) -> Type:
         return Function
+
+    def __str__(self):
+        return str(self.function)

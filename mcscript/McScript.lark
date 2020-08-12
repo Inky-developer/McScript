@@ -1,12 +1,12 @@
-start: statement*
+start: (statement _STATEMENT_SEPARATOR)*
 
-statement: declaration _STATEMENT_SEPARATOR
-         | static_declaration _STATEMENT_SEPARATOR
-         | index_setter _STATEMENT_SEPARATOR
-         | term_ip _STATEMENT_SEPARATOR
-         | expression _STATEMENT_SEPARATOR
+statement: declaration
+         | static_declaration
+         | index_setter
+         | term_ip
+         | expression
          | function_definition
-         | "return " expression _STATEMENT_SEPARATOR -> return_
+         | "return " expression -> return_
          | control_if
          | control_while
          | control_do_while
@@ -16,7 +16,7 @@ statement: declaration _STATEMENT_SEPARATOR
          | context_manipulator
          | COMMENT -> comment
 
-block: "{" statement* "}"
+block: "{" (statement _STATEMENT_SEPARATOR)* statement? "}"
 
 function_parameter: IDENTIFIER ":" IDENTIFIER
 // ToDo: Prevent this syntax: fun foo(self param1)
@@ -81,7 +81,8 @@ enum_block: "{" ( enum_property _STATEMENT_SEPARATOR )* enum_property _STATEMENT
 enum_property: IDENTIFIER | (IDENTIFIER "=" INTEGER)
 
 control_struct: _KEYWORD_STRUCT IDENTIFIER struct_block
-struct_block: "{" ( (variable_declaration _STATEMENT_SEPARATOR) | function_definition )* "}"
+struct_block: "{" ( struct_member _STATEMENT_SEPARATOR )* struct_member? "}"
+struct_member: variable_declaration  | function_definition
 
 context_manipulator: _KEYWORD_RUN ( context_modifier)+ block
 context_modifier: _CONTEXT_FOR expression -> context_for

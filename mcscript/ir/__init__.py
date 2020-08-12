@@ -81,14 +81,18 @@ class IRNode:
             else:
                 index += 1
 
-            for node in self.discarded_inner_nodes:
-                node_index = self.inner_nodes.index(node)
-                if node_index <= index:
-                    index -= 1
-                del self.inner_nodes[node_index]
-            self.discarded_inner_nodes.clear()
+            if self.clear_discarded_nodes():
+                index -= 1
 
         return self, changed
+
+    def clear_discarded_nodes(self) -> bool:
+        ret = len(self.discarded_inner_nodes) != 0
+        for node in self.discarded_inner_nodes:
+            node_index = self.inner_nodes.index(node)
+            del self.inner_nodes[node_index]
+        self.discarded_inner_nodes.clear()
+        return ret
 
     def iter_nested_nodes(self) -> Iterator[IRNode]:
         """

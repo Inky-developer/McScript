@@ -53,11 +53,11 @@ class Compiler(Interpreter):
         for builtin in builtins:
             self.compileState.currentContext().add_var(builtin.name, builtin)
 
-        with self.compileState.ir.with_function("main"):
+        with self.compileState.ir.with_function(self.compileState.resource_specifier_main("main")):
             self.compileState.pushContext(ContextType.GLOBAL, 0, 0)
             self.visit(tree)
 
-        with self.compileState.ir.with_function("init_scoreboards"):
+        with self.compileState.ir.with_function(self.compileState.resource_specifier_main("init_scoreboards")):
             for scoreboard in self.compileState.scoreboards:
                 self.compileState.ir.append(ScoreboardInitNode(scoreboard))
 
@@ -286,29 +286,30 @@ class Compiler(Interpreter):
     def binaryOperation(self, *args):
         number1, *values = args
 
+        # whether the first number may be overwritten
+        is_temporary = False
+
         # the first number can also be a list. Then just do a binary operation with it
         if isinstance(number1, list):
             number1 = self.binaryOperation(*number1)
+            is_temporary = True
 
         number1 = self.compileState.load(number1)
 
-        # by default all operations are in-place. If this is not wanted, a copy has to be created
-        if assign_resource := self.compileState.get_global_data("assign_resource"):
-            scoreboard_value = None
-
-            if isinstance(assign_resource, ValueResource):
-                scoreboard_value = assign_resource.scoreboard_value
-            elif assign_resource is None:
-                scoreboard_value = self.compileState.expressionStack.next()
-
-            if isinstance(number1, ValueResource) and scoreboard_value is not None:
-                if number1.scoreboard_value != scoreboard_value:
-                    number1 = number1.copy(scoreboard_value, self.compileState)
+        # by default all operations are in-place. This is not wanted, so the resource is copied
+        if isinstance(number1, ValueResource) and not number1.is_static and not is_temporary:
+            assign_resource = self.compileState.get_global_data("assign_resource")
+            if isinstance(assign_resource, ValueResource) and not assign_resource.is_static:
+                assign_stack = assign_resource.scoreboard_value
+            else:
+                assign_stack = self.compileState.expressionStack.next()
+            number1 = number1.copy(assign_stack, self.compileState)
 
         for i in range(0, len(values), 2):
             operator, number2, = values[i:i + 2]
 
             if isinstance(number2, list):
+                # number2 is now also temporary, but is will not change anyways
                 number2 = self.binaryOperation(*number2)
 
             # get the operator enum type
@@ -548,7 +549,7 @@ class Compiler(Interpreter):
         try:
             return function.operation_call(self.compileState, *visited_params)
         except TypeError:
-            raise McScriptTypeError(f"The resource {repr(function)} can not be treated like a function",
+            raise McScriptTypeError(f"'{str(function)}' can not be treated like a function",
                                     self.compileState)
 
     def variable_declaration(self, tree):
@@ -591,5 +592,5 @@ class Compiler(Interpreter):
         # self.compileState.writeline(f"# {self.compileState.getDebugLines(tree.meta.line, tree.meta.end_line)}")
         res = self.visit_children(tree)
         # # now clear up the expression counter
-        self.compileState.expressionStack.reset()
+        # self.compileState.expressionStack.reset()
         return res

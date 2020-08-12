@@ -20,17 +20,19 @@ def include() -> List[MacroResource]:
 
 
 def macro(*, parameters: List[FunctionParameter] = None, return_type: Type = Null,
-          name: str = None) -> Callable[[MacroCallable], MacroResource]:
+          name: str = None, documentation: str = None) -> Callable[[MacroCallable], MacroResource]:
     """
     Returns a MacroResource object wrapping this function
     If a signature is specified, all parameters will be matched first and the function
     is guaranteed to only get parameters of the correct type.
     If a name is specified, the default name (name of the function) will be overwritten.
+    If a docstring is specified, the fun.__doc__ attribute will not be used.
 
     Args:
         parameters: The function parameters. Default to arbitrary amount of any resource
         return_type: The type of resource returned by this macro. Default to NullResource
         name: The name of this macro
+        documentation: The documentation
 
     Returns:
         A Function taking a function, which returns a MacroResource object
@@ -39,6 +41,7 @@ def macro(*, parameters: List[FunctionParameter] = None, return_type: Type = Nul
     def wrapper(func: MacroCallable) -> MacroResource:
         nonlocal name, parameters
         name = name or func.__name__
+        doc = documentation or func.__doc__
         parameters = parameters or [
             FunctionParameter("parameters", Any, FunctionParameter.ParameterCount.ARBITRARY)
         ]
@@ -47,7 +50,7 @@ def macro(*, parameters: List[FunctionParameter] = None, return_type: Type = Nul
                 parameters,
                 return_type,
                 name,
-                func.__doc__
+                documentation=doc
             ),
             name,
             func,

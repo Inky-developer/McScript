@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, ClassVar
 
 from mcscript.ir.command_components import BinaryOperator, ScoreRelation
-from mcscript.ir.components import StoreFastVarNode, ConditionalNode
+from mcscript.ir.components import ConditionalNode
 from mcscript.lang.Type import Type
 from mcscript.lang.atomic_types import Int
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
@@ -22,16 +22,6 @@ class IntegerResource(ValueResource[int]):
 
     def type(self) -> Type:
         return Int
-
-    def store(self, compileState: CompileState) -> IntegerResource:
-        """ Load a static number to a scoreboard or to a data storage """
-        if not self.is_static:
-            return IntegerResource(self.static_value, self.scoreboard_value)
-
-        scoreboard_address = compileState.expressionStack.next()
-        compileState.ir.append(StoreFastVarNode(scoreboard_address, self.static_value))
-
-        return IntegerResource(None, scoreboard_address)
 
     def numericOperation(self, other: ValueResource, operator: BinaryOperator,
                          compileState: CompileState) -> IntegerResource:

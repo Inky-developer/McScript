@@ -34,7 +34,7 @@ class Context:
         The value class of the namespace of the context
         """
         resource: Resource = field()
-        context: Optional[VariableContext] = field(default=None)
+        context: Optional[VariableContext] = field(default=None, repr=False)
 
     def __init__(
             self,

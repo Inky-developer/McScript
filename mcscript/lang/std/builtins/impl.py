@@ -51,4 +51,19 @@ def create_text_functions() -> List[MacroResource]:
     return ret
 
 
-EXPORTS = [] + create_text_functions()
+@macro(
+    parameters=[
+        FunctionParameter("resource", Any, accepts=FunctionParameter.ResourceMode.STATIC)
+    ],
+    return_type=Any
+)
+def dyn(compile_state: CompileState, resource: Resource) -> Resource:
+    """ Stores a static resource onto a scoreboard"""
+    r = resource.store(compile_state)
+    r.static_value = None
+    return r
+
+
+# Pycharm cannot apply the type macro at type-check time (Which actually creates a MacroResource)
+# noinspection PyTypeChecker
+EXPORTS: List[MacroResource] = [dyn] + create_text_functions()

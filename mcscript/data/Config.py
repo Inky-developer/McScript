@@ -3,12 +3,9 @@ from __future__ import annotations
 import configparser
 from functools import cached_property
 from os.path import exists
-from typing import TYPE_CHECKING
 
 from mcscript import Logger
-
-if TYPE_CHECKING:
-    from mcscript.utils.resources import ResourceSpecifier
+from mcscript.utils.resources import ResourceSpecifier
 
 
 class Config:
@@ -97,6 +94,11 @@ class Config:
 
     def get_storage(self, key) -> str:
         return self["storage"][key]
+
+    # Utility functions
+
+    def resource_specifier_main(self, name: str) -> ResourceSpecifier:
+        return ResourceSpecifier(self.NAME, name)
 
     def __getitem__(self, item):
         return self.config[item]

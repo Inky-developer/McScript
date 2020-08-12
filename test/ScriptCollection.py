@@ -78,17 +78,19 @@ struct Complex {
     }
 
     fun square(self) -> Complex {
-        return Complex(self.real * self.real - self.imag * self.imag, 2.0 * self.real * self.imag)
+        return Complex(self.real * self.real - self.imag * self.imag, self.real * self.imag * 2.0)
     }
 
     fun absSquared(self) -> Fixed {
-        return self.real * self.real + self.imag * self.imag;
+        real_squared = self.real * self.real
+        imag_squared = self.imag * self.imag
+        return (real_squared, imag_squared, real_squared + imag_squared)
     }
 }
 
-a = Complex(1.0, 2.0)
+a = Complex(dyn(3.0), dyn(2.0))
 
-print("{}", a.square())
+print("{}", a.absSquared())
 """
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")

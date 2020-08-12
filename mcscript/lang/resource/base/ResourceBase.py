@@ -52,21 +52,6 @@ class Resource(ABC):
         """
         raise TypeError(f"Resource {self} cannot be stored.")
 
-    def copy(self, target: ScoreboardValue, compileState: CompileState) -> Resource:
-        """
-        Non-static operation. Must be implemented if this resource does not require inline-functions.
-        Move the value of this resource to the target resource and return the new resource
-        Default implementation raises TypeError
-
-        Args:
-            target: the target resource one of AddressResource and NbtAddressResource
-            compileState: the compile state
-
-        Returns:
-            the new resource
-        """
-        raise TypeError
-
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         """
         Returns the attribute with `name`.
@@ -285,8 +270,18 @@ class ValueResource(Generic[VT], Resource, ABC):
             raise ValueError("Expected at least a static value or a scoreboard value, got none.")
 
     def copy(self, target: ScoreboardValue, compileState: CompileState) -> ValueResource:
+        """
+        Copy this resource
+
+        Args:
+            target: the target value
+            compileState: the compile state
+
+        Returns:
+            A new copied resource
+        """
         if self.is_static:
-            return type(self)(self.static_value, self.scoreboard_value)
+            return self.store(compileState, target)
 
         compileState.ir.append(StoreFastVarNode(target, self.scoreboard_value))
         return type(self)(self.static_value, target)
@@ -298,6 +293,15 @@ class ValueResource(Generic[VT], Resource, ABC):
         but not (directly) at runtime
         """
         return self.scoreboard_value is None
+
+    def store(self, compileState: CompileState, scoreboard_address: ScoreboardValue = None) -> ValueResource:
+        if not self.is_static:
+            return type(self)(self.static_value, self.scoreboard_value)
+
+        scoreboard_address = scoreboard_address or compileState.expressionStack.next()
+        compileState.ir.append(StoreFastVarNode(scoreboard_address, self.static_value))
+
+        return type(self)(self.static_value, scoreboard_address)
 
     def to_json_text(self, compile_state: CompileState, formatter: ResourceTextFormatter):
         if self.static_value is not None:

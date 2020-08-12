@@ -3,8 +3,7 @@ from __future__ import annotations
 from typing import Dict, TYPE_CHECKING, Union, ClassVar
 
 from mcscript.ir.command_components import StorageDataType, ScoreRelation, BinaryOperator
-from mcscript.ir.components import (StoreVarFromResultNode, GetFastVarNode, ConditionalNode, FastVarOperationNode,
-                                    StoreFastVarNode)
+from mcscript.ir.components import (StoreVarFromResultNode, GetFastVarNode, ConditionalNode, FastVarOperationNode)
 from mcscript.lang.Type import Type
 from mcscript.lang.atomic_types import Fixed
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
@@ -37,15 +36,6 @@ class FixedNumberResource(ValueResource):
     @classmethod
     def fromNumber(cls, number: Union[int, float]) -> FixedNumberResource:
         return FixedNumberResource(int(round(number * cls.BASE)), None)
-
-    def store(self, compileState: CompileState) -> Resource:
-        if not self.is_static:
-            return FixedNumberResource(self.static_value, self.scoreboard_value)
-
-        scoreboard_address = compileState.expressionStack.next()
-        compileState.ir.append(StoreFastVarNode(scoreboard_address, self.static_value))
-
-        return FixedNumberResource(self.static_value, scoreboard_address)
 
     def operation_test_relation(self, compileState: CompileState, relation: ScoreRelation,
                                 other: Resource) -> ConditionalNode:
@@ -151,11 +141,12 @@ class FixedNumberResource(ValueResource):
         if self.is_static:
             return formatter.createFromResource(f"{self.static_value / self.BASE}")
 
+        storage = compileState.temp_data_counter.next()
         compileState.ir.append(StoreVarFromResultNode(
-            compileState.data_path_temp,
+            storage,
             GetFastVarNode(self.scoreboard_value),
             StorageDataType.DOUBLE,
             1 / self.BASE
         ))
 
-        return format_nbt(compileState.data_path_temp)
+        return format_nbt(storage)

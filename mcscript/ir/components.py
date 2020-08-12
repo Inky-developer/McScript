@@ -9,7 +9,7 @@ from mcscript.ir import IRNode
 from mcscript.ir.command_components import (Position, ExecuteAnchor, ScoreRelation, ScoreRange, BinaryOperator,
                                             StorageDataType)
 from mcscript.utils.Scoreboard import Scoreboard
-from mcscript.utils.resources import ResourceSpecifier, Identifier, ScoreboardValue, DataPath
+from mcscript.utils.resources import ResourceSpecifier, ScoreboardValue, DataPath
 
 if TYPE_CHECKING:
     from mcscript.ir.IrMaster import IrMaster
@@ -20,7 +20,7 @@ class FunctionNode(IRNode):
     A nodes that contains various other nodes which can be serialized to a mcfunction file
     """
 
-    def __init__(self, name: Identifier, children: List[IRNode]):
+    def __init__(self, name: ResourceSpecifier, children: List[IRNode]):
         super().__init__(children)
         self["name"] = name
         # whether the function is dead code and can be dropped

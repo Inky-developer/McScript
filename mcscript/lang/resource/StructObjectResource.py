@@ -37,7 +37,7 @@ class StructObjectResource(ObjectResource):
             # wrong parameter type
             if not value.type().matches(definitions[name]):
                 raise McScriptTypeError(
-                    f"Expected type {{{definitions[name]}}} but got {{{value.type()}}} for attribute {name}",
+                    f"Expected type {definitions[name]} but got {value.type()} for attribute {name}",
                     compile_state)
             # parameter already specified
             if name in used_parameters:

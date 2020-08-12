@@ -13,7 +13,7 @@ class ContextStack:
         self.data.append(context)
 
     def index(self) -> int:
-        return max(len(self.data) - 1, 0)
+        return len(self.data)
 
     def search_by_pos(self, line: int, column: int) -> Optional[Context]:
         """

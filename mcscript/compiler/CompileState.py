@@ -15,7 +15,7 @@ from mcscript.ir.IrMaster import IrMaster
 from mcscript.lang.Type import Type
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.Scoreboard import Scoreboard
-from mcscript.utils.addressCounter import ScoreboardAddressCounter, AddressCounter
+from mcscript.utils.addressCounter import ScoreboardAddressCounter, AddressCounter, StorageAddressCounter
 from mcscript.utils.resources import DataPath, ScoreboardValue, Identifier, ResourceSpecifier
 
 
@@ -48,10 +48,11 @@ class CompileState:
 
         self.scoreboard_main = self.scoreboards[0]
         self.data_path_main = DataPath(self.config.storage_id, self.config.get_storage("stack").split("."))
-        self.data_path_temp = DataPath(self.config.storage_id, self.config.get_storage("temp").split("0"))
+        self.data_path_temp = DataPath(self.config.storage_id, self.config.get_storage("temp").split("."))
 
         # ToDo: maybe move to ir gen code?
         self.node_block_counter = AddressCounter("block_{}_")
+        self.temp_data_counter = StorageAddressCounter(self.data_path_temp)
 
         # ToDO: add (line, column) class
         self.contexts = contexts
@@ -204,7 +205,7 @@ class CompileState:
         self.pushContext(context_type, line, column)
         block_name = self.node_block_counter.next()
 
-        with self.ir.with_function(block_name):
+        with self.ir.with_function(self.resource_specifier_main(block_name)):
             try:
                 yield self.resource_specifier_main(block_name)
             finally:
@@ -217,4 +218,4 @@ class CompileState:
         return ScoreboardValue(Identifier(identifier), self.scoreboard_main)
 
     def resource_specifier_main(self, name: str) -> ResourceSpecifier:
-        return ResourceSpecifier(self.config.NAME, name)
+        return self.config.resource_specifier_main(name)

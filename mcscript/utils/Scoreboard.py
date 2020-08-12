@@ -3,7 +3,6 @@ from functools import cached_property
 from typing import List
 
 from mcscript import Logger
-from mcscript.data.Config import Config
 
 
 def _char_range(start, end) -> List[str]:
@@ -41,6 +40,8 @@ class Scoreboard:
         which means that three characters are left for scoreboard identifiers.
         66^3-1 = 287_495 which should be enough unique scoreboard names for most purposes
         """
+        from mcscript.data.Config import Config
+
         out = []
         index = self.index
         while index >= len(VALID_OBJECTIVE_CHARACTERS):

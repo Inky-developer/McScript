@@ -61,11 +61,11 @@ class McDatapackBackend(IRBackend[Datapack]):
         # Add constant values
         nodes = [StoreFastVarNode(self.constant_scores[i], i)
                  for i in self.constant_scores]
-        function = FunctionNode(Identifier("init_constants"), nodes)
+        function = FunctionNode(self.config.resource_specifier_main("init_constants"), nodes)
         self.handle(function)
 
     def handle_function_node(self, node: FunctionNode):
-        self.files.push(f"{node['name']}.mcfunction")
+        self.files.push(f"{node['name'].path}.mcfunction")
         for child in node.inner_nodes:
             self.command_buffer.append([])
             self.handle(child)
@@ -76,7 +76,8 @@ class McDatapackBackend(IRBackend[Datapack]):
         self.command_buffer.clear()
 
     def handle_function_call_node(self, node: FunctionCallNode):
-        value = node["name"]
+        function = node["function"]
+        value = function["name"]
         self.command_buffer[-1].append(
             f"function {value.base}:{value.path}"
         )
