@@ -25,6 +25,7 @@ from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.functionSignature import FunctionSignature, FunctionParameter
+from mcscript.lang.utility import isStatic
 
 
 class Compiler(Interpreter):
@@ -283,11 +284,12 @@ class Compiler(Interpreter):
         self.compileState.ir.append(InvertNode(value.scoreboard_value, value.scoreboard_value))
         return BooleanResource(None, stack)
 
-    def binaryOperation(self, *args):
+    def binaryOperation(self, *args, assignment_resource: Resource = None):
         number1, *values = args
 
         # whether the first number may be overwritten
         is_temporary = False
+        all_static = all(isStatic(i) for i in args[::2])
 
         # the first number can also be a list. Then just do a binary operation with it
         if isinstance(number1, list):
@@ -297,13 +299,10 @@ class Compiler(Interpreter):
         number1 = self.compileState.load(number1)
 
         # by default all operations are in-place. This is not wanted, so the resource is copied
-        if isinstance(number1, ValueResource) and not number1.is_static and not is_temporary:
-            assign_resource = self.compileState.get_global_data("assign_resource")
-            if isinstance(assign_resource, ValueResource) and not assign_resource.is_static:
-                assign_stack = assign_resource.scoreboard_value
-            else:
-                assign_stack = self.compileState.expressionStack.next()
-            number1 = number1.copy(assign_stack, self.compileState)
+        if isinstance(number1, ValueResource) and not all_static and not is_temporary:
+            # copy, except the assign resource is number1 (OPT)
+            if assignment_resource is None:
+                number1 = number1.copy(self.compileState.expressionStack.next(), self.compileState)
 
         for i in range(0, len(values), 2):
             operator, number2, = values[i:i + 2]

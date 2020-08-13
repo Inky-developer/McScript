@@ -8,6 +8,7 @@ from mcscript.backends.mc_datapack_backend.Datapack import Datapack
 from mcscript.backends.mc_datapack_backend.utils import position_to_str
 from mcscript.data.Config import Config
 from mcscript.ir.components import *
+from mcscript.utils.resources import Identifier
 
 
 class McDatapackBackend(IRBackend[Datapack]):

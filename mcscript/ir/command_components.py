@@ -145,6 +145,9 @@ class BinaryOperator(Enum):
     DIVIDE = "/"
     MODULO = "%"
 
+    def is_commutative(self):
+        return self in (BinaryOperator.PLUS, BinaryOperator.TIMES)
+
 
 class UnaryOperator(Enum):
     MINUS = "-"

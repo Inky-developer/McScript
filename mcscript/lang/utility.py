@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 def isStatic(resource: Resource) -> bool:
     """ Returns whether the resource is static if it is a value resource else False"""
-    return getattr(resource, "isStatic", False)
+    return getattr(resource, "is_static", False)
 
 
 def compare_scoreboard_values(a: ValueResource, b: ValueResource, relation: ScoreRelation):
@@ -62,6 +62,8 @@ def operate_scoreboard_values(compile_state: CompileState, a: ValueResource, b: 
     # Most performance: performing the operation with a scoreboard value
     # as the first operand and a static value as the seconds operand
     # As a non static first operand is not possible and would have to be stored
+    if operator.is_commutative() and a.is_static:
+        a, b = b, a
     a, b = a.scoreboard_value or a.store(compile_state).scoreboard_value, b.static_value or b.scoreboard_value
 
     compile_state.ir.append(

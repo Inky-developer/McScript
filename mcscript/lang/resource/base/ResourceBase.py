@@ -271,7 +271,8 @@ class ValueResource(Generic[VT], Resource, ABC):
 
     def copy(self, target: ScoreboardValue, compileState: CompileState) -> ValueResource:
         """
-        Copy this resource
+        Copy this resource.
+        Note the this will be called with target == self.scoreboard_value, in this case a copy is not needed
 
         Args:
             target: the target value
@@ -282,6 +283,9 @@ class ValueResource(Generic[VT], Resource, ABC):
         """
         if self.is_static:
             return self.store(compileState, target)
+
+        if target == self.scoreboard_value:
+            return self
 
         compileState.ir.append(StoreFastVarNode(target, self.scoreboard_value))
         return type(self)(self.static_value, target)

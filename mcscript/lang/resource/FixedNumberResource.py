@@ -104,7 +104,8 @@ class FixedNumberResource(ValueResource):
         a, b = self, other
 
         if a.is_static:
-            a, b = b, a
+            # better dont swap operand while doing division...
+            a = a.store(compileState)
 
         compileState.ir.append(FastVarOperationNode(
             a.scoreboard_value,
@@ -118,7 +119,7 @@ class FixedNumberResource(ValueResource):
             BinaryOperator.DIVIDE
         ))
 
-        return FixedNumberResource(a.scoreboard_value, None)
+        return FixedNumberResource(None, a.scoreboard_value)
 
     def operation_modulo(self, other: FixedNumberResource, compileState: CompileState) -> FixedNumberResource:
         value = operate_scoreboard_values(compileState, self, other, BinaryOperator.MODULO)
