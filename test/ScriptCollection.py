@@ -69,13 +69,15 @@ fun make_disk() -> Null {
 """
 
 code_temp = r"""
-a = 2
-b = 3
+struct Hallo {
+    a: Int
+    b: Tuple
+}
 
-a += b + 2 + 5
+h = Hallo(1, (2, 3))
 
 run for @a {
-    print("{}", a)
+    print("{}", h)
 }
 """
 if __name__ == '__main__':

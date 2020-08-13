@@ -15,6 +15,16 @@ class ResourceTextFormatter:
         self.compileState = compileState
 
     def createFromResources(self, *resources: Union[str, Resource]) -> List:
+        # compact strings
+        if len(resources) > 1:
+            new_resources = [resources[0]]
+            for resource in resources[1:]:
+                if isinstance(new_resources[-1], str) and isinstance(resource, str):
+                    new_resources[-1] += resource
+                else:
+                    new_resources.append(resource)
+            resources = new_resources
+
         data = []
         for resource in resources:
             data.append(self.createFromResource(resource))
