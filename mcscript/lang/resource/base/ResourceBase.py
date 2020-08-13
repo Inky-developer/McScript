@@ -4,12 +4,11 @@ from abc import ABC, abstractmethod
 from typing import (TYPE_CHECKING, ClassVar, Dict, List, Optional, Type,
                     Union, TypeVar, Generic)
 
-from lark import Tree
-
 from mcscript.exceptions.compileExceptions import McScriptTypeError
 from mcscript.ir.command_components import BinaryOperator
 from mcscript.ir.components import ConditionalNode, StoreFastVarNode
 from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import Iterator
 from mcscript.utils.JsonTextFormat.objectFormatter import format_score, format_text
 from mcscript.utils.resources import ScoreboardValue
 
@@ -84,41 +83,36 @@ class Resource(ABC):
         """
         raise TypeError()
 
-    def iterate(self, compileState: CompileState, varName: str, block: Tree):
+    def get_iterator(self, compileState: CompileState) -> IteratorResource:
         """
-        If this resource supports iterations, this method is called to iterate over.
-
-        it is expected that `block` is execute for every element.
-        `varName` should have the value of each element, respectively.
-
-        It may be used a recursive function loop to iterate over the elements or just an "unrolled" loop if the
-        number of elements is known at compile time.
+        If this resource supports iterations, this method is called to get an iterator.
 
         Args:
             compileState: the compile state
-            varName: the name of the iteration variable
-            block: the tree that is the loop body
+
+        Returns:
+            An Iterator
 
         Raises:
             TypeError: if this operation is not supported
         """
-        raise TypeError
+        raise TypeError()
 
     def integer_value(self) -> int:
         """ Returns the associated integer value"""
-        raise TypeError
+        raise TypeError()
 
     def string_value(self) -> str:
         """ Returns the associated string value"""
-        raise TypeError
+        raise TypeError()
 
     def numericOperation(self, other: ValueResource, operator: BinaryOperator, compileState: CompileState) -> Resource:
         """
-        Performes a numeric operation with this resource.
+        Performs a numeric operation with this resource.
         The operation should be performed in-place
         """
         if not isinstance(other, type(self)):
-            raise TypeError
+            raise TypeError()
         try:
             if operator == BinaryOperator.PLUS:
                 return self.operation_plus(other, compileState)
@@ -136,19 +130,19 @@ class Resource(ABC):
         raise ValueError("Unknown operator: " + repr(operator))
 
     def operation_plus(self, other: ValueResource, compileState: CompileState) -> ValueResource:
-        raise TypeError
+        raise TypeError()
 
     def operation_minus(self, other: ValueResource, compileState: CompileState) -> ValueResource:
-        raise TypeError
+        raise TypeError()
 
     def operation_times(self, other: ValueResource, compileState: CompileState) -> ValueResource:
-        raise TypeError
+        raise TypeError()
 
     def operation_divide(self, other: ValueResource, compileState: CompileState) -> ValueResource:
-        raise TypeError
+        raise TypeError()
 
     def operation_modulo(self, other: ValueResource, compileState: CompileState) -> ValueResource:
-        raise TypeError
+        raise TypeError()
 
     def operation_negate(self, compileState: CompileState) -> Resource:
         """
@@ -160,7 +154,7 @@ class Resource(ABC):
         Returns:
             the new resource
         """
-        raise TypeError
+        raise TypeError()
 
     def operation_test_relation(self, compileState: CompileState, relation: ScoreRelation,
                                 other: Resource) -> ConditionalNode:
@@ -175,7 +169,7 @@ class Resource(ABC):
         Returns:
             A conditional execute that runs if the relations matches both resources
         """
-        raise TypeError
+        raise TypeError()
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keyword_parameters: Resource) -> Resource:
@@ -190,7 +184,7 @@ class Resource(ABC):
         Returns:
             a new resource
         """
-        raise TypeError
+        raise TypeError()
 
     def operation_get_element(self, compileState: CompileState, index: Resource) -> Resource:
         """
@@ -298,18 +292,19 @@ class ValueResource(Generic[VT], Resource, ABC):
         """
         return self.scoreboard_value is None
 
-    def store(self, compileState: CompileState, scoreboard_address: ScoreboardValue = None) -> ValueResource:
+    def store(self, compileState: CompileState, scoreboard_address: ScoreboardValue = None,
+              keep_static_value: bool = False) -> ValueResource:
         if not self.is_static:
             return type(self)(self.static_value, self.scoreboard_value)
 
         scoreboard_address = scoreboard_address or compileState.expressionStack.next()
         compileState.ir.append(StoreFastVarNode(scoreboard_address, self.static_value))
 
-        return type(self)(self.static_value, scoreboard_address)
+        return type(self)(self.static_value if keep_static_value else None, scoreboard_address)
 
     def to_json_text(self, compile_state: CompileState, formatter: ResourceTextFormatter):
         if self.static_value is not None:
-            return format_text(str(self.static_value))
+            return format_text(str(int(self.static_value)))
         return format_score(self.scoreboard_value)
 
     def __repr__(self):
@@ -390,3 +385,19 @@ class ObjectResource(Resource, ABC):
         # store all of the public namespace
         self.public_namespace = {name: value.store(compileState) for name, value in self.public_namespace.items()}
         return self
+
+
+class IteratorResource(Resource, ABC):
+    @abstractmethod
+    def next(self) -> Optional[Resource]:
+        """
+        Calculate and return the next element.
+        If the iterator is empty, return None
+
+        Returns:
+            Either the next element or None
+        """
+        ...
+
+    def type(self) -> Type:
+        return Iterator

@@ -13,6 +13,7 @@ The atomic types are:
     - Tuple
     - List
     - Enum
+    - Iterator
     - Struct
     - Object (custom type)
 
@@ -46,6 +47,7 @@ MetaType = _make_type("Type")
 Tuple = _make_type("Tuple")
 List = _make_type("List")
 Enum = _make_type("Enum")
+Iterator = _make_type("Iterator")
 Struct = _make_type("Struct")
 
 # All types, keyed by their mcscript name

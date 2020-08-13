@@ -148,7 +148,7 @@ class StringResource(Resource):
 
         return StringResource(self.static_value + other.static_value)
 
-    def iterate(self, compileState: CompileState, varName: str, block: Tree):
+    def get_iterator(self, compileState: CompileState, varName: str, block: Tree):
         if self.length is None:
             raise McScriptTypeError(f"Cannot iterate over a string with unknown length (ToDo implement that)",
                                     compileState)
@@ -161,7 +161,7 @@ class StringResource(Resource):
                         compileState, IntegerResource(i, True))
                 )
                 for child in block.children:
-                    compileState.compileFunction(child)
+                    compileState._compile_function(child)
 
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
         return format_text(self.static_value)

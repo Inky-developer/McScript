@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 
 from mcscript import Logger
 from mcscript.analyzer.VariableContext import VariableContext
 from mcscript.compiler.ContextType import ContextType
 from mcscript.lang.resource.NullResource import NullResource
-from mcscript.lang.resource.base.ResourceBase import Resource
+from mcscript.lang.resource.StructObjectResource import StructObjectResource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.utils.Scoreboard import Scoreboard
 from mcscript.utils.addressCounter import ScoreboardAddressCounter, StorageAddressCounter
 from mcscript.utils.resources import DataPath
+
+if TYPE_CHECKING:
+    from mcscript.compiler.CompileState import CompileState
 
 
 class Context:
@@ -193,24 +197,34 @@ class Context:
         data.update(self.namespace)
         return data
 
-    def search_non_static_until(self, other: Context) -> Optional[Context]:
+    def update_static_resources(self, compile_state: CompileState):
         """
-        Searches down until a context is not static or ´other´ is found.
+        Goes through every resource of the previous context and checks if it is still allowed to be static.
+        A static resource will not be allowed to continue being static if:
+            - self is not a static context AND
+            - the variable is written to in this context
 
-        Args:
-            other: Another context
+        If a resource is not allowed to be static, it will be stored
 
         Returns:
-            The first found non-static found context or None if none was found
+            None
         """
+        if self.predecessor is None:
+            raise ValueError()
 
-        ctx = self
-        while ctx != other and ctx is not None:
-            if not ctx.context_type.hasStaticContext:
-                return ctx
-            ctx = ctx.predecessor
+        if self.context_type.hasStaticContext:
+            return
 
-        return None
+        for name, variable in self.predecessor.namespace.items():
+            resource, var_context = variable.resource, variable.context
+            if var_context is None:
+                if isinstance(resource, (ValueResource, StructObjectResource)):
+                    raise ValueError(f"[INTERNAL COMPILER ERROR] The context of {name} does not exist.")
+                continue
+            for write in var_context.writes:
+                if write.master_context == self.definition:
+                    # the resource should be stored
+                    self.predecessor.set_var(name, resource.store(compile_state))
 
     def get_return_resource_or_null(self) -> Resource:
         """

@@ -23,10 +23,9 @@ class IrMaster:
 
         self.node_counter = 0
         self._source_location: SourceLocation = None  # set by compile state
-    
+
     def optimize(self):
         """ Optimizes the contained function nodes"""
-        # return
         # simple optimization pass
         function_nodes = [i.optimized(self, None)[0] for i in self.function_nodes]
         self.function_nodes = [i for i in function_nodes if not i["drop"]]
@@ -65,14 +64,16 @@ class IrMaster:
 
         self.active_nodes.append([])
 
+        node = FunctionNode(
+            name, []
+        )
+        self.function_nodes.append(node)
+
         try:
             yield
         finally:
-            node = FunctionNode(
-                name, self.active_nodes.pop()
-            )
+            node.inner_nodes = self.active_nodes.pop()
             self._incr_index(node)
-            self.function_nodes.append(node)
 
     @contextmanager
     def with_buffer(self, buffer=None) -> Generator[List[IRNode], None, None]:

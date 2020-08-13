@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import List, Union, TYPE_CHECKING, Tuple
+from typing import List, Union, TYPE_CHECKING, Tuple, Any
 
 from mcscript.data.minecraftData.blocks import Block, BlockstateBlock
 from mcscript.data.selector.Selector import Selector
@@ -53,6 +53,11 @@ class FunctionCallNode(IRNode):
             return self["function"].inner_nodes, True
 
         return super().optimized(ir_master, parent)
+
+    def _format_data(self, key: str, value: Any) -> str:
+        if key == "function":
+            return str(value["name"])
+        return super()._format_data(key, value)
 
 
 class ExecuteNode(IRNode):

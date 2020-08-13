@@ -38,7 +38,7 @@ class FunctionResource(GenericFunctionResource):
         with compile_state.node_block(ContextType.FUNCTION, self.code.line, self.code.column) as function_name:
             for template, parameter in zip(self.function_signature.parameters, parameters):
                 compile_state.currentContext().add_var(template.name, parameter)
-            compile_state.compileFunction(self.code)
+            compile_state._compile_function(self.code)
             return_value = compile_state.currentContext().return_resource or NullResource()
 
         compile_state.ir.append(FunctionCallNode(compile_state.ir.find_function_node(function_name)))

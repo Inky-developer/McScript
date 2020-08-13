@@ -36,7 +36,7 @@ def convert_token_to_resource(token: Union[Token, str], compile_state: CompileSt
         "INTEGER": lambda: IntegerResource(int(token), None),
         "DECIMAL": lambda: FixedNumberResource.fromNumber(float(token)),
         "STRING": lambda: StringResource(token[1:-1], context=compile_state.currentContext()),
-        "SELECTOR": lambda: SelectorResource(token, True, compile_state, compile_state.currentContext())
+        "SELECTOR": lambda: SelectorResource(token, compile_state)
     }
     if token.type in functions:
         return functions[token.type]()

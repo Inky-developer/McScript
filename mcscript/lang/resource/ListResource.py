@@ -119,7 +119,7 @@ class ListResource(Resource):
                 index=int(index)
             ))
 
-    def iterate(self, compileState: CompileState, varName: str, tree: Tree):
+    def get_iterator(self, compileState: CompileState, varName: str, tree: Tree):
         tempStack = NbtAddressResource(compileState.temporaryStorageStack.next().embed())
         tempArray = self.copy(tempStack, compileState)
 
@@ -133,7 +133,7 @@ class ListResource(Resource):
         # 3. remove the first value from the array
         # 4. if the array still has values, go to 1.
         for child in tree.children:
-            compileState.compileFunction(child)
+            compileState._compile_function(child)
 
         compileState.writeline(Command.REMOVE_VARIABLE(address=tempStack[0]))
 

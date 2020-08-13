@@ -16,7 +16,7 @@ from mcscript.ir.command_components import BinaryOperator, ScoreRange, ScoreRela
 from mcscript.ir.components import (ConditionalNode, ExecuteNode, FunctionCallNode, InvertNode, ScoreboardInitNode,
                                     StoreFastVarFromResultNode, StoreFastVarNode, IfNode)
 from mcscript.lang import std
-from mcscript.lang.atomic_types import Null
+from mcscript.lang.atomic_types import Null, Bool
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.EnumResource import EnumResource
 from mcscript.lang.resource.FunctionResource import FunctionResource
@@ -55,7 +55,7 @@ class Compiler(Interpreter):
             self.compileState.currentContext().add_var(builtin.name, builtin)
 
         with self.compileState.ir.with_function(self.compileState.resource_specifier_main("main")):
-            self.compileState.pushContext(ContextType.GLOBAL, 0, 0)
+            self.compileState.push_context(ContextType.GLOBAL, 0, 0)
             self.visit(tree)
 
         with self.compileState.ir.with_function(self.compileState.resource_specifier_main("init_scoreboards")):
@@ -73,7 +73,7 @@ class Compiler(Interpreter):
     #    tree handlers    #
     #######################
     def boolean_constant(self, tree):
-        return BooleanResource(tree.children[0] == "True", None)
+        return BooleanResource(int(tree.children[0] == "True"), None)
 
     def value(self, tree):
         """ a value is a simple token or expression that can be converted to a resource"""
@@ -281,7 +281,7 @@ class Compiler(Interpreter):
             return BooleanResource(not value.static_value, None)
 
         stack = self.compileState.expressionStack.next()
-        self.compileState.ir.append(InvertNode(value.scoreboard_value, value.scoreboard_value))
+        self.compileState.ir.append(InvertNode(value.scoreboard_value, stack))
         return BooleanResource(None, stack)
 
     def binaryOperation(self, *args, assignment_resource: Resource = None):
@@ -375,6 +375,10 @@ class Compiler(Interpreter):
         with self.compileState.new_global_data("assign_resource", resource):
             value = self.compileState.toResource(_value)
 
+        # if the variable is new and an atomic value then copy the value
+        if resource is None and isinstance(value, ValueResource):
+            value = value.copy(self.compileState.expressionStack.next(), self.compileState)
+
         self.compileState.currentTree = _value
         set_variable(self.compileState, identifier, value)
 
@@ -441,28 +445,28 @@ class Compiler(Interpreter):
             condition)
 
         if not isinstance(condition_boolean, BooleanResource):
-            raise McScriptTypeError(f"Expected bool, got {condition_boolean.type()}", self.compileState)
+            raise McScriptTypeError(f"Expected {Bool}, got {condition_boolean.type()}", self.compileState)
 
         if condition_boolean.static_value is not None:
             line_and_column = (block.line, block.column) if condition_boolean else (block_else.line, block_else.column)
-            with self.compileState.pushContext(ContextType.BLOCK, *line_and_column):
+            with self.compileState.push_context(ContextType.BLOCK, *line_and_column):
                 if condition_boolean.static_value is True:
                     self.visit_children(block)
                 else:
                     self.visit_children(block_else)
                 return
 
-        self.compileState.pushContext(ContextType.CONDITIONAL, block.line, block.column)
+        self.compileState.push_context(ContextType.CONDITIONAL, block.line, block.column)
         with self.compileState.ir.with_buffer() as pos_branch:
             self.visit_children(block)
-        self.compileState.popContext()
+        self.compileState.pop_context()
         pos_branch, = pos_branch
 
         if block_else is not None:
-            self.compileState.pushContext(ContextType.CONDITIONAL, block_else.line, block_else.column)
+            self.compileState.push_context(ContextType.CONDITIONAL, block_else.line, block_else.column)
             with self.compileState.ir.with_buffer() as neg_branch:
                 self.visit_children(block_else)
-            self.compileState.popContext()
+            self.compileState.pop_context()
             neg_branch, = neg_branch
         else:
             neg_branch = None
@@ -487,10 +491,16 @@ class Compiler(Interpreter):
 
         resource = self.compileState.toResource(expression)
         try:
-            resource.iterate(self.compileState, var_name, block)
+            iterator = resource.get_iterator(self.compileState)
         except TypeError:
             raise McScriptTypeError(
                 f"type {resource.type()} does not support iteration", self.compileState)
+
+        while (value := iterator.next()) is not None:
+            with self.compileState.node_block(ContextType.UNROLLED_LOOP, block.line, block.column) as block_name:
+                self.compileState.currentContext().add_var(var_name, value)
+                self.visit(block)
+            self.compileState.ir.append(FunctionCallNode(self.compileState.ir.find_function_node(block_name)))
 
     def return_(self, tree):
         # ToDO: make return an ir node
@@ -559,7 +569,7 @@ class Compiler(Interpreter):
 
     def control_struct(self, tree):
         name, block = tree.children
-        self.compileState.pushContext(
+        self.compileState.push_context(
             ContextType.OBJECT, block.line, block.column)
         context = self.compileState.currentContext()
 
@@ -569,7 +579,7 @@ class Compiler(Interpreter):
         with self.compileState.new_global_data("struct", struct):
             for declaration in block.children:
                 self.visit(declaration)
-        self.compileState.popContext()
+        self.compileState.pop_context()
         self.compileState.currentContext().add_var(name, struct)
 
     def context_manipulator(self, tree: Tree):

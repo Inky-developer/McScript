@@ -7,20 +7,17 @@ from typing import List, Optional, TYPE_CHECKING
 
 from lark import Tree
 
-from mcscript import Logger
-from mcscript.analyzer import VariableContext
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data import defaultEnums
-from mcscript.exceptions.compileExceptions import (McScriptNameError, McScriptSyntaxError, McScriptTypeError,
-                                                   McScriptError)
+from mcscript.exceptions.compileExceptions import (McScriptNameError, McScriptSyntaxError, McScriptTypeError)
 from mcscript.exceptions.utils import requireType
 from mcscript.ir import IRNode
 from mcscript.ir.command_components import Position, ExecuteAnchor, ScoreRange
-from mcscript.ir.components import ExecuteNode, FunctionCallNode, ConditionalNode
-from mcscript.lang.atomic_types import Selector as SelectorType
+from mcscript.ir.components import ExecuteNode, FunctionCallNode, ConditionalNode, FunctionNode, IfNode
+from mcscript.lang.atomic_types import Selector as SelectorType, Bool
+from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
-from mcscript.lang.resource.StructObjectResource import StructObjectResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 
 if TYPE_CHECKING:
@@ -55,30 +52,30 @@ def get_property(compileState: CompileState, accessor: Tree) -> List[Resource]:
     parent_resource = parent_var.resource
     accessed = [parent_resource]
 
-    # A resource is kept static as long as possible.
-    # However, if it gets loaded in a non-static context,
-    # in which it is also written to, it has to be stored on a scoreboard.
-    if isinstance(parent_resource, ValueResource):
-        if parent_resource.static_value is not None:
-            if parent_var.context is None:
-                raise ValueError("Could not find the context for resource")
-            if has_resource_writes_in_this_context(compileState, parent_resource, parent_var.context):
-                if not check_context_static(compileState, parent_resource, parent_var.context):
-                    with compileState.ir.with_previous():
-                        parent_resource = parent_resource.store(compileState)
-                    accessed = [parent_resource]
-                    # marks the variable in all contexts as non-static
-                    compileState.currentContext().set_var(ret, parent_resource)
-    # similar applies for objects
-    elif isinstance(parent_resource, StructObjectResource) and parent_resource.is_any_static:
-        if parent_var.context is None:
-            raise ValueError("Could not find the context for the object resource")
-        if has_resource_writes_in_this_context(compileState, parent_resource, parent_var.context):
-            if not check_context_static(compileState, parent_resource, parent_var.context):
-                with compileState.ir.with_previous():
-                    parent_resource = parent_resource.store(compileState)
-                accessed = [parent_resource]
-                compileState.currentContext().set_var(ret, parent_resource)
+    # # A resource is kept static as long as possible.
+    # # However, if it gets loaded in a non-static context,
+    # # in which it is also written to, it has to be stored on a scoreboard.
+    # if isinstance(parent_resource, ValueResource):
+    #     if parent_resource.static_value is not None:
+    #         if parent_var.context is None:
+    #             raise ValueError("Could not find the context for resource")
+    #         if has_resource_writes_in_this_context(compileState, parent_resource, parent_var.context):
+    #             if not check_context_static(compileState, parent_resource, parent_var.context):
+    #                 with compileState.ir.with_previous():
+    #                     parent_resource = parent_resource.store(compileState)
+    #                 accessed = [parent_resource]
+    #                 # marks the variable in all contexts as non-static
+    #                 compileState.currentContext().set_var(ret, parent_resource)
+    # # similar applies for objects
+    # elif isinstance(parent_resource, StructObjectResource) and parent_resource.is_any_static:
+    #     if parent_var.context is None:
+    #         raise ValueError("Could not find the context for the object resource")
+    #     if has_resource_writes_in_this_context(compileState, parent_resource, parent_var.context):
+    #         if not check_context_static(compileState, parent_resource, parent_var.context):
+    #             with compileState.ir.with_previous():
+    #                 parent_resource = parent_resource.store(compileState)
+    #             accessed = [parent_resource]
+    #             compileState.currentContext().set_var(ret, parent_resource)
 
     for value in values:
         try:
@@ -157,107 +154,111 @@ def set_property(compileState: CompileState, accessor: Tree, value: Resource):
     obj.setAttribute(compileState, attribute, value)
 
 
-def check_context_static(compileState: CompileState, resource: Resource, variable_context=None) -> bool:
-    """
-    Core concept: Variables keep their static value (if known) as long as possible and 
-    will only be stored in a data storage or a scoreboard if it is not possible to calculate
-    their value somehow at compile-time. If the initial value of a variable is statically known,
-    it will only stop beeing static if accessed in a non-static context.
-
-    A context is considered non-static for a variable if the variable is not defined in the same
-    context and, walking up the context-stack until the context in which the variable got
-    defined is hit, a non-static context exists
-    """
-    if variable_context is None:
-        name = compileState.currentContext().find_resource_name(resource)
-
-        if name is None:
-            raise ValueError(f"The resource '{resource}' is not a variable")
-
-        variable_context = compileState.currentContext().find_var(name).context
-
-        if variable_context is None:
-            raise ValueError(
-                f"The variable '{name}' ('{resource}') does not have an associated context")
-
-    return compileState.currentContext().search_non_static_until(
-        compileState.stack.search_by_pos(
-            *variable_context.declaration.master_context)
-    ) is None  # and not variable context? (TODO)
-
-
-def has_resource_writes_in_this_context(compileState: CompileState, resource: Resource,
-                                        variable_context: VariableContext) -> bool:
-    """
-    Returns whether this resource has any writes in the current context.
-    """
-    writes = variable_context.writes
-    for write in writes:
-        context = compileState.stack.search_by_pos(*write.master_context)
-        if context == compileState.currentContext():
-            return True
-
-    return False
-
-
-def conditional_loop(compileState: CompileState,
+def conditional_loop(compile_state: CompileState,
                      block: Tree,
-                     conditionTree: Tree,
+                     condition_tree: Tree,
                      check_start: bool,
                      context: Optional[Tree] = None):
-    # ToDO: change to while node
-    with compileState.node_block(ContextType.LOOP, block.line, block.column) as block_name:
-        for child in block.children:
-            compileState.compileFunction(child)
+    """
+    Creates a recursive function call loop
 
-        condition_boolean = compileState.toResource(
-            conditionTree).convertToBoolean(compileState)
-        if condition_boolean.isStatic:
-            if condition_boolean.value is True:
-                Logger.error(
-                    f"[Compiler] Loop at line {conditionTree.line} column {conditionTree.column} runs forever!")
-                # ToDO create exception for that
-                raise McScriptError("Loop runs forever", compileState)
-            else:
-                Logger.warning(
-                    f"[Compiler] Loop at line {conditionTree.line}, column {conditionTree.column} "
-                    f"only runs once / not at all!"
-                )
+    Args:
+        compile_state: the compile state
+        block: the block of the loop
+        condition_tree: the condition
+        check_start: If True checks the condition before entering the loop
+        context: Additional parameters which change the execution context every loop
 
-        function_call_node = FunctionCallNode(
-            compileState.resource_specifier_main(block_name))
-        if context is not None:
-            context_node = ExecuteNode(
-                readContextManipulator([context], compileState),
-                [function_call_node]
-            )
-        else:
-            context_node = function_call_node
+    Returns:
+        None
+    """
 
-        compileState.ir.append(ConditionalNode(
-            [ConditionalNode.IfScoreMatches(
-                condition_boolean.value, ScoreRange(0), True)],
-            [context_node]
+    def repeat_if(condition: Resource, function: FunctionNode):
+        if not isinstance(condition, BooleanResource):
+            raise McScriptTypeError(f"Expected {Bool}, got {condition.type()}", compile_state)
+        if condition.is_static:
+            if not condition.static_value:
+                return
+            compile_state.ir.append(FunctionCallNode(function))
+            return
+
+        compile_state.ir.append(IfNode(
+            ConditionalNode([ConditionalNode.IfScoreMatches(condition.scoreboard_value, ScoreRange(0), True)]),
+            FunctionCallNode(function)
         ))
 
+    # 1. Check condition if needed
     if check_start:
-        compileState.ir.append(ConditionalNode(
-            [ConditionalNode.IfScoreMatches(compileState.toResource(conditionTree).convertToBoolean(compileState).value,
-                                            ScoreRange(0), True)],
-            [context_node]
-        ))
+        initial_condition = compile_state.toResource(condition_tree)
     else:
-        compileState.ir.append(context_node)
+        initial_condition = None
+
+    # 2. compile loop body
+    with compile_state.node_block(ContextType.LOOP, block.line, block.column) as loop_body:
+        compile_state.compile_ast(block)
+        loop_function = compile_state.ir.find_function_node(loop_body)
+
+        # create recursion condition
+        recurse_condition = compile_state.toResource(condition_tree)
+        repeat_if(recurse_condition, loop_function)
+
+    # 3. Create initial condition if necessary
+    if initial_condition is not None:
+        repeat_if(initial_condition, loop_function)
+
+
+# with compileState.node_block(ContextType.LOOP, block.line, block.column) as block_name:
+#     for child in block.children:
+#         compileState.compileFunction(child)
+#
+#     condition_boolean = compileState.toResource(
+#         conditionTree).convertToBoolean(compileState)
+#     if condition_boolean.isStatic:
+#         if condition_boolean.value is True:
+#             Logger.error(
+#                 f"[Compiler] Loop at line {conditionTree.line} column {conditionTree.column} runs forever!")
+#             # ToDO create exception for that
+#             raise McScriptError("Loop runs forever", compileState)
+#         else:
+#             Logger.warning(
+#                 f"[Compiler] Loop at line {conditionTree.line}, column {conditionTree.column} "
+#                 f"only runs once / not at all!"
+#             )
+#
+#     function_call_node = FunctionCallNode(
+#         compileState.resource_specifier_main(block_name))
+#     if context is not None:
+#         context_node = ExecuteNode(
+#             readContextManipulator([context], compileState),
+#             [function_call_node]
+#         )
+#     else:
+#         context_node = function_call_node
+#
+#     compileState.ir.append(ConditionalNode(
+#         [ConditionalNode.IfScoreMatches(
+#             condition_boolean.value, ScoreRange(0), True)],
+#         [context_node]
+#     ))
+#
+# if check_start:
+#     compileState.ir.append(ConditionalNode(
+#         [ConditionalNode.IfScoreMatches(compileState.toResource(conditionTree).convertToBoolean(compileState).value,
+#                                         ScoreRange(0), True)],
+#         [context_node]
+#     ))
+# else:
+#     compileState.ir.append(context_node)
 
 
 def readContextManipulator(modifiers: List[Tree], compileState: CompileState) -> List[ExecuteNode.ExecuteArgument]:
     def for_(selector: SelectorResource) -> IRNode:
         requireType(selector, SelectorType, compileState)
-        return ExecuteNode.As(selector.static_value)
+        return ExecuteNode.As(selector.value)
 
     def at(selector: SelectorResource) -> IRNode:
         requireType(selector, SelectorType, compileState)
-        return ExecuteNode.At(selector.static_value)
+        return ExecuteNode.At(selector.value)
 
     def absolute(x: ValueResource, y: ValueResource, z: ValueResource) -> IRNode:
         return ExecuteNode.Positioned(

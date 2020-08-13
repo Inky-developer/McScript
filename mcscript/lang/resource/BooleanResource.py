@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 
-class BooleanResource(ValueResource[bool]):
+class BooleanResource(ValueResource[int]):
     """
     Holds a boolean
     """

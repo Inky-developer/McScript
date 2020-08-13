@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
-from lark import Tree
+from lark import Tree, Token
 
 from mcscript import Logger
 from mcscript.analyzer.VariableContext import VariableAccess, VariableContext
@@ -45,7 +45,7 @@ class Analyzer:
         self.contexts: List[ContextData] = []
         self.stack: List[ContextData] = []
 
-    def pushContext(self, line: int, column: int):
+    def push_context(self, line: int, column: int):
         self.contexts.append(ContextData(line, column, []))
         self.stack.append(self.contexts[-1])
 
@@ -70,25 +70,25 @@ class Analyzer:
         """
         self.contexts = []
         # the global context
-        self.pushContext(0, 0)
+        self.push_context(0, 0)
 
         self.visit(tree)
 
         return tree, {(i.line, i.column): i.context for i in self.contexts}
 
     def block(self, tree: Tree):
-        self.pushContext(tree.line, tree.column)
+        self.push_context(tree.line, tree.column)
         [self.visit(i) for i in tree.children]
         self.pop_context()
 
     def struct_block(self, tree: Tree):
-        self.pushContext(tree.line, tree.column)
+        self.push_context(tree.line, tree.column)
         [self.visit(i) for i in tree.children]
         self.pop_context()
 
     def function_definition(self, tree: Tree):
         _, _name, parameter_list, _return_type, body = tree.children
-        self.pushContext(body.line, body.column)
+        self.push_context(body.line, body.column)
         self_type, *parameters = parameter_list.children
 
         if self_type:
@@ -112,6 +112,19 @@ class Analyzer:
             False
         ))
 
+    def control_for(self, tree: Tree):
+        _, var, _, expression, block = tree.children
+        self.push_context(block.line, block.column)
+        self.stack[-1].append(VariableContext(
+            var,
+            VariableAccess(var, (self.stack[-1].line, self.stack[-1].column)),
+            False,
+            False
+        ))
+        self.visit(expression)
+        [self.visit(i) for i in block.children]
+        self.pop_context()
+
     def declaration(self, tree: Tree):
         accessor, expression = tree.children
         self.visit(expression)
@@ -119,15 +132,15 @@ class Analyzer:
         # for now, treat every property of an object as the object itself
         identifier, *_ignore_children = accessor.children
 
-        if var := getVar(self.stack, identifier):
-            var.writes.append(VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)))
-        else:
-            self.stack[-1].append(VariableContext(
-                identifier,
-                VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)),
-                False,
-                False
-            ))
+        self._handle_variable(identifier, tree)
+
+    def multi_declaration(self, tree: Tree):
+        *values, expression = tree.children
+        self.visit(expression)
+
+        for value in values:
+            value, *_ignore_children = value.children
+            self._handle_variable(value, tree)
 
     def static_declaration(self, tree: Tree):
         accessor, expression = tree.children[0].children
@@ -135,15 +148,7 @@ class Analyzer:
 
         identifier, *_ = accessor.children
 
-        if var := getVar(self.stack, identifier):
-            var.writes.append(VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)))
-        else:
-            self.stack[-1].append(VariableContext(
-                identifier,
-                VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)),
-                True,
-                False
-            ))
+        self._handle_variable(identifier, tree)
 
     def term_ip(self, tree: Tree):
         accessor, operator, expression = tree.children
@@ -183,7 +188,26 @@ class Analyzer:
                 var = getVar(self.stack, identifier)
                 if var:
                     var.reads.append(VariableAccess(tree, (self.stack[-1].line, self.stack[-1].column)))
+        elif isinstance(value, Tree) and value.data == "function_call":
+            accessor, *arguments = value.children
+            base_obj, *children = accessor.children
+            if children:
+                self._handle_variable(base_obj, value)
         elif isinstance(value, Tree):
             for child in value.children:
                 if isinstance(child, Tree):
                     self.visit(child)
+
+    #########################
+    # Utility functions #####
+    #########################
+    def _handle_variable(self, variable_name: Token, declaration: Tree):
+        if var := getVar(self.stack, variable_name):
+            var.writes.append(VariableAccess(declaration, (self.stack[-1].line, self.stack[-1].column)))
+        else:
+            self.stack[-1].append(VariableContext(
+                variable_name,
+                VariableAccess(declaration, (self.stack[-1].line, self.stack[-1].column)),
+                False,
+                False
+            ))

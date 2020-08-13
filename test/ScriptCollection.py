@@ -68,18 +68,79 @@ fun make_disk() -> Null {
 }
 """
 
-code_temp = r"""
-struct Hallo {
-    a: Int
-    b: Tuple
+code_range = r"""
+struct Range {
+    min: Int
+    max: Int
+    current: Int
+    
+    fun new(min: Int, max: Int) -> Range {
+        return Range(min-1, max, min)
+    }
+    
+    fun next(self) -> Tuple {
+        self.current += 1
+        
+        error = self.current > self.max
+        return (self.current-1, error)
+    }
 }
 
-h = Hallo(1, (2, 3))
+r = dyn(Range.new(0, 3))
 
 run for @a {
-    print("{}", h)
+    print("Next: {}", r.next())
+    print("Next: {}", r.next())
+    print("Next: {}", r.next())
+    print("Next: {}", r.next())
+    print("Next: {}", r.next())
 }
 """
+
+code_temp = """
+struct Range {
+    min: Int
+    max: Int
+    current: Int
+    
+    fun new(min: Int, max: Int) -> Range {
+        return Range(min-1, max, min)
+    }
+    
+    fun next(self) -> Tuple {
+        ret = self.current
+        self.current += 1
+        
+        success = self.current <= self.max
+        return (ret, success)
+    }
+    
+    fun count(self) -> Int {
+        # calls next until the method fails
+        count = 0
+        success = True
+        while success {
+            (_, success) = self.next()
+            count += 1
+        }
+        return count
+    }
+}
+
+r = dyn(Range.new(1, 15))
+print("counting now")
+len = r.count()
+run for @a {
+    print("{}", len)
+}
+
+# success = True
+# while success {
+#     (value, success) = r.next()
+#     run for @a { print("The square number {} is {}", value, value*value) }
+# }
+"""
+
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")
     # world = getWorld("20w18a", mcDir)

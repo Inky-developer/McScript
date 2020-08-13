@@ -232,13 +232,18 @@ class McDatapackBackend(IRBackend[Datapack]):
             mode = "add" if b >= 0 else "remove"
 
             self.command_buffer[-1].append(
-                f"scoreboard players {mode} {a.value} {a.scoreboard.unique_name} {b}"
+                f"scoreboard players {mode} {a.value} {a.scoreboard.unique_name} {abs(b)}"
             )
         else:
             raise ValueError(f"Invalid b value for operation: {b}")
 
     def handle_invert_node(self, node: InvertNode):
-        raise NotImplementedError()
+        target = node["target"]
+        value = node["val"]
+        self.handle(StoreFastVarFromResultNode(
+            target,
+            ConditionalNode([ConditionalNode.IfScoreMatches(value, ScoreRange(0), False)])
+        ))
 
     def handle_message_node(self, node: MessageNode):
         message_type = node["type"]

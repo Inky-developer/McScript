@@ -24,9 +24,9 @@ class CompileState:
     This class keeps track of the current state of the compilation
     """
 
-    def __init__(self, code: str, contexts: Dict[Tuple[int, int], NamespaceContext], compileFunction: Callable,
+    def __init__(self, code: str, contexts: Dict[Tuple[int, int], NamespaceContext], compile_function: Callable,
                  config: Config):
-        self.compileFunction = compileFunction
+        self._compile_function = compile_function
 
         self.code = code.split("\n")
         self._currentTree: Optional[Tree] = None
@@ -62,6 +62,9 @@ class CompileState:
 
         # the ir master class
         self.ir = IrMaster()
+
+    def compile_ast(self, tree: Tree):
+        self._compile_function(tree)
 
     @contextmanager
     def new_global_data(self, name: str, value: Resource):
@@ -143,7 +146,7 @@ class CompileState:
             the value itself or an addressResource
         """
         if isinstance(value, Tree):
-            return self.load(self.compileFunction(value))
+            return self.load(self._compile_function(value))
         if not isinstance(value, Resource):
             raise ValueError(f"Expected a resource, but got '{value}'")
         return value
@@ -164,15 +167,15 @@ class CompileState:
         if isinstance(value, (Resource, BuiltinFunction)):
             return value
 
-        return self.toResource(self.compileFunction(value))
+        return self.toResource(self._compile_function(value))
 
     def currentContext(self) -> Context:
         return self.stack.tail()
 
-    def popContext(self):
+    def pop_context(self):
         self.stack.pop()
 
-    def pushContext(self, contextType: ContextType, line: int, column: int) -> Context:
+    def push_context(self, contextType: ContextType, line: int, column: int) -> Context:
         """
         Creates a new context and pushes it on the stack.
         Line and column are used to associate the variable context data.
@@ -188,6 +191,7 @@ class CompileState:
 
         context = Context(self.stack.index(), (line, column), contextType, self.contexts[line, column],
                           self.scoreboard_main, self.data_path_main, self.stack.tail())
+        context.update_static_resources(self)
         self.stack.append(context)
         return context
 
@@ -202,14 +206,14 @@ class CompileState:
             line: the line
             column: the column
         """
-        self.pushContext(context_type, line, column)
+        self.push_context(context_type, line, column)
         block_name = self.node_block_counter.next()
 
         with self.ir.with_function(self.resource_specifier_main(block_name)):
             try:
                 yield self.resource_specifier_main(block_name)
             finally:
-                self.popContext()
+                self.pop_context()
 
     def getDebugLines(self, a, _):
         return self.code[a - 1].strip()

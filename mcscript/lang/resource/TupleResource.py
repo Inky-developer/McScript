@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 
 from mcscript.exceptions.compileExceptions import (
     McScriptTypeError, McScriptArgumentsError,
 )
 from mcscript.lang.Type import Type
 from mcscript.lang.atomic_types import Tuple
-from mcscript.lang.resource.base.ResourceBase import Resource
+from mcscript.lang.resource.base.ResourceBase import Resource, IteratorResource
 
 if TYPE_CHECKING:
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
@@ -27,6 +27,18 @@ class TupleResource(Resource):
         :class:`mcscript.lang.resource.ListResource.ListResource`
         :class:`mcscript.lang.resource.base.ResourceBase.Resource`
     """
+
+    class TupleIterator(IteratorResource):
+        def __init__(self, master: TupleResource):
+            self.master = master
+            self.index = 0
+
+        def next(self) -> Optional[Resource]:
+            if self.index >= self.master.size():
+                return None
+
+            self.index += 1
+            return self.master.resources[self.index - 1]
 
     def __init__(self, *resources: Resource):
         super().__init__()
@@ -57,6 +69,9 @@ class TupleResource(Resource):
 
     def size(self) -> int:
         return len(self.resources)
+
+    def get_iterator(self, compileState: CompileState) -> IteratorResource:
+        return self.TupleIterator(self)
 
     def __str__(self):
         return f"Tuple({', '.join(str(i) for i in self.resources)})"

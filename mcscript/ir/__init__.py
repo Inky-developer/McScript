@@ -147,7 +147,7 @@ class IRNode:
             value = self.data[attribute]
             if isinstance(value, list):
                 value = "[" + ", ".join(str(i) for i in value) + "]"
-            attributes.append((attribute, value))
+            attributes.append((attribute, self._format_data(attribute, value)))
         attributes = ", ".join(
             f"{k}={v}" for k, v in attributes)
 
@@ -161,6 +161,9 @@ class IRNode:
         return f"{self.__class__.__name__}({attributes})" \
                + (" # " + metadata if metadata else "") \
                + (f"\n{spacer}|-{children}" if children else "")
+
+    def _format_data(self, key: str, value: Any) -> str:
+        return str(value)
 
     def __str__(self):
         return self.as_tree()
