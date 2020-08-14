@@ -8,6 +8,7 @@ __pycache__/
 .github/
 .coverage
 benchmark/
+sandbox
 build/build
 build/dist
 build/freeze.cmd
