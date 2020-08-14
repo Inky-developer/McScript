@@ -28,15 +28,12 @@ run for @a {
 # A enum can return the name of a value
 # Printing is also supported which can be helpful for debugging
 run for @a {
-	print("Enum member with a value of 10: {}", customValues(10))
 	print("{}", customValues)
 }
 
 # There are also built-in enums:
-# block, biome, structure and types
+# currently only blocks
 # built-in enums can have other values than numbers
 run for @a {
 	print("sponge: {}", blocks.sponge)
-	print("plains: {}", biomes.plains)
-	print("{}", types)
 }

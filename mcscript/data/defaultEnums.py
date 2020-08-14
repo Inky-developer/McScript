@@ -1,38 +1,17 @@
 from typing import Optional
 
-from mcscript.data.minecraftData import biomes, blocks, features
+from mcscript.data.minecraftData import blocks
 from mcscript.lang.resource.EnumResource import EnumResource
-from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.TypeResource import TypeResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
+from mcscript.lang.resource.IntegerResource import IntegerResource
 
 
 def makeBlocks() -> EnumResource:
-    names = {block.name: NumberResource(block.index, True) for block in blocks.getBlocks()}
-    return EnumResource(**names)
-
-
-def makeBiomes() -> EnumResource:
-    names = {biome.name: NumberResource(biome.protocol_id, True) for biome in biomes.getBiomes()}
-    return EnumResource(**names)
-
-
-def makeFeatures() -> EnumResource:
-    names = {feature.name: NumberResource(feature.protocol_id, True) for feature in features.getFeatures()}
-    return EnumResource(**names)
-
-
-def makeTypes() -> EnumResource:
-    """ enum which has all named resource types as members"""
-    names = {i.value: TypeResource.fromType(i) for i in ResourceType if not isinstance(i.value, int)}
+    names = {block.name: IntegerResource(block.index, None) for block in blocks.getBlocks()}
     return EnumResource(**names)
 
 
 ENUMS = {
-    "blocks"  : makeBlocks,
-    "biomes"  : makeBiomes,
-    "features": makeFeatures,
-    "types"   : makeTypes,
+    "blocks": makeBlocks,
 }
 
 

@@ -16,10 +16,13 @@ class ContextType(Enum):
     INLINE_FUNCTION = auto(), True
 
     # The body of a struct definition
-    STRUCT = auto(), True
+    OBJECT = auto(), True
 
     # An implicit inline function in struct bodies
     METHOD = auto(), True
+
+    # Context in a procedural macro, like a builtin function, basically no side-effects
+    MACRO = auto(), True
 
     # Will eventually not be used any more. used to describe the body of if statements and while loops
     BLOCK = auto(), True

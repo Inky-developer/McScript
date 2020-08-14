@@ -1,21 +1,15 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, Optional, Type, TYPE_CHECKING, Union
+from typing import Callable, Dict, Optional, Type as TType, TYPE_CHECKING, Union, List
 
 from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
-from mcscript.data.commands import Command, ExecuteCommand
 from mcscript.exceptions.compileExceptions import McScriptAttributeError, McScriptTypeError
-from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.lang.resource.base.VariableResource import VariableResource
+from mcscript.lang.Type import Type
 from mcscript.lang.resource.BooleanResource import BooleanResource
-from mcscript.lang.resource.InternalFunctionResource import InternalFunctionResource
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
-from mcscript.lang.resource.NullResource import NullResource
-from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.TypeResource import TypeResource
+from mcscript.lang.resource.IntegerResource import IntegerResource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.utility import isStatic
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
@@ -45,7 +39,7 @@ class ListResource(Resource):
 
         # use the second order classes since they should be the scoreboard classes
         # noinspection PyTypeChecker
-        self.ContentResource: Type[VariableResource] = Resource.getResourceClass(contentType.value.type())
+        self.ContentResource: TType[VariableResource] = Resource.getResourceClass(contentType.value.type())
 
         if not issubclass(self.ContentResource, (ValueResource, VariableResource)):
             raise TypeError(f"Invalid type for Array: must be a value")
@@ -61,11 +55,10 @@ class ListResource(Resource):
             insert=self.InsertFunction(self)
         )
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.LIST
+    def type(self) -> Type:
+        return List
 
-    def getSize(self, compileState: CompileState) -> NumberResource:
+    def getSize(self, compileState: CompileState) -> IntegerResource:
         self._assertNbtAddress(compileState)
 
         stack = compileState.expressionStack.next()
@@ -73,7 +66,7 @@ class ListResource(Resource):
             stack=stack,
             var=self.nbtAddress,
         ))
-        return NumberResource(stack, False)
+        return IntegerResource(stack, False)
 
     def append(self, compileState: CompileState, value: Resource):
         if value.type() != self.ContentResource.type() or not isinstance(value, ValueResource):
@@ -98,7 +91,7 @@ class ListResource(Resource):
                 address2=address
             ))
 
-    def insert(self, compileState: CompileState, index: NumberResource, value: Resource):
+    def insert(self, compileState: CompileState, index: IntegerResource, value: Resource):
         if value.type() != self.ContentResource.type() or not isinstance(value, ValueResource):
             raise McScriptTypeError(f"Cannot insert value of type {value.type().value} to list of type "
                                     f"{self.ContentResource.type().value}", compileState)
@@ -126,7 +119,7 @@ class ListResource(Resource):
                 index=int(index)
             ))
 
-    def iterate(self, compileState: CompileState, varName: str, tree: Tree):
+    def get_iterator(self, compileState: CompileState, varName: str, tree: Tree):
         tempStack = NbtAddressResource(compileState.temporaryStorageStack.next().embed())
         tempArray = self.copy(tempStack, compileState)
 
@@ -140,7 +133,7 @@ class ListResource(Resource):
         # 3. remove the first value from the array
         # 4. if the array still has values, go to 1.
         for child in tree.children:
-            compileState.compileFunction(child)
+            compileState._compile_function(child)
 
         compileState.writeline(Command.REMOVE_VARIABLE(address=tempStack[0]))
 
@@ -166,7 +159,7 @@ class ListResource(Resource):
         ))
 
     def operation_get_element(self, compileState: CompileState, index: Resource) -> Resource:
-        if index.type() != ResourceType.NUMBER:
+        if index.type() != ResourceType.INTEGER:
             raise McScriptTypeError(f"Expected type number as index but got {index.type().value}", compileState)
         if not isStatic(index):
             raise McScriptTypeError(f"Not yet implemented for non-static numbers! sorry :(", compileState)
@@ -174,7 +167,7 @@ class ListResource(Resource):
         return self.ContentResource(self.nbtAddress[index.toNumber()], False)
 
     def operation_set_element(self, compileState: CompileState, index: Resource, value: Resource):
-        if not isinstance(index, NumberResource):
+        if not isinstance(index, IntegerResource):
             raise McScriptTypeError(f"Expected type number as index but got {index.type().value}", compileState)
         if not index.isStatic:
             raise McScriptTypeError(f"Not yet implemented for non-static numbers!", compileState)
@@ -224,7 +217,7 @@ class ListResource(Resource):
     def toString(self) -> str:
         raise NotImplementedError()
 
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[list, str]:
+    def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[list, str]:
         if not self.nbtAddress:
             return "List()"
         return formatter.createFromResources(self.nbtAddress)
@@ -235,34 +228,3 @@ class ListResource(Resource):
                                     compileState)
 
     # Function classes
-    class AppendFunction(InternalFunctionResource):
-        def __init__(self, master: ListResource):
-            super().__init__(
-                [("value", TypeResource.fromType(ResourceType.RESOURCE)), ],
-                TypeResource.fromType(ResourceType.NULL)
-            )
-
-            self.master = master
-
-        # noinspection PyMethodOverriding
-        def execute(self, compileState: CompileState, value: Resource) -> Resource:
-            self.master.append(compileState, value)
-            return NullResource()
-
-    class InsertFunction(InternalFunctionResource):
-        def __init__(self, master: ListResource):
-            super().__init__(
-                [
-                    ("index", TypeResource.fromType(ResourceType.NUMBER)),
-                    ("value", TypeResource.fromType(ResourceType.RESOURCE))
-                ],
-                TypeResource.fromType(ResourceType.NULL)
-            )
-
-            self.master = master
-
-        def execute(self, compileState: CompileState, **parameters) -> Resource:
-            index = parameters.get("index")
-            value = parameters.get("value")
-            self.master.insert(compileState, index.convertToNumber(compileState), value)
-            return NullResource()

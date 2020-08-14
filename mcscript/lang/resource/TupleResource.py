@@ -1,21 +1,13 @@
 from __future__ import annotations
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 
-from lark import Tree
-
-from mcscript.compiler.common import check_context_static
-from mcscript.compiler.ContextType import ContextType
 from mcscript.exceptions.compileExceptions import (
-    McScriptAttributeError, McScriptIndexError, McScriptIsStaticError,
-    McScriptTypeError,
+    McScriptTypeError, McScriptArgumentsError,
 )
-from mcscript.lang.resource.base.ResourceBase import MinecraftDataStorage, Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.lang.resource.BooleanResource import BooleanResource
-from mcscript.lang.resource.NbtAddressResource import NbtAddressResource
-from mcscript.lang.resource.NullResource import NullResource
-from mcscript.lang.resource.NumberResource import NumberResource
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import Tuple
+from mcscript.lang.resource.base.ResourceBase import Resource, IteratorResource
 
 if TYPE_CHECKING:
     from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
@@ -36,103 +28,50 @@ class TupleResource(Resource):
         :class:`mcscript.lang.resource.base.ResourceBase.Resource`
     """
 
+    class TupleIterator(IteratorResource):
+        def __init__(self, master: TupleResource):
+            self.master = master
+            self.index = 0
+
+        def next(self) -> Optional[Resource]:
+            if self.index >= self.master.size():
+                return None
+
+            self.index += 1
+            return self.master.resources[self.index - 1]
+
     def __init__(self, *resources: Resource):
         super().__init__()
 
         self.resources = list(resources)
-        self.stack: Optional[NbtAddressResource] = None
 
-        self.attributes = dict(size=NumberResource(len(self.resources), True))
+    def type(self) -> Type:
+        return Tuple
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.TUPLE
-
-    def iterate(self, compileState: CompileState, varName: str, block: Tree):
-
-        for i in range(len(self.resources)):
-            context = compileState.pushContext(ContextType.UNROLLED_LOOP, block.line, block.column)
-
-            context.add_var(varName, self.resources[i])
-            for child in block.children:
-                compileState.compileFunction(child)
-
-            compileState.popContext()
-
-    def operation_get_element(self, compileState: CompileState, index: Resource) -> Resource:
-        try:
-            # noinspection PyTypeChecker
-            index = int(index)
-        except TypeError:
-            raise McScriptTypeError(
-                f"Expected a resource that can be converted to a static number but got {repr(index)}",
-                compileState
-            )
-        try:
-            return self.resources[index]
-        except IndexError:
-            raise McScriptIndexError(index, compileState, len(self.resources) - 1)
-
-    def operation_set_element(self, compileState: CompileState, index: Resource, value: Resource):
-        if not check_context_static(compileState, self):
-            raise McScriptIsStaticError(
-                "Trying to modify this tuple in a non-static context",
-                compileState.currentContext().find_var(
-                    compileState.currentContext().find_resource_name(self)
-                ).context.identifier,
-                compileState
-            )
-
-        try:
-            # noinspection PyTypeChecker
-            index = int(index)
-        except TypeError:
-            raise McScriptTypeError(f"Expected a resource that can be converted to a number but got {index}",
-                                    compileState)
-
-        try:
-            self.resources[index] = value
-        except IndexError:
-            raise McScriptIndexError(index, compileState, len(self.resources) - 1)
-
-    def getAttribute(self, compileState: CompileState, name: str) -> Resource:
-        try:
-            return self.attributes[name]
-        except KeyError:
-            raise McScriptAttributeError(f"Invalid attribute '{name}' of {self.type().value}", compileState)
-
-    def storeToNbt(self, stack: NbtAddressResource, compileState: CompileState) -> TupleResource:
-        self.stack = stack
-        new = []
-        for index, resource in enumerate(self.resources[:]):
-            if isinstance(resource, NullResource):
-                new.append(resource)
-            elif isinstance(resource, ValueResource) and resource.isStatic:
-                new.append(resource)
-            elif resource.storage == MinecraftDataStorage.SCOREBOARD:
-                try:
-                    new.append(resource.storeToNbt(self.stack[index], compileState))
-                except TypeError:
-                    raise McScriptTypeError(f"Array cannot store resource {resource.type().value}", compileState)
-            else:
-                new.append(resource)
-        return TupleResource(*new)
-
-    def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
-        return BooleanResource.TRUE if self.resources else BooleanResource.FALSE
-
-    def toTextJson(self, compileState: CompileState, formatter: ResourceTextFormatter) -> List:
+    def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> List:
         resources: list = [self.resources[0]] if self.resources else []
         for resource in self.resources[1:]:
             resources.append(", ")
             resources.append(resource)
         return formatter.createFromResources("(", *resources, ")")
 
-    def toNumber(self) -> int:
-        raise NotImplementedError()
+    def operation_get_element(self, compileState: CompileState, index: Resource) -> Resource:
+        try:
+            value = index.integer_value()
+        except TypeError:
+            raise McScriptTypeError(f"Cannot convert {index} into a static integer", compileState)
 
-    def toString(self) -> str:
-        raise NotImplementedError()
+        try:
+            return self.resources[value]
+        except ValueError:
+            raise McScriptArgumentsError(f"Tuple index out of bounds. Maximum index is {len(self.resources) - 1}",
+                                         compileState)
+
+    def size(self) -> int:
+        return len(self.resources)
+
+    def get_iterator(self, compileState: CompileState) -> IteratorResource:
+        return self.TupleIterator(self)
 
     def __str__(self):
-        return f"Array({', '.join(str(i) for i in self.resources)})"
+        return f"Tuple({', '.join(str(i) for i in self.resources)})"

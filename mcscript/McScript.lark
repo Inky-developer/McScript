@@ -1,12 +1,12 @@
-start: statement*
+start: (statement _STATEMENT_SEPARATOR)*
 
-statement: declaration _STATEMENT_SEPARATOR
-         | static_declaration _STATEMENT_SEPARATOR
-         | index_setter _STATEMENT_SEPARATOR
-         | term_ip _STATEMENT_SEPARATOR
-         | expression _STATEMENT_SEPARATOR
+statement: declaration
+         | static_declaration
+         | index_setter
+         | term_ip
+         | expression
          | function_definition
-         | "return " expression _STATEMENT_SEPARATOR -> return_
+         | "return " expression -> return_
          | control_if
          | control_while
          | control_do_while
@@ -16,12 +16,12 @@ statement: declaration _STATEMENT_SEPARATOR
          | context_manipulator
          | COMMENT -> comment
 
-block: "{" statement* "}"
-     | statement
+block: "{" (statement _STATEMENT_SEPARATOR)* statement? "}"
 
 function_parameter: IDENTIFIER ":" IDENTIFIER
-parameter_list: "(" (function_parameter "," )* function_parameter? ")"
-function_definition: [ /\binline\b/ ] /\bfun\b/ IDENTIFIER parameter_list [ "->" IDENTIFIER ] block
+// ToDo: Prevent this syntax: fun foo(self param1)
+parameter_list: "(" [ /self/ ","? ] (function_parameter "," )* function_parameter? ")"
+function_definition: /\bfun\b/ IDENTIFIER parameter_list [ "->" IDENTIFIER ] block
 
 function_call: accessor "(" (expression "," )* expression? ")"
 
@@ -47,7 +47,7 @@ _expression: comparison
 term: sum
 ?sum: product ((PLUS | MINUS) product)*
 ?product: value ((TIMES | DIVIDE | MODULO) value)*
-value: NUMBER
+value: INTEGER
      | DECIMAL
      | STRING
      | SELECTOR
@@ -63,27 +63,26 @@ accessor: IDENTIFIER ("." IDENTIFIER)*
 array_accessor: accessor "[" expression "]"
 
 unary_operation: MINUS value
-               | INCR_ONE value
-               | DECR_ONE value
 
 tuple: "(" ( expression "," )+ expression?  ")"
 
 comparison: term (VERIFY_EQUAL | VERIFY_NOT_EQUAL | VERIFY_GREATER | VERIFY_GREATER_OR_EQUAL | VERIFY_LESS | VERIFY_LESS_OR_EQUAL) term
 
 // control flow
-control_if: _KEYWORD_IF "(" expression ")" block [_KEYWORD_ELSE block]
+control_if: _KEYWORD_IF expression block [_KEYWORD_ELSE block]
 // hack to enable recursive context changes. ToDo: fix this
-control_while: _KEYWORD_WHILE "(" expression ")" [ context_modifier ] block
-control_do_while: _KEYWORD_DO [ context_modifier ] block _KEYWORD_WHILE "(" expression ")"
+control_while: _KEYWORD_WHILE expression [ context_modifier ] block
+control_do_while: _KEYWORD_DO [ context_modifier ] block _KEYWORD_WHILE expression
 
-control_for: /\bfor\b/ "(" IDENTIFIER /\bin\b/ expression ")" block
+control_for: /\bfor\b/ IDENTIFIER /\bin\b/ expression block
 
 control_enum: /\benum\b/ IDENTIFIER enum_block
 enum_block: "{" ( enum_property _STATEMENT_SEPARATOR )* enum_property _STATEMENT_SEPARATOR "}"
-enum_property: IDENTIFIER | (IDENTIFIER "=" NUMBER)
+enum_property: IDENTIFIER | (IDENTIFIER "=" INTEGER)
 
 control_struct: _KEYWORD_STRUCT IDENTIFIER struct_block
-struct_block: "{" ( (variable_declaration ",") | function_definition )* variable_declaration? "}"
+struct_block: "{" ( struct_member _STATEMENT_SEPARATOR )* struct_member? "}"
+struct_member: variable_declaration  | function_definition | COMMENT
 
 context_manipulator: _KEYWORD_RUN ( context_modifier)+ block
 context_modifier: _CONTEXT_FOR expression -> context_for
@@ -94,7 +93,7 @@ context_modifier: _CONTEXT_FOR expression -> context_for
                 | _CONTEXT_ANCHORED expression -> context_anchor
 
 
-NUMBER: /[0-9]+/
+INTEGER: /[0-9]+/
 DECIMAL: /[0-9]*\.[0-9]+/
 STRING: /".*?"/ | /'.*?'/
 SELECTOR: /@[parse](\[\w+=!?.+\])?/

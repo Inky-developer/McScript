@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from typing import Tuple
 
 from mcscript.data import getDictionaryResource
-from mcscript.utils.FileStructure import FileStructure
 
 
 class PredicateGenerator(ABC):

@@ -8,6 +8,7 @@ __pycache__/
 .github/
 .coverage
 benchmark/
+sandbox
 build/build
 build/dist
 build/freeze.cmd
@@ -16,6 +17,7 @@ docs/build
 htmlcov/
 test/server
 venv/
+out/
 
 docs/update_doc.cmd
 latest.log

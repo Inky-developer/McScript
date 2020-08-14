@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import BinaryOperator, Command, multiple_commands
-from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
-from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+
+from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
+from mcscript.lang.resource.IntegerResource import IntegerResource
+from mcscript.lang.resource.base.ResourceBase import Resource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -26,7 +26,7 @@ class GetTickTimeFunction(BuiltinFunction):
         return "getTickTime"
 
     def returnType(self) -> ResourceType:
-        return ResourceType.NUMBER
+        return ResourceType.INTEGER
 
     def include(self, compileState: CompileState) -> bool:
         compileState.datapack.getMainDirectory().hasSubTickClock = True
@@ -51,5 +51,5 @@ class GetTickTimeFunction(BuiltinFunction):
                 #     operator=BinaryOperator.TIMES.value,
                 #     stack2=compileState.getConstant(-1)
                 # )
-            ), NumberResource(stack, False)
+            ), IntegerResource(stack, False)
         )

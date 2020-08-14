@@ -1,36 +1,29 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar, Type
 
+from mcscript.lang.atomic_types import Null
 from mcscript.lang.resource.base.ResourceBase import ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 
 # noinspection PyUnusedLocal
-class NullResource(ValueResource):
-    requiresInlineFunc = False
+class NullResource(ValueResource[None]):
+    requiresInlineFunc: ClassVar[bool] = False
 
-    def __init__(self, value: Any = None, isStatic: bool = True):
+    def __init__(self):
         """
         parameters are discarded
         """
-        super().__init__(None, True)
-
-    def embed(self) -> str:
-        return "null"
-
-    def typeCheck(self) -> bool:
-        return True
+        super().__init__(0, None)
 
     def copy(self, target: ValueResource, compileState: CompileState) -> NullResource:
         return NullResource()
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.NULL
+    def type(self) -> Type:
+        return Null
 
     @classmethod
     def createEmptyResource(cls, identifier: str, compileState: CompileState) -> NullResource:

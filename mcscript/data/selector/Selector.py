@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import List, Literal, TYPE_CHECKING
 
 from lark import LarkError
@@ -94,6 +95,7 @@ class Selector:
                                                                                      False) or not argument.negative
 
     @classmethod
+    @lru_cache(maxsize=32)
     def from_string(cls, _selector: str, compileState: CompileState = None) -> Selector:
         """
         Creates a Selector from a string

@@ -3,17 +3,13 @@ from __future__ import annotations
 import itertools
 from dataclasses import dataclass, field
 from enum import Enum, Flag, auto
-from typing import List, Optional, Sequence, TYPE_CHECKING, Union
+from typing import List, Optional, Sequence, TYPE_CHECKING
 
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError
-from mcscript.lang.resource.TypeResource import TypeResource
+from mcscript.lang.Type import Type
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
-from mcscript.lang.resource.base.ResourceType import ResourceType
-from mcscript.lang.utility import compareTypes
 
 if TYPE_CHECKING:
-    from mcscript.lang.builtins.builtins import BuiltinFunction
-    from mcscript.lang.resource.base.FunctionResource import FunctionResource
     from mcscript.compiler.CompileState import CompileState
 
 
@@ -38,7 +34,7 @@ class FunctionParameter:
         NON_STATIC = auto()
 
     name: str
-    type: TypeResource
+    type: Type
     count: FunctionParameter.ParameterCount = ParameterCount.ONCE
     defaultValue: Optional[Resource] = None
     accepts: FunctionParameter.ResourceMode = ResourceMode.STATIC | ResourceMode.NON_STATIC
@@ -62,10 +58,10 @@ class FunctionParameter:
         return self._check_parameter(parameters[0])
 
     def _check_parameter(self, parameter: Resource) -> FunctionParameterMatch:
-        if compareTypes(parameter, self.type.value):
+        if parameter.type().matches(self.type):
             if not isinstance(parameter, ValueResource):
                 return FunctionParameterMatch.MATCHES
-            if parameter.isStatic:
+            if parameter.is_static:
                 if self.accepts & self.ResourceMode.STATIC:
                     return FunctionParameterMatch.MATCHES
                 return FunctionParameterMatch.MUST_NOT_BE_STATIC
@@ -77,10 +73,11 @@ class FunctionParameter:
 
 @dataclass(unsafe_hash=True)
 class FunctionSignature:
-    function: Union[FunctionResource, BuiltinFunction]
     parameters: Sequence[FunctionParameter]
-    returnType: ResourceType
-    inline: bool = field(default=False)
+    returnType: Type
+    name: str = field(default="<unknown>")
+    # if not None the type of the struct of this method, otherwise normal function
+    self_type: Optional[Type] = field(default=None)
     documentation: str = field(default="")
 
     format_string: str = field(init=False, default="For function {function}\n"
@@ -89,7 +86,16 @@ class FunctionSignature:
                                                    "{{}}")
 
     def __post_init__(self):
-        self.format_string = self.format_string.format(function=self.function.name(), signature=self.signature_string())
+        if self.is_method:
+            self.parameters = [FunctionParameter("self", self.self_type, documentation="The self type")] + \
+                              list(self.parameters)
+
+        self.format_string = self.format_string.format(function=self.name, signature=self.signature_string())
+
+    @property
+    def is_method(self) -> bool:
+        """ Returns whether this is a method (self_type is not None)"""
+        return self.self_type is not None
 
     def signature_string(self) -> str:
         parameters = []
@@ -103,11 +109,11 @@ class FunctionSignature:
             # default value if given
             suffix += f" = {parameter.defaultValue}" if parameter.defaultValue else ""
 
-            parameters.append(f'{prefix}{parameter.name}: {parameter.type.value.type().value}{suffix}')
+            parameters.append(f'{prefix}{parameter.name}: {parameter.type.name}{suffix}')
 
-        return f"{'inline ' if self.inline else ''}fun {self.function.name()}" \
+        return f"{'method' if self.is_method else 'fun'} {self.name}" \
                f"({', '.join(parameters)})" \
-               f" -> {self.returnType.value}"
+               f" -> {self.returnType.name}"
 
     def matchParameters(self, compileState: CompileState, parameters: Sequence[Resource]) -> List[Resource]:
         """
@@ -138,14 +144,14 @@ class FunctionSignature:
             elif match == FunctionParameterMatch.FAIL_WRONG_TYPE:
                 raise McScriptArgumentsError(self.format_string.format(
                     self.arguments_format(original_parameters),
-                    f"Expected type {parameter.type.value.type().value} for parameter '{parameter.name}' but got "
-                    f"type {parameters[0].type().value}"
+                    f"Expected type {parameter.type} for parameter '{parameter.name}' but got "
+                    f"type {parameters[0].type()}"
                 ), compileState)
             elif match == FunctionParameterMatch.FAIL_MULTIPLE_PARAMETERS:
                 raise McScriptArgumentsError(self.format_string.format(
                     self.arguments_format(original_parameters),
                     f"All parameters for '{parameter.name}' must be of type "
-                    f"{parameter.type.value.type().value} but got ({', '.join(i.type().value for i in parameters)})"
+                    f"{parameter.type} but got ({', '.join(str(i.type()) for i in parameters)})"
                 ), compileState)
             elif match == FunctionParameterMatch.MUST_BE_STATIC:
                 raise McScriptArgumentsError(self.format_string.format(
@@ -188,4 +194,4 @@ class FunctionSignature:
         return returnParameters
 
     def arguments_format(self, arguments: List[Resource]):
-        return "(" + ", ".join(i.type().value for i in arguments) + ")"
+        return "(" + ", ".join(str(i.type()) for i in arguments) + ")"

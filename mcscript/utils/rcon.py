@@ -1,12 +1,11 @@
+"""
+Simple Rcon module.
+If a server runs on localhost with rcon enabled and port and password set as below, unit tests will test the datapack
+on this server automatically
+"""
 import atexit
 
 from mcrcon import MCRcon
-
-"""
-Simple Rcon module.
-If a server runs on localhost with rcon enabled and port and password set as below, unit tests wil test the datapack
-on this server automatically 
-"""
 
 HOST = "localhost"
 PORT = 25575

@@ -2,7 +2,6 @@ from functools import lru_cache
 from importlib.resources import read_text
 from typing import Dict
 
-from mcscript.data.Config import Config
 from mcscript.data.templates.DataReader import DataReader
 
 

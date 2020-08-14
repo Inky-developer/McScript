@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import List, Tuple
 
-from lark import Token, Tree
+from lark import Tree
 
 
 @dataclass()
@@ -12,7 +14,7 @@ class VariableAccess:
 
 @dataclass()
 class VariableContext:
-    identifier: Token
+    identifier: str
     # a tuple (line, column) identifying the master context
     declaration: VariableAccess
     static_declaration: bool
@@ -27,3 +29,10 @@ class VariableContext:
         accesses.sort(key=lambda x: x[1].access.line)
 
         return accesses
+
+
+@dataclass()
+class NamespaceContext:
+    variables: List[VariableContext]
+    inner_contexts: List[NamespaceContext]
+    definition: Tuple[int, int]

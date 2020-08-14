@@ -1,14 +1,11 @@
 from __future__ import annotations
 
 import configparser
-from functools import lru_cache
+from functools import cached_property
 from os.path import exists
-from typing import TYPE_CHECKING
 
 from mcscript import Logger
-
-if TYPE_CHECKING:
-    from mcscript.lang.resource.AddressResource import AddressResource
+from mcscript.utils.resources import ResourceSpecifier
 
 
 class Config:
@@ -24,19 +21,24 @@ class Config:
 
         self.config["compiler"] = {
             "load_debug": False,
-            "name"      : "mcscript",
-            "utils"     : "mcscript_utils"
+            "name": "mcscript",
+            "utils": "mcscript_utils"
         }
 
         self.config["scores"] = {
-            "return"  : ".ret",
-            "block"   : ".block",
+            "return": ".ret",
+            "block": ".block",
         }
 
         # maximum scoreboard name has 16 chars so `name` must contain 12 chars at most
-        # warning and Todo: scores.main is unused!
         self.config["scoreboards"] = {
             "main": self["compiler"]["name"]
+        }
+
+        self.config["storage"] = {
+            "name": "main",
+            "stack": "state.stack",
+            "temp": "state.temp"
         }
 
         if path:
@@ -56,29 +58,30 @@ class Config:
             all(len(self.get_scoreboard(i)) <= 16 for i in ("main",))
         )
 
-    #           legacy getters              #
     #########################################
-    @property
-    @lru_cache()
+    #               shortcuts               #
+    #########################################
+    @cached_property
     def NAME(self):
         return self.get_compiler("name")
 
-    @property
-    @lru_cache()
+    @cached_property
     def UTILS(self):
         return self.get_compiler("utils")
 
-    @property
-    @lru_cache()
+    @cached_property
     def RETURN_SCORE(self):
-        from mcscript.lang.resource.AddressResource import AddressResource
-        return AddressResource(self.get_score("return"), True)
+        return self.get_score("return")
 
-    @property
-    @lru_cache()
+    @cached_property
     def BLOCK_SCORE(self):
-        from mcscript.lang.resource.AddressResource import AddressResource
-        return AddressResource(self.get_score("block"), True)
+        return self.get_score("block")
+
+    @cached_property
+    def storage_id(self) -> ResourceSpecifier:
+        """ Returns the data storage id. Default is mcscript:main """
+        from mcscript.utils.resources import ResourceSpecifier
+        return ResourceSpecifier(self.NAME, self.get_storage("name"))
 
     def get_compiler(self, key) -> str:
         return self["compiler"][key]
@@ -88,6 +91,14 @@ class Config:
 
     def get_scoreboard(self, key) -> str:
         return self["scoreboards"][key]
+
+    def get_storage(self, key) -> str:
+        return self["storage"][key]
+
+    # Utility functions
+
+    def resource_specifier_main(self, name: str) -> ResourceSpecifier:
+        return ResourceSpecifier(self.NAME, name)
 
     def __getitem__(self, item):
         return self.config[item]

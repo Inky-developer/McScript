@@ -1,28 +1,23 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from enum import Enum
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import Command
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
+from mcscript.ir.components import MessageNode
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
 from mcscript.utils.JsonTextFormat.MarkupParser import MarkupParser
 
-
-class PrintCommand(Enum):
-    TELLRAW = Command.TELLRAW
-    ACTIONBAR = Command.ACTIONBAR
-    TITLE = Command.TITLE
-    SUBTITLE = Command.SUBTITLE
+if TYPE_CHECKING:
+    from mcscript.compiler.CompileState import CompileState
 
 
 class TextFunction(BuiltinFunction, ABC):
     @abstractmethod
-    def getCommand(self) -> PrintCommand:
+    def get_message_type(self) -> MessageNode.MessageType:
         pass
 
     def returnType(self) -> ResourceType:
@@ -31,19 +26,17 @@ class TextFunction(BuiltinFunction, ABC):
     def requireRawParameters(self) -> bool:
         return True
 
-    def generate(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
-        fmtString: StringResource
+    @staticmethod
+    def inline():
+        return True
 
-        fmtString, *resources = parameters
-        return FunctionResult(
-            self.getCommand().value(text=MarkupParser(compileState).toJsonString(fmtString.value, *resources)),
-            resource=NullResource(),
-            inline=True
-        )
-
-
-if TYPE_CHECKING:
-    from mcscript.compiler.CompileState import CompileState
+    def generate(self, compileState: CompileState, *parameters: Resource) -> Resource:
+        fmt_string, *resources = parameters
+        compileState.ir.append(MessageNode(
+            self.get_message_type(),
+            MarkupParser(compileState).to_json_string(fmt_string.static_value, *resources)
+        ))
+        return NullResource()
 
 
 class PrintFunction(TextFunction):
@@ -56,8 +49,8 @@ class PrintFunction(TextFunction):
         print("Hello world! ", "The result is: ", aValue)
     """
 
-    def getCommand(self) -> PrintCommand:
-        return PrintCommand.TELLRAW
+    def get_message_type(self) -> MessageNode.MessageType:
+        return MessageNode.MessageType.CHAT
 
     def name(self) -> str:
         return "print"
@@ -70,8 +63,8 @@ class TitleFunction(TextFunction):
     prints text as title
     """
 
-    def getCommand(self) -> PrintCommand:
-        return PrintCommand.TITLE
+    def get_message_type(self) -> MessageNode.MessageType:
+        return MessageNode.MessageType.TITLE
 
     def name(self) -> str:
         return "title"
@@ -84,8 +77,8 @@ class SubTitleFunction(TextFunction):
     prints text as subtitle
     """
 
-    def getCommand(self) -> PrintCommand:
-        return PrintCommand.SUBTITLE
+    def get_message_type(self) -> MessageNode.MessageType:
+        return MessageNode.MessageType.SUBTITLE
 
     def name(self) -> str:
         return "subtitle"
@@ -98,8 +91,8 @@ class ActionBarFunction(TextFunction):
     prints text on the actionbar
     """
 
-    def getCommand(self) -> PrintCommand:
-        return PrintCommand.ACTIONBAR
+    def get_message_type(self) -> MessageNode.MessageType:
+        return MessageNode.MessageType.ACTIONBAR
 
     def name(self) -> str:
         return "actionbar"

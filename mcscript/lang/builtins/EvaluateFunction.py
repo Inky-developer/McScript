@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import Command
-from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
-from mcscript.lang.resource.NumberResource import NumberResource
-from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
+
+from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
+from mcscript.lang.resource.IntegerResource import IntegerResource
+from mcscript.lang.resource.base.ResourceBase import Resource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -22,7 +22,7 @@ class EvaluateFunction(BuiltinFunction):
         return "evaluate"
 
     def returnType(self) -> ResourceType:
-        return ResourceType.NUMBER
+        return ResourceType.INTEGER
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> FunctionResult:
         string, = parameters
@@ -32,4 +32,4 @@ class EvaluateFunction(BuiltinFunction):
             Command.SET_VALUE_FROM(
                 stack=stack,
                 command=string
-            ), NumberResource(stack, False))
+            ), IntegerResource(stack, False))

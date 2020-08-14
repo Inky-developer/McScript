@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import difflib
 import json
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, List
 
 from lark import UnexpectedToken
 from lark.visitors import Interpreter
@@ -12,24 +12,25 @@ from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScri
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.JsonTextFormat import markupGrammar
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
-from mcscript.utils.JsonTextFormat.objectFormatter import format_bold, format_color, format_hover, format_italic, \
-    format_obfuscated, \
-    format_open_url, format_run_command, format_strike_through, format_text, format_underlined
+from mcscript.utils.JsonTextFormat.objectFormatter import (format_bold, format_color, format_hover, format_italic,
+                                                           format_obfuscated,
+                                                           format_open_url, format_run_command, format_strike_through,
+                                                           format_text, format_underlined)
 from mcscript.utils.utils import debug_log_text
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 RULE2ACTION = {
-    "b"      : lambda v, c: format_bold(c),
-    "i"      : lambda v, c: format_italic(c),
-    "u"      : lambda v, c: format_underlined(c),
-    "s"      : lambda v, c: format_strike_through(c),
-    "o"      : lambda v, c: format_obfuscated(c),
-    "color"  : lambda v, c: format_color(c, str(v)),
-    "link"   : lambda v, c: format_open_url(c, v),
+    "b": lambda v, c: format_bold(c),
+    "i": lambda v, c: format_italic(c),
+    "u": lambda v, c: format_underlined(c),
+    "s": lambda v, c: format_strike_through(c),
+    "o": lambda v, c: format_obfuscated(c),
+    "color": lambda v, c: format_color(c, str(v)),
+    "link": lambda v, c: format_open_url(c, v),
     "command": lambda v, c: format_run_command(c, v),
-    "hover"  : lambda v, c: format_hover(c, v)
+    "hover": lambda v, c: format_hover(c, v)
 }
 
 
@@ -39,7 +40,7 @@ class MarkupParser(Interpreter):
         self.state: Dict = {}
         self.compileState = compileState
 
-    def toJsonString(self, markup: str, *args: Resource) -> str:
+    def to_json_string(self, markup: str, *args: Resource) -> str:
         result = self.toJson(markup, *args)
         # if isinstance(result, list):
         #     result =
@@ -47,7 +48,7 @@ class MarkupParser(Interpreter):
         # Why is escaping so annoying?
         return json.dumps(result).replace("\\\\", "\\")
 
-    def toJson(self, markup: str, *args: Resource) -> Dict:
+    def toJson(self, markup: str, *args: Resource) -> List[dict]:
         """
         Converts a markup string to a minecraft json format string.
 
@@ -77,7 +78,23 @@ class MarkupParser(Interpreter):
         if all_args:
             raise McScriptInvalidMarkupError(f"Not all arguments were used!\nunused indices: "
                                              f"{', '.join(str(i) for i in all_args)}", self.compileState)
-        return data
+
+        # remove duplicate text elements
+        compacted_data = []
+        current_text = []
+        for value in data:
+            if len(value.keys()) == 1 and value.get("text", None) is not None:
+                current_text.append(value["text"])
+            else:
+                if current_text:
+                    compacted_data.append(format_text("".join(current_text)))
+                    current_text.clear()
+                compacted_data.append(value)
+
+        if current_text:
+            compacted_data.append(format_text("".join(current_text)))
+
+        return compacted_data
 
     def string(self, tree):
         string, = tree.children
@@ -115,7 +132,7 @@ class MarkupParser(Interpreter):
             content = ret[0]
         else:
             content = {
-                "text" : "",
+                "text": "",
                 "extra": ret
             }
 

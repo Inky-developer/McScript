@@ -1,11 +1,11 @@
+from __future__ import annotations
+
 from typing import Dict
 
 from mcscript.data import getDictionaryResource
-from mcscript.data.commands import stringFormat
 from mcscript.data.minecraftData import features
 from mcscript.data.minecraftData.features import Feature
 from mcscript.data.predicates.predicateGenerator import PredicateGenerator
-from mcscript.utils.FileStructure import FileStructure
 
 
 class FeaturePredicate(PredicateGenerator):

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.lang.builtins.builtins import CachedFunction
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -24,7 +23,7 @@ class GetBiomeFunction(CachedFunction):
         return "getBiome"
 
     def returnType(self) -> ResourceType:
-        return ResourceType.NUMBER
+        return ResourceType.INTEGER
 
     def generate(self, compileState: CompileState, *parameters: Resource) -> str:
         commands = [Command.EXECUTE(

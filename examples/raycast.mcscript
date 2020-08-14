@@ -1,32 +1,33 @@
-static MAX_ITERATIONS = 64
+# ToDo: It seems like (and, or) still have much optimization potential
+MAX_DISTANCE = 5.0
 
-inline fun raycast(onRaycastHit: Function) -> Boolean {
-    steps = 0
+fun raycast(onRaycastHit: Function) -> Bool {
+    distance = 0.0
     hit = False
-    do local 0, 0, 1 {
-        if (not isBlock(blocks.air)) {
-            hit = onRaycastHit(steps)
+    do local 0, 0, "0.1" {
+        if evaluate("execute if block ~ ~ ~ minecraft:air") == 0 {
+            hit = onRaycastHit(distance)
         }
-        ++steps
-    } while (not hit and steps < MAX_ITERATIONS)
+        distance += 0.1
+    } while not hit and distance < MAX_DISTANCE
     return hit
 }
 
 
-inline fun onHit(steps: Number) -> Boolean {
-    actionbar("[color=black]Hit after [color=red]{}[/] block(s)[/]", steps)
-    setBlock(blocks.red_stained_glass)
+fun onHit(distance: Fixed) -> Bool {
+    actionbar("[color=black]Hit after [color=red]{}[/] block(s)[/]", distance)
+    execute("setblock ~ ~ ~ minecraft:red_stained_glass")
     return True
 }
 
-fun execute() {
+fun do_it() {
     run anchored "eyes" {
-        if (not raycast(onHit)) {
-            actionbar("[color=black]Exceeded max distance of [color=red]{}[/] blocks![/]", MAX_ITERATIONS)
+        if not raycast(onHit) {
+            actionbar("[color=black]Exceeded max distance of [color=red]{}[/] blocks![/]", MAX_DISTANCE)
         }
     }
 }
 
-fun onTick() {
-    run for @a at @s execute()
+fun on_tick() {
+    run for @a at @s { do_it() }
 }

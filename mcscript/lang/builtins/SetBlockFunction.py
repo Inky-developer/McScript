@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Union
 
-from mcscript.data.commands import Command, ExecuteCommand, multiple_commands
 from mcscript.data.minecraftData import blocks
 from mcscript.lang.builtins.builtins import BuiltinFunction, FunctionResult
 from mcscript.lang.resource.BooleanResource import BooleanResource

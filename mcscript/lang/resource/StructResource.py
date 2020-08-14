@@ -1,25 +1,29 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Dict
 
-from mcscript.lang.resource.BooleanResource import BooleanResource
+from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import Struct, Any
+from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
-from mcscript.lang.resource.base.ResourceType import ResourceType
 
 if TYPE_CHECKING:
     from mcscript.compiler.Context import Context
-    from mcscript.lang.resource.TypeResource import TypeResource
     from mcscript.compiler.CompileState import CompileState
+    from mcscript.lang.resource.StructObjectResource import StructObjectResource
 
 
 class StructResource(ObjectResource):
     """
-    The resource for a struct. The namespace should only contain TypeResources
+    The resource for a struct.
+    Holds value definitions and functions
     """
 
-    def __init__(self, name: str, ownContext: Context):
-        super().__init__(ownContext)
+    def __init__(self, name: str, ownContext: Context, compile_state: CompileState):
+        super().__init__()
+        self.context = ownContext
         self.name = name
+        self.object_type = compile_state.new_type(self.name, {Any})
 
     def operation_call(self, compileState: CompileState, *parameters: Resource,
                        **keywordParameters: Resource) -> Resource:
@@ -35,25 +39,24 @@ class StructResource(ObjectResource):
             A new `ObjectResource`
         """
         from mcscript.lang.resource.StructObjectResource import StructObjectResource
-        return StructObjectResource(self, compileState, *parameters, **keywordParameters)
+        # ToDo: Create dedicated struct creation syntax
+        assert not keywordParameters
 
-    @staticmethod
-    def type() -> ResourceType:
-        return ResourceType.STRUCT
+        declared_vars = self.getDeclaredVariables()
+        keyword_parameters = dict(zip(declared_vars.keys(), parameters))
 
-    def convertToBoolean(self, compileState: CompileState) -> BooleanResource:
-        return BooleanResource.TRUE
+        return StructObjectResource(self, compileState, keyword_parameters)
 
-    def toNumber(self) -> int:
-        raise TypeError
+    def getAttribute(self, compileState: CompileState, name: str) -> Resource:
+        return self.context.find_resource(name)
 
-    def toString(self) -> str:
-        return str(self)
+    def type(self) -> Type:
+        return Struct
 
-    def getDeclaredVariables(self) -> List[Tuple[str, TypeResource]]:
+    def getDeclaredVariables(self) -> Dict[str, Type]:
         """ Returns all declared type resources """
-        return [(i, self.context.namespace[i].resource) for i in self.context.namespace if
-                self.context.namespace[i].resource.type() == ResourceType.TYPE]
+        return {name: value.resource.static_value for name, value in self.context.namespace.items() if
+                isinstance(value.resource, TypeResource)}
 
-    def __str__(self):
+    def __repr__(self):
         return f"Struct<{self.name}>"

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.data.commands import Command, ExecuteCommand
 from mcscript.lang.builtins.builtins import BuiltinFunction
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.lang.resource.base.ResourceType import ResourceType
@@ -23,7 +22,7 @@ class GetBlockFunction(BuiltinFunction):
         return "getBlock"
 
     def returnType(self) -> ResourceType:
-        return ResourceType.NUMBER
+        return ResourceType.INTEGER
 
     def include(self, compileState: CompileState):
         compileState.datapack.getUtilsDirectory().addGetBlockFunction()
