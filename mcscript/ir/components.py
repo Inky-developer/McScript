@@ -91,18 +91,21 @@ class ExecuteNode(IRNode):
         super().__init__(sub_commands)
         self["components"] = components
 
-    def optimized(self, ir_master: IrMaster, parent: IRNode) -> Tuple[IRNode, bool]:
-        components = self["components"]
-        children = self.inner_nodes
-
-        # inline message node
-        if len(components) == 1 and isinstance(components[0], self.As):
-            if len(children) == 1 and isinstance(children[0], MessageNode):
-                if children[0]["selector"] == Selector("s", []) and children[0].allow_inline_optimization():
-                    children[0]["selector"] = components[0]["selector"]
-                    return children[0], True
-
-        return super().optimized(ir_master, parent)
+    # This optimization is problematic:
+    # run for @a { print("Hallo, {}", @s) } would not work
+    ########################################################
+    # def optimized(self, ir_master: IrMaster, parent: IRNode) -> Tuple[IRNode, bool]:
+    #     components = self["components"]
+    #     children = self.inner_nodes
+    #
+    #     # inline message node
+    #     if len(components) == 1 and isinstance(components[0], self.As):
+    #         if len(children) == 1 and isinstance(children[0], MessageNode):
+    #             if children[0]["selector"] == Selector("s", []) and children[0].allow_inline_optimization():
+    #                 children[0]["selector"] = components[0]["selector"]
+    #                 return children[0], True
+    #
+    #     return super().optimized(ir_master, parent)
 
 
 class ConditionalNode(IRNode):

@@ -1,9 +1,10 @@
 tickCount = 0
 
-fun onTick() {
+fun on_tick() {
     run for @a at @s {
-        if (tickCount % 20 == 0)
+        if tickCount % 20 == 0 {
             actionbar("{} Second: {}", @s, tickCount / 20)
+        }
     }
-    ++tickCount
+    tickCount += 1
 }

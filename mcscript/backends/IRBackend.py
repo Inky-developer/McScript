@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from functools import cached_property
+from logging import DEBUG
 from typing import TypeVar, Generic
 
+from mcscript import Logger
 from mcscript.data.Config import Config
 from mcscript.ir.components import *
 
@@ -26,6 +28,9 @@ class IRBackend(Generic[T], ABC):
         self.config = config
 
     def generate(self, ir_master: IrMaster) -> T:
+        if Logger.isEnabledFor(DEBUG):
+            for function in ir_master.function_nodes:
+                Logger.debug(f"{str(function)}")
         for function_node in ir_master.function_nodes:
             self.handle_function_node(function_node)
 

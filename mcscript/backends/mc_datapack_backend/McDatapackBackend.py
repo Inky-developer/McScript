@@ -12,6 +12,7 @@ from mcscript.utils.resources import Identifier
 
 
 class McDatapackBackend(IRBackend[Datapack]):
+
     def __init__(self, config: Config):
         super().__init__(config)
 

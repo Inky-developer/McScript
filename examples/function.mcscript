@@ -1,7 +1,0 @@
-fun sum_and_square(a: Number, b: Number) -> Number {
-    myFancyVar = a + b
-    return myFancyVar * myFancyVar
-}
-
-result = sum_and_square(6,6) + 6
-run for @a print("{}", result)

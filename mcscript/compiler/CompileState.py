@@ -12,6 +12,7 @@ from mcscript.compiler.ContextStack import ContextStack
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.Config import Config
 from mcscript.ir.IrMaster import IrMaster
+from mcscript.ir.components import FunctionNode
 from mcscript.lang.Type import Type
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.Scoreboard import Scoreboard
@@ -58,7 +59,8 @@ class CompileState:
         self.contexts = contexts
         self.stack: ContextStack = ContextStack()
         # self.stack.append(Namespace(0, namespaceType=NamespaceType.GLOBAL))
-        self.stack.append(Context(0, None, ContextType.GLOBAL, [], self.scoreboard_main, self.data_path_main))
+        self.stack.append(Context(0, None, ContextType.GLOBAL, NamespaceContext([], [], (0, 0)), self.scoreboard_main,
+                                  self.data_path_main))
 
         # the ir master class
         self.ir = IrMaster()
@@ -135,22 +137,6 @@ class CompileState:
         """
         return self.currentContext().scoreboard_formatter
 
-    def load(self, value: Resource) -> Resource:
-        """
-        tries to load the resource and returns the result.
-
-        Parameters:
-            value: the value
-
-        Returns:
-            the value itself or an addressResource
-        """
-        if isinstance(value, Tree):
-            return self.load(self._compile_function(value))
-        if not isinstance(value, Resource):
-            raise ValueError(f"Expected a resource, but got '{value}'")
-        return value
-
     def toResource(self, value: Union[Resource, Tree]) -> Resource:
         """
         Converts a value to a resource. similar to ´load´ but does not actually load the resource.
@@ -161,13 +147,11 @@ class CompileState:
         Returns:
             a Resource
         """
-        from mcscript.lang.builtins.builtins import BuiltinFunction
-
-        # ToDo: Make BuiltinFunction a resource
-        if isinstance(value, (Resource, BuiltinFunction)):
-            return value
-
-        return self.toResource(self._compile_function(value))
+        if isinstance(value, Tree):
+            return self.toResource(self._compile_function(value))
+        if not isinstance(value, Resource):
+            raise ValueError(f"Expected a resource, but got '{value}'")
+        return value
 
     def currentContext(self) -> Context:
         return self.stack.tail()
@@ -196,7 +180,8 @@ class CompileState:
         return context
 
     @contextmanager
-    def node_block(self, context_type: ContextType, line: int, column: int) -> ContextManager[ResourceSpecifier]:
+    def node_block(self, context_type: ContextType, line: int, column: int, block_name: str = None) \
+            -> ContextManager[FunctionNode]:
         """
         Creates a new context and a new ir function.
         Yields the name of the block as a resource specifier
@@ -205,13 +190,14 @@ class CompileState:
             context_type: the type of context
             line: the line
             column: the column
+            block_name: If specified the name for this block
         """
         self.push_context(context_type, line, column)
-        block_name = self.node_block_counter.next()
+        block_name = block_name if block_name is not None else self.node_block_counter.next()
 
-        with self.ir.with_function(self.resource_specifier_main(block_name)):
+        with self.ir.with_function(self.resource_specifier_main(block_name)) as function:
             try:
-                yield self.resource_specifier_main(block_name)
+                yield function
             finally:
                 self.pop_context()
 

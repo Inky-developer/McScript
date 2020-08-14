@@ -43,17 +43,6 @@ def makeData(version: str) -> str:
 
 def getDataJson(version: str) -> Dict:
     """ Creates a json file containing all important minecraft data"""
-
-    def getRegistries(path: str) -> Dict:
-        """ Returns a dict containing the registries for biomes and features"""
-        file = join(path, "reports", "registries.json")
-        with open(file) as f:
-            data = json.load(f)
-        return {
-            "biomes"  : data["minecraft:biome"]["entries"],
-            "features": data["minecraft:structure_feature"]["entries"]
-        }
-
     def getBlocks(path: str) -> Dict:
         """ returns a dict containing all blocks and blockstates"""
         file = join(path, "reports", "blocks.json")
@@ -65,7 +54,7 @@ def getDataJson(version: str) -> Dict:
 
     with tempfile.TemporaryDirectory() as tempdir:
         generated = runDataGenerator(version, tempdir)
-        return {**getRegistries(generated), **getBlocks(generated)}
+        return getBlocks(generated)
 
 
 def runDataGenerator(version: str, fpath: str) -> str:

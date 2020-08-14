@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List
 
-from mcscript.ir.components import MessageNode
-from mcscript.lang.atomic_types import String, Any, Null
+from mcscript.ir.components import MessageNode, StoreFastVarFromResultNode, CommandNode
+from mcscript.lang.atomic_types import String, Any, Null, Int
+from mcscript.lang.resource.IntegerResource import IntegerResource
 from mcscript.lang.resource.MacroResource import MacroResource
+from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.StringResource import StringResource
-from mcscript.lang.resource.base.ResourceBase import Resource
+from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.functionSignature import FunctionParameter
 from mcscript.lang.std import macro
 from mcscript.utils.JsonTextFormat.MarkupParser import MarkupParser
@@ -60,10 +62,37 @@ def create_text_functions() -> List[MacroResource]:
 def dyn(compile_state: CompileState, resource: Resource) -> Resource:
     """ Stores a static resource onto a scoreboard"""
     r = resource.store(compile_state)
-    r.static_value = None
+    if isinstance(r, ValueResource):
+        r.static_value = None
     return r
+
+
+@macro(
+    parameters=[
+        FunctionParameter("string", String, accepts=FunctionParameter.ResourceMode.STATIC)
+    ],
+    return_type=Int,
+)
+def evaluate(compile_state: CompileState, string: StringResource) -> IntegerResource:
+    stack = compile_state.expressionStack.next()
+    compile_state.ir.append(StoreFastVarFromResultNode(
+        stack,
+        CommandNode(string.static_value)
+    ))
+    return IntegerResource(None, stack)
+
+
+@macro(
+    parameters=[
+        FunctionParameter("string", String, accepts=FunctionParameter.ResourceMode.STATIC)
+    ],
+    return_type=Null,
+)
+def execute(compile_state: CompileState, string: StringResource) -> NullResource:
+    compile_state.ir.append(CommandNode(string.static_value))
+    return NullResource()
 
 
 # Pycharm cannot apply the type macro at type-check time (Which actually creates a MacroResource)
 # noinspection PyTypeChecker
-EXPORTS: List[MacroResource] = [dyn] + create_text_functions()
+EXPORTS: List[MacroResource] = [dyn, evaluate, execute] + create_text_functions()

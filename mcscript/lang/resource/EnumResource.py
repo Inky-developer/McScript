@@ -24,8 +24,7 @@ class EnumResource(ObjectResource):
         """
         super().__init__()
         for index, name in enumerate(properties):
-            self.context.add_var(name, IntegerResource(index, None))
-        # self.context.namespace.update({key: NumberResource(value, True) for value, key in enumerate(properties)})
+            self.public_namespace[name] = IntegerResource(index, None)
 
         _used_values = set(range(len(properties)))
 
@@ -34,11 +33,11 @@ class EnumResource(ObjectResource):
             if not isinstance(resource, ValueResource):
                 raise TypeError(f"Invalid value for enum member {key}: {resource}")
             if resource.static_value in _used_values:
-                other, = filter(lambda x: self.context[x].value == resource.value, self.context)
+                other, = filter(lambda x: self.public_namespace[x].value == resource.value, self.public_namespace)
                 raise ValueError(
                     f"key '{key}' does not have a unique value of {resource.static_value} which is already "
                     f"defined for '{other}'")
-            self.context.add_var(key, resource)
+            self.public_namespace[key] = resource
             _used_values.add(resource.static_value)
 
     def type(self) -> Type:
@@ -46,16 +45,17 @@ class EnumResource(ObjectResource):
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         try:
-            return self.context.namespace[name].resource
+            return self.public_namespace[name]
         except KeyError:
             raise McScriptAttributeError(f"Unknown member {name} of enum.\n"
-                                         f"Expected one of: {', '.join(i for i in self.context)}", compileState)
+                                         f"Expected one of: {', '.join(i for i in self.public_namespace)}",
+                                         compileState)
 
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
         parameters = []
-        for value in self.context:
+        for value in self.public_namespace:
             parameters.append(value)
             parameters.append("=")
-            parameters.append(self.context[value])
+            parameters.append(self.public_namespace[value])
             parameters.append(", ")
         return formatter.createFromResources("Enum(", *parameters[:-1], ")")

@@ -119,26 +119,21 @@ struct Range {
         # calls next until the method fails
         count = 0
         success = True
-        while success {
+        do {
             (_, success) = self.next()
             count += 1
-        }
+        } while success
         return count
     }
 }
 
-r = dyn(Range.new(1, 15))
-print("counting now")
-len = r.count()
-run for @a {
-    print("{}", len)
-}
+r = Range.new(1, 15)
 
-# success = True
-# while success {
-#     (value, success) = r.next()
-#     run for @a { print("The square number {} is {}", value, value*value) }
-# }
+success = True
+while success {
+    (value, success) = r.next()
+    run for @a { print("The square number {} is {}", value, value*value) }
+}
 """
 
 if __name__ == '__main__':
@@ -151,8 +146,8 @@ if __name__ == '__main__':
     config = Config("config.ini")
     # print(precompileInstructions.getPrecompileInstructions(code_temp))
     # config.get("name")
-    code = code_temp
-    # code = getScript("mandelbrot")
+    # code = code_temp
+    code = getScript("iterator_concept")
     datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
     # datapack.write(config.NAME, Path.cwd().joinpath("out"))
     generateFiles(world, datapack)

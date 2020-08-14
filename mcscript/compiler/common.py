@@ -174,81 +174,44 @@ def conditional_loop(compile_state: CompileState,
     """
 
     def repeat_if(condition: Resource, function: FunctionNode):
+        call_node = FunctionCallNode(function)
+        if context is not None:
+            call_node = ExecuteNode(readContextManipulator([context], compile_state), [call_node])
+
         if not isinstance(condition, BooleanResource):
             raise McScriptTypeError(f"Expected {Bool}, got {condition.type()}", compile_state)
         if condition.is_static:
             if not condition.static_value:
                 return
-            compile_state.ir.append(FunctionCallNode(function))
+            compile_state.ir.append(call_node)
             return
 
         compile_state.ir.append(IfNode(
             ConditionalNode([ConditionalNode.IfScoreMatches(condition.scoreboard_value, ScoreRange(0), True)]),
-            FunctionCallNode(function)
+            call_node
         ))
 
-    # 1. Check condition if needed
-    if check_start:
-        initial_condition = compile_state.toResource(condition_tree)
-    else:
-        initial_condition = None
+    # 1. Create the new function
+    with compile_state.node_block(ContextType.LOOP, block.line, block.column) as loop_function:
 
-    # 2. compile loop body
-    with compile_state.node_block(ContextType.LOOP, block.line, block.column) as loop_body:
+        # 2. Check the initial condition if needed
+        # Yes, this seems ugly, but:
+        #   * The initial condition has to be computed before the body is executed
+        #   * The Conditional function node has to be directly below the initial condition so it can be optimized
+        # Problem: variables might be not static even if their static value might still be usable (ToDo)
+        with compile_state.ir.with_previous():
+            if check_start:
+                initial_condition = compile_state.toResource(condition_tree)
+            else:
+                initial_condition = BooleanResource(1, None)
+            repeat_if(initial_condition, loop_function)
+
+        # Now compute the loop body
         compile_state.compile_ast(block)
-        loop_function = compile_state.ir.find_function_node(loop_body)
 
         # create recursion condition
         recurse_condition = compile_state.toResource(condition_tree)
         repeat_if(recurse_condition, loop_function)
-
-    # 3. Create initial condition if necessary
-    if initial_condition is not None:
-        repeat_if(initial_condition, loop_function)
-
-
-# with compileState.node_block(ContextType.LOOP, block.line, block.column) as block_name:
-#     for child in block.children:
-#         compileState.compileFunction(child)
-#
-#     condition_boolean = compileState.toResource(
-#         conditionTree).convertToBoolean(compileState)
-#     if condition_boolean.isStatic:
-#         if condition_boolean.value is True:
-#             Logger.error(
-#                 f"[Compiler] Loop at line {conditionTree.line} column {conditionTree.column} runs forever!")
-#             # ToDO create exception for that
-#             raise McScriptError("Loop runs forever", compileState)
-#         else:
-#             Logger.warning(
-#                 f"[Compiler] Loop at line {conditionTree.line}, column {conditionTree.column} "
-#                 f"only runs once / not at all!"
-#             )
-#
-#     function_call_node = FunctionCallNode(
-#         compileState.resource_specifier_main(block_name))
-#     if context is not None:
-#         context_node = ExecuteNode(
-#             readContextManipulator([context], compileState),
-#             [function_call_node]
-#         )
-#     else:
-#         context_node = function_call_node
-#
-#     compileState.ir.append(ConditionalNode(
-#         [ConditionalNode.IfScoreMatches(
-#             condition_boolean.value, ScoreRange(0), True)],
-#         [context_node]
-#     ))
-#
-# if check_start:
-#     compileState.ir.append(ConditionalNode(
-#         [ConditionalNode.IfScoreMatches(compileState.toResource(conditionTree).convertToBoolean(compileState).value,
-#                                         ScoreRange(0), True)],
-#         [context_node]
-#     ))
-# else:
-#     compileState.ir.append(context_node)
 
 
 def readContextManipulator(modifiers: List[Tree], compileState: CompileState) -> List[ExecuteNode.ExecuteArgument]:
@@ -274,7 +237,7 @@ def readContextManipulator(modifiers: List[Tree], compileState: CompileState) ->
 
     def anchor(value: StringResource) -> IRNode:
         try:
-            value = ExecuteAnchor(str(value))
+            value = ExecuteAnchor(value.static_value)
         except ValueError:
 
             raise McScriptSyntaxError(f"'{value}' is not a valid execute anchor."

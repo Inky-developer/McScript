@@ -44,10 +44,11 @@ run for @a {
 
 
     # This is what a basic log function could look like:
-    static DO_LOG = True;
-    inline fun log(message: String) {
-        if (DO_LOG)
+    DO_LOG = True;
+    fun log(message: String) {
+        if DO_LOG {
             print("\[[color=gold][hover=open github repo][link=https://github.com/Inky-developer/McScript]mcscript[/][/][/]\] $message")
+        }
     }
 
     log("This message is logged by my [b]log-function[/]: [i]$log[/]")

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import difflib
 import json
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, List
 
 from lark import UnexpectedToken
 from lark.visitors import Interpreter
@@ -48,7 +48,7 @@ class MarkupParser(Interpreter):
         # Why is escaping so annoying?
         return json.dumps(result).replace("\\\\", "\\")
 
-    def toJson(self, markup: str, *args: Resource) -> Dict:
+    def toJson(self, markup: str, *args: Resource) -> List[dict]:
         """
         Converts a markup string to a minecraft json format string.
 
@@ -78,7 +78,23 @@ class MarkupParser(Interpreter):
         if all_args:
             raise McScriptInvalidMarkupError(f"Not all arguments were used!\nunused indices: "
                                              f"{', '.join(str(i) for i in all_args)}", self.compileState)
-        return data
+
+        # remove duplicate text elements
+        compacted_data = []
+        current_text = []
+        for value in data:
+            if len(value.keys()) == 1 and value.get("text", None) is not None:
+                current_text.append(value["text"])
+            else:
+                if current_text:
+                    compacted_data.append(format_text("".join(current_text)))
+                    current_text.clear()
+                compacted_data.append(value)
+
+        if current_text:
+            compacted_data.append(format_text("".join(current_text)))
+
+        return compacted_data
 
     def string(self, tree):
         string, = tree.children

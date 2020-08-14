@@ -1,9 +1,0 @@
-fun onTick() {
-    run for @p at @s {
-        block = getBlock(0, -1, 0)
-        actionbar("Block id {}", block)
-        # actionbar(block)
-        if (not setBlock(block, 0, 10, 0))
-            actionbar("Could not place block!")
-    }
-}

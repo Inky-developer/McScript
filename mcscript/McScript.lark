@@ -82,7 +82,7 @@ enum_property: IDENTIFIER | (IDENTIFIER "=" INTEGER)
 
 control_struct: _KEYWORD_STRUCT IDENTIFIER struct_block
 struct_block: "{" ( struct_member _STATEMENT_SEPARATOR )* struct_member? "}"
-struct_member: variable_declaration  | function_definition
+struct_member: variable_declaration  | function_definition | COMMENT
 
 context_manipulator: _KEYWORD_RUN ( context_modifier)+ block
 context_modifier: _CONTEXT_FOR expression -> context_for

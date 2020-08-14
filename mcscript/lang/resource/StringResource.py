@@ -181,3 +181,6 @@ class StringResource(Resource):
             raise TypeError("Can not stringformat a non-static string!")
 
         return StringResource(self.formatter.format(self.embed(), *args, **kwargs), True)
+
+    def __str__(self):
+        return self.static_value

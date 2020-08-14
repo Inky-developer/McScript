@@ -1,29 +1,16 @@
-# This code will be better at some point
-
-# ToDo raise error if sHours is reassigned with different length
-inline fun zeroPadHoursMinutes(printFunction: Function, hours: Number, minutes: Number) -> Null {
-    sHours = ""
-    if (hours < 10)
-        sHours = "0"
-
-    sMinutes = ""
-    if (minutes < 10)
-        sMinutes = "0"
-
-    printFunction("[color=gold]{}{}[/]:[color=red]{}{}[/]", sHours, hours, sMinutes, minutes)
-
-}
 
 tickCount = 0
-fun onTick() {
+fun on_tick() {
     daytime = (evaluate("time query daytime") + 6000) % 24000
     hours = daytime / 1000
     rest = daytime % 1000
     minutes = rest * 60 / 1000
     seconds = (rest * 60 % 1000) * 60 / 1000
 
-    if (tickCount % 20 == 0) {
-        run for @a zeroPadHoursMinutes(actionbar, hours, minutes)
+    if tickCount % 20 == 0 {
+        run for @a {
+            actionbar("It is {}:{} {}", hours, minutes, seconds)
+        }
     }
-    ++tickCount
+    tickCount += 1
 }

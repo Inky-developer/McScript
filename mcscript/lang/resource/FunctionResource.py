@@ -9,7 +9,7 @@ from mcscript.ir.components import FunctionCallNode
 from mcscript.lang.Type import Type
 from mcscript.lang.atomic_types import Function
 from mcscript.lang.resource.NullResource import NullResource
-from mcscript.lang.resource.base.ResourceBase import GenericFunctionResource, Resource
+from mcscript.lang.resource.base.ResourceBase import GenericFunctionResource, Resource, ValueResource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -35,13 +35,23 @@ class FunctionResource(GenericFunctionResource):
 
     def call(self, compile_state: CompileState, parameters: List[Resource],
              keyword_parameters: Dict[str, Resource]) -> Resource:
-        with compile_state.node_block(ContextType.FUNCTION, self.code.line, self.code.column) as function_name:
+        with compile_state.node_block(ContextType.FUNCTION, self.code.line, self.code.column) as block_function:
             for template, parameter in zip(self.function_signature.parameters, parameters):
                 compile_state.currentContext().add_var(template.name, parameter)
-            compile_state._compile_function(self.code)
+
+                # copy parameters that have writes
+                # ToDo: Not necessary if the resource has no more reads after this function
+                if isinstance(parameter, ValueResource) and not parameter.is_static:
+                    context = compile_state.currentContext().find_var(template.name)
+                    if context is not None and len(context.context.writes) != 0:
+                        compile_state.currentContext().set_var(
+                            template.name,
+                            parameter.copy(compile_state.expressionStack.next(), compile_state)
+                        )
+            compile_state.compile_ast(self.code)
             return_value = compile_state.currentContext().return_resource or NullResource()
 
-        compile_state.ir.append(FunctionCallNode(compile_state.ir.find_function_node(function_name)))
+        compile_state.ir.append(FunctionCallNode(block_function))
         return return_value
 
     def type(self) -> Type:

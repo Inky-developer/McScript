@@ -353,10 +353,10 @@ class GenericFunctionResource(Resource, ABC):
             A resource as result
         """
 
-    def operation_call(self, compileState: CompileState, *parameters: Resource,
+    def operation_call(self, compile_state: CompileState, *parameters: Resource,
                        **keyword_parameters: Resource) -> Resource:
-        parameters = self.handle_parameters(compileState, parameters)
-        return self.call(compileState, parameters, keyword_parameters)
+        parameters = self.handle_parameters(compile_state, list(parameters))
+        return self.call(compile_state, parameters, keyword_parameters)
 
 
 class ObjectResource(Resource, ABC):

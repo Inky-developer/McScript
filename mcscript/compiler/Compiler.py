@@ -10,7 +10,7 @@ from mcscript.compiler.common import conditional_loop, get_property, readContext
 from mcscript.compiler.tokenConverter import convert_token_to_resource, convert_token_to_type
 from mcscript.data.Config import Config
 from mcscript.exceptions.compileExceptions import (McScriptDeclarationError, McScriptNameError, McScriptSyntaxError,
-                                                   McScriptTypeError)
+                                                   McScriptTypeError, McScriptArgumentsError)
 from mcscript.ir.IrMaster import IrMaster
 from mcscript.ir.command_components import BinaryOperator, ScoreRange, ScoreRelation, UnaryOperator
 from mcscript.ir.components import (ConditionalNode, ExecuteNode, FunctionCallNode, InvertNode, ScoreboardInitNode,
@@ -64,9 +64,9 @@ class Compiler(Interpreter):
 
         self.compileState.ir.optimize()
 
-        for function_node in self.compileState.ir.function_nodes:
-            print(function_node)
-        # return self.compileState.datapack
+        for function in self.compileState.ir.function_nodes:
+            print(function)
+
         return self.compileState.ir
 
     #######################
@@ -198,7 +198,7 @@ class Compiler(Interpreter):
 
         conditions = []
         for condition in _conditions:
-            condition = self.compileState.load(
+            condition = self.compileState.toResource(
                 condition)
             if not isinstance(condition, BooleanResource):
                 raise McScriptTypeError(f"Expected bool, got {condition.type()}", self.compileState)
@@ -296,7 +296,7 @@ class Compiler(Interpreter):
             number1 = self.binaryOperation(*number1)
             is_temporary = True
 
-        number1 = self.compileState.load(number1)
+        number1 = self.compileState.toResource(number1)
 
         # by default all operations are in-place. This is not wanted, so the resource is copied
         if isinstance(number1, ValueResource) and not all_static and not is_temporary:
@@ -314,7 +314,7 @@ class Compiler(Interpreter):
             # get the operator enum type
             operator = BinaryOperator(operator)
 
-            number2 = self.compileState.load(number2)
+            number2 = self.compileState.toResource(number2)
 
             if not isinstance(number2, ValueResource):
                 raise ValueError(
@@ -375,9 +375,20 @@ class Compiler(Interpreter):
         with self.compileState.new_global_data("assign_resource", resource):
             value = self.compileState.toResource(_value)
 
-        # if the variable is new and an atomic value then copy the value
-        if resource is None and isinstance(value, ValueResource):
+        # If the stupid compiler did not manage to put the value onto the last resource, it has to be done now :C
+        is_resource_non_static = isinstance(resource, ValueResource) and not resource.is_static
+        if is_resource_non_static and isinstance(value, ValueResource) and not value.is_static:
+            value = value.copy(resource.scoreboard_value, self.compileState)
+        elif resource is None and isinstance(value, ValueResource) and not value.is_static:
+            # Form: a = b, where a should be a copy of b, not b itself
             value = value.copy(self.compileState.expressionStack.next(), self.compileState)
+        elif is_resource_non_static and isinstance(value, ValueResource) and value.is_static:
+            # Form: a = b, where b is a static and a is a nonstatic
+            value = value.store(self.compileState, resource.scoreboard_value)
+        # Why though
+        # # if the variable is new and an atomic value then copy the value
+        # if resource is None and isinstance(value, ValueResource):
+        #     value = value.copy(self.compileState.expressionStack.next(), self.compileState)
 
         self.compileState.currentTree = _value
         set_variable(self.compileState, identifier, value)
@@ -449,33 +460,28 @@ class Compiler(Interpreter):
 
         if condition_boolean.static_value is not None:
             line_and_column = (block.line, block.column) if condition_boolean else (block_else.line, block_else.column)
-            with self.compileState.push_context(ContextType.BLOCK, *line_and_column):
+            with self.compileState.node_block(ContextType.BLOCK, *line_and_column):
                 if condition_boolean.static_value is True:
                     self.visit_children(block)
-                else:
+                elif block_else is not None:
                     self.visit_children(block_else)
                 return
 
-        self.compileState.push_context(ContextType.CONDITIONAL, block.line, block.column)
-        with self.compileState.ir.with_buffer() as pos_branch:
+        with self.compileState.node_block(ContextType.CONDITIONAL, block.line, block.column) as pos_branch:
             self.visit_children(block)
-        self.compileState.pop_context()
-        pos_branch, = pos_branch
 
         if block_else is not None:
-            self.compileState.push_context(ContextType.CONDITIONAL, block_else.line, block_else.column)
-            with self.compileState.ir.with_buffer() as neg_branch:
+            with self.compileState.node_block(ContextType.CONDITIONAL, block_else.line,
+                                              block_else.column) as neg_branch:
                 self.visit_children(block_else)
-            self.compileState.pop_context()
-            neg_branch, = neg_branch
         else:
             neg_branch = None
 
         self.compileState.ir.append(IfNode(
             ConditionalNode([ConditionalNode.IfScoreMatches(
                 condition_boolean.scoreboard_value, ScoreRange(0), True)]),
-            pos_branch,
-            neg_branch
+            FunctionCallNode(pos_branch),
+            FunctionCallNode(neg_branch) if neg_branch is not None else None
         ))
 
     def control_do_while(self, tree):
@@ -497,10 +503,10 @@ class Compiler(Interpreter):
                 f"type {resource.type()} does not support iteration", self.compileState)
 
         while (value := iterator.next()) is not None:
-            with self.compileState.node_block(ContextType.UNROLLED_LOOP, block.line, block.column) as block_name:
+            with self.compileState.node_block(ContextType.UNROLLED_LOOP, block.line, block.column) as block_function:
                 self.compileState.currentContext().add_var(var_name, value)
                 self.visit(block)
-            self.compileState.ir.append(FunctionCallNode(self.compileState.ir.find_function_node(block_name)))
+            self.compileState.ir.append(FunctionCallNode(block_function))
 
     def return_(self, tree):
         # ToDO: make return an ir node
@@ -546,6 +552,14 @@ class Compiler(Interpreter):
             block
         )
 
+        # ToDo: temp
+        if function_name == "on_tick":
+            if len(parameter_list) > 0:
+                raise McScriptArgumentsError("The on_tick function takes no arguments", self.compileState)
+
+            with self.compileState.node_block(ContextType.FUNCTION, block.line, block.column, "tick"):
+                function.call(self.compileState, [], {})
+
         self.compileState.currentContext().add_var(function_name, function)
 
     def function_call(self, tree):
@@ -585,13 +599,12 @@ class Compiler(Interpreter):
     def context_manipulator(self, tree: Tree):
         *modifiers, block = tree.children
 
-        with self.compileState.node_block(ContextType.CONTEXT_MANIPULATOR, block.line, block.column) as block_name:
+        with self.compileState.node_block(ContextType.CONTEXT_MANIPULATOR, block.line, block.column) as block_function:
             self.visit_children(block)
 
         self.compileState.ir.append(ExecuteNode(
             readContextManipulator(modifiers, self.compileState),
-            [FunctionCallNode(
-                self.compileState.ir.find_function_node(block_name))]
+            [FunctionCallNode(block_function)]
         ))
 
     def expression(self, tree):

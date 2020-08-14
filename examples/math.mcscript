@@ -1,39 +1,40 @@
-fun pow(a: Number, b: Number) -> Number {
+fun pow(a: Int, b: Int) -> Int {
     res = 1
-    while (b > 0) {
-        if (b % 2 == 1)
+    while b > 0 {
+        if b % 2 == 1 {
             res *= a
-        a = a * a
-        b = b / 2
+        }
+        a *= a
+        b /= 2
     }
     return res
 }
 
 fun sqrt(n: Fixed) -> Fixed {
-    static e = 0.001
+    e = 0.001
     x = n
     y = 1.0
-    while (x - y > e) {
+    while x - y > e {
         x = (x + y) / 2.0
         y = n / x
     }
     return x
 }
 
-fun fac(x: Number) -> Number {
+fun fac(x: Int) -> Int {
     ret = 1
-    while (x > 1) {
+    while x > 1 {
         ret *= x
-        --x
+        x -= 1
     }
     return ret
 }
 
 
 run for @a {
-    a = 5
-    b = 3
-    c = 5.0
+    a = 3
+    b = 4
+    c = 2.0
     print("{} ^ {} = {}", a, b, pow(a,b))
     print("{}! = {}", a, fac(a))
     print("√9 = {}", sqrt(9.0))

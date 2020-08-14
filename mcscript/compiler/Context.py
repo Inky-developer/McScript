@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import Dict, Optional, Tuple, TYPE_CHECKING
 
 from mcscript import Logger
-from mcscript.analyzer.VariableContext import VariableContext
+from mcscript.analyzer.VariableContext import VariableContext, NamespaceContext
 from mcscript.compiler.ContextType import ContextType
 from mcscript.lang.resource.NullResource import NullResource
 from mcscript.lang.resource.StructObjectResource import StructObjectResource
@@ -45,7 +45,7 @@ class Context:
             index: int,
             definition: Optional[Tuple[int, int]],
             ctx_type: ContextType,
-            variable_context: List[VariableContext],
+            namespace_context: NamespaceContext,
             main_scoreboard: Scoreboard,
             base_path: DataPath,
             predecessor: Context = None,
@@ -56,7 +56,8 @@ class Context:
         self.predecessor = predecessor
 
         # make a simple lookup table name -> ctx
-        self.variable_context: Dict[str, VariableContext] = {i.identifier: i for i in variable_context}
+        self.variable_context: Dict[str, VariableContext] = {i.identifier: i for i in namespace_context.variables}
+        self.inner_contexts = namespace_context.inner_contexts
 
         # the namespace of variables unique to this context
         self.namespace: Dict[str, Context.Variable] = {}
@@ -215,6 +216,8 @@ class Context:
         if self.context_type.hasStaticContext:
             return
 
+        definitions = [self.definition] + [i.definition for i in self.inner_contexts]
+
         for name, variable in self.predecessor.namespace.items():
             resource, var_context = variable.resource, variable.context
             if var_context is None:
@@ -222,9 +225,10 @@ class Context:
                     raise ValueError(f"[INTERNAL COMPILER ERROR] The context of {name} does not exist.")
                 continue
             for write in var_context.writes:
-                if write.master_context == self.definition:
+                if write.master_context in definitions:
                     # the resource should be stored
                     self.predecessor.set_var(name, resource.store(compile_state))
+                    break
 
     def get_return_resource_or_null(self) -> Resource:
         """

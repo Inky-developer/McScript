@@ -1,0 +1,32 @@
+# Concept for how iterators could work
+# If this would be implemented, static while loop evaluating has to be implemented
+
+struct Range {
+    min: Int
+    max: Int
+    current: Int
+
+    fun new(min: Int, max: Int) -> Range {
+        return Range(min, max, min-1)
+    }
+
+    fun exclusive(min: Int, max: Int) -> Range {
+        return Range(min, max-1, min-1)
+    }
+
+    # Tuple<Int, Bool>
+    fun next(self) -> Tuple {
+        self.current += 1
+        is_valid = self.current < self.max
+        return (self.current, is_valid)
+    }
+}
+
+
+r = Range.new(1, 15)
+
+is_valid = True
+while is_valid {
+    (next, is_valid) = r.next()
+    run for @a { print("The square number {} is: {}", next, next * next) }
+}

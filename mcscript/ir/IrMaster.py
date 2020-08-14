@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import List, Union, Generator, Iterable, Optional
+from itertools import chain
+from typing import List, Union, Generator, Iterable, Optional, ContextManager
 
 from mcscript.ir import IRNode
 from mcscript.ir.components import FunctionNode
@@ -49,7 +50,7 @@ class IrMaster:
                 raise ValueError("Cannot accept both iterable and varargs")
             nodes = first
 
-        for node in nodes:
+        for node in chain((first,), nodes):
             self.append(node)
 
     def find_function_node(self, name: ResourceSpecifier) -> Optional[FunctionNode]:
@@ -59,7 +60,7 @@ class IrMaster:
         self._source_location = source_location
 
     @contextmanager
-    def with_function(self, name: ResourceSpecifier):
+    def with_function(self, name: ResourceSpecifier) -> ContextManager[FunctionNode]:
         """ Useful for procedurally generating a function file """
 
         self.active_nodes.append([])
@@ -67,13 +68,13 @@ class IrMaster:
         node = FunctionNode(
             name, []
         )
-        self.function_nodes.append(node)
 
         try:
-            yield
+            yield node
         finally:
             node.inner_nodes = self.active_nodes.pop()
             self._incr_index(node)
+            self.function_nodes.append(node)
 
     @contextmanager
     def with_buffer(self, buffer=None) -> Generator[List[IRNode], None, None]:
