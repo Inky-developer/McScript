@@ -1,7 +1,5 @@
 # McScript (temporary name)
 
-[![Build Status](https://travis-ci.com/Inky-developer/McScript.svg?branch=master)](https://travis-ci.com/Inky-developer/McScript)
-
 A simple and powerful tool to generate datapacks for minecraft.
 
 Getting Started:
