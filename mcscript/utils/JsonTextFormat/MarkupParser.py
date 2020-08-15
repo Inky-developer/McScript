@@ -7,10 +7,9 @@ from typing import Dict, TYPE_CHECKING, List
 from lark import UnexpectedToken
 from lark.visitors import Interpreter
 
-from mcscript import Logger
+from mcscript import Logger, get_json_markup_grammar
 from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptError, McScriptInvalidMarkupError
 from mcscript.lang.resource.base.ResourceBase import Resource
-from mcscript.utils.JsonTextFormat import markupGrammar
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 from mcscript.utils.JsonTextFormat.objectFormatter import (format_bold, format_color, format_hover, format_italic,
                                                            format_obfuscated,
@@ -62,7 +61,7 @@ class MarkupParser(Interpreter):
         self.state = dict(args=args, used_placeholders=set())
         try:
             Logger.debug(f"[MarkupParser] parsing '{markup}'")
-            tree = markupGrammar.parse(markup)
+            tree = get_json_markup_grammar().parse(markup)
             debug_log_text(tree.pretty(), "Parse tree: ")
             data = self.visit(tree)
         except UnexpectedToken as e:

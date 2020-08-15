@@ -5,7 +5,7 @@ from subprocess import run
 from typing import Dict
 
 from mcscript import Logger, __version__
-from mcscript.assets.download import DownloadMinecraftServer, getLatestVersion
+from mcscript.assets.download import download_minecraft_server, getLatestVersion
 from mcscript.utils.dirPaths import getVersionDir
 
 
@@ -59,7 +59,7 @@ def getDataJson(version: str) -> Dict:
 
 def runDataGenerator(version: str, fpath: str) -> str:
     """ Downloads the versions, runs the data generator and returns the full path to the generated data"""
-    path, file = split(DownloadMinecraftServer(version, fpath))
+    path, file = split(download_minecraft_server(version, fpath))
     Logger.info("[Assets] generating minecraft data...")
 
     # test if java is installed

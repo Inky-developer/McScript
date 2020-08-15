@@ -15,12 +15,12 @@ setup(
     name="McScript",
     version=__version__.__version__,
     description='A Simple and powerful datapack generator for minecraft',
-    executables=[Executable("../mcscript.py", base=None)],
+    executables=[Executable("../cli.py", base=None)],
     options={
         "build_exe": {
             # fix this: cx_freeze does not automatically include all modules
             "includes": ["mcscript", "nbt.world", "appdirs"] + builtin_modules,
-            "path"    : sys.path + ["../"],
+            "path": sys.path + ["../"],
             "optimize": 2
         }
     }

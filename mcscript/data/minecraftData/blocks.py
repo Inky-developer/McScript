@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from itertools import product
 from typing import Generator, List, Optional
 
-from mcscript.assets import getCurrentData
+from mcscript.data.Config import Config
 
 
 @dataclass(frozen=True)
@@ -65,9 +65,9 @@ class Block:
 BLOCKS = []
 
 
-def assertLoaded():
+def assertLoaded(config: Config):
     if not BLOCKS:
-        blockJson = getCurrentData().getData("blocks")
+        blockJson = config.data_manager.get_data("blocks")
         for blockId in blockJson:
             properties = blockJson[blockId].get("properties", [])
             blockstates = [Blockstate(i, properties[i]) for i in properties]
@@ -80,18 +80,18 @@ def assertLoaded():
             BLOCKS.append(Block(blockId, blockId.split("minecraft:")[1], blockIndex, blockstates))
 
 
-def getBlocks() -> List[Block]:
-    assertLoaded()
+def getBlocks(config: Config) -> List[Block]:
+    assertLoaded(config)
     return BLOCKS
 
 
-def getBlock(index: int) -> Block:
-    assertLoaded()
+def getBlock(index: int, config: Config) -> Block:
+    assertLoaded(config)
     return BLOCKS[index]
 
 
-def getBlockstateIndexed(index: int) -> Optional[BlockstateBlock]:
-    assertLoaded()
+def getBlockstateIndexed(index: int, config: Config) -> Optional[BlockstateBlock]:
+    assertLoaded(config)
 
     lastBlock: Optional[Block] = None
     for block in BLOCKS:

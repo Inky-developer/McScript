@@ -64,8 +64,8 @@ class Compiler(Interpreter):
 
         self.compileState.ir.optimize()
 
-        for function in self.compileState.ir.function_nodes:
-            print(function)
+        # for function in self.compileState.ir.function_nodes:
+        #     print(function)
 
         return self.compileState.ir
 

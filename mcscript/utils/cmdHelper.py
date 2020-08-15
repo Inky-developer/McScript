@@ -14,9 +14,9 @@ from nbt.nbt import NBTFile
 # Default .minecraft path
 from mcscript import Logger
 from mcscript.backends.mc_datapack_backend.Datapack import Datapack
-
 # try to determine the default minecraft path
 # resource: https://minecraft.gamepedia.com/.minecraft
+from mcscript.data import Config
 
 if sys.platform.startswith("win"):
     MCPATH = join(getenv("APPDATA"), ".minecraft", "saves")
@@ -29,18 +29,18 @@ else:  # try to load the linux path
 MINIMUM_VERSION = 2225
 
 
-def generateFiles(world: MCWorld, datapack: Datapack, name="McScript"):
+def generate_datapack(config: Config, datapack: Datapack):
     """
     Saves the datapack for `world`.
 
     Parameters:
-        world: the minecraft world
+        config: the configuration
         datapack: the 'Datapack' object
-        name: the name of the datapack, default "McScript"
     """
-    if not world.satisfiesVersion(MINIMUM_VERSION):
-        Logger.Error(f"[WriteFiles] #### Warning: World {world.levelName} is below the minimum supported version. ####")
-    datapack.write(name, Path(world.getDatapackPath()))
+    if config.world is not None and not config.world.satisfiesVersion(MINIMUM_VERSION):
+        Logger.Error(
+            f"[WriteFiles] #### Warning: World {config.world.levelName} is below the minimum supported version. ####")
+    datapack.write(Path(config.output_dir))
 
 
 def getWorlds(path=MCPATH) -> Iterator[MCWorld]:
@@ -118,15 +118,3 @@ class MCWorld:
 
     def __repr__(self):
         return f"MCWorld({self.levelName})"
-
-
-currentWorld: Optional[MCWorld] = None
-
-
-def setCurrentWorld(world: MCWorld):
-    global currentWorld
-    currentWorld = world
-
-
-def getCurrentWorld() -> MCWorld:
-    return currentWorld

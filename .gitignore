@@ -18,6 +18,8 @@ htmlcov/
 test/server
 venv/
 out/
+dist/
 
 docs/update_doc.cmd
 latest.log
+poetry.lock

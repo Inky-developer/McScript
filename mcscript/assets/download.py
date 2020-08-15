@@ -4,6 +4,7 @@ from typing import Dict
 from urllib.request import urlopen
 
 import certifi
+import click
 
 from mcscript import Logger
 from mcscript.utils.utils import run_function_once
@@ -70,7 +71,7 @@ def getVersionUrl(version_id: str) -> str:
     raise ValueError(f"Could not find version '{version_id}'")
 
 
-def DownloadMinecraftServer(version_id: str, target: str) -> str:
+def download_minecraft_server(version_id: str, target: str) -> str:
     """
     Downloads the minecraft server for version `version_id` and returns the full path.
 
@@ -95,10 +96,12 @@ def DownloadMinecraftServer(version_id: str, target: str) -> str:
     Logger.info(f"[Assets] Starting to download server {version['id']}...")
     with _get(server_url) as server:
         download_size = server.length
-        fpath = join(target, "server.jar")
-        with open(fpath, "wb+") as f:
-            while chunk := server.read(16384):
-                f.write(chunk)
+        with click.progressbar(length=download_size, label="Downloading server jar") as bar:
+            fpath = join(target, "server.jar")
+            with open(fpath, "wb+") as f:
+                while chunk := server.read(16384):
+                    f.write(chunk)
+                    bar.update(len(chunk))
         Logger.info(f"[Assets] Downloaded {download_size / 1000000:.2f} mb")
         Logger.info(f"[Assets] Created server.jar at {fpath}")
 

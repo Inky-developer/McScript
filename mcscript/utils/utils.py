@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import warnings
 from functools import wraps
+from typing import TYPE_CHECKING
 
 from mcscript import Logger
-from mcscript.data.Config import Config
+
+if TYPE_CHECKING:
+    from mcscript.data.Config import Config
 
 
 def requiresMcVersion(version: int, message=""):
@@ -18,7 +21,7 @@ def requiresMcVersion(version: int, message=""):
     Raises:
         RuntimeError
     """
-    from mcscript.utils.cmdHelper import getCurrentWorld
+    from mcscript.data.Config import Config
 
     def decorator(func):
         _checked = False
@@ -27,10 +30,11 @@ def requiresMcVersion(version: int, message=""):
         def wrapper(*args, **kwargs):
             nonlocal _checked
             if not _checked:
-                if getCurrentWorld() is not None:
-                    if not getCurrentWorld().satisfiesVersion(version):
+                if Config.currentConfig.world is not None:
+                    if not Config.currentConfig.world.satisfiesVersion(version):
                         raise RuntimeError(
-                            f"Function {func} does not support version {getCurrentWorld().mcVersion['Id'].value}. "
+                            f"Function {func} does not support version "
+                            f"{Config.currentConfig.world.mcVersion['Id'].value}. "
                             f"Minimum version: {version}:\n{message}"
                         )
                 else:
@@ -83,12 +87,10 @@ def debug_log_text(text: str, message):
 
 
 def string_format(config: Config, string: str, **kwargs: str) -> str:
-    kwargs.setdefault("name", config.NAME)
-    kwargs.setdefault("name2", config.NAME)
-    kwargs.setdefault("utils", config.UTILS)
-    kwargs.setdefault("ret", config.RETURN_SCORE)
-    kwargs.setdefault("block", config.BLOCK_SCORE)
+    kwargs.setdefault("name", config.project_name)
+    kwargs.setdefault("name2", config.project_name)
     return string.format(**kwargs)
+
 
 def camel_case_to_snake_case(string: str) -> str:
     """ 
@@ -99,6 +101,5 @@ def camel_case_to_snake_case(string: str) -> str:
         if character.isupper() and index != 0:
             characters.append("_")
         characters.append(character.lower())
-    
-    return "".join(characters)
 
+    return "".join(characters)

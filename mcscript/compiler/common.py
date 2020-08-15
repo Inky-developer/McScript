@@ -43,7 +43,7 @@ def get_property(compileState: CompileState, accessor: Tree) -> List[Resource]:
 
     if ret not in compileState.currentContext():
         # enums are loaded here lazily
-        if result := defaultEnums.get(ret):
+        if result := defaultEnums.get(ret, compileState.config):
             compileState.stack.stack[0].add_var(ret, result)
         else:
             raise McScriptNameError(f"Unknown variable '{ret}'", compileState)

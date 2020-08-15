@@ -3,11 +3,10 @@ from os import getcwd
 from os.path import join
 
 from mcscript import Logger
-from mcscript.assets import setCurrentData
 from mcscript.compile import compileMcScript
 from mcscript.data.Config import Config
 from mcscript.utils import rcon
-from mcscript.utils.cmdHelper import generateFiles, getWorld, setCurrentWorld
+from mcscript.utils.cmdHelper import generate_datapack, getWorld
 
 # fix for vscode dont know what exactly is wrong
 sys.path.insert(0, ".")
@@ -134,21 +133,19 @@ while success {
     (value, success) = r.next()
     run for @a { print("The square number {} is {}", value, value*value) }
 }
+print("{}", blocks.stone)
 """
 
 if __name__ == '__main__':
     mcDir = join(getcwd(), "server")
-    # world = getWorld("20w18a", mcDir)
     world = getWorld("McScript", mcDir)
-    setCurrentWorld(world)
 
-    setCurrentData(str(world.mcVersion["Name"]))
     config = Config("config.ini")
-    # print(precompileInstructions.getPrecompileInstructions(code_temp))
-    # config.get("name")
-    # code = code_temp
-    code = getScript("iterator_concept")
-    datapack = compileMcScript(code, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"), config)
-    # datapack.write(config.NAME, Path.cwd().joinpath("out"))
-    generateFiles(world, datapack)
+    config.world = world
+
+    code = code_temp
+    # code = getScript("iterator_concept")
+
+    datapack = compileMcScript(config, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"))
+    generate_datapack(config, datapack)
     rcon.send("reload")

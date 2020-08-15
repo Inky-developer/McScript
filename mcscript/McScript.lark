@@ -1,4 +1,4 @@
-start: (statement _STATEMENT_SEPARATOR)*
+start: (statement _STATEMENT_SEPARATOR)* statement?
 
 statement: declaration
          | static_declaration

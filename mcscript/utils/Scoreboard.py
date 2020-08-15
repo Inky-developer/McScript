@@ -25,7 +25,7 @@ class Scoreboard:
         if self.index >= len(VALID_OBJECTIVE_CHARACTERS) ** 3:
             raise ValueError(
                 f"Maximum id exceeded: {self.index} expected at most {len(VALID_OBJECTIVE_CHARACTERS) ** 3 - 1}")
-        Logger.info(f"[Scoreboard] created {self.name} with id {self.get_name()}")
+        Logger.debug(f"[Scoreboard] created {self.name} with id {self.get_name()}")
 
     def get_name(self) -> str:
         if self.use_real_name:

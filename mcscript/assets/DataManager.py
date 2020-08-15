@@ -20,7 +20,7 @@ class DataManager:
                     Logger.info("[DataManager] could not parse json.\n" + f.read())
                     raise e
 
-    def getData(self, key: str = None) -> Dict:
+    def get_data(self, key: str = None) -> Dict:
         self.assertData()
         if not key:
             return self.data

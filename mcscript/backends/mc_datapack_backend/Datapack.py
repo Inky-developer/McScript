@@ -64,19 +64,18 @@ class Directory:
         except KeyError:
             raise AttributeError(f"Non-existing file {file}")
 
-    def write(self, name: str, path: Path):
-        base = path.joinpath(name)
+    def write(self, path: Path):
         # this causes just trouble
         # if base.exists():
         #     shutil.rmtree(base)
-        base.mkdir(exist_ok=True)
+        path.mkdir(exist_ok=True)
         for file_name in self.files:
             # noinspection PyTypeChecker
-            with open(base.joinpath(self.getFileName(name, file_name)), "w", encoding="utf-8") as f:
+            with open(path.joinpath(self.getFileName(path, file_name)), "w", encoding="utf-8") as f:
                 f.write(self.files[file_name].getvalue())
 
         for directory in self.subDirectories:
-            self.subDirectories[directory].write(directory, base)
+            self.subDirectories[directory].write(path.joinpath(directory))
 
     def getFileName(self, dirName, rawName: str) -> str:
         return rawName
@@ -161,7 +160,7 @@ class MainNamespace(Namespace):
     def on_functions(self, directory):
         data = getDictionaryResource("DefaultFiles.txt")
 
-        file = "load_lite" if not self.config.get_compiler("load_debug") else "load"
+        file = "load_lite" if self.config.is_release else "load"
         # add loadToScoreboard function
         string = string_format(self.config, data[file])
         directory.addFile("load.mcfunction").write(string)
@@ -173,12 +172,12 @@ class Datapack(Directory):
             "pack.mcmeta": None,
             "data": {
                 "minecraft": MinecraftNamespace,
-                config.get_compiler("name"): MainNamespace
+                config.get_main("name"): MainNamespace
             },
         })
 
     def getMainDirectory(self) -> Directory:
-        return self.getPathFromList(["data", self.config.NAME])
+        return self.getPathFromList(["data", self.config.project_name])
 
     def on_pack_mcmeta(self, file):
         file.write(string_format(self.config, getDictionaryResource("DefaultFiles.txt")["mcmeta"]))

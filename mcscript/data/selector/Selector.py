@@ -6,7 +6,7 @@ from typing import List, Literal, TYPE_CHECKING
 
 from lark import LarkError
 
-from mcscript.data.selector import selectorGrammar
+from mcscript import get_selector_grammar
 from mcscript.data.selector.selectorData import (
     getByName, getSelectors, Integer, Nbt, Range, Repeat, SelectorArgument,
     String,
@@ -109,7 +109,7 @@ class Selector:
             A selector
         """
         try:
-            ast = selectorGrammar.parse(_selector)
+            ast = get_selector_grammar().parse(_selector)
         except LarkError as e:
             raise McScriptInvalidSelectorError(
                 f"Failed to parse selector '{_selector}'\n"
