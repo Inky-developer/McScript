@@ -144,6 +144,7 @@ if __name__ == '__main__':
     config.world = world
 
     code = code_temp
+    config.input_file = code
     # code = getScript("iterator_concept")
 
     datapack = compileMcScript(config, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"))

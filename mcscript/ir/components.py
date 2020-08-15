@@ -47,7 +47,8 @@ class FunctionCallNode(IRNode):
                 # Drop this node because it will be inlined everywhere
                 self["function"]["drop"] = True
                 return node, True
-        elif isinstance(parent, FunctionNode) and self["function"]["num_callers"] == 1:
+
+        if isinstance(parent, FunctionNode) and self["function"]["num_callers"] == 1:
             # Simply remove this useless function and inline it
             self["function"]["drop"] = True
             return self["function"].inner_nodes, True

@@ -24,14 +24,15 @@ class IRBackend(Generic[T], ABC):
     For example, the `McDatapackBackend` converts to mcfunctions.
     """
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, ir_master: IrMaster):
         self.config = config
+        self.ir_master = ir_master
 
-    def generate(self, ir_master: IrMaster) -> T:
+    def generate(self) -> T:
         if Logger.isEnabledFor(DEBUG):
-            for function in ir_master.function_nodes:
+            for function in self.ir_master.function_nodes:
                 Logger.debug(f"{str(function)}")
-        for function_node in ir_master.function_nodes:
+        for function_node in self.ir_master.function_nodes:
             self.handle_function_node(function_node)
 
         self.on_finish()

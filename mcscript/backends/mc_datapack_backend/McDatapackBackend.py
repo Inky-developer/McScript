@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Dict
+from typing import Dict, Optional
 
 from mcscript.backends.IRBackend import IRBackend
+from mcscript.backends.mc_datapack_backend import get_resource
 from mcscript.backends.mc_datapack_backend.Datapack import Datapack
+from mcscript.backends.mc_datapack_backend.runtime import make_on_load_function
 from mcscript.backends.mc_datapack_backend.utils import position_to_str
 from mcscript.data.Config import Config
 from mcscript.ir.components import *
@@ -12,9 +14,8 @@ from mcscript.utils.resources import Identifier
 
 
 class McDatapackBackend(IRBackend[Datapack]):
-
-    def __init__(self, config: Config):
-        super().__init__(config)
+    def __init__(self, config: Config, ir_master: IrMaster):
+        super().__init__(config, ir_master)
 
         self.datapack = Datapack(self.config)
         self.files = self.datapack.getMainDirectory().getPath("functions").files
@@ -24,6 +25,9 @@ class McDatapackBackend(IRBackend[Datapack]):
 
         # A list of all constants used by this backend
         self.constant_scores: Dict[int, ScoreboardValue] = {}
+
+        self.on_tick_function: Optional[FunctionNode] = None
+        self.on_load_function: Optional[FunctionNode] = None
 
     def _get_constant(self, value: int, scoreboard: Scoreboard) -> ScoreboardValue:
         if value in self.constant_scores:
@@ -63,10 +67,30 @@ class McDatapackBackend(IRBackend[Datapack]):
         # Add constant values
         nodes = [StoreFastVarNode(self.constant_scores[i], i)
                  for i in self.constant_scores]
-        function = FunctionNode(self.config.resource_specifier_main("init_constants"), nodes)
-        self.handle(function)
+        init_constants_fn = FunctionNode(self.config.resource_specifier_main("init_constants"),
+                                         nodes) if nodes else None
+
+        init_scoreboards_fn = FunctionNode(
+            self.config.resource_specifier_main("init_scoreboards"),
+            [ScoreboardInitNode(i) for i in self.ir_master.scoreboards]
+        ) if self.ir_master.scoreboards else None
+
+        load_fn = make_on_load_function(self.on_load_function, self, init_constants_fn, init_scoreboards_fn)
+        self.handle(load_fn)
+        load_json = self.datapack.get_minecraft_directory().getPath("tags/functions").addFile("load.json")
+        load_json.write(get_resource("load.json").format(load_fn["name"]))
+
+        if self.on_tick_function is not None:
+            tick_json = self.datapack.get_minecraft_directory().getPath("tags/functions").addFile("tick.json")
+            tick_json.write(get_resource("tick.json").format(self.on_tick_function["name"]))
 
     def handle_function_node(self, node: FunctionNode):
+        # This is temporary
+        if node["name"].path == "on_tick":
+            self.on_tick_function = node
+        elif node["name"].path == "main":
+            self.on_load_function = node
+
         self.files.push(f"{node['name'].path}.mcfunction")
         for child in node.inner_nodes:
             self.command_buffer.append([])

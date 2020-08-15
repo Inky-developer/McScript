@@ -99,11 +99,11 @@ class Integer(Predicate):
 SelectorValueType = Predicate
 
 selectorString2Class = {
-    "int"       : Integer,
-    "range"     : Range,
+    "int": Integer,
+    "range": Range,
     "identifier": Identifier,
-    "string"    : String,
-    "nbt"       : Nbt,
+    "string": String,
+    "nbt": Nbt,
 }
 
 

@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import TextIO, Optional
+from typing import Optional
 
 import click
 
@@ -63,17 +63,19 @@ def build(release: bool):
         config.is_release = True
 
     with open(src_path) as f:
-        config.input_file = f
-        datapack = compileMcScript(config)
+        input_file = f.read()
 
-        generate_datapack(config, datapack)
+    config.input_file = input_file
+    datapack = compileMcScript(config)
+
+    generate_datapack(config, datapack)
 
     click.echo(f"Successfully built project {config.project_name}")
 
 
 # noinspection PyShadowingBuiltins
 @main.command()
-@click.argument("input", type=click.File(lazy=True))
+@click.argument("input", type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument("output", type=click.Path(exists=True, file_okay=False, dir_okay=True, resolve_path=True))
 @click.option("--name", "-n", envvar="MCSCRIPT_NAME", type=str)
 @click.option("--release/", "-d", default=False, is_flag=True, help="Whether to compile in release mode")
@@ -81,7 +83,7 @@ def build(release: bool):
               help="The target minecraft version. If not specified latest full-release")
 @click.option("--config", help="The config file",
               type=click.Path(exists=True, dir_okay=False, writable=True, resolve_path=True))
-def compile(input: TextIO, output: str, name: str, release: bool, mc_version: Optional[str],
+def compile(input: str, output: str, name: str, release: bool, mc_version: Optional[str],
             config: Optional[str]):
     """
     Compiles the INPUT and writes the result to OUTPUT directory
@@ -101,7 +103,10 @@ def compile(input: TextIO, output: str, name: str, release: bool, mc_version: Op
     if mc_version is not None:
         config.minecraft_version = mc_version
 
-    config.input_file = input
+    with open(input, encoding="utf-8") as f:
+        input_file = f.read()
+
+    config.input_file = input_file
     config.output_dir = output
 
     datapack = compileMcScript(config)

@@ -52,6 +52,9 @@ class Scoreboard:
             Config.currentConfig.get_scoreboard("main"),
             "".join(VALID_OBJECTIVE_CHARACTERS[i] for i in reversed(out))
         )
-    
+
     def __repr__(self) -> str:
         return f"Scoreboard({self.unique_name})"
+
+    def __str__(self) -> str:
+        return self.unique_name

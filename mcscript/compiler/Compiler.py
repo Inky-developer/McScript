@@ -13,7 +13,7 @@ from mcscript.exceptions.compileExceptions import (McScriptDeclarationError, McS
                                                    McScriptTypeError, McScriptArgumentsError)
 from mcscript.ir.IrMaster import IrMaster
 from mcscript.ir.command_components import BinaryOperator, ScoreRange, ScoreRelation, UnaryOperator
-from mcscript.ir.components import (ConditionalNode, ExecuteNode, FunctionCallNode, InvertNode, ScoreboardInitNode,
+from mcscript.ir.components import (ConditionalNode, ExecuteNode, FunctionCallNode, InvertNode,
                                     StoreFastVarFromResultNode, StoreFastVarNode, IfNode)
 from mcscript.lang import std
 from mcscript.lang.atomic_types import Null, Bool
@@ -57,10 +57,6 @@ class Compiler(Interpreter):
         with self.compileState.ir.with_function(self.compileState.resource_specifier_main("main")):
             self.compileState.push_context(ContextType.GLOBAL, 0, 0)
             self.visit(tree)
-
-        with self.compileState.ir.with_function(self.compileState.resource_specifier_main("init_scoreboards")):
-            for scoreboard in self.compileState.scoreboards:
-                self.compileState.ir.append(ScoreboardInitNode(scoreboard))
 
         self.compileState.ir.optimize()
 

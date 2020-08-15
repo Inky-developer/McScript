@@ -7,6 +7,7 @@ from typing import List, Union, Generator, Iterable, Optional, ContextManager
 from mcscript.ir import IRNode
 from mcscript.ir.components import FunctionNode
 from mcscript.ir.optimize import optimize
+from mcscript.utils.Scoreboard import Scoreboard
 from mcscript.utils.resources import SourceLocation, ResourceSpecifier
 
 
@@ -21,6 +22,8 @@ class IrMaster:
 
         # A list of list of nodes. Popped after the end of `with_function` and added to function_nodes as a function.
         self.active_nodes: List[List[IRNode]] = []
+
+        self.scoreboards: List[Scoreboard] = []
 
         self.node_counter = 0
         self._source_location: SourceLocation = None  # set by compile state

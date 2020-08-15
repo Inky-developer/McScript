@@ -5,10 +5,9 @@ import re
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-from mcscript.data import getDictionaryResource
+from mcscript.backends.mc_datapack_backend import get_resource
 from mcscript.data.Config import Config
 from mcscript.utils.Files import Files
-from mcscript.utils.utils import string_format
 
 
 class Directory:
@@ -143,41 +142,21 @@ class Namespace(Directory):
         })
 
 
-class MinecraftNamespace(Namespace):
-    def on_tags_functions(self, directory: Directory):
-        data = getDictionaryResource("DefaultFiles.txt")
-
-        # add tick and loadToScoreboard tags
-        directory.addFile("tick.json").write(string_format(self.config, data["tag_tick"]))
-
-        directory.addFile("load.json").write(string_format(self.config, data["tag_load"]))
-
-
-class MainNamespace(Namespace):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def on_functions(self, directory):
-        data = getDictionaryResource("DefaultFiles.txt")
-
-        file = "load_lite" if self.config.is_release else "load"
-        # add loadToScoreboard function
-        string = string_format(self.config, data[file])
-        directory.addFile("load.mcfunction").write(string)
-
-
 class Datapack(Directory):
     def __init__(self, config: Config):
         super().__init__(config, {
             "pack.mcmeta": None,
             "data": {
-                "minecraft": MinecraftNamespace,
-                config.get_main("name"): MainNamespace
+                "minecraft": Namespace,
+                config.project_name: Namespace
             },
         })
+
+    def get_minecraft_directory(self) -> Directory:
+        return self.getPathFromList(["data", "minecraft"])
 
     def getMainDirectory(self) -> Directory:
         return self.getPathFromList(["data", self.config.project_name])
 
     def on_pack_mcmeta(self, file):
-        file.write(string_format(self.config, getDictionaryResource("DefaultFiles.txt")["mcmeta"]))
+        file.write(get_resource("pack.mcmeta"))

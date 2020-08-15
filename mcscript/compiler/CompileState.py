@@ -42,12 +42,8 @@ class CompileState:
         # typically used by a context manager
         self.global_data: Dict[str, List[Resource]] = defaultdict(list)
 
-        self.scoreboards: List[Scoreboard] = [
-            Scoreboard(self.config.get_scoreboard("main"), True, 0),
-            Scoreboard("entities", False, 1)
-        ]
+        self.scoreboard_main = Scoreboard(self.config.get_scoreboard("main"), True, 0)
 
-        self.scoreboard_main = self.scoreboards[0]
         self.data_path_main = DataPath(self.config.storage_id, self.config.get_storage("stack").split("."))
         self.data_path_temp = DataPath(self.config.storage_id, self.config.get_storage("temp").split("."))
 
@@ -64,6 +60,10 @@ class CompileState:
 
         # the ir master class
         self.ir = IrMaster()
+
+        self.ir.scoreboards = [
+            self.scoreboard_main
+        ]
 
     def compile_ast(self, tree: Tree):
         self._compile_function(tree)

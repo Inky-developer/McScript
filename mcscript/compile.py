@@ -32,10 +32,10 @@ def compileMcScript(config: Config, callback: Callable = None) -> Datapack:
         (_parseCode, "Parsing"),
         (lambda tree: Analyzer().analyze(tree), "Analyzing context"),
         (lambda tree: get_compiler().compile(tree[0], tree[1], text, config), "Compiling"),
-        (lambda ir_master: get_default_backend()(config).generate(ir_master), "Running ir backend")
+        (lambda ir_master: get_default_backend()(config, ir_master).generate(), "Running ir backend")
     )
 
-    text = config.input_file.read()
+    text = config.input_file
 
     if Logger.isEnabledFor(DEBUG):
         debug_log_text(text, "[Compile] parsing the following code: ")

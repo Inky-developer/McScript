@@ -3,7 +3,7 @@ from __future__ import annotations
 import configparser
 from functools import cached_property
 from os.path import exists, join
-from typing import Optional, TextIO, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from mcscript import Logger
 from mcscript.assets.DataManager import DataManager
@@ -24,7 +24,7 @@ class Config:
         self.path = path
         self.config = configparser.ConfigParser()
 
-        self._input_file: Optional[TextIO] = None
+        self._input_file: Optional[str] = None
         self._world: Optional[MCWorld] = None
         self._output_dir: Optional[str] = None
         self._data_manager: DataManager = DataManager()
@@ -100,11 +100,11 @@ class Config:
     #                 I/O                   #
     #########################################
     @property
-    def input_file(self) -> Optional[TextIO]:
+    def input_file(self) -> Optional[str]:
         return self._input_file
 
     @input_file.setter
-    def input_file(self, value: TextIO):
+    def input_file(self, value: str):
         self._input_file = value
 
     @property
