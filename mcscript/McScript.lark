@@ -1,4 +1,4 @@
-start: (statement _STATEMENT_SEPARATOR)* statement?
+start: (statement? "\n")* statement?
 
 statement: declaration
          | static_declaration
@@ -14,19 +14,19 @@ statement: declaration
          | context_manipulator
          | COMMENT -> comment
 
-block: "{" (statement _STATEMENT_SEPARATOR)* statement? "}"
+block: "{" "\n"? (statement "\n"*)* statement? "}"
 
 function_parameter: IDENTIFIER ":" IDENTIFIER
 // ToDo: Prevent this syntax: fun foo(self param1)
-parameter_list: "(" [ /self/ ","? ] (function_parameter "," )* function_parameter? ")"
+parameter_list: "(" [ /self/ ","? "\n"? ] (function_parameter "," "\n"?)* function_parameter? "\n"? ")"
 function_definition: /\bfun\b/ IDENTIFIER parameter_list [ "->" IDENTIFIER ] block
 
-function_call: accessor "(" (expression "," )* expression? ")"
+function_call: accessor "(" (expression "," "\n"? )* expression? "\n"? ")"
 
 variable_declaration: IDENTIFIER ":" IDENTIFIER
 
 declaration: accessor "=" expression
-           | "(" accessor ( "," accessor )+ ")" "=" expression -> multi_declaration
+multi_declaration: "(" accessor ( "," accessor )+ ")" "=" expression
 static_declaration: _KEYWORD_STATIC declaration
 index_setter: accessor "[" expression "]" "=" expression
 
@@ -34,7 +34,6 @@ term_ip: accessor (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression
 
 
 expression: boolean_and
-          | control_if
 ?boolean_and: boolean_or (AND boolean_or)*
 ?boolean_or: boolean_not (OR boolean_not)*
 ?boolean_not: NOT? _expression
@@ -51,19 +50,20 @@ value: INTEGER
      | STRING
      | SELECTOR
      | (/\b(True|False)\b/) -> boolean_constant
-     | unary_operation
      | tuple
+     | unary_operation
      | "(" expression ")"
      | accessor
      | array_accessor
      | function_call
+     | control_if
 
 accessor: IDENTIFIER ("." IDENTIFIER)*
 array_accessor: accessor "[" expression "]"
 
 unary_operation: MINUS value
 
-tuple: "(" ( expression "," )+ expression?  ")"
+tuple: "(" ( expression "," "\n"? )+ expression? ")"
 
 comparison: term (VERIFY_EQUAL | VERIFY_NOT_EQUAL | VERIFY_GREATER | VERIFY_GREATER_OR_EQUAL | VERIFY_LESS | VERIFY_LESS_OR_EQUAL) term
 
@@ -76,12 +76,12 @@ control_do_while: _KEYWORD_DO [ context_modifier ] block _KEYWORD_WHILE expressi
 control_for: /\bfor\b/ IDENTIFIER /\bin\b/ expression block
 
 control_enum: /\benum\b/ IDENTIFIER enum_block
-enum_block: "{" ( enum_property _STATEMENT_SEPARATOR )* enum_property _STATEMENT_SEPARATOR "}"
+enum_block: "{" "\n"? ( enum_property "," "\n" )* enum_property ","? "}"
 enum_property: IDENTIFIER | (IDENTIFIER "=" INTEGER)
 
 control_struct: _KEYWORD_STRUCT IDENTIFIER struct_block
-struct_block: "{" ( struct_member _STATEMENT_SEPARATOR )* struct_member? "}"
-struct_member: variable_declaration  | function_definition | COMMENT
+struct_block: "{" "\n"? ( struct_member "\n"*)* "}"
+struct_member: ( variable_declaration "\n" ) | function_definition | COMMENT
 
 context_manipulator: _KEYWORD_RUN ( context_modifier)+ block
 context_modifier: _CONTEXT_FOR expression -> context_for
@@ -134,4 +134,4 @@ _KEYWORD_DO: /\bdo\b/
 
 _STATEMENT_SEPARATOR: /\n|;\n?/
 COMMENT: "#" /[^\n]/*
-%ignore " " | "\n" | "\t"
+%ignore " " | "\t"

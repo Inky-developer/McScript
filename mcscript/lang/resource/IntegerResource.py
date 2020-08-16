@@ -37,3 +37,8 @@ class IntegerResource(ValueResource[int]):
             raise TypeError()
 
         return compare_scoreboard_values(self, other, relation)
+
+    def integer_value(self) -> int:
+        if self.static_value is None:
+            raise TypeError()
+        return self.static_value

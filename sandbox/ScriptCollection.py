@@ -72,42 +72,34 @@ struct Range {
     min: Int
     max: Int
     current: Int
-    
+
     fun new(min: Int, max: Int) -> Range {
-        return Range(min-1, max, min)
+        Range(min-1, max, min)
     }
     
+    fun until(max: Int) -> Range {
+        Range.new(0, max)
+    }
+
     fun next(self) -> Tuple {
         self.current += 1
-        
-        error = self.current > self.max
-        return (self.current-1, error)
+        (self.current, self.current < self.max)
     }
 }
 
-r = dyn(Range.new(0, 3))
+r = Range.until(3)
 
-run for @a {
-    print("Next: {}", r.next())
-    print("Next: {}", r.next())
-    print("Next: {}", r.next())
-    print("Next: {}", r.next())
-    print("Next: {}", r.next())
-}
+do {
+    result = r.next()
+    value = result[0]
+    valid = result[1]
+    run for @a { print("{}", value) }
+} while valid
 """
 
 code_temp = """
-value = 1
-
-run for @a {
-    print("The result is: {}", 
-        if value < 1 {
-            1
-        } else {
-            2
-        })
-}
-
+# Hallo
+# Testsatz
 """
 
 if __name__ == '__main__':
@@ -117,7 +109,7 @@ if __name__ == '__main__':
     config = Config("config.ini")
     config.world = world
 
-    code = code_temp
+    code = code_range
     # code = getScript("raycast")
     config.input_file = code
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import difflib
 import json
-from typing import Dict, TYPE_CHECKING, List
+from typing import Dict, TYPE_CHECKING, List, Union, Tuple
 
 from lark import UnexpectedToken
 from lark.visitors import Interpreter
@@ -80,10 +80,24 @@ class MarkupParser(Interpreter):
                                              f"{', '.join(str(i) for i in all_args)}", self.compileState)
 
         # remove duplicate text elements
+        return self.compact_data(data)
+
+    @classmethod
+    def compact_data(cls, data: List[Union[list, dict]]) -> List[Union[list, dict]]:
+        result, rest = cls._compact_data(data)
+        if rest:
+            result.append(format_text("".join(rest)))
+        return result
+
+    @classmethod
+    def _compact_data(cls, data: List[Union[list, dict]], current_text: List[str] = None) \
+            -> Tuple[List[Union[list, dict]], List[str]]:
         compacted_data = []
-        current_text = []
+        current_text = current_text or []
         for value in data:
-            if len(value.keys()) == 1 and value.get("text", None) is not None:
+            if isinstance(value, list):
+                compacted_data.append(cls._compact_data(value, current_text))
+            elif len(value.keys()) == 1 and value.get("text", None) is not None:
                 current_text.append(value["text"])
             else:
                 if current_text:
@@ -91,10 +105,7 @@ class MarkupParser(Interpreter):
                     current_text.clear()
                 compacted_data.append(value)
 
-        if current_text:
-            compacted_data.append(format_text("".join(current_text)))
-
-        return compacted_data
+        return compacted_data, current_text
 
     def string(self, tree):
         string, = tree.children

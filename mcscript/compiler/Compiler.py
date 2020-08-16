@@ -357,13 +357,16 @@ class Compiler(Interpreter):
         with self.compileState.currentContext().set_global_state("declaration", resource):
             value = self.compileState.toResource(_value)
 
+        context_data = self.compileState.currentContext().variable_context.get(identifier, None)
+
         # If the stupid compiler did not manage to put the value onto the last resource, it has to be done now :C
         is_resource_non_static = isinstance(resource, ValueResource) and not resource.is_static
         if is_resource_non_static and isinstance(value, ValueResource) and not value.is_static:
             value = value.copy(resource.scoreboard_value, self.compileState)
         elif resource is None and isinstance(value, ValueResource) and not value.is_static:
-            # Form: a = b, where a should be a copy of b, not b itself
-            value = value.copy(self.compileState.expressionStack.next(), self.compileState)
+            # Form: a = b, where a should be a copy of b, not b itself if a is modified
+            if context_data is None or context_data.writes:
+                value = value.copy(self.compileState.expressionStack.next(), self.compileState)
         elif is_resource_non_static and isinstance(value, ValueResource) and value.is_static:
             # Form: a = b, where b is a static and a is a nonstatic
             value = value.store(self.compileState, resource.scoreboard_value)
