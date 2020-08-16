@@ -73,3 +73,8 @@ class McScriptInvalidMarkupError(McScriptError):
 class McScriptOutOfBoundsError(McScriptError):
     def __init__(self, value: int, max_value: int, compile_state: CompileState):
         super().__init__(f"Index out of bounds. Maximum allowed index is {max_value}, got {value}", compile_state)
+
+
+class McScriptIfElseReturnTypeError(McScriptError):
+    def __init__(self, got: Any, compile_state: CompileState):
+        super().__init__(f"An if-else expression can only return atomic values, got {got}", compile_state)

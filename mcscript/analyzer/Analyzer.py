@@ -180,6 +180,7 @@ class Analyzer:
                     var.reads.append(VariableAccess(tree, self.stack[-1].definition))
         elif isinstance(value, Tree) and value.data == "function_call":
             accessor, *arguments = value.children
+            [self.visit(i) for i in arguments]
             base_obj, *children = accessor.children
             if children:
                 self._handle_variable(str(base_obj), value)

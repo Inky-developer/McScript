@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class NullResource(ValueResource[None]):
-    def __init__(self):
+    def __init__(self, _static_value=None, _scoreboard_value=None):
         """
         parameters are discarded
         """

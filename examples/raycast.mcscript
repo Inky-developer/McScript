@@ -9,14 +9,14 @@ fun raycast(onRaycastHit: Function) -> Bool {
         }
         distance += 0.1
     } while not hit and distance < MAX_DISTANCE
-    return hit
+    hit
 }
 
 
 fun onHit(distance: Fixed) -> Bool {
     actionbar("[color=black]Hit after [color=red]{}[/] block(s)[/]", distance)
     execute("setblock ~ ~ ~ minecraft:red_stained_glass")
-    return True
+    True
 }
 
 fun do_it() {

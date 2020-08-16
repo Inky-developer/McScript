@@ -124,7 +124,7 @@ class ScoreRelation(Enum):
 class ScoreRange:
     def __init__(self, min_, max_=None):
         self.min = min_
-        self.max = max_ or self.min
+        self.max = max_ if max_ is not None else self.min
 
         if self.max < self.min:
             raise ValueError(f"The maximum value for range {self} must be greater than the minimum value")

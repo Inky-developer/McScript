@@ -97,14 +97,17 @@ run for @a {
 """
 
 code_temp = """
-num_players = 0
+value = 1
+
 run for @a {
-    num_players += 1
+    print("The result is: {}", 
+        if value < 1 {
+            1
+        } else {
+            2
+        })
 }
 
-if num_players > 0 and num_players * num_players > 0 {
-    run for @a { print("True") }
-}
 """
 
 if __name__ == '__main__':
@@ -114,8 +117,8 @@ if __name__ == '__main__':
     config = Config("config.ini")
     config.world = world
 
-    # code = code_temp
-    code = getScript("raycast")
+    code = code_temp
+    # code = getScript("raycast")
     config.input_file = code
 
     datapack = compileMcScript(config, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"))

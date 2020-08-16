@@ -6,8 +6,6 @@ statement: declaration
          | term_ip
          | expression
          | function_definition
-         | "return " expression -> return_
-         | control_if
          | control_while
          | control_do_while
          | control_for
@@ -36,6 +34,7 @@ term_ip: accessor (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression
 
 
 expression: boolean_and
+          | control_if
 ?boolean_and: boolean_or (AND boolean_or)*
 ?boolean_or: boolean_not (OR boolean_not)*
 ?boolean_not: NOT? _expression

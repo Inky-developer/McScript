@@ -9,10 +9,9 @@ from mcscript.compiler.ContextType import ContextType
 from mcscript.compiler.common import conditional_loop, get_property, readContextManipulator, set_property, set_variable
 from mcscript.compiler.tokenConverter import convert_token_to_resource, convert_token_to_type
 from mcscript.data.Config import Config
-from mcscript.exceptions.McScriptException import McScriptError
 from mcscript.exceptions.exceptions import (McScriptUnexpectedTypeError, McScriptEnumValueAlreadyDefinedError,
                                             McScriptUnsupportedOperationError, McScriptDeclarationError,
-                                            McScriptArgumentError)
+                                            McScriptArgumentError, McScriptIfElseReturnTypeError)
 from mcscript.ir.IrMaster import IrMaster
 from mcscript.ir.command_components import BinaryOperator, ScoreRelation, UnaryOperator
 from mcscript.ir.components import (ConditionalNode, ExecuteNode, FunctionCallNode, StoreFastVarFromResultNode,
@@ -436,20 +435,26 @@ class Compiler(Interpreter):
         static_value = condition_boolean.static_value()
         if static_value is not None:
             line_and_column = (block.line, block.column) if static_value else (block_else.line, block_else.column)
-            with self.compileState.node_block(ContextType.BLOCK, *line_and_column):
+            with self.compileState.node_block(ContextType.BLOCK, *line_and_column) as function:
                 if static_value is True:
                     self.visit_children(block)
-                elif block_else is not None:
+
+                if block_else is not None:
                     self.visit_children(block_else)
-                return
+
+                return_value = self.compileState.currentContext().return_resource
+            self.compileState.ir.append(FunctionCallNode(function))
+            return return_value
 
         with self.compileState.node_block(ContextType.CONDITIONAL, block.line, block.column) as pos_branch:
             self.visit_children(block)
+            pos_branch_resource = self.compileState.currentContext().return_resource
 
         if block_else is not None:
             with self.compileState.node_block(ContextType.CONDITIONAL, block_else.line,
                                               block_else.column) as neg_branch:
                 self.visit_children(block_else)
+                neg_branch_resource = self.compileState.currentContext().return_resource
         else:
             neg_branch = None
 
@@ -458,6 +463,48 @@ class Compiler(Interpreter):
             FunctionCallNode(pos_branch),
             FunctionCallNode(neg_branch) if neg_branch is not None else None
         ))
+
+        # Handling the return type of an if-else block is difficult.
+        # This is how it is handled:
+        #   * if condition static, simply return the block resource (see above)
+        #   * if no else branch, simply return the pos_branch resource
+        #   * if pos_branch_resource static and else_branch_resource not, store pos on else
+        #   * also applies the other way around
+        #   * if both are static, store both on a new scoreboard value
+
+        if neg_branch is None:
+            return pos_branch_resource
+
+        if not isinstance(pos_branch_resource, ValueResource):
+            self.compileState.currentTree = block
+            raise McScriptIfElseReturnTypeError(pos_branch_resource.type(), self.compileState)
+
+        if not isinstance(neg_branch_resource, ValueResource):
+            self.compileState.currentTree = block_else
+            raise McScriptIfElseReturnTypeError(neg_branch_resource.type(), self.compileState)
+
+        if not pos_branch_resource.type().matches(neg_branch_resource.type()):
+            self.compileState.currentTree = block_else
+            raise McScriptUnexpectedTypeError("Else branch", neg_branch_resource.type(), pos_branch_resource.type(),
+                                              self.compileState)
+
+        if not pos_branch_resource.is_static:
+            target_score = pos_branch_resource.scoreboard_value
+        elif not neg_branch_resource.is_static:
+            target_score = neg_branch_resource.scoreboard_value
+        else:
+            target_score = self.compileState.expressionStack.next()
+
+        if pos_branch_resource.scoreboard_value != target_score:
+            with self.compileState.ir.with_buffer(pos_branch.inner_nodes):
+                pos_branch_resource = pos_branch_resource.copy(target_score, self.compileState)
+
+        if neg_branch_resource != target_score:
+            with self.compileState.ir.with_buffer(neg_branch.inner_nodes):
+                neg_branch_resource.copy(target_score, self.compileState)
+
+        # Same as neg_branch_resource now
+        return pos_branch_resource
 
     def control_do_while(self, tree):
         context, block, _condition = tree.children
@@ -481,13 +528,6 @@ class Compiler(Interpreter):
                 self.compileState.currentContext().add_var(var_name, value)
                 self.visit(block)
             self.compileState.ir.append(FunctionCallNode(block_function))
-
-    def return_(self, tree):
-        # ToDO: make return an ir node
-        resource = self.compileState.toResource(tree.children[0])
-        if self.compileState.currentContext().return_resource is not None:
-            raise McScriptError("Cannot set the return value twice", self.compileState)
-        self.compileState.currentContext().return_resource = resource
 
     def function_parameter(self, tree):
         identifier, datatype = tree.children
@@ -545,7 +585,7 @@ class Compiler(Interpreter):
         try:
             return function.operation_call(self.compileState, *visited_params)
         except TypeError:
-            raise McScriptUnexpectedTypeError(str(function), function.type(), "Function", self.compileState)
+            raise McScriptUnexpectedTypeError(str(function), function.type(), "a function", self.compileState)
 
     def variable_declaration(self, tree):
         identifier, datatype = tree.children
@@ -587,4 +627,6 @@ class Compiler(Interpreter):
         res = self.visit_children(tree)
         # # now clear up the expression counter
         # self.compileState.expressionStack.reset()
+        if len(tree.children) == 1 and tree.children[0].data == "expression":
+            self.compileState.currentContext().return_resource = res[0]
         return res
