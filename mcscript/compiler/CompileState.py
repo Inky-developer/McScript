@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from collections import defaultdict
 from contextlib import contextmanager
-from typing import Callable, Dict, List, Optional, Tuple, Union, ContextManager, Set
+from typing import Callable, Dict, Optional, Tuple, Union, ContextManager, Set
 
 from lark import Tree
 
@@ -12,8 +11,11 @@ from mcscript.compiler.ContextStack import ContextStack
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.Config import Config
 from mcscript.ir.IrMaster import IrMaster
-from mcscript.ir.components import FunctionNode
+from mcscript.ir.command_components import ScoreRange
+from mcscript.ir.components import FunctionNode, ConditionalNode
 from mcscript.lang.Type import Type
+from mcscript.lang.resource import BooleanResource
+from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.Scoreboard import Scoreboard
 from mcscript.utils.addressCounter import ScoreboardAddressCounter, AddressCounter, StorageAddressCounter
@@ -37,10 +39,6 @@ class CompileState:
         # each custom type gets a unique id. Atomic types have negative uids starting at -1
         # NEVER remove anything from this since the len is used to generate uids.
         self.custom_types: Dict[str, Type] = {}
-
-        # global data are some data that are independent from context but could also stack
-        # typically used by a context manager
-        self.global_data: Dict[str, List[Resource]] = defaultdict(list)
 
         self.scoreboard_main = Scoreboard(self.config.get_scoreboard("main"), True, 0)
 
@@ -68,30 +66,6 @@ class CompileState:
     def compile_ast(self, tree: Tree):
         self._compile_function(tree)
 
-    @contextmanager
-    def new_global_data(self, name: str, value: Resource):
-        """
-        Pushes value onto global data and pops after yield
-
-        Args:
-            name: the key of the data
-            value: the data value
-
-        Returns:
-            A context manager
-        """
-        self.global_data[name].append(value)
-        try:
-            yield
-        finally:
-            self.global_data[name].pop()
-
-    def get_global_data(self, name: str) -> Optional[Resource]:
-        stack = self.global_data[name]
-        if len(stack) == 0:
-            return None
-        return stack[-1]
-
     @property
     def currentTree(self) -> Optional[Tree]:
         return self._currentTree
@@ -101,16 +75,6 @@ class CompileState:
         self._currentTree = value
         if value is None:
             return
-
-        # source_location = SourceLocation(
-        #     value.meta.line,
-        #     value.meta.column,
-        #     value.meta.end_line,
-        #     value.meta.end_column,
-        #     CodeView(value.meta.line, value.meta.end_line, value.meta.column, value.meta.end_column, self.code)
-        # )
-
-        # self.ir.set_current_source_location(source_location)
 
     def new_type(self, name: str, bases: Set[Type]) -> Type:
         t = Type(len(self.custom_types), name, bases)
@@ -151,6 +115,29 @@ class CompileState:
             return self.toResource(self._compile_function(value))
         if not isinstance(value, Resource):
             raise ValueError(f"Expected a resource, but got '{value}'")
+        return value
+
+    def to_condition(self, value: Union[Resource, Tree]) -> ConditionalNode:
+        """
+        Converts the value to a ConditionalNode in a more efficient way
+
+        Args:
+            value: the value
+
+        Returns:
+            a ConditionalNode
+        """
+        if isinstance(value, Tree):
+            with self.currentContext().set_global_state("condition", True):
+                value = self._compile_function(value)
+            return self.to_condition(value)
+        if isinstance(value, BooleanResource):
+            if value.is_static:
+                return ConditionalNode([ConditionalNode.IfBool(bool(value.static_value))])
+
+            return ConditionalNode([ConditionalNode.IfScoreMatches(value.scoreboard_value, ScoreRange(0), True)])
+        if not isinstance(value, ConditionalNode):
+            raise ValueError(f"Unexpected type {value}")
         return value
 
     def currentContext(self) -> Context:

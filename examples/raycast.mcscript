@@ -1,4 +1,3 @@
-# ToDo: It seems like (and, or) still have much optimization potential
 MAX_DISTANCE = 5.0
 
 fun raycast(onRaycastHit: Function) -> Bool {

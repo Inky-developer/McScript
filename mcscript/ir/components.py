@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import List, Union, TYPE_CHECKING, Tuple, Any
+from typing import List, Union, TYPE_CHECKING, Tuple, Any, Optional
 
 from mcscript.data.minecraft_data.blocks import Block, BlockstateBlock
 from mcscript.data.selector.Selector import Selector
@@ -162,6 +162,11 @@ class ConditionalNode(IRNode):
         if len(self["conditions"]) > 1:
             raise ValueError("This is deprecated. Just use one condition")
         self["conditions"][0]["neg"] = not self["conditions"][0]["neg"]
+
+    def static_value(self) -> Optional[bool]:
+        if len(self["conditions"]) == 1 and isinstance(self["conditions"][0], self.IfBool):
+            return self["conditions"][0]["val"]
+        return None
 
 
 class IfNode(IRNode):

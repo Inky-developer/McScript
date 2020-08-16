@@ -49,7 +49,7 @@ class McScriptError(McScriptException):
     def __init__(self, message, compileState: CompileState, *source_annotations: SourceAnnotation, showErr=True):
         tree = compileState.currentTree
         if tree is not None:
-            header = f"McScript Exception [E{self.ERROR_TYPE}]" \
+            header = f"McScript Exception [E{self.ERROR_TYPE}]\n" \
                      f"At line {tree.line} column {tree.column}\n"
             msg = SourceAnnotationList()
             if showErr:

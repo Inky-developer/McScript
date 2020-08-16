@@ -14,11 +14,11 @@ from mcscript.exceptions.exceptions import (McScriptUnexpectedTypeError, McScrip
                                             McScriptUnsupportedOperationError, McScriptDeclarationError,
                                             McScriptArgumentError)
 from mcscript.ir.IrMaster import IrMaster
-from mcscript.ir.command_components import BinaryOperator, ScoreRange, ScoreRelation, UnaryOperator
-from mcscript.ir.components import (ConditionalNode, ExecuteNode, FunctionCallNode, InvertNode,
-                                    StoreFastVarFromResultNode, StoreFastVarNode, IfNode)
+from mcscript.ir.command_components import BinaryOperator, ScoreRelation, UnaryOperator
+from mcscript.ir.components import (ConditionalNode, ExecuteNode, FunctionCallNode, StoreFastVarFromResultNode,
+                                    StoreFastVarNode, IfNode)
 from mcscript.lang import std, atomic_types
-from mcscript.lang.atomic_types import Null, Bool
+from mcscript.lang.atomic_types import Null
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.EnumResource import EnumResource
 from mcscript.lang.resource.FunctionResource import FunctionResource
@@ -62,8 +62,8 @@ class Compiler(Interpreter):
 
         self.compileState.ir.optimize()
 
-        # for function in self.compileState.ir.function_nodes:
-        #     print(function)
+        for function in self.compileState.ir.function_nodes:
+            print(function)
 
         return self.compileState.ir
 
@@ -111,6 +111,7 @@ class Compiler(Interpreter):
             name, *value = self.visit(child)
 
             if name in properties:
+                self.compileState.currentTree = child
                 raise ValueError(name)
             if value:
                 value_properties[name] = value[0]
@@ -193,15 +194,13 @@ class Compiler(Interpreter):
 
         conditions = []
         for condition in _conditions:
-            condition = self.compileState.toResource(
-                condition)
-            if not isinstance(condition, BooleanResource):
-                raise McScriptUnexpectedTypeError("condition", condition.type(), Bool, self.compileState)
-            if condition.is_static:
-                if condition.static_value:
+            condition = self.compileState.to_condition(condition)
+            static_value = condition.static_value()
+            if static_value is not None:
+                if static_value:
                     continue
                 return BooleanResource(False, None)
-            conditions.append(condition)
+            conditions.extend(condition["conditions"])
 
         if not conditions:
             return BooleanResource(True, None)
@@ -209,10 +208,10 @@ class Compiler(Interpreter):
         stack = self.compileState.expressionStack.next()
 
         # None of the conditions will be static
-        condition_node = ConditionalNode(
-            [ConditionalNode.IfScoreMatches(condition.scoreboard_value, ScoreRange(1), False)
-             for condition in conditions]
-        )
+        condition_node = ConditionalNode(conditions)
+
+        if self.compileState.currentContext().user_data.get_is_condition():
+            return condition_node
 
         self.compileState.ir.append_all(
             StoreFastVarNode(stack, 0),
@@ -232,12 +231,10 @@ class Compiler(Interpreter):
         conditions = []
 
         for condition in _conditions:
-            value = self.compileState.toResource(
-                condition)
-            if not isinstance(value, BooleanResource):
-                raise McScriptUnexpectedTypeError("condition", value.type(), Bool, self.compileState)
-            if value.is_static:
-                if value.static_value:
+            value = self.compileState.to_condition(condition)
+            static_value = value.static_value()
+            if static_value is not None:
+                if static_value:
                     return BooleanResource(True, None)
                 # always False boolean does not matter, so it will be discarded
                 continue
@@ -250,33 +247,25 @@ class Compiler(Interpreter):
         stack = self.compileState.expressionStack.next()
 
         # If there are still conditions left, none of them are static
-        if conditions:
-            self.compileState.ir.append(StoreFastVarNode(stack, 0))
-            self.compileState.ir.append_all(
-                IfNode(
-                    ConditionalNode(
-                        [ConditionalNode.IfScoreMatches(
-                            condition.scoreboard_value,
-                            ScoreRange(1),
-                            False
-                        )]),
-                    StoreFastVarNode(stack, 1)
-                ) for condition in conditions)
+        self.compileState.ir.append(StoreFastVarNode(stack, 0))
+        self.compileState.ir.append_all(IfNode(condition, StoreFastVarNode(stack, 1)) for condition in conditions)
 
-            return BooleanResource(None, stack)
+        return BooleanResource(None, stack)
 
     def boolean_not(self, tree):
         _, value = tree.children
-        value = self.compileState.toResource(
-            value)
-        if not isinstance(value, BooleanResource):
-            raise McScriptUnexpectedTypeError("condition", value.type(), Bool, self.compileState)
+        value = self.compileState.to_condition(value)
 
-        if value.is_static:
-            return BooleanResource(not value.static_value, None)
+        static_value = value.static_value()
+        if static_value is not None:
+            return BooleanResource(not static_value, None)
+
+        value.invert()
+        if self.compileState.currentContext().user_data.get_is_condition():
+            return value
 
         stack = self.compileState.expressionStack.next()
-        self.compileState.ir.append(InvertNode(value.scoreboard_value, stack))
+        self.compileState.ir.append(value)
         return BooleanResource(None, stack)
 
     def binaryOperation(self, *args, assignment_resource: Resource = None):
@@ -346,6 +335,10 @@ class Compiler(Interpreter):
             cond = node["conditions"][0]
             return BooleanResource(cond["val"], None)
 
+        # if currently looking for a condition, return it directly
+        if self.compileState.currentContext().user_data.get_is_condition():
+            return node
+
         stack = self.compileState.expressionStack.next()
         self.compileState.ir.append(StoreFastVarFromResultNode(
             stack,
@@ -362,7 +355,7 @@ class Compiler(Interpreter):
 
         # if an operation happens, the variable to store to is needed
         resource = self.compileState.currentContext().find_resource(identifier)
-        with self.compileState.new_global_data("assign_resource", resource):
+        with self.compileState.currentContext().set_global_state("declaration", resource):
             value = self.compileState.toResource(_value)
 
         # If the stupid compiler did not manage to put the value onto the last resource, it has to be done now :C
@@ -439,16 +432,12 @@ class Compiler(Interpreter):
         # ToDO: This could quite easily turned into an expression
         condition, block, block_else = tree.children
 
-        condition_boolean = self.compileState.toResource(
-            condition)
-
-        if not isinstance(condition_boolean, BooleanResource):
-            raise McScriptUnexpectedTypeError("condition", condition_boolean.type(), Bool, self.compileState)
-
-        if condition_boolean.static_value is not None:
-            line_and_column = (block.line, block.column) if condition_boolean else (block_else.line, block_else.column)
+        condition_boolean = self.compileState.to_condition(condition)
+        static_value = condition_boolean.static_value()
+        if static_value is not None:
+            line_and_column = (block.line, block.column) if static_value else (block_else.line, block_else.column)
             with self.compileState.node_block(ContextType.BLOCK, *line_and_column):
-                if condition_boolean.static_value is True:
+                if static_value is True:
                     self.visit_children(block)
                 elif block_else is not None:
                     self.visit_children(block_else)
@@ -465,8 +454,7 @@ class Compiler(Interpreter):
             neg_branch = None
 
         self.compileState.ir.append(IfNode(
-            ConditionalNode([ConditionalNode.IfScoreMatches(
-                condition_boolean.scoreboard_value, ScoreRange(0), True)]),
+            condition_boolean,
             FunctionCallNode(pos_branch),
             FunctionCallNode(neg_branch) if neg_branch is not None else None
         ))
@@ -515,7 +503,7 @@ class Compiler(Interpreter):
         # if self is specified, this function becomes a method and accepts an implicit first argument
         self_type = None
         if self_type_token is not None:
-            self_resource = self.compileState.get_global_data("struct")
+            self_resource = self.compileState.currentContext().user_data.get_struct()
             if self_resource is None:
                 self.compileState.currentTree = self_type_token
                 raise McScriptDeclarationError("self is only allowed inside a struct", self.compileState)
@@ -574,7 +562,7 @@ class Compiler(Interpreter):
         struct = StructResource(name, context, self.compileState)
         self.compileState.currentContext().add_var(name, struct)
 
-        with self.compileState.new_global_data("struct", struct):
+        with self.compileState.currentContext().set_global_state("struct", struct):
             for declaration in block.children:
                 self.visit(declaration)
         self.compileState.pop_context()

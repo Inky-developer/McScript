@@ -97,43 +97,14 @@ run for @a {
 """
 
 code_temp = """
-struct Range {
-    min: Int
-    max: Int
-    current: Int
-    
-    fun new(min: Int, max: Int) -> Range {
-        return Range(min-1, max, min)
-    }
-    
-    fun next(self) -> Tuple {
-        ret = self.current
-        self.current += 1
-        
-        success = self.current <= self.max
-        return (ret, success)
-    }
-    
-    fun count(self) -> Int {
-        # calls next until the method fails
-        count = 0
-        success = True
-        do {
-            (_, success) = self.next()
-            count += 1
-        } while success
-        return count
-    }
+num_players = 0
+run for @a {
+    num_players += 1
 }
 
-r = Range.new(1, 15)
-
-success = True
-while success {
-    (value, success) = r.next()
-    run for @a { print("The square number {} is {}", value, value*value) }
+if num_players > 0 and num_players * num_players > 0 {
+    run for @a { print("True") }
 }
-print("{}", blocks.stone)
 """
 
 if __name__ == '__main__':
@@ -143,9 +114,9 @@ if __name__ == '__main__':
     config = Config("config.ini")
     config.world = world
 
-    code = code_temp
+    # code = code_temp
+    code = getScript("raycast")
     config.input_file = code
-    # code = getScript("iterator_concept")
 
     datapack = compileMcScript(config, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"))
     generate_datapack(config, datapack)

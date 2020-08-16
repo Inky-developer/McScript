@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Dict, Optional
+from typing import Dict
 
 from mcscript.backends.IRBackend import IRBackend
 from mcscript.backends.mc_datapack_backend import get_resource
@@ -86,7 +86,7 @@ class McDatapackBackend(IRBackend[Datapack]):
 
     def handle_function_node(self, node: FunctionNode):
         # This is temporary
-        if node["name"].path == "on_tick":
+        if node["name"].path == "tick":
             self.on_tick_function = node
         elif node["name"].path == "main":
             self.on_load_function = node

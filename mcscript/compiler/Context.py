@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Tuple, TYPE_CHECKING
+from typing import Dict, Optional, Tuple, TYPE_CHECKING, Any, List
 
 from mcscript import Logger
 from mcscript.analyzer.VariableContext import VariableContext, NamespaceContext
@@ -15,6 +16,33 @@ from mcscript.utils.resources import DataPath
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
+    from mcscript.lang.resource import StructResource
+
+
+@dataclass()
+class UserData:
+    struct: List[StructResource] = field(default_factory=list)
+    declaration: List[Resource] = field(default_factory=list)
+    # Marks whether there is currently a condition evaluated
+    condition: List[bool] = field(default_factory=list)
+
+    def get_struct(self) -> Optional[StructResource]:
+        try:
+            return self.struct[-1]
+        except IndexError:
+            return None
+
+    def get_declaration(self) -> Optional[Resource]:
+        try:
+            return self.declaration[-1]
+        except IndexError:
+            return None
+
+    def get_is_condition(self) -> bool:
+        try:
+            return self.condition[-1]
+        except IndexError:
+            return False
 
 
 class Context:
@@ -26,6 +54,7 @@ class Context:
         * The definition of this context as (line, column)
         * The numerical id of this `Context` (deprecated, unused)
         * The variables unique to this context
+        * Some Arbitrary data that can be modified using context managers
         * The type of context, ia. if it can be evaluated at compile time (not influenced by inner non-static contexts)
         * A template string for context specific variable names
         * A template string for nbt variable names
@@ -62,6 +91,8 @@ class Context:
         # the namespace of variables unique to this context
         self.namespace: Dict[str, Context.Variable] = {}
 
+        self.user_data: UserData = UserData()
+
         # formats scoreboard variables to ".exp<x>_<varId>"
         self.scoreboard_formatter = ScoreboardAddressCounter(main_scoreboard, f".exp{self.index}_{{}}")
         # for nbt names
@@ -69,6 +100,14 @@ class Context:
 
         # A resource which is returned when this context is popped
         self.return_resource: Optional[Resource] = None
+
+    @contextmanager
+    def set_global_state(self, key: str, value: Any):
+        getattr(self.user_data, key).append(value)
+        try:
+            yield
+        finally:
+            getattr(self.user_data, key).pop()
 
     def clear(self):
         """

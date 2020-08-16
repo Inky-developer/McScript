@@ -14,10 +14,9 @@ from mcscript.exceptions.exceptions import (McScriptUndefinedVariableError, McSc
                                             McScriptUnexpectedTypeError, McScriptValueError)
 from mcscript.exceptions.utils import requireType
 from mcscript.ir import IRNode
-from mcscript.ir.command_components import Position, ExecuteAnchor, ScoreRange
+from mcscript.ir.command_components import Position, ExecuteAnchor
 from mcscript.ir.components import ExecuteNode, FunctionCallNode, ConditionalNode, FunctionNode, IfNode
-from mcscript.lang.atomic_types import Selector as SelectorType, Bool
-from mcscript.lang.resource.BooleanResource import BooleanResource
+from mcscript.lang.atomic_types import Selector as SelectorType
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
@@ -134,23 +133,19 @@ def conditional_loop(compile_state: CompileState,
         None
     """
 
-    def repeat_if(condition: Resource, function: FunctionNode):
+    def repeat_if(condition: ConditionalNode, function: FunctionNode):
         call_node = FunctionCallNode(function)
         if context is not None:
             call_node = ExecuteNode(readContextManipulator([context], compile_state), [call_node])
 
-        if not isinstance(condition, BooleanResource):
-            raise McScriptUnexpectedTypeError("Condition", condition.type(), Bool, compile_state)
-        if condition.is_static:
-            if not condition.static_value:
+        static_value = condition.static_value()
+        if static_value is not None:
+            if not static_value:
                 return
             compile_state.ir.append(call_node)
             return
 
-        compile_state.ir.append(IfNode(
-            ConditionalNode([ConditionalNode.IfScoreMatches(condition.scoreboard_value, ScoreRange(0), True)]),
-            call_node
-        ))
+        compile_state.ir.append(IfNode(condition, call_node))
 
     # 1. Create the new function
     with compile_state.node_block(ContextType.LOOP, block.line, block.column) as loop_function:
@@ -162,16 +157,16 @@ def conditional_loop(compile_state: CompileState,
         # Problem: variables might be not static even if their static value might still be usable (ToDo)
         with compile_state.ir.with_previous():
             if check_start:
-                initial_condition = compile_state.toResource(condition_tree)
+                initial_condition = compile_state.to_condition(condition_tree)
             else:
-                initial_condition = BooleanResource(1, None)
+                initial_condition = ConditionalNode([ConditionalNode.IfBool(True)])
             repeat_if(initial_condition, loop_function)
 
         # Now compute the loop body
         compile_state.compile_ast(block)
 
         # create recursion condition
-        recurse_condition = compile_state.toResource(condition_tree)
+        recurse_condition = compile_state.to_condition(condition_tree)
         repeat_if(recurse_condition, loop_function)
 
 
