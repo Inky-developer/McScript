@@ -2,9 +2,10 @@ from typing import List, Type
 
 from mcscript.ir.components import FunctionNode
 from mcscript.ir.optimize.ArithmeticOptimizer import ArithmeticOptimizer
+from mcscript.ir.optimize.ConditionOptimizer import ConditionOptimizer
 from mcscript.ir.optimize.Optimizer import Optimizer
 
-OPTIMIZERS: List[Type[Optimizer]] = [ArithmeticOptimizer]
+OPTIMIZERS: List[Type[Optimizer]] = [ArithmeticOptimizer, ConditionOptimizer]
 
 
 def optimize(start_node: FunctionNode, nodes: List[FunctionNode]):

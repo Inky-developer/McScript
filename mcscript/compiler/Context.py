@@ -25,6 +25,7 @@ class UserData:
     declaration: List[Resource] = field(default_factory=list)
     # Marks whether there is currently a condition evaluated
     condition: List[bool] = field(default_factory=list)
+    binary_operation: List[bool] = field(default_factory=list)
 
     def get_struct(self) -> Optional[StructResource]:
         try:
@@ -41,6 +42,12 @@ class UserData:
     def get_is_condition(self) -> bool:
         try:
             return self.condition[-1]
+        except IndexError:
+            return False
+
+    def get_is_binary_operation(self) -> bool:
+        try:
+            return self.binary_operation[-1]
         except IndexError:
             return False
 
@@ -192,6 +199,7 @@ class Context:
         if variable_context is None:
             Logger.debug(f"[Context] No context data available for variable '{name}' ({value})")
 
+        value.is_variable = True
         self.namespace[name] = self.Variable(value, variable_context)
         return value
 
@@ -213,6 +221,7 @@ class Context:
         """
 
         if name in self.namespace:
+            value.is_variable = True
             self.namespace[name].resource = value
         elif self.predecessor is not None:
             self.predecessor.set_var(name, value)

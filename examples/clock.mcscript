@@ -3,9 +3,9 @@ tickCount = 0
 fun on_tick() {
     daytime = (evaluate("time query daytime") + 6000) % 24000
     hours = daytime / 1000
-    rest = daytime % 1000
-    minutes = rest * 60 / 1000
-    seconds = (rest * 60 % 1000) * 60 / 1000
+    daytime %= 1000
+    minutes = daytime * 60 / 1000
+    seconds = (daytime * 60 % 1000) * 60 / 1000
 
     if tickCount % 20 == 0 {
         run for @a {

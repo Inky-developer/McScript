@@ -40,6 +40,10 @@ class IrMaster:
             (start_node,) = [i for i in self.function_nodes if i["name"].path == "main"]
             optimize(start_node, self.function_nodes)
 
+            # second simple optimization pass
+            function_nodes = [i.optimized(self, None)[0] for i in self.function_nodes]
+            self.function_nodes = [i for i in function_nodes if not i["drop"]]
+
     def append(self, node: IRNode):
         self.active_nodes[-1].append(node)
 

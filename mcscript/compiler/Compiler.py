@@ -61,8 +61,8 @@ class Compiler(Interpreter):
 
         self.compileState.ir.optimize()
 
-        for function in self.compileState.ir.function_nodes:
-            print(function)
+        # for function in self.compileState.ir.function_nodes:
+        #     print(function)
 
         return self.compileState.ir
 
@@ -271,7 +271,7 @@ class Compiler(Interpreter):
         number1, *values = args
 
         # whether the first number may be overwritten
-        is_temporary = False
+        is_temporary = not number1.is_variable
         all_static = all(is_static(i) for i in args[::2])
 
         # the first number can also be a list. Then just do a binary operation with it
@@ -315,7 +315,7 @@ class Compiler(Interpreter):
     def term(self, tree):
         term = tree.children[0]
         if term.data in ("sum", "product"):  # this term does not contain operands
-            return self.binaryOperation(*self.visit_children(tree.children[0]))
+            return self.binaryOperation(*self.visit_children(term))
         return self.visit(term)
 
     def comparison(self, tree):
@@ -363,7 +363,7 @@ class Compiler(Interpreter):
         is_resource_non_static = isinstance(resource, ValueResource) and not resource.is_static
         if is_resource_non_static and isinstance(value, ValueResource) and not value.is_static:
             value = value.copy(resource.scoreboard_value, self.compileState)
-        elif resource is None and isinstance(value, ValueResource) and not value.is_static:
+        elif resource is None and isinstance(value, ValueResource) and (not value.is_static) and value.is_variable:
             # Form: a = b, where a should be a copy of b, not b itself if a is modified
             if context_data is None or context_data.writes:
                 value = value.copy(self.compileState.expressionStack.next(), self.compileState)

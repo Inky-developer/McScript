@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum, auto
+from itertools import chain
 from typing import List, Union, TYPE_CHECKING, Tuple, Any, Optional
 
 from mcscript.data.minecraft_data.blocks import Block, BlockstateBlock
@@ -119,12 +120,23 @@ class ConditionalNode(IRNode):
             self["relation"] = relation
             self["neg"] = neg
 
+        def read_scoreboard_values(self) -> List[ScoreboardValue]:
+            return [self["own"], self["other"]]
+
     class IfScoreMatches(IRNode):
         def __init__(self, own_score: ScoreboardValue, range_: ScoreRange, negate: bool):
             super().__init__()
             self["own"] = own_score
             self["range"] = range_
             self["neg"] = negate
+
+        def read_scoreboard_values(self) -> List[ScoreboardValue]:
+            return [self["own"]]
+
+        def checks_if_true(self) -> bool:
+            """ Returns whether this node compares its value to 1 or not 0. """
+            return (self["range"] == ScoreRange(1) and self["neg"] is False) or \
+                   (self["range"] == ScoreRange(0) and self["neg"] is True)
 
     class IfBlock(IRNode):
         def __init__(self, position: Position, block: Block, negate: bool):
@@ -168,6 +180,10 @@ class ConditionalNode(IRNode):
             return self["conditions"][0]["val"]
         return None
 
+    # noinspection PyProtectedMember
+    def read_scoreboard_values(self) -> List[ScoreboardValue]:
+        return list(chain.from_iterable(i.read_scoreboard_values() for i in self["conditions"]))
+
 
 class IfNode(IRNode):
     def __init__(self, condition: ConditionalNode, pos_branch: IRNode, neg_branch: IRNode = None):
@@ -208,6 +224,10 @@ class IfNode(IRNode):
 
         return super().optimized(ir_master, parent)
 
+    # noinspection PyProtectedMember
+    def read_scoreboard_values(self) -> List[ScoreboardValue]:
+        return self["condition"].read_scoreboard_values()
+
 
 ####
 # Fast Variables are stored in a scoreboard
@@ -221,12 +241,30 @@ class GetFastVarNode(IRNode):
         super().__init__()
         self["val"] = scoreboard_value
 
+    def read_scoreboard_values(self) -> List[ScoreboardValue]:
+        return [self["val"]]
+
 
 class StoreFastVarNode(IRNode):
     def __init__(self, scoreboard_value: ScoreboardValue, value: NumericalNumberSource):
         super().__init__()
         self["var"] = scoreboard_value
         self["val"] = value
+
+    def read_scoreboard_values(self) -> List[ScoreboardValue]:
+        return [self["val"]]
+
+    def written_scoreboard_values(self) -> List[ScoreboardValue]:
+        return [self["var"]]
+
+    def optimized(self, ir_master: IrMaster, parent: Optional[IRNode]) -> \
+            Tuple[Union[IRNode, Tuple[IRNode, ...]], bool]:
+        for function in ir_master.function_nodes:
+            if function.reads_scoreboard_value(self["var"]):
+                return super().optimized(ir_master, parent)
+
+        # if this node is never read, completely drop it
+        return (), True
 
 
 class StoreFastVarFromResultNode(IRNode):
@@ -235,6 +273,17 @@ class StoreFastVarFromResultNode(IRNode):
     def __init__(self, scoreboard_value: ScoreboardValue, command: IRNode):
         super().__init__([command])
         self["var"] = scoreboard_value
+
+    def written_scoreboard_values(self) -> List[ScoreboardValue]:
+        return [self["var"]]
+
+    def optimized(self, ir_master: IrMaster, parent: Optional[IRNode]) -> \
+            Tuple[Union[IRNode, Tuple[IRNode, ...]], bool]:
+        for function in ir_master.function_nodes:
+            if function.reads_scoreboard_value(self["var"]):
+                return super().optimized(ir_master, parent)
+
+        return (), True
 
 
 ####
@@ -270,6 +319,12 @@ class FastVarOperationNode(IRNode):
         self["b"] = b
         self["operator"] = operator
 
+    def read_scoreboard_values(self) -> List[ScoreboardValue]:
+        return [self["b"]]
+
+    def written_scoreboard_values(self) -> List[ScoreboardValue]:
+        return [self["var"]]
+
 
 ####
 class InvertNode(IRNode):
@@ -279,6 +334,12 @@ class InvertNode(IRNode):
         super().__init__()
         self["val"] = val
         self["target"] = target
+
+    def read_scoreboard_values(self) -> List[ScoreboardValue]:
+        return [self["val"]]
+
+    def written_scoreboard_values(self) -> List[ScoreboardValue]:
+        return [self["target"]]
 
 
 ####
@@ -300,6 +361,10 @@ class MessageNode(IRNode):
         self["type"] = msg_type
         self["msg"] = msg
         self["selector"] = selector or Selector("s", [])
+
+    # AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+    def reads_scoreboard_value(self, scoreboard_value: ScoreboardValue) -> bool:
+        return scoreboard_value.value in self["msg"]
 
 
 class CommandNode(IRNode):

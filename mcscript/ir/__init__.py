@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from typing import List, Dict, Any, Optional, TYPE_CHECKING, Tuple, TypeVar, Union
 
+from mcscript.utils.resources import ScoreboardValue
 from mcscript.utils.utils import camel_case_to_snake_case
 
 if TYPE_CHECKING:
@@ -37,6 +38,28 @@ class IRNode:
 
         # A list of nodes that should be discarded
         self.discarded_inner_nodes: List[IRNode] = []
+
+    def reads_scoreboard_value(self, scoreboard_value: ScoreboardValue) -> bool:
+        """
+        Returns whether this node or any inner node reads this score
+
+        Args:
+            scoreboard_value: The scoreboard value
+        """
+        return scoreboard_value in self.read_scoreboard_values() or any(
+            i.reads_scoreboard_value(scoreboard_value) for i in self.inner_nodes
+        )
+
+    def writes_scoreboard_value(self, scoreboard_value: ScoreboardValue) -> bool:
+        """
+        Returns whether this node or any inner node writes to this score
+
+        Args:
+            scoreboard_value: The scoreboard value
+        """
+        return scoreboard_value in self.written_scoreboard_values() or any(
+            i.writes_scoreboard_value(scoreboard_value) for i in self.inner_nodes
+        )
 
     def allow_inline_optimization(self) -> bool:
         """
@@ -114,6 +137,18 @@ class IRNode:
         return f"{self.__class__.__name__}({attributes})" \
                + (" # " + metadata if metadata else "") \
                + (f"\n{spacer}|-{children}" if children else "")
+
+    def read_scoreboard_values(self) -> List[ScoreboardValue]:
+        """
+        Returns all scoreboard values that this node reads
+        """
+        return []
+
+    def written_scoreboard_values(self) -> List[ScoreboardValue]:
+        """
+        Returns all scoreboard values that this node writes to
+        """
+        return []
 
     def _format_data(self, key: str, value: Any) -> str:
         return str(value)

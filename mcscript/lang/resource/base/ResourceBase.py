@@ -19,6 +19,11 @@ if TYPE_CHECKING:
 
 
 class Resource(ABC):
+    def __init__(self):
+        # Whether this resource is a variable
+        # If False, this resource is a temporary value and may be overwritten
+        self.is_variable = False
+
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List, str]:
         """
         Creates a string that can be used as a minecraft tellraw or title string.
@@ -391,6 +396,7 @@ class ObjectResource(Resource, ABC):
     """
 
     def __init__(self, public_namespace: Dict[str, Resource] = None):
+        super().__init__()
         self.public_namespace = public_namespace or {}
 
     @property

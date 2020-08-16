@@ -7,18 +7,18 @@ struct Range {
     current: Int
 
     fun new(min: Int, max: Int) -> Range {
-        return Range(min, max, min-1)
+        Range(min, max, min-1)
     }
 
-    fun exclusive(min: Int, max: Int) -> Range {
-        return Range(min, max-1, min-1)
+    fun until(max: Int) -> Range {
+        Range.new(0, max)
     }
 
     # Tuple<Int, Bool>
     fun next(self) -> Tuple {
         self.current += 1
         is_valid = self.current < self.max
-        return (self.current, is_valid)
+        (self.current, is_valid)
     }
 }
 
@@ -27,6 +27,8 @@ r = Range.new(1, 15)
 
 is_valid = True
 while is_valid {
-    (next, is_valid) = r.next()
+    result = r.next()
+    next = result[0]
+    is_valid = result[1]
     run for @a { print("The square number {} is: {}", next, next * next) }
 }

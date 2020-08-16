@@ -68,6 +68,7 @@ class StructObjectResource(ObjectResource):
         if not value.type().matches(expected_type):
             raise McScriptUnexpectedTypeError(name, value.type(), expected_type, compile_state)
         self.public_namespace[name] = value
+        value.is_variable = True
 
     def type(self) -> Type:
         return self.struct.object_type

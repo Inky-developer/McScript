@@ -7,7 +7,7 @@ fun pow(a: Int, b: Int) -> Int {
         a *= a
         b /= 2
     }
-    return res
+    res
 }
 
 fun sqrt(n: Fixed) -> Fixed {
@@ -18,7 +18,7 @@ fun sqrt(n: Fixed) -> Fixed {
         x = (x + y) / 2.0
         y = n / x
     }
-    return x
+    x
 }
 
 fun fac(x: Int) -> Int {
@@ -27,7 +27,7 @@ fun fac(x: Int) -> Int {
         ret *= x
         x -= 1
     }
-    return ret
+    ret
 }
 
 

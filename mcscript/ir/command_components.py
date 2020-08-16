@@ -129,6 +129,12 @@ class ScoreRange:
         if self.max < self.min:
             raise ValueError(f"The maximum value for range {self} must be greater than the minimum value")
 
+    def __eq__(self, other):
+        if not isinstance(other, ScoreRange):
+            raise NotImplementedError()
+
+        return self.min == other.min and self.max == other.max
+
     def __str__(self):
         if self.min == self.max:
             return str(int(self.min))
