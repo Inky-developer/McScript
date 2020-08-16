@@ -85,7 +85,7 @@ class Directory:
 
         Format:
             - filename: string -> None: creates an empty Directory or a file if the name contains a dot (.).
-            - filename: string -> Dictionary: create a Dictionary pregenerated with the given Dictionary.
+            - filename: string -> Dictionary: create a Dictionary pre-generated with the given Dictionary.
             - filename: string -> callable: creates a custom type of object.
 
         Calls the method on_<filename>(file_or_dictionary) when the file or dictionary was created.

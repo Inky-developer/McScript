@@ -11,12 +11,23 @@ if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 
-def isStatic(resource: Resource) -> bool:
+def is_static(resource: Resource) -> bool:
     """ Returns whether the resource is static if it is a value resource else False"""
     return getattr(resource, "is_static", False)
 
 
-def compare_scoreboard_values(a: ValueResource, b: ValueResource, relation: ScoreRelation):
+def compare_scoreboard_values(a: ValueResource, b: ValueResource, relation: ScoreRelation) -> ConditionalNode:
+    """
+    Compares two scoreboard values and returns a ConditionalNode
+
+    Args:
+        a: the first ValueResource
+        b: the second ValueResource
+        relation: The scoreboard relation
+
+    Returns:
+        The result as ConditionalNode
+    """
     if a.is_static:
         a, b = b, a
         relation = relation.swap()
@@ -45,6 +56,19 @@ def compare_scoreboard_values(a: ValueResource, b: ValueResource, relation: Scor
 
 def operate_scoreboard_values(compile_state: CompileState, a: ValueResource, b: ValueResource,
                               operator: BinaryOperator) -> Union[int, ScoreboardValue]:
+    """
+    Applies the operator on both values and creates the corresponding ir code.
+
+    Args:
+        compile_state: the compile state
+        a: the first ValueResource
+        b: the second ValueResource
+        operator: the operator to apply
+
+    Returns:
+        Either a static int or a scoreboard value
+    """
+
     # noinspection PyShadowingNames
     def numeric_operation_static(a: int, b: int, operator: BinaryOperator) -> int:
         actions = {

@@ -28,8 +28,6 @@ class FixedNumberResource(ValueResource):
 
     BASE: ClassVar[int] = 1000
 
-    requiresInlineFunc: ClassVar[bool] = False
-
     def type(self) -> Type:
         return Fixed
 

@@ -132,15 +132,14 @@ class McDatapackBackend(IRBackend[Datapack]):
 
     def handle_conditional_node(self, conditional: ConditionalNode):
         def if_score_matches(node):
-            return f"score {node['own'].value} {node['own'].scoreboard.unique_name} matches {node['range']}"
+            return f"score {node['own']} matches {node['range']}"
 
         def if_score(node):
-            return f"score {node['own'].value} {node['own'].scoreboard.unique_name} {node['relation'].value} " \
-                   f"{node['other'].value} {node['other'].scoreboard.unique_name}"
+            return f"score {node['own']} {node['relation'].value} {node['other']}"
 
         SUB_NODE_TO_STRING = {
             ConditionalNode.IfBlock: lambda node: f"block {position_to_str(node['pos'])} {node['block']}",
-            ConditionalNode.IfEntity: lambda node: f"enitity {node['selector']}",
+            ConditionalNode.IfEntity: lambda node: f"entity {node['selector']}",
             ConditionalNode.IfPredicate: lambda node: f"predicate {node['val'].base}:{node['val'].path}",
             ConditionalNode.IfScore: if_score,
             ConditionalNode.IfScoreMatches: if_score_matches
@@ -174,7 +173,7 @@ class McDatapackBackend(IRBackend[Datapack]):
 
     def handle_get_fast_var_node(self, node: GetFastVarNode):
         val = node["val"]
-        self.command_buffer[-1].append(f"scoreboard players get {val.value} {val.scoreboard.unique_name}")
+        self.command_buffer[-1].append(f"scoreboard players get {val}")
 
     def handle_store_fast_var_node(self, node: StoreFastVarNode):
         value = node["val"]
@@ -182,19 +181,18 @@ class McDatapackBackend(IRBackend[Datapack]):
 
         if isinstance(value, int):
             self.command_buffer[-1].append(
-                f"scoreboard players set {variable.value} "
-                f"{variable.scoreboard.unique_name} {value}"
+                f"scoreboard players set {variable} {value}"
             )
         elif isinstance(value, ScoreboardValue):
             # scoreboard players operation a objective = b objective
             self.command_buffer[-1].append(
-                f"scoreboard players operation {variable.value} {variable.scoreboard.unique_name} "
-                f"= {value.value} {value.scoreboard.unique_name}"
+                f"scoreboard players operation {variable} "
+                f"= {value}"
             )
         elif isinstance(value, DataPath):
-            # execute store result score a objective run data get storage mcsscript:test a.b.c
+            # execute store result score a objective run data get storage mcscript:test a.b.c
             self.command_buffer[-1].append(
-                f"execute store result score {variable.value} {variable.scoreboard.unique_name} "
+                f"execute store result score {variable} "
                 f"run data get storage {value.storage.base}:{value.storage.path} {value.dotted_path()}"
             )
         else:
@@ -205,7 +203,7 @@ class McDatapackBackend(IRBackend[Datapack]):
 
         with self.assemble_command() as parts:
             self.command_buffer[-1].append(
-                f"execute store result score {var.value} {var.scoreboard.unique_name} run")
+                f"execute store result score {var} run")
 
             child, *error = node.inner_nodes
             if error:
@@ -246,8 +244,8 @@ class McDatapackBackend(IRBackend[Datapack]):
 
         if isinstance(b, ScoreboardValue):
             self.command_buffer[-1].append(
-                f"scoreboard players operation {a.value} {a.scoreboard.unique_name} "
-                f"{operator.value}= {b.value} {b.scoreboard.unique_name}"
+                f"scoreboard players operation {a} "
+                f"{operator.value}= {b}"
             )
         elif isinstance(b, int):
             # only defined for operations plus and minus
@@ -257,7 +255,7 @@ class McDatapackBackend(IRBackend[Datapack]):
             mode = "add" if b >= 0 else "remove"
 
             self.command_buffer[-1].append(
-                f"scoreboard players {mode} {a.value} {a.scoreboard.unique_name} {abs(b)}"
+                f"scoreboard players {mode} {a} {abs(b)}"
             )
         else:
             raise ValueError(f"Invalid b value for operation: {b}")
@@ -301,6 +299,6 @@ class McDatapackBackend(IRBackend[Datapack]):
     def handle_scoreboard_init_node(self, node: ScoreboardInitNode):
         scoreboard = node["scoreboard"]
         self.command_buffer[-1].append(
-            f"scoreboard objectives remove {scoreboard.unique_name}")
+            f"scoreboard objectives remove {scoreboard.get_name()}")
         self.command_buffer[-1].append(
-            f"scoreboard objectives add {scoreboard.unique_name} dummy")
+            f"scoreboard objectives add {scoreboard.get_name()} dummy")

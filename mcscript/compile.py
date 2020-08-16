@@ -10,7 +10,7 @@ from mcscript.analyzer.Analyzer import Analyzer
 from mcscript.backends import get_default_backend
 from mcscript.backends.mc_datapack_backend.Datapack import Datapack
 from mcscript.data.Config import Config
-from mcscript.exceptions.compileExceptions import McScriptError
+from mcscript.exceptions.exceptions import McScriptError
 from mcscript.exceptions.parseExceptions import McScriptParseException
 from mcscript.utils.utils import debug_log_text
 
@@ -71,6 +71,7 @@ def _parseCode(code: str) -> Tree:
         # keeping tabs can produce error messages that are offset
         return get_grammar().parse(code.replace("\t", "  "))
     except lark.exceptions.UnexpectedToken as e:
+        # noinspection PyUnresolvedReferences
         raise McScriptParseException(e.line, e.column, code, e.expected, e.token) from None
 
 

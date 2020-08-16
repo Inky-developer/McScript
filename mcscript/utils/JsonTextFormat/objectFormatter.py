@@ -12,7 +12,7 @@ def format_score(scoreboard_value: ScoreboardValue) -> Dict:
     return {
         "score": {
             "name": scoreboard_value.value,
-            "objective": scoreboard_value.scoreboard.unique_name
+            "objective": scoreboard_value.scoreboard.get_name()
         }
     }
 

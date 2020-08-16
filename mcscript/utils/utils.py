@@ -95,11 +95,17 @@ def string_format(config: Config, string: str, **kwargs: str) -> str:
 def camel_case_to_snake_case(string: str) -> str:
     """ 
     Converts a CamelCase word to a snake_case word.
+    >>> camel_case_to_snake_case("HelloWorld")
+    'hello_world'
+    >>> camel_case_to_snake_case("ThisIsA_LongText")
+    'this_is_a_long_text'
     """
     characters = []
+    previous = None
     for index, character in enumerate(string):
-        if character.isupper() and index != 0:
+        if character.isupper() and index != 0 and previous != "_":
             characters.append("_")
         characters.append(character.lower())
+        previous = characters[-1]
 
     return "".join(characters)

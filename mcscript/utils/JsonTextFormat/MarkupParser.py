@@ -8,7 +8,8 @@ from lark import UnexpectedToken
 from lark.visitors import Interpreter
 
 from mcscript import Logger, get_json_markup_grammar
-from mcscript.exceptions.compileExceptions import McScriptArgumentsError, McScriptError, McScriptInvalidMarkupError
+from mcscript.exceptions.McScriptException import McScriptError
+from mcscript.exceptions.exceptions import McScriptInvalidMarkupError, McScriptArgumentError
 from mcscript.lang.resource.base.ResourceBase import Resource
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 from mcscript.utils.JsonTextFormat.objectFormatter import (format_bold, format_color, format_hover, format_italic,
@@ -113,7 +114,7 @@ class MarkupParser(Interpreter):
             resource = self.state["args"][number]
             return ResourceTextFormatter(self.compileState).createFromResource(resource)
         except IndexError:
-            raise McScriptArgumentsError(
+            raise McScriptArgumentError(
                 f"Invalid number of arguments, requires at least {number + 1} "
                 f"but got {len(self.state['args'])}", self.compileState
             ) from None

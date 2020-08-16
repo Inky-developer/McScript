@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 from mcscript.ir.command_components import BinaryOperator, ScoreRelation
 from mcscript.ir.components import ConditionalNode
@@ -17,8 +17,6 @@ class IntegerResource(ValueResource[int]):
     """
     Holds a Number(int)
     """
-
-    requiresInlineFunc: ClassVar[bool] = False
 
     def type(self) -> Type:
         return Int

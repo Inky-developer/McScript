@@ -11,7 +11,7 @@ from mcscript.data.selector.selectorData import (
     getByName, getSelectors, Integer, Nbt, Range, Repeat, SelectorArgument,
     String,
 )
-from mcscript.exceptions.compileExceptions import McScriptInvalidSelectorError
+from mcscript.exceptions.exceptions import McScriptInvalidSelectorError
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -91,6 +91,7 @@ class Selector:
 
             used_arguments.add(argument)
 
+            # noinspection PyTypeChecker
             used_argument_selectors[argument.selector] = used_argument_selectors.get(argument,
                                                                                      False) or not argument.negative
 

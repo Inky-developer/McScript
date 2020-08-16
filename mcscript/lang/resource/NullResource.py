@@ -1,18 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Type
+from typing import TYPE_CHECKING, Type
 
 from mcscript.lang.atomic_types import Null
-from mcscript.lang.resource.base.ResourceBase import ValueResource
+from mcscript.lang.resource.base.ResourceBase import ValueResource, Resource
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
 
 
-# noinspection PyUnusedLocal
 class NullResource(ValueResource[None]):
-    requiresInlineFunc: ClassVar[bool] = False
-
     def __init__(self):
         """
         parameters are discarded
@@ -26,6 +23,5 @@ class NullResource(ValueResource[None]):
         return Null
 
     @classmethod
-    def createEmptyResource(cls, identifier: str, compileState: CompileState) -> NullResource:
-        # noinspection PyTypeChecker
+    def createEmptyResource(cls, identifier: str, compileState: CompileState) -> Resource:
         return compileState.currentContext().add_var(identifier, NullResource())

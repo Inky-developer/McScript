@@ -9,7 +9,7 @@ class Type:
     Types are used to design safe apis for functions and structs.
 
 
-    ToDo: refine the type class to support generic types
+    ToDo: refine the type class to support generic types and traits
     """
     __slots__ = ("uid", "name", "bases")
 

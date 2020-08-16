@@ -10,7 +10,7 @@ DIGIT: /\d+/
 TOKEN: /\w+/
 
 
-TEXT: /(?:\\\[|\\\]|[^\[\]\{\}])+/ // matches any character except for [,],{,} but matches \[ and \]
+TEXT: /(?:\\\[|\\\]|[^\[\]{}])+/ // matches any character except for [,],{,} but matches \[ and \]
 
 _OPEN_SQUARE_BRACKET: "["
 _CLOSE_SQUARE_BRACKET: "]"

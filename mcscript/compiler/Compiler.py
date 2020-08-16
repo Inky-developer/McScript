@@ -1,6 +1,6 @@
 from typing import Dict, Tuple
 
-from lark import Token, Tree
+from lark import Tree, Token
 from lark.visitors import Interpreter
 
 from mcscript.analyzer.Analyzer import NamespaceContext
@@ -9,13 +9,15 @@ from mcscript.compiler.ContextType import ContextType
 from mcscript.compiler.common import conditional_loop, get_property, readContextManipulator, set_property, set_variable
 from mcscript.compiler.tokenConverter import convert_token_to_resource, convert_token_to_type
 from mcscript.data.Config import Config
-from mcscript.exceptions.compileExceptions import (McScriptDeclarationError, McScriptNameError, McScriptSyntaxError,
-                                                   McScriptTypeError, McScriptArgumentsError)
+from mcscript.exceptions.McScriptException import McScriptError
+from mcscript.exceptions.exceptions import (McScriptUnexpectedTypeError, McScriptEnumValueAlreadyDefinedError,
+                                            McScriptUnsupportedOperationError, McScriptDeclarationError,
+                                            McScriptArgumentError)
 from mcscript.ir.IrMaster import IrMaster
 from mcscript.ir.command_components import BinaryOperator, ScoreRange, ScoreRelation, UnaryOperator
 from mcscript.ir.components import (ConditionalNode, ExecuteNode, FunctionCallNode, InvertNode,
                                     StoreFastVarFromResultNode, StoreFastVarNode, IfNode)
-from mcscript.lang import std
+from mcscript.lang import std, atomic_types
 from mcscript.lang.atomic_types import Null, Bool
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.EnumResource import EnumResource
@@ -25,7 +27,7 @@ from mcscript.lang.resource.TupleResource import TupleResource
 from mcscript.lang.resource.TypeResource import TypeResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.functionSignature import FunctionSignature, FunctionParameter
-from mcscript.lang.utility import isStatic
+from mcscript.lang.utility import is_static
 
 
 class Compiler(Interpreter):
@@ -80,7 +82,7 @@ class Compiler(Interpreter):
             return ret
         elif isinstance(value, Token):
             return convert_token_to_resource(value, self.compileState)
-        raise McScriptNameError(f"Invalid value: {value}", self.compileState)
+        raise ValueError(f"Unknown value: {value}")
 
     def tuple(self, tree):
         elements = [self.visit(i) for i in tree.children]
@@ -89,14 +91,15 @@ class Compiler(Interpreter):
     # enums
     def control_enum(self, tree):
         _, name, block = tree.children
-        properties, value_properties = self.visit(block)
+        try:
+            properties, value_properties = self.visit(block)
+        except ValueError as e:
+            raise McScriptEnumValueAlreadyDefinedError(name, e.args[0], self.compileState)
 
         try:
             enum = EnumResource(*properties, **value_properties)
-        except ValueError as e:
-            raise McScriptDeclarationError(e.args[0], self.compileState)
         except TypeError as e:
-            raise McScriptTypeError(e.args[0], self.compileState)
+            raise McScriptUnexpectedTypeError(e.args[0], e.args[1], "ValueResource", self.compileState)
 
         self.compileState.currentContext().add_var(name, enum)
 
@@ -108,8 +111,7 @@ class Compiler(Interpreter):
             name, *value = self.visit(child)
 
             if name in properties:
-                raise McScriptNameError(
-                    f"Enum member {name} was already defined for this enum", self.compileState)
+                raise ValueError(name)
             if value:
                 value_properties[name] = value[0]
             else:
@@ -141,8 +143,7 @@ class Compiler(Interpreter):
             self.compileState.currentTree = index_
             return accessor.operation_get_element(self.compileState, index)
         except TypeError:
-            raise McScriptTypeError(
-                f"{accessor.type().value} does not support reading index access", self.compileState)
+            raise McScriptUnsupportedOperationError("[]", accessor.type(), None, self.compileState)
 
     def index_setter(self, tree):
         accessor, index, value = tree.children
@@ -154,8 +155,7 @@ class Compiler(Interpreter):
         try:
             return accessor.operation_set_element(self.compileState, index, value)
         except TypeError:
-            raise McScriptTypeError(
-                f"{accessor.type().value} does not support writing index access", self.compileState)
+            raise McScriptUnsupportedOperationError("[]=", accessor.type(), None, self.compileState)
 
     def propertySetter(self, tree):
         identifier, value = tree.children
@@ -180,8 +180,7 @@ class Compiler(Interpreter):
         try:
             return doOperation(operator, value)
         except TypeError:
-            raise McScriptTypeError(f"Could not perform operation {operator.name} on {repr(value)}",
-                                    self.compileState)
+            raise McScriptUnsupportedOperationError(operator.name, value.type(), None, self.compileState)
 
     def boolean_and(self, tree):
         rest = tree.children
@@ -197,7 +196,7 @@ class Compiler(Interpreter):
             condition = self.compileState.toResource(
                 condition)
             if not isinstance(condition, BooleanResource):
-                raise McScriptTypeError(f"Expected bool, got {condition.type()}", self.compileState)
+                raise McScriptUnexpectedTypeError("condition", condition.type(), Bool, self.compileState)
             if condition.is_static:
                 if condition.static_value:
                     continue
@@ -236,7 +235,7 @@ class Compiler(Interpreter):
             value = self.compileState.toResource(
                 condition)
             if not isinstance(value, BooleanResource):
-                raise McScriptTypeError(f"Expected bool, got {value.type()}", self.compileState)
+                raise McScriptUnexpectedTypeError("condition", value.type(), Bool, self.compileState)
             if value.is_static:
                 if value.static_value:
                     return BooleanResource(True, None)
@@ -271,7 +270,7 @@ class Compiler(Interpreter):
         value = self.compileState.toResource(
             value)
         if not isinstance(value, BooleanResource):
-            raise McScriptTypeError(f"Expected bool, got {value.type()}", self.compileState)
+            raise McScriptUnexpectedTypeError("condition", value.type(), Bool, self.compileState)
 
         if value.is_static:
             return BooleanResource(not value.static_value, None)
@@ -285,7 +284,7 @@ class Compiler(Interpreter):
 
         # whether the first number may be overwritten
         is_temporary = False
-        all_static = all(isStatic(i) for i in args[::2])
+        all_static = all(is_static(i) for i in args[::2])
 
         # the first number can also be a list. Then just do a binary operation with it
         if isinstance(number1, list):
@@ -320,10 +319,8 @@ class Compiler(Interpreter):
                 number1 = number1.numericOperation(
                     number2, operator, self.compileState)
             except TypeError:
-                raise McScriptTypeError(
-                    f"The Operation {operator.value} is not supported between {number1.type()} and "
-                    f"{number2.type()}",
-                    self.compileState)
+                raise McScriptUnsupportedOperationError(operator.value, number1.type(), number2.type(),
+                                                        self.compileState)
 
         return number1
 
@@ -343,10 +340,7 @@ class Compiler(Interpreter):
         try:
             node = a.operation_test_relation(self.compileState, operator, b)
         except TypeError:
-            raise McScriptTypeError(
-                f"Relation {operator.name} is not defined for {a.type()} and {b.type()}",
-                self.compileState
-            )
+            raise McScriptUnsupportedOperationError(operator.name, a.type(), b.type(), self.compileState)
 
         if len(node["conditions"]) == 1 and isinstance(node["conditions"][0], ConditionalNode.IfBool):
             cond = node["conditions"][0]
@@ -394,10 +388,8 @@ class Compiler(Interpreter):
         expression = self.compileState.toResource(expression)
 
         if not isinstance(expression, TupleResource):
-            raise McScriptTypeError(
-                f"Return type deconstruction works only for arrays, but not for type {expression.type()}",
-                self.compileState
-            )
+            raise McScriptUnexpectedTypeError("Tuple deconstruction", expression.type(), atomic_types.Tuple,
+                                              self.compileState)
 
         if (size := expression.size()) != len(variables):
             raise McScriptDeclarationError(
@@ -431,8 +423,7 @@ class Compiler(Interpreter):
         expression = self.compileState.toResource(expression)
 
         if not isinstance(expression, ValueResource):
-            raise McScriptTypeError(
-                f"in-place operation: Expected value, got {expression}", self.compileState)
+            raise McScriptUnexpectedTypeError("in-place operation", expression, "ValueResource", self.compileState)
 
         # do the numeric operation
         result = resource.numericOperation(
@@ -452,7 +443,7 @@ class Compiler(Interpreter):
             condition)
 
         if not isinstance(condition_boolean, BooleanResource):
-            raise McScriptTypeError(f"Expected {Bool}, got {condition_boolean.type()}", self.compileState)
+            raise McScriptUnexpectedTypeError("condition", condition_boolean.type(), Bool, self.compileState)
 
         if condition_boolean.static_value is not None:
             line_and_column = (block.line, block.column) if condition_boolean else (block_else.line, block_else.column)
@@ -495,8 +486,7 @@ class Compiler(Interpreter):
         try:
             iterator = resource.get_iterator(self.compileState)
         except TypeError:
-            raise McScriptTypeError(
-                f"type {resource.type()} does not support iteration", self.compileState)
+            raise McScriptUnsupportedOperationError("iteration", resource.type(), None, self.compileState)
 
         while (value := iterator.next()) is not None:
             with self.compileState.node_block(ContextType.UNROLLED_LOOP, block.line, block.column) as block_function:
@@ -508,8 +498,7 @@ class Compiler(Interpreter):
         # ToDO: make return an ir node
         resource = self.compileState.toResource(tree.children[0])
         if self.compileState.currentContext().return_resource is not None:
-            raise McScriptSyntaxError(
-                "Cannot set the return value twice.", self.compileState)
+            raise McScriptError("Cannot set the return value twice", self.compileState)
         self.compileState.currentContext().return_resource = resource
 
     def function_parameter(self, tree):
@@ -551,7 +540,7 @@ class Compiler(Interpreter):
         # ToDo: temp
         if function_name == "on_tick":
             if len(parameter_list) > 0:
-                raise McScriptArgumentsError("The on_tick function takes no arguments", self.compileState)
+                raise McScriptArgumentError("The on_tick function takes no arguments", self.compileState)
 
             with self.compileState.node_block(ContextType.FUNCTION, block.line, block.column, "tick"):
                 function.call(self.compileState, [], {})
@@ -568,8 +557,7 @@ class Compiler(Interpreter):
         try:
             return function.operation_call(self.compileState, *visited_params)
         except TypeError:
-            raise McScriptTypeError(f"'{str(function)}' can not be treated like a function",
-                                    self.compileState)
+            raise McScriptUnexpectedTypeError(str(function), function.type(), "Function", self.compileState)
 
     def variable_declaration(self, tree):
         identifier, datatype = tree.children

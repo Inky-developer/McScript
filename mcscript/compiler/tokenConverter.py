@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING, Union
 
 from lark import Token
 
-from mcscript.exceptions.compileExceptions import McScriptTypeError
+from mcscript.exceptions.McScriptException import McScriptError
+from mcscript.exceptions.exceptions import McScriptValueError
 from mcscript.lang.Type import Type
 from mcscript.lang.atomic_types import ATOMIC_TYPES
 from mcscript.lang.resource.FixedNumberResource import FixedNumberResource
@@ -40,7 +41,7 @@ def convert_token_to_resource(token: Union[Token, str], compile_state: CompileSt
     }
     if token.type in functions:
         return functions[token.type]()
-    raise McScriptTypeError(f"Could not interpret token '{token}' as a resource", compile_state)
+    raise McScriptError(f"Could not interpret token '{token}' as a resource", compile_state)
 
 
 def convert_token_to_type(token: Token, compile_state: CompileState) -> Type:
@@ -53,4 +54,4 @@ def convert_token_to_type(token: Token, compile_state: CompileState) -> Type:
         return all_types[token]
     except KeyError:
         print(all_types)
-        raise McScriptTypeError(f"Unknown type: {{{token}}}", compile_state)
+        raise McScriptValueError(token, "a valid type", compile_state)

@@ -54,7 +54,7 @@ class Scoreboard:
         )
 
     def __repr__(self) -> str:
-        return f"Scoreboard({self.unique_name})"
+        return f"Scoreboard({self.get_name()})"
 
     def __str__(self) -> str:
-        return self.unique_name
+        return self.get_name()

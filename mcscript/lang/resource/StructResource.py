@@ -53,6 +53,12 @@ class StructResource(ObjectResource):
     def type(self) -> Type:
         return Struct
 
+    def supports_scoreboard(self) -> bool:
+        return False
+
+    def supports_storage(self) -> bool:
+        return False
+
     def getDeclaredVariables(self) -> Dict[str, Type]:
         """ Returns all declared type resources """
         return {name: value.resource.static_value for name, value in self.context.namespace.items() if

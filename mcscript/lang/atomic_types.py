@@ -16,8 +16,6 @@ The atomic types are:
     - Iterator
     - Struct
     - Object (custom type)
-
-Todo: Implement the additional types Any and Number
 """
 from mcscript.lang.Type import Type
 
@@ -26,6 +24,7 @@ from mcscript.lang.Type import Type
 index = -2
 
 # The base type. All other types are subtypes of this
+# When traits get implemented this will be removed
 Any = Type(-1, "Any", set())
 
 

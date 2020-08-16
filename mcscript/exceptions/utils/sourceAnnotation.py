@@ -17,6 +17,7 @@ class SourceAnnotationList:
         """
         Sorts by line numbers in place
         """
+        # noinspection PyTypeChecker
         return SourceAnnotationList(*sorted(self.source_annotations))
 
     def __add__(self, other) -> SourceAnnotationList:

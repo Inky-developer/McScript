@@ -10,6 +10,6 @@ if TYPE_CHECKING:
 
 def requireType(obj: Resource, rtype: Type, compileState: CompileState):
     """Requires obj to be of the same type as `type`. Raise if that is not the case."""
-    from mcscript.exceptions.compileExceptions import McScriptUnexpectedTypeError
+    from mcscript.exceptions.exceptions import McScriptUnexpectedTypeError
     if not obj.type().matches(rtype):
-        raise McScriptUnexpectedTypeError(rtype, obj, compileState)
+        raise McScriptUnexpectedTypeError("required", rtype, obj, compileState)

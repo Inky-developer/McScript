@@ -61,10 +61,10 @@ class ScoreRelation(Enum):
         """
         swaps both values and returns the relation that is required to keep the value.
 
-        Examples:
-            a == b (=) b == a => Relation.EQUAL == Relation.EQUAL.swap()
-
-            a <= b (=) b >= a => Relation.GREATER_OR_EQUAL == Relation.LESS_OR_EQUAL.swap()
+        >>> ScoreRelation.EQUAL.swap()
+        <ScoreRelation.EQUAL: '=='>
+        >>> ScoreRelation.GREATER.swap()
+        <ScoreRelation.LESS: '<'>
         """
         if self == ScoreRelation.EQUAL:
             return ScoreRelation.EQUAL
@@ -133,9 +133,8 @@ class ScoreRange:
         if self.min == self.max:
             return str(int(self.min))
 
-        return str(int(self.min) if abs(self.min) != float("inf") else "") \
-               + ".." \
-               + str(int(self.max) if abs(self.max) != float("inf") else "")
+        return "{}..{}".format(str(int(self.min) if abs(self.min) != float("inf") else ""),
+                               str(int(self.max) if abs(self.max) != float("inf") else ""))
 
 
 class BinaryOperator(Enum):
@@ -144,9 +143,6 @@ class BinaryOperator(Enum):
     TIMES = "*"
     DIVIDE = "/"
     MODULO = "%"
-
-    def is_commutative(self):
-        return self in (BinaryOperator.PLUS, BinaryOperator.TIMES)
 
 
 class UnaryOperator(Enum):

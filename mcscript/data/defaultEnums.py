@@ -1,7 +1,7 @@
 from typing import Optional
 
 from mcscript.data.Config import Config
-from mcscript.data.minecraftData import blocks
+from mcscript.data.minecraft_data import blocks
 from mcscript.lang.resource.EnumResource import EnumResource
 from mcscript.lang.resource.IntegerResource import IntegerResource
 

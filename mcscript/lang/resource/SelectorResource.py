@@ -37,5 +37,11 @@ class SelectorResource(Resource):
     def type(self) -> Type:
         return atomic_types.Selector
 
+    def supports_scoreboard(self) -> bool:
+        return False
+
+    def supports_storage(self) -> bool:
+        return False
+
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> dict:
         return format_selector(str(self.value))

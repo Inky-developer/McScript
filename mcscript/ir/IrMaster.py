@@ -8,7 +8,7 @@ from mcscript.ir import IRNode
 from mcscript.ir.components import FunctionNode
 from mcscript.ir.optimize import optimize
 from mcscript.utils.Scoreboard import Scoreboard
-from mcscript.utils.resources import SourceLocation, ResourceSpecifier
+from mcscript.utils.resources import ResourceSpecifier
 
 
 class IrMaster:
@@ -26,7 +26,6 @@ class IrMaster:
         self.scoreboards: List[Scoreboard] = []
 
         self.node_counter = 0
-        self._source_location: SourceLocation = None  # set by compile state
 
     def optimize(self):
         """ Optimizes the contained function nodes"""
@@ -58,9 +57,6 @@ class IrMaster:
 
     def find_function_node(self, name: ResourceSpecifier) -> Optional[FunctionNode]:
         return next((i for i in self.function_nodes if i["name"].path == name.path), None)
-
-    def set_current_source_location(self, source_location: SourceLocation):
-        self._source_location = source_location
 
     @contextmanager
     def with_function(self, name: ResourceSpecifier) -> ContextManager[FunctionNode]:

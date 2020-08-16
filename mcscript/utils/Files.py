@@ -3,7 +3,17 @@ from typing import Dict, Optional
 
 
 class Files:
-    """ Simple list of `io.StringIo`'s for in-memory file management."""
+    """
+    Simple list of `io.StringIo`'s for in-memory file management.
+
+    >>> f = Files()
+    >>> file = f.push("foo")
+    >>> _ = file.write("content")
+    >>> f.get().getvalue()
+    'content'
+    >>> f["foo"].getvalue()
+    'content'
+    """
 
     def __init__(self):
         self.files: Dict[str, StringIO] = {}

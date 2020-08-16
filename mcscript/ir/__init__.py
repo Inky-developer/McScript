@@ -7,9 +7,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import List, Dict, Any, Optional, TYPE_CHECKING, Tuple, Iterator, TypeVar, Type, Union
+from typing import List, Dict, Any, Optional, TYPE_CHECKING, Tuple, TypeVar, Union
 
-from mcscript.utils.resources import SourceLocation
 from mcscript.utils.utils import camel_case_to_snake_case
 
 if TYPE_CHECKING:
@@ -18,9 +17,6 @@ if TYPE_CHECKING:
 
 @dataclass()
 class IrNodeMetadata:
-    # line and column which cause this node to generate
-    source_location: Optional[SourceLocation] = field(default=None)
-
     index: Optional[int] = field(default=None)
 
 
@@ -32,10 +28,6 @@ class IRNode:
 
     def __init__(self, inner_nodes: List[IRNode] = None, metadata: Optional[IrNodeMetadata] = None):
         self.inner_nodes: List[IRNode] = inner_nodes or []
-
-        # A list of all data that store IrNodes so all contained nodes can be looked up
-        # A str is interpreted as key of self.data
-        self.lookup_nodes: List[str] = []
 
         # A dictionary used to store other important data about this node
         self.data: Dict[str, Any] = {}
@@ -94,45 +86,6 @@ class IRNode:
         self.discarded_inner_nodes.clear()
         return ret
 
-    def iter_nested_nodes(self) -> Iterator[IRNode]:
-        """
-        Iterates over all contained nodes
-        """
-        for node in self.lookup_nodes:
-            node_thing = self[node]
-            if isinstance(node_thing, IRNode):
-                yield node_thing
-            elif isinstance(node_thing, list):
-                for i in node_thing:
-                    if not isinstance(i, IRNode):
-                        raise ValueError
-                    yield i
-            else:
-                raise ValueError
-
-    def iter_nested_nodes_recursively(self) -> Iterator[IRNode]:
-        for node in self.iter_nested_nodes():
-            yield node
-            yield from node.iter_nested_nodes_recursively()
-
-    def iter_data_of_type(self, the_type: Type[T]) -> Iterator[Tuple[IRNode, str, T]]:
-        """
-        Goes through all data that this node stores and yields it if it has the specified type
-        Recursively checks all nested nodes.
-
-        Args:
-            the_type: The type to look for
-
-        Returns:
-            An iterator over the node that has data of this type, the accessor name and the data itself
-        """
-        for key, value in self.data.items():
-            if isinstance(value, the_type):
-                yield self, key, value
-
-        for node in self.iter_nested_nodes():
-            yield from node.iter_data_of_type(the_type)
-
     @cached_property
     def node_id(self) -> str:
         return camel_case_to_snake_case(type(self).__name__)
@@ -170,13 +123,6 @@ class IRNode:
 
     def __setitem__(self, key, value):
         self.data[key] = value
-
-        # make sure every stored IrNode is added to lookup_nodes
-        if isinstance(value, IRNode):
-            self.lookup_nodes.append(key)
-        elif isinstance(value, list):
-            if any(isinstance(i, IRNode) for i in value):
-                self.lookup_nodes.append(key)
 
     def __getitem__(self, item):
         return self.data[item]

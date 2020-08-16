@@ -74,6 +74,7 @@ def dyn(compile_state: CompileState, resource: Resource) -> Resource:
     return_type=Int,
 )
 def evaluate(compile_state: CompileState, string: StringResource) -> IntegerResource:
+    """ Evaluates the string at runtime and returns the result"""
     stack = compile_state.expressionStack.next()
     compile_state.ir.append(StoreFastVarFromResultNode(
         stack,
@@ -89,10 +90,16 @@ def evaluate(compile_state: CompileState, string: StringResource) -> IntegerReso
     return_type=Null,
 )
 def execute(compile_state: CompileState, string: StringResource) -> NullResource:
+    """ Executes the string at runtime and returns Null"""
     compile_state.ir.append(CommandNode(string.static_value))
     return NullResource()
 
 
 # Pycharm cannot apply the type macro at type-check time (Which actually creates a MacroResource)
 # noinspection PyTypeChecker
-EXPORTS: List[MacroResource] = [dyn, evaluate, execute] + create_text_functions()
+EXPORTS: List[MacroResource] = [
+    *create_text_functions(),
+    dyn,
+    evaluate,
+    execute,
+]

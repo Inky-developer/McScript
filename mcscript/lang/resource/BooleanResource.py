@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Type
+from typing import TYPE_CHECKING, Type
 
 from mcscript.ir.command_components import ScoreRelation
 from mcscript.ir.components import ConditionalNode
@@ -18,8 +18,6 @@ class BooleanResource(ValueResource[int]):
 
     def type(self) -> Type:
         return Bool
-
-    requiresInlineFunc: ClassVar[bool] = False
 
     def integer_value(self) -> int:
         if self.is_static:
@@ -49,5 +47,5 @@ class BooleanResource(ValueResource[int]):
             node = ConditionalNode.IfScoreMatches(a.scoreboard_value, score_range, invert)
         else:
             node = ConditionalNode.IfScore(a.scoreboard_value, b.scoreboard_value, relation)
-        
+
         return ConditionalNode([node])

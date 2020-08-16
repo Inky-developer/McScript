@@ -8,6 +8,16 @@ class AddressCounter:
     """
     A counter which formats the current value.
     Used to generate identifiers.
+
+    >>> a = AddressCounter("{}")
+    >>> a.next()
+    '0'
+    >>> a.next()
+    '1'
+    >>> a.getValue()
+    '2'
+    >>> a.getValue()
+    '2'
     """
 
     def __init__(self, fmt_string: str = "{}", default: int = 0):
@@ -21,17 +31,6 @@ class AddressCounter:
         val = self.getValue()
         self.value += 1
         return val
-
-    def previous(self) -> str:
-        self.value -= 1
-        if self.value < 0:
-            raise ValueError("Value of address must not be less than zero")
-        return self.getValue()
-
-    def decrement(self, n: int):
-        self.value -= n
-        if n < 0:
-            raise ValueError("Value of address mus not be less than zero")
 
     def reset(self):
         self.value = self.default
@@ -60,10 +59,6 @@ class ScoreboardAddressCounter(AddressCounter):
         super().next()
         return val
 
-    def previous(self) -> ScoreboardValue:
-        super().previous()
-        return self.getValue()
-
     def clone(self) -> ScoreboardAddressCounter:
         a = ScoreboardAddressCounter(self.scoreboard, self.fmt_str, self.default)
         a.value = self.value
@@ -90,10 +85,6 @@ class StorageAddressCounter(AddressCounter):
         val = self.getValue()
         super().next()
         return val
-
-    def previous(self) -> DataPath:
-        super().previous()
-        return self.getValue()
 
     def clone(self) -> StorageAddressCounter:
         a = StorageAddressCounter(self.base_path, self.fmt_str, self.default)

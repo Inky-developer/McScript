@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Dict, Union, List
 
-from mcscript.exceptions.compileExceptions import McScriptTypeError, McScriptArgumentsError, McScriptAttributeError
+from mcscript.exceptions.exceptions import (McScriptArgumentError, McScriptUnexpectedTypeError,
+                                            McScriptUndefinedAttributeError)
 from mcscript.lang.Type import Type
 from mcscript.lang.resource.FunctionResource import FunctionResource
 from mcscript.lang.resource.StructResource import StructResource
@@ -33,15 +34,13 @@ class StructObjectResource(ObjectResource):
         for name, value in keyword_parameters.items():
             # parameter not in definition
             if name not in definitions:
-                raise McScriptArgumentsError(f"Unexpected attribute: {name}", compile_state)
+                raise McScriptArgumentError(f"Unexpected attribute: {name}", compile_state)
             # wrong parameter type
             if not value.type().matches(definitions[name]):
-                raise McScriptTypeError(
-                    f"Expected type {definitions[name]} but got {value.type()} for attribute {name}",
-                    compile_state)
+                raise McScriptUnexpectedTypeError(name, value.type(), definitions[name], compile_state)
             # parameter already specified
             if name in used_parameters:
-                raise McScriptArgumentsError(f"Attribute {name} was specified twice", compile_state)
+                raise McScriptArgumentError(f"Attribute {name} was specified twice", compile_state)
 
             used_parameters.add(name)
             self.public_namespace[name] = value
@@ -49,7 +48,7 @@ class StructObjectResource(ObjectResource):
         # parameter not specified
         not_specified_parameters = used_parameters.symmetric_difference(definitions.keys())
         if not_specified_parameters:
-            raise McScriptArgumentsError(
+            raise McScriptArgumentError(
                 f"At least one attribute was not specified. Missing {not_specified_parameters}", compile_state)
 
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
@@ -62,17 +61,22 @@ class StructObjectResource(ObjectResource):
                 return result.make_method(self)
             return result
 
-    def setAttribute(self, compileState: CompileState, name: str, value: Resource):
+    def setAttribute(self, compile_state: CompileState, name: str, value: Resource):
         expected_type = self.struct.getDeclaredVariables()[name]
         if name not in self.public_namespace:
-            raise McScriptAttributeError(f"Cannot set attribute {name} because it does not exist", compileState)
+            raise McScriptUndefinedAttributeError(self, name, compile_state)
         if not value.type().matches(expected_type):
-            raise McScriptAttributeError(
-                f"Expected {name} to be of type {{{expected_type}}}, but got type {{{value.type()}}}", compileState)
+            raise McScriptUnexpectedTypeError(name, value.type(), expected_type, compile_state)
         self.public_namespace[name] = value
 
     def type(self) -> Type:
         return self.struct.object_type
+
+    def supports_scoreboard(self) -> bool:
+        return all(i.supports_scoreboard() for i in self.public_namespace.values())
+
+    def supports_storage(self) -> bool:
+        return all(i.supports_storage for i in self.public_namespace.values())
 
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List, str]:
         components = [f"{self.struct.name}{{"]

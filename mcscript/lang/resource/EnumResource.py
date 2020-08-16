@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from mcscript.exceptions.compileExceptions import McScriptAttributeError
+from mcscript.exceptions.exceptions import McScriptUndefinedAttributeError
 from mcscript.lang.atomic_types import Enum, Type
 from mcscript.lang.resource.IntegerResource import IntegerResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
@@ -31,25 +31,25 @@ class EnumResource(ObjectResource):
         for key in valueProperties:
             resource = valueProperties[key]
             if not isinstance(resource, ValueResource):
-                raise TypeError(f"Invalid value for enum member {key}: {resource}")
-            if resource.static_value in _used_values:
-                other, = filter(lambda x: self.public_namespace[x].value == resource.value, self.public_namespace)
-                raise ValueError(
-                    f"key '{key}' does not have a unique value of {resource.static_value} which is already "
-                    f"defined for '{other}'")
+                raise TypeError(key, resource)
             self.public_namespace[key] = resource
             _used_values.add(resource.static_value)
 
     def type(self) -> Type:
         return Enum
 
+    def supports_scoreboard(self) -> bool:
+        return False
+
+    # We could technically support this
+    def supports_storage(self) -> bool:
+        return False
+
     def getAttribute(self, compileState: CompileState, name: str) -> Resource:
         try:
             return self.public_namespace[name]
         except KeyError:
-            raise McScriptAttributeError(f"Unknown member {name} of enum.\n"
-                                         f"Expected one of: {', '.join(i for i in self.public_namespace)}",
-                                         compileState)
+            raise McScriptUndefinedAttributeError(self, name, compileState)
 
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> list:
         parameters = []

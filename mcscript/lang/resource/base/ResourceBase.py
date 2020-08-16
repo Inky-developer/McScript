@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import (TYPE_CHECKING, ClassVar, Dict, List, Optional, Type,
+from typing import (TYPE_CHECKING, Dict, List, Optional, Type,
                     Union, TypeVar, Generic)
 
-from mcscript.exceptions.compileExceptions import McScriptTypeError
+from mcscript.exceptions.exceptions import McScriptUnsupportedOperationError
 from mcscript.ir.command_components import BinaryOperator
 from mcscript.ir.components import ConditionalNode, StoreFastVarNode
 from mcscript.lang.Type import Type
@@ -19,14 +19,6 @@ if TYPE_CHECKING:
 
 
 class Resource(ABC):
-    requiresInlineFunc: ClassVar[bool] = True
-    """ 
-    whether this resource class requires an inline function to be used as a function parameters.
-    Should be True if this is a complex resource (stores multiple other resources like a struct) or if it cannot be
-    stored in minecraft (like a selector)
-    when this is set to False, an implementation of createEmptyResource is required.
-    """
-
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Union[Dict, List, str]:
         """
         Creates a string that can be used as a minecraft tellraw or title string.
@@ -125,8 +117,7 @@ class Resource(ABC):
             elif operator == BinaryOperator.MODULO:
                 return self.operation_modulo(other, compileState)
         except TypeError:
-            raise McScriptTypeError(
-                f"{repr(self)} does not support the binary operation {operator.name}", compileState)
+            raise McScriptUnsupportedOperationError(operator.name, self.type(), other.type(), compileState)
         raise ValueError("Unknown operator: " + repr(operator))
 
     def operation_plus(self, other: ValueResource, compileState: CompileState) -> ValueResource:
@@ -239,6 +230,28 @@ class Resource(ABC):
         raise TypeError
 
     @abstractmethod
+    def supports_scoreboard(self) -> bool:
+        """
+        Returns:
+            Whether this resource can live on a scoreboard
+        """
+        ...
+
+    @abstractmethod
+    def supports_storage(self) -> bool:
+        """
+        Returns:
+            Whether this resource can live on a data storage
+        """
+
+    def supports_non_static(self):
+        """
+        Returns:
+            Whether there is any way this resource can be used dynamically
+        """
+        return self.supports_scoreboard() or self.supports_non_static()
+
+    @abstractmethod
     def type(self) -> Type:
         """ return the type of resource that is represented by this object"""
         ...
@@ -307,6 +320,12 @@ class ValueResource(Generic[VT], Resource, ABC):
             return format_text(str(int(self.static_value)))
         return format_score(self.scoreboard_value)
 
+    def supports_scoreboard(self) -> bool:
+        return True
+
+    def supports_storage(self) -> bool:
+        return False
+
     def __repr__(self):
         return f"{type(self).__name__}({self.static_value}, {self.scoreboard_value})"
 
@@ -358,6 +377,12 @@ class GenericFunctionResource(Resource, ABC):
         parameters = self.handle_parameters(compile_state, list(parameters))
         return self.call(compile_state, parameters, keyword_parameters)
 
+    def supports_scoreboard(self) -> bool:
+        return False
+
+    def supports_storage(self) -> bool:
+        return False
+
 
 class ObjectResource(Resource, ABC):
     """
@@ -401,3 +426,9 @@ class IteratorResource(Resource, ABC):
 
     def type(self) -> Type:
         return Iterator
+
+    def supports_scoreboard(self) -> bool:
+        return False
+
+    def supports_storage(self) -> bool:
+        return False

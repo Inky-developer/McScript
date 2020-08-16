@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from typing import List, TYPE_CHECKING, Optional
 
-from mcscript.exceptions.compileExceptions import (
-    McScriptTypeError, McScriptArgumentsError,
-)
+from mcscript.exceptions.exceptions import McScriptUnexpectedTypeError, McScriptOutOfBoundsError
 from mcscript.lang.Type import Type
 from mcscript.lang.atomic_types import Tuple
 from mcscript.lang.resource.base.ResourceBase import Resource, IteratorResource
@@ -48,6 +46,12 @@ class TupleResource(Resource):
     def type(self) -> Type:
         return Tuple
 
+    def supports_scoreboard(self) -> bool:
+        return all(i.supports_scoreboard() for i in self.resources)
+
+    def supports_storage(self) -> bool:
+        return all(i.supports_storage for i in self.resources)
+
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> List:
         resources: list = [self.resources[0]] if self.resources else []
         for resource in self.resources[1:]:
@@ -55,17 +59,16 @@ class TupleResource(Resource):
             resources.append(resource)
         return formatter.createFromResources("(", *resources, ")")
 
-    def operation_get_element(self, compileState: CompileState, index: Resource) -> Resource:
+    def operation_get_element(self, compile_state: CompileState, index: Resource) -> Resource:
         try:
             value = index.integer_value()
         except TypeError:
-            raise McScriptTypeError(f"Cannot convert {index} into a static integer", compileState)
+            raise McScriptUnexpectedTypeError("Tuple", index.type(), "int", compile_state)
 
         try:
             return self.resources[value]
         except ValueError:
-            raise McScriptArgumentsError(f"Tuple index out of bounds. Maximum index is {len(self.resources) - 1}",
-                                         compileState)
+            raise McScriptOutOfBoundsError(value, len(self.resources) - 1, compile_state)
 
     def size(self) -> int:
         return len(self.resources)

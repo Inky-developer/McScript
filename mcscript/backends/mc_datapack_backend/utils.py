@@ -2,6 +2,16 @@ from mcscript.ir.command_components import Position, PositionAxis, PositionKind
 
 
 def position_to_str(pos: Position) -> str:
+    """
+    Converts a position to a minecraft position argument
+
+    Args:
+        pos: The position
+
+    Returns:
+        A position string
+    """
+
     def axis_to_str(axis: PositionAxis) -> str:
         if axis.kind == PositionKind.ABSOLUTE:
             return f"{axis.value}"

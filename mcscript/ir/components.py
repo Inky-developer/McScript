@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum, auto
 from typing import List, Union, TYPE_CHECKING, Tuple, Any
 
-from mcscript.data.minecraftData.blocks import Block, BlockstateBlock
+from mcscript.data.minecraft_data.blocks import Block, BlockstateBlock
 from mcscript.data.selector.Selector import Selector
 from mcscript.ir import IRNode
 from mcscript.ir.command_components import (Position, ExecuteAnchor, ScoreRelation, ScoreRange, BinaryOperator,

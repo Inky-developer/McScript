@@ -12,6 +12,8 @@ from mcscript.utils.dirPaths import LOG_DIRECTORY
 if TYPE_CHECKING:
     from mcscript.compiler.Compiler import Compiler
 
+__version__ = "0.0.1"
+
 # setting up the logger as early as possible
 Logger = logging.getLogger("McScript")
 Logger.setLevel(logging.DEBUG)

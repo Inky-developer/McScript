@@ -1,3 +1,4 @@
+# ToDo: Those classes need refactoring, I dont like them
 from __future__ import annotations
 
 import itertools
@@ -5,7 +6,7 @@ from dataclasses import dataclass, field
 from enum import Enum, Flag, auto
 from typing import List, Optional, Sequence, TYPE_CHECKING
 
-from mcscript.exceptions.compileExceptions import McScriptArgumentsError
+from mcscript.exceptions.exceptions import McScriptArgumentError
 from mcscript.lang.Type import Type
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 
@@ -142,33 +143,33 @@ class FunctionSignature:
                 else:
                     returnParameters.append(parameters.pop(0))
             elif match == FunctionParameterMatch.FAIL_WRONG_TYPE:
-                raise McScriptArgumentsError(self.format_string.format(
+                raise McScriptArgumentError(self.format_string.format(
                     self.arguments_format(original_parameters),
                     f"Expected type {parameter.type} for parameter '{parameter.name}' but got "
                     f"type {parameters[0].type()}"
                 ), compileState)
             elif match == FunctionParameterMatch.FAIL_MULTIPLE_PARAMETERS:
-                raise McScriptArgumentsError(self.format_string.format(
+                raise McScriptArgumentError(self.format_string.format(
                     self.arguments_format(original_parameters),
                     f"All parameters for '{parameter.name}' must be of type "
                     f"{parameter.type} but got ({', '.join(str(i.type()) for i in parameters)})"
                 ), compileState)
             elif match == FunctionParameterMatch.MUST_BE_STATIC:
-                raise McScriptArgumentsError(self.format_string.format(
+                raise McScriptArgumentError(self.format_string.format(
                     self.arguments_format(original_parameters),
                     f"Parameter {parameter.name} must be static but got ({', '.join(str(i) for i in parameters)})"
                 ), compileState)
             elif match == FunctionParameterMatch.MUST_NOT_BE_STATIC:
-                raise McScriptArgumentsError(self.format_string.format(
+                raise McScriptArgumentError(self.format_string.format(
                     self.arguments_format(original_parameters),
                     f"Parameter {parameter.name} must not be static but "
                     f"got({', '.join(str(i) for i in parameters)})"
                 ), compileState)
             else:
-                raise McScriptArgumentsError("Unknown error.", compileState)
+                raise McScriptArgumentError("Unknown error.", compileState)
         else:
             if parameters:
-                raise McScriptArgumentsError(self.format_string.format(
+                raise McScriptArgumentError(self.format_string.format(
                     self.arguments_format(original_parameters),
                     f"Too many parameters: Expected {len(self.parameters)} at most but got {len(original_parameters)}"
                 ), compileState)
@@ -181,12 +182,12 @@ class FunctionSignature:
                 usedParameters.append(parameter)
             else:
                 if parameter.count == parameter.ParameterCount.ONE_OR_MORE:
-                    raise McScriptArgumentsError(self.format_string.format(
+                    raise McScriptArgumentError(self.format_string.format(
                         self.arguments_format(original_parameters),
                         f"Expected parameter '{parameter.name}' but got nothing"
                     ), compileState)
                 else:
-                    raise McScriptArgumentsError(self.format_string.format(
+                    raise McScriptArgumentError(self.format_string.format(
                         self.arguments_format(original_parameters),
                         f"Parameter '{parameter.name}' must be specified!"
                     ), compileState)
