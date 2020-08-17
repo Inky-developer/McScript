@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 def is_static(resource: Resource) -> bool:
     """ Returns whether the resource is static if it is a value resource else False"""
-    return getattr(resource, "is_static", False)
+    return isinstance(resource, ValueResource) and resource.is_static
 
 
 def compare_scoreboard_values(a: ValueResource, b: ValueResource, relation: ScoreRelation) -> ConditionalNode:

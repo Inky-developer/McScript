@@ -264,6 +264,13 @@ class StoreFastVarNode(IRNode):
                 return super().optimized(ir_master, parent)
 
         # if this node is never read, completely drop it
+        # ToDo: Also remove nodes outside of parent
+        for node in parent.inner_nodes:
+            if isinstance(node, (FastVarOperationNode, InvertNode)):
+                writes = node.written_scoreboard_values()
+                if len(writes) == 1 and writes[0] == self["var"]:
+                    parent.discarded_inner_nodes.append(node)
+
         return (), True
 
 

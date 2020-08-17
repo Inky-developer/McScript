@@ -43,6 +43,7 @@ class StructObjectResource(ObjectResource):
                 raise McScriptArgumentError(f"Attribute {name} was specified twice", compile_state)
 
             used_parameters.add(name)
+            value.is_variable = True
             self.public_namespace[name] = value
 
         # parameter not specified

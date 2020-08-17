@@ -97,7 +97,7 @@ class IRNode:
                 index += 1
 
             if self.clear_discarded_nodes():
-                index -= 1
+                index = 0
 
         return self, changed
 

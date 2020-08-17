@@ -6,7 +6,8 @@ from lark.visitors import Interpreter
 from mcscript.analyzer.Analyzer import NamespaceContext
 from mcscript.compiler.CompileState import CompileState
 from mcscript.compiler.ContextType import ContextType
-from mcscript.compiler.common import conditional_loop, get_property, readContextManipulator, set_property, set_variable
+from mcscript.compiler.common import (conditional_loop, get_property, readContextManipulator, set_property,
+                                      declare_variable, update_variable)
 from mcscript.compiler.tokenConverter import convert_token_to_resource, convert_token_to_type
 from mcscript.data.Config import Config
 from mcscript.exceptions.exceptions import (McScriptUnexpectedTypeError, McScriptEnumValueAlreadyDefinedError,
@@ -271,7 +272,7 @@ class Compiler(Interpreter):
         number1, *values = args
 
         # whether the first number may be overwritten
-        is_temporary = not number1.is_variable
+        is_temporary = isinstance(number1, Resource) and not number1.is_variable
         all_static = all(is_static(i) for i in args[::2])
 
         # the first number can also be a list. Then just do a binary operation with it
@@ -282,7 +283,7 @@ class Compiler(Interpreter):
         number1 = self.compileState.toResource(number1)
 
         # by default all operations are in-place. This is not wanted, so the resource is copied
-        if isinstance(number1, ValueResource) and not all_static and not is_temporary:
+        if isinstance(number1, ValueResource) and (not all_static and not is_temporary) or number1.is_static:
             # copy, except the assign resource is number1 (OPT)
             if assignment_resource is None:
                 number1 = number1.copy(self.compileState.expressionStack.next(), self.compileState)
@@ -348,35 +349,13 @@ class Compiler(Interpreter):
     def declaration(self, tree):
         identifier, _value = tree.children
         if len(identifier.children) != 1:
-            return self.propertySetter(tree)
+            raise McScriptDeclarationError("Cannot declare attributes", self.compileState)
 
         identifier, = identifier.children
 
-        # if an operation happens, the variable to store to is needed
-        resource = self.compileState.currentContext().find_resource(identifier)
-        with self.compileState.currentContext().set_global_state("declaration", resource):
-            value = self.compileState.toResource(_value)
+        value = self.compileState.toResource(_value)
 
-        context_data = self.compileState.currentContext().variable_context.get(identifier, None)
-
-        # If the stupid compiler did not manage to put the value onto the last resource, it has to be done now :C
-        is_resource_non_static = isinstance(resource, ValueResource) and not resource.is_static
-        if is_resource_non_static and isinstance(value, ValueResource) and not value.is_static:
-            value = value.copy(resource.scoreboard_value, self.compileState)
-        elif resource is None and isinstance(value, ValueResource) and (not value.is_static) and value.is_variable:
-            # Form: a = b, where a should be a copy of b, not b itself if a is modified
-            if context_data is None or context_data.writes:
-                value = value.copy(self.compileState.expressionStack.next(), self.compileState)
-        elif is_resource_non_static and isinstance(value, ValueResource) and value.is_static:
-            # Form: a = b, where b is a static and a is a nonstatic
-            value = value.store(self.compileState, resource.scoreboard_value)
-        # Why though
-        # # if the variable is new and an atomic value then copy the value
-        # if resource is None and isinstance(value, ValueResource):
-        #     value = value.copy(self.compileState.expressionStack.next(), self.compileState)
-
-        self.compileState.currentTree = _value
-        set_variable(self.compileState, identifier, value)
+        declare_variable(self.compileState, identifier, value)
 
     def multi_declaration(self, tree):
         *variables, expression = tree.children
@@ -395,12 +374,29 @@ class Compiler(Interpreter):
 
         for variable, value in zip(variables, expression.resources):
             variable, = variable.children
-            set_variable(self.compileState, variable, value)
+            declare_variable(self.compileState, variable, value)
 
-    def static_declaration(self, tree):
-        raise NotImplementedError("Static declarations are shelved.")
+    def variable_update(self, tree):
+        accessor, expression = tree.children
 
-    def term_ip(self, tree):
+        if len(accessor.children) != 1:
+            set_property(self.compileState, accessor, self.visit(expression))
+
+        var_name, = accessor.children
+
+        last_resource = self.compileState.currentContext().find_var(var_name)
+        last_resource = last_resource.resource if last_resource is not None else None
+        if isinstance(last_resource, ValueResource) and not last_resource.is_static:
+            target_resource = last_resource.scoreboard_value
+        else:
+            target_resource = self.compileState.expressionStack.next()
+
+        with self.compileState.currentContext().set_global_state("declaration", target_resource):
+            expression = self.visit(expression)
+
+        update_variable(self.compileState, var_name, expression)
+
+    def operation_ip(self, tree):
         """
         calculates the result of the expression and stores the result back into the variable
 
@@ -423,7 +419,7 @@ class Compiler(Interpreter):
         # do the numeric operation
         result = resource.numericOperation(
             expression,
-            BinaryOperator(operator),
+            BinaryOperator(operator[0]),
             self.compileState
         )
 

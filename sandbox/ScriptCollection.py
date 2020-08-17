@@ -87,19 +87,17 @@ struct Range {
     }
 }
 
-r = Range.until(3)
+let r = Range.until(15)
 
 do {
-    result = r.next()
-    value = result[0]
-    valid = result[1]
-    run for @a { print("{}", value) }
+    let result = r.next()
+    let (value, valid) = result
+    run for @a { print("{}: {}", value, value * value) }
 } while valid
 """
 
 code_temp = """
-# Hallo
-# Testsatz
+
 """
 
 if __name__ == '__main__':
@@ -110,7 +108,7 @@ if __name__ == '__main__':
     config.world = world
 
     code = code_range
-    # code = getScript("raycast")
+    # code = getScript("math")
     config.input_file = code
 
     datapack = compileMcScript(config, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"))

@@ -1,10 +1,11 @@
 start: (statement? "\n")* statement?
 
-statement: declaration
-         | static_declaration
+statement: expression
+         | declaration
+         | multi_declaration
+         | variable_update
          | index_setter
-         | term_ip
-         | expression
+         | operation_ip
          | function_definition
          | control_while
          | control_do_while
@@ -21,16 +22,16 @@ function_parameter: IDENTIFIER ":" IDENTIFIER
 parameter_list: "(" [ /self/ ","? "\n"? ] (function_parameter "," "\n"?)* function_parameter? "\n"? ")"
 function_definition: /\bfun\b/ IDENTIFIER parameter_list [ "->" IDENTIFIER ] block
 
-function_call: accessor "(" (expression "," "\n"? )* expression? "\n"? ")"
+function_call: accessor "(" "\n"* (expression "," "\n"? )* expression? "\n"? ")"
 
 variable_declaration: IDENTIFIER ":" IDENTIFIER
 
-declaration: accessor "=" expression
-multi_declaration: "(" accessor ( "," accessor )+ ")" "=" expression
-static_declaration: _KEYWORD_STATIC declaration
-index_setter: accessor "[" expression "]" "=" expression
+declaration: _KEYWORD_LET accessor "=" expression
+multi_declaration: _KEYWORD_LET "(" accessor ( "," accessor )+ ")" "=" expression
+variable_update: accessor "=" expression
 
-term_ip: accessor (PLUS | MINUS | TIMES | DIVIDE | MODULO) "=" expression
+index_setter: accessor "[" expression "]" "=" expression
+operation_ip: accessor (PLUS_IP | MINUS_IP | TIMES_IP | DIVIDE_IP | MODULO_IP) expression
 
 
 expression: boolean_and
@@ -49,7 +50,7 @@ value: INTEGER
      | DECIMAL
      | STRING
      | SELECTOR
-     | (/\b(True|False)\b/) -> boolean_constant
+     | (/\b(true|false)\b/) -> boolean_constant
      | tuple
      | unary_operation
      | "(" expression ")"
@@ -76,7 +77,7 @@ control_do_while: _KEYWORD_DO [ context_modifier ] block _KEYWORD_WHILE expressi
 control_for: /\bfor\b/ IDENTIFIER /\bin\b/ expression block
 
 control_enum: /\benum\b/ IDENTIFIER enum_block
-enum_block: "{" "\n"? ( enum_property "," "\n" )* enum_property ","? "}"
+enum_block: "{" "\n"? ( enum_property "," "\n"* )* enum_property ","? "\n"* "}"
 enum_property: IDENTIFIER | (IDENTIFIER "=" INTEGER)
 
 control_struct: _KEYWORD_STRUCT IDENTIFIER struct_block
@@ -101,6 +102,11 @@ MINUS: "-"
 TIMES: "*"
 DIVIDE: "/"
 MODULO: "%"
+PLUS_IP: "+="
+MINUS_IP: "-="
+TIMES_IP: "*="
+DIVIDE_IP: "/="
+MODULO_IP: "%="
 AND: /\band\b/
 OR: /\bor\b/
 NOT: /\bnot\b/
@@ -117,19 +123,20 @@ VERIFY_LESS_OR_EQUAL: "<="
 
 IDENTIFIER.0: /[a-z_][a-z_0-9]*/i
 
-_CONTEXT_AT: /\bat\b/
-_CONTEXT_FOR: /\bfor\b/
+_CONTEXT_AT: /\bat /
+_CONTEXT_FOR: /\bfor /
 _CONTEXT_ABSOLUTE: /\babsolute\b/
 _CONTEXT_RELATIVE: /\brelative\b/
 _CONTEXT_LOCAL: /\blocal\b/
 _CONTEXT_ANCHORED: /\banchored\b/
 
+_KEYWORD_LET: /\blet\b/
 _KEYWORD_RUN: /\brun\b/
 _KEYWORD_STATIC: /\bstatic\b/
 _KEYWORD_STRUCT: /\bstruct\b/
 _KEYWORD_IF: /\bif/
 _KEYWORD_ELSE: /\belse\b/
-_KEYWORD_WHILE: /\bwhile/
+_KEYWORD_WHILE: /\bwhile\b/
 _KEYWORD_DO: /\bdo\b/
 
 _STATEMENT_SEPARATOR: /\n|;\n?/

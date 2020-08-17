@@ -415,6 +415,8 @@ class ObjectResource(Resource, ABC):
     def store(self, compileState: CompileState) -> Resource:
         # store all of the public namespace
         self.public_namespace = {name: value.store(compileState) for name, value in self.public_namespace.items()}
+        for value in self.public_namespace.values():
+            value.is_variable = True
         return self
 
 

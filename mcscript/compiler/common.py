@@ -20,6 +20,7 @@ from mcscript.lang.atomic_types import Selector as SelectorType
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
+from mcscript.lang.utility import is_static
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -61,12 +62,12 @@ def get_property(compileState: CompileState, accessor: Tree) -> List[Resource]:
     return accessed
 
 
-def set_variable(compileState: CompileState, name: str, value: Resource):
+def declare_variable(compile_state: CompileState, name: str, value: Resource):
     """
-    Sets a variable which lives inside of a namespace and not inside of an object.
+    declares a variable which lives inside of a namespace and not inside of an object.
 
     Args:
-        compileState: the compile state
+        compile_state: the compile state
         name: the identifier of the variable
         value: the value that should be assigned to the variable
 
@@ -74,12 +75,49 @@ def set_variable(compileState: CompileState, name: str, value: Resource):
         None
     """
 
-    var = compileState.currentContext().find_resource(name)
+    context_data = compile_state.currentContext().variable_context.get(name, None)
 
-    if var is None:
-        compileState.currentContext().add_var(name, value)
-    else:
-        compileState.currentContext().set_var(name, value)
+    # Form: a = b, where b is already a variable. If a has any writes, it must be a copy of b
+    if isinstance(value, ValueResource) and (not value.is_static) and value.is_variable:
+        if context_data is None or context_data.writes:
+            value = value.copy(compile_state.expressionStack.next(), compile_state)
+
+    compile_state.currentContext().add_var(name, value)
+
+
+def update_variable(compile_state: CompileState, name: str, value: Resource):
+    """
+    Updates a variable that was already declared.
+
+    Args:
+        compile_state: The compile state
+        name: the name of the variable
+        value: the value of the variable
+
+    Returns:
+        None
+    """
+    old_var = compile_state.currentContext().find_var(name)
+
+    if old_var is None:
+        raise McScriptUndefinedVariableError(name, compile_state)
+
+    if not value.type().is_same_type(old_var.resource.type()):
+        raise McScriptUnexpectedTypeError(name, value.type(), old_var.resource.type(), compile_state)
+
+    # if the last value is dynamic and the new one is not, store the new value
+    if not is_static(old_var.resource) and isinstance(value, ValueResource) and value.is_static:
+        # noinspection PyUnresolvedReferences
+        value = value.store(compile_state, old_var.resource.scoreboard_value)
+
+    # if both values are dynamic, make sure they are at the same scoreboard address
+    if not is_static(old_var.resource) and not is_static(value):
+        # noinspection PyUnresolvedReferences
+        if value.scoreboard_value != old_var.resource.scoreboard_value:
+            # noinspection PyUnresolvedReferences
+            value = value.copy(old_var.resource.scoreboard_value, compile_state)
+
+    compile_state.currentContext().set_var(name, value)
 
 
 def set_property(compileState: CompileState, accessor: Tree, value: Resource):
@@ -87,7 +125,7 @@ def set_property(compileState: CompileState, accessor: Tree, value: Resource):
 
     # if there is no rest obj is a simple variable, no object
     if not rest:
-        return set_variable(compileState, obj, value)
+        raise ValueError("No object found")
 
     # manual setting because this method is called manually
     compileState.currentTree = obj
