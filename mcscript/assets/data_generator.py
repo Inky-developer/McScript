@@ -5,7 +5,7 @@ from subprocess import run
 from typing import Dict
 
 from mcscript import Logger, assets
-from mcscript.assets.download import download_minecraft_server, getLatestVersion
+from mcscript.assets.download import download_minecraft_server, get_latest_version
 from mcscript.utils.dirPaths import getVersionDir
 
 
@@ -15,7 +15,7 @@ def makeData(version: str) -> str:
     Note that this wil crash if the version is below 1.14.
     """
 
-    version = version or getLatestVersion()
+    version = version or get_latest_version()
 
     # first test if the file already exists
     directory = getVersionDir(version)

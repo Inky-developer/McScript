@@ -72,6 +72,12 @@ EXPECT_PASS = [
     'fun a() -> result {}',
     'fun a(self) -> Type {}',
     'fun a(self, Int: Int, String: String) -> Self {}',
+    """
+    fun with_newlines() {
+    
+        print("Newline, above!")
+    }
+    """
 
     # control flow
     'while 1 {}',

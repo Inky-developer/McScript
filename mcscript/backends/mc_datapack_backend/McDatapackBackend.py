@@ -7,7 +7,7 @@ from mcscript.backends.IRBackend import IRBackend
 from mcscript.backends.mc_datapack_backend import get_resource
 from mcscript.backends.mc_datapack_backend.Datapack import Datapack
 from mcscript.backends.mc_datapack_backend.runtime import make_on_load_function
-from mcscript.backends.mc_datapack_backend.utils import position_to_str
+from mcscript.backends.mc_datapack_backend.utils import position_to_str, relation_to_str
 from mcscript.data.Config import Config
 from mcscript.ir.components import *
 from mcscript.utils.resources import Identifier
@@ -135,7 +135,7 @@ class McDatapackBackend(IRBackend[Datapack]):
             return f"score {node['own']} matches {node['range']}"
 
         def if_score(node):
-            return f"score {node['own']} {node['relation'].value} {node['other']}"
+            return f"score {node['own']} {relation_to_str(node['relation'])} {node['other']}"
 
         SUB_NODE_TO_STRING = {
             ConditionalNode.IfBlock: lambda node: f"block {position_to_str(node['pos'])} {node['block']}",

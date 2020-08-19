@@ -97,7 +97,22 @@ do {
 """
 
 code_temp = """
+fun test() {
+    fun xor(a: Bool, b: Bool) -> Bool {
+            a and not b or not a and b
+        }
+        
+        let True = dyn(true)
+        let False = dyn(false)
+        let static_result = xor(true, false) and xor(false, true) and not xor(true, true) and not xor(false, false)
+        let dynamic_result = xor(True, False) and xor(False, True) and not xor(True, True) and not xor(False, False)
 
+        static_result and dynamic_result
+}
+
+run for @a {
+    print("{}", test())
+}
 """
 
 if __name__ == '__main__':
@@ -107,9 +122,9 @@ if __name__ == '__main__':
     config = Config("config.ini")
     config.world = world
 
-    code = code_range
+    code = code_temp
     # code = getScript("math")
-    config.input_file = code
+    config.input_string = code
 
     datapack = compileMcScript(config, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"))
     generate_datapack(config, datapack)

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING, List
 
-from mcscript.ir.components import MessageNode, StoreFastVarFromResultNode, CommandNode
+from mcscript.data.selector.Selector import Selector
+from mcscript.exceptions.exceptions import McScriptUnexpectedTypeError
+from mcscript.ir.components import MessageNode, StoreFastVarFromResultNode, CommandNode, StoreFastVarNode
 from mcscript.lang.atomic_types import String, Any, Null, Int
 from mcscript.lang.resource.IntegerResource import IntegerResource
 from mcscript.lang.resource.MacroResource import MacroResource
@@ -12,6 +15,9 @@ from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.lang.resource.base.functionSignature import FunctionParameter
 from mcscript.lang.std import macro
 from mcscript.utils.JsonTextFormat.MarkupParser import MarkupParser
+from mcscript.utils.JsonTextFormat.objectFormatter import format_text, format_score
+from mcscript.utils.Scoreboard import Scoreboard
+from mcscript.utils.resources import ScoreboardValue
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -69,6 +75,39 @@ def dyn(compile_state: CompileState, resource: Resource) -> Resource:
 
 @macro(
     parameters=[
+        FunctionParameter("scoreboard", String),
+        FunctionParameter("score", String),
+        FunctionParameter("resource", Any),
+    ],
+    return_type=Null
+)
+def set_score(compile_state: CompileState, scoreboard: StringResource, score: StringResource,
+              resource: Resource) -> Resource:
+    """ Extremely temporary test function"""
+    if not isinstance(resource, ValueResource):
+        raise McScriptUnexpectedTypeError("set_score", resource.type(), "<Supports scoreboard>", compile_state)
+
+    scoreboard = Scoreboard(scoreboard.static_value, True, len(compile_state.ir.scoreboards))
+    compile_state.ir.scoreboards.append(scoreboard)
+
+    resource = resource.store(compile_state)
+    scoreboard_value = ScoreboardValue(score.static_value, scoreboard)
+    compile_state.ir.append(StoreFastVarNode(
+        scoreboard_value,
+        resource.scoreboard_value
+    ))
+
+    # to prevent the node from getting optimized out
+    compile_state.ir.append(MessageNode(
+        MessageNode.MessageType.CHAT,
+        json.dumps([format_text("The test result is: "), format_score(scoreboard_value)]),
+        Selector("a", [])
+    ))
+    return NullResource()
+
+
+@macro(
+    parameters=[
         FunctionParameter("string", String, accepts=FunctionParameter.ResourceMode.STATIC)
     ],
     return_type=Int,
@@ -100,6 +139,7 @@ def execute(compile_state: CompileState, string: StringResource) -> NullResource
 EXPORTS: List[MacroResource] = [
     *create_text_functions(),
     dyn,
+    set_score,
     evaluate,
     execute,
 ]

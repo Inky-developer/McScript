@@ -55,8 +55,10 @@ class IrMaster:
             if nodes:
                 raise ValueError("Cannot accept both iterable and varargs")
             nodes = first
+        else:
+            nodes = chain((first,), nodes)
 
-        for node in chain((first,), nodes):
+        for node in nodes:
             self.append(node)
 
     def find_function_node(self, name: ResourceSpecifier) -> Optional[FunctionNode]:

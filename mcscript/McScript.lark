@@ -15,7 +15,7 @@ statement: expression
          | context_manipulator
          | COMMENT -> comment
 
-block: "{" "\n"? (statement "\n"*)* statement? "}"
+block: "{" "\n"* (statement "\n"*)* statement? "}"
 
 function_parameter: IDENTIFIER ":" IDENTIFIER
 // ToDo: Prevent this syntax: fun foo(self param1)
@@ -34,9 +34,9 @@ index_setter: accessor "[" expression "]" "=" expression
 operation_ip: accessor (PLUS_IP | MINUS_IP | TIMES_IP | DIVIDE_IP | MODULO_IP) expression
 
 
-expression: boolean_and
-?boolean_and: boolean_or (AND boolean_or)*
-?boolean_or: boolean_not (OR boolean_not)*
+expression: boolean_or
+?boolean_or: boolean_and (OR boolean_and)*
+?boolean_and: boolean_not (AND boolean_not)*
 ?boolean_not: NOT? _expression
 
 _expression: comparison

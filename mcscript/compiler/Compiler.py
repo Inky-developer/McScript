@@ -71,7 +71,7 @@ class Compiler(Interpreter):
     #    tree handlers    #
     #######################
     def boolean_constant(self, tree):
-        return BooleanResource(int(tree.children[0] == "True"), None)
+        return BooleanResource(int(tree.children[0] == "true"), None)
 
     def value(self, tree):
         """ a value is a simple token or expression that can be converted to a resource"""
@@ -199,11 +199,11 @@ class Compiler(Interpreter):
             if static_value is not None:
                 if static_value:
                     continue
-                return BooleanResource(False, None)
+                return BooleanResource(0, None)
             conditions.extend(condition["conditions"])
 
         if not conditions:
-            return BooleanResource(True, None)
+            return BooleanResource(1, None)
 
         stack = self.compileState.expressionStack.next()
 
@@ -235,14 +235,14 @@ class Compiler(Interpreter):
             static_value = value.static_value()
             if static_value is not None:
                 if static_value:
-                    return BooleanResource(True, None)
+                    return BooleanResource(1, None)
                 # always False boolean does not matter, so it will be discarded
                 continue
 
             conditions.append(value)
 
         if not conditions:
-            return BooleanResource(False, None)
+            return BooleanResource(0, None)
 
         stack = self.compileState.expressionStack.next()
 
@@ -258,7 +258,7 @@ class Compiler(Interpreter):
 
         static_value = value.static_value()
         if static_value is not None:
-            return BooleanResource(not static_value, None)
+            return BooleanResource(int(not static_value), None)
 
         value.invert()
         if self.compileState.currentContext().user_data.get_is_condition():

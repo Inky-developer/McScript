@@ -65,7 +65,7 @@ def build(release: bool):
     with open(src_path) as f:
         input_file = f.read()
 
-    config.input_file = input_file
+    config.input_string = input_file
     datapack = compileMcScript(config)
 
     generate_datapack(config, datapack)
@@ -106,7 +106,7 @@ def compile(input: str, output: str, name: str, release: bool, mc_version: Optio
     with open(input, encoding="utf-8") as f:
         input_file = f.read()
 
-    config.input_file = input_file
+    config.input_string = input_file
     config.output_dir = output
 
     datapack = compileMcScript(config)

@@ -134,7 +134,7 @@ class FixedNumberResource(ValueResource):
             -1,
             BinaryOperator.TIMES
         ))
-        return FixedNumberResource(None, self.scoreboard_value)
+        return FixedNumberResource(self.static_value, self.scoreboard_value)
 
     def to_json_text(self, compileState: CompileState, formatter: ResourceTextFormatter) -> Dict:
         if self.is_static:

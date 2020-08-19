@@ -35,7 +35,7 @@ def compileMcScript(config: Config, callback: Callable = None) -> Datapack:
         (lambda ir_master: get_default_backend()(config, ir_master).generate(), "Running ir backend")
     )
 
-    text = config.input_file
+    text = config.input_string
 
     if Logger.isEnabledFor(DEBUG):
         debug_log_text(text, "[Compile] parsing the following code: ")

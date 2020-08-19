@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from mcscript.ir.command_components import BinaryOperator, ScoreRelation
-from mcscript.ir.components import ConditionalNode
+from mcscript.ir.components import ConditionalNode, FastVarOperationNode
 from mcscript.lang.Type import Type
 from mcscript.lang.atomic_types import Int
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
@@ -37,6 +37,13 @@ class IntegerResource(ValueResource[int]):
             raise TypeError()
 
         return compare_scoreboard_values(self, other, relation)
+
+    def operation_negate(self, compileState: CompileState) -> IntegerResource:
+        if self.is_static:
+            return IntegerResource(-self.static_value, None)
+
+        compileState.ir.append(FastVarOperationNode(self.scoreboard_value, -1, BinaryOperator.TIMES))
+        return IntegerResource(self.static_value, self.scoreboard_value)
 
     def integer_value(self) -> int:
         if self.static_value is None:

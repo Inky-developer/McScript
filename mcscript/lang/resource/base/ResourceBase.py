@@ -142,7 +142,7 @@ class Resource(ABC):
 
     def operation_negate(self, compileState: CompileState) -> Resource:
         """
-        Returns a resource whose value negated is the value of this resource
+        Negates the value of this resource, in-place.
 
         Args:
             compileState: the compileState

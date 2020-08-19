@@ -1,4 +1,4 @@
-from mcscript.ir.command_components import Position, PositionAxis, PositionKind
+from mcscript.ir.command_components import Position, PositionAxis, PositionKind, ScoreRelation
 
 
 def position_to_str(pos: Position) -> str:
@@ -22,3 +22,14 @@ def position_to_str(pos: Position) -> str:
         raise ValueError(f"Unknown enum variant: {axis.kind}")
 
     return f"{axis_to_str(pos.x)} {axis_to_str(pos.y)} {axis_to_str(pos.z)}"
+
+
+def relation_to_str(relation: ScoreRelation):
+    return {
+        ScoreRelation.EQUAL: "=",
+        ScoreRelation.NOT_EQUAL: "!=",
+        ScoreRelation.GREATER: ">",
+        ScoreRelation.GREATER_OR_EQUAL: ">=",
+        ScoreRelation.LESS: "<",
+        ScoreRelation.LESS_OR_EQUAL: "<="
+    }[relation]

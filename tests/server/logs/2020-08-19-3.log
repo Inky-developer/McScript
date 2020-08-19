@@ -1,0 +1,67 @@
+[16:40:26] [main/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', name='PROD'
+[16:40:27] [main/WARN]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[16:40:27] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[16:40:27] [main/WARN]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[16:40:27] [main/WARN]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[16:40:27] [main/WARN]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[16:40:27] [main/INFO]: Reloading ResourceManager: Default, mcscript
+[16:40:28] [Worker-Main-4/INFO]: Loaded 7 recipes
+[16:40:29] [Worker-Main-4/ERROR]: Failed to load function mcscript:main
+java.util.concurrent.CompletionException: java.lang.IllegalArgumentException: Whilst parsing command on line 1: Expected integer at position 40: ... mcscript <--[HERE]
+	at java.util.concurrent.CompletableFuture.encodeThrowable(Unknown Source) ~[?:1.8.0_251]
+	at java.util.concurrent.CompletableFuture.completeThrowable(Unknown Source) [?:1.8.0_251]
+	at java.util.concurrent.CompletableFuture$AsyncSupply.run(Unknown Source) [?:1.8.0_251]
+	at java.util.concurrent.CompletableFuture$AsyncSupply.exec(Unknown Source) [?:1.8.0_251]
+	at java.util.concurrent.ForkJoinTask.doExec(Unknown Source) [?:1.8.0_251]
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(Unknown Source) [?:1.8.0_251]
+	at java.util.concurrent.ForkJoinPool.runWorker(Unknown Source) [?:1.8.0_251]
+	at java.util.concurrent.ForkJoinWorkerThread.run(Unknown Source) [?:1.8.0_251]
+Caused by: java.lang.IllegalArgumentException: Whilst parsing command on line 1: Expected integer at position 40: ... mcscript <--[HERE]
+	at cy.a(SourceFile:62) ~[server.jar:?]
+	at vw.a(SourceFile:86) ~[server.jar:?]
+	... 6 more
+[16:40:29] [Worker-Main-4/INFO]: Loaded 927 advancements
+[16:40:30] [Server thread/INFO]: Starting minecraft server version 1.16.2
+[16:40:30] [Server thread/INFO]: Loading properties
+[16:40:30] [Server thread/INFO]: Default game type: SURVIVAL
+[16:40:30] [Server thread/INFO]: Generating keypair
+[16:40:31] [Server thread/INFO]: Starting Minecraft server on *:25565
+[16:40:31] [Server thread/INFO]: Using default channel type
+[16:40:40] [Server thread/INFO]: Preparing level "world"
+[16:40:40] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[16:40:42] [Server thread/INFO]: Preparing spawn area: 0%
+[16:40:42] [Server thread/INFO]: Preparing spawn area: 0%
+[16:40:42] [Server thread/INFO]: Preparing spawn area: 0%
+[16:40:42] [Server thread/INFO]: Preparing spawn area: 0%
+[16:41:00] [main/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', name='PROD'
+[16:41:00] [main/FATAL]: Failed to start the minecraft server
+java.io.IOException: The process cannot access the file because another process has locked a portion of the file
+	at sun.nio.ch.FileDispatcherImpl.write0(Native Method) ~[?:1.8.0_251]
+	at sun.nio.ch.FileDispatcherImpl.write(Unknown Source) ~[?:1.8.0_251]
+	at sun.nio.ch.IOUtil.writeFromNativeBuffer(Unknown Source) ~[?:1.8.0_251]
+	at sun.nio.ch.IOUtil.write(Unknown Source) ~[?:1.8.0_251]
+	at sun.nio.ch.FileChannelImpl.write(Unknown Source) ~[?:1.8.0_251]
+	at aeu.a(SourceFile:40) ~[server.jar:?]
+	at cyd$a.<init>(SourceFile:287) ~[server.jar:?]
+	at cyd.c(SourceFile:275) ~[server.jar:?]
+	at net.minecraft.server.Main.main(SourceFile:119) [server.jar:?]
+16:40:50] [Worker-Main-7/INFO]: Preparing spawn area: 83%
+[16:40:50] [Worker-Main-7/INFO]: Preparing spawn area: 83%
+[16:40:50] [Worker-Main-5/INFO]: Preparing spawn area: 83%
+[16:40:51] [Worker-Main-5/INFO]: Preparing spawn area: 83%
+[16:40:51] [Worker-Main-5/INFO]: Preparing spawn area: 83%
+[16:40:52] [Worker-Main-5/INFO]: Preparing spawn area: 83%
+[16:40:52] [Worker-Main-5/INFO]: Preparing spawn area: 83%
+[16:40:53] [Worker-Main-5/INFO]: Preparing spawn area: 83%
+[16:40:53] [Worker-Main-8/INFO]: Preparing spawn area: 83%
+[16:40:54] [Worker-Main-7/INFO]: Preparing spawn area: 83%
+[16:40:54] [Server thread/INFO]: Preparing spawn area: 83%
+[16:40:55] [Worker-Main-5/INFO]: Preparing spawn area: 85%
+[16:40:55] [Worker-Main-8/INFO]: Preparing spawn area: 88%
+[16:40:56] [Worker-Main-5/INFO]: Preparing spawn area: 91%
+[16:40:56] [Server thread/INFO]: Preparing spawn area: 94%
+[16:40:57] [Server thread/INFO]: Time elapsed: 17483 ms
+[16:40:57] [Server thread/INFO]: Done (17.596s)! For help, type "help"
+[16:40:57] [Server thread/INFO]: Starting remote control listener
+[16:40:57] [Server thread/INFO]: Thread RCON Listener started
+[16:40:57] [Server thread/INFO]: RCON running on 0.0.0.0:25575

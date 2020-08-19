@@ -45,7 +45,7 @@ def downloadVersionManifest() -> Dict:
     return manifest
 
 
-def getLatestVersion() -> str:
+def get_latest_version() -> str:
     return downloadVersionManifest()["latest"]["release"]
 
 

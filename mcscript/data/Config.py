@@ -24,7 +24,7 @@ class Config:
         self.path = path
         self.config = configparser.ConfigParser()
 
-        self._input_file: Optional[str] = None
+        self._input_string: Optional[str] = None
         self._world: Optional[MCWorld] = None
         self._output_dir: Optional[str] = None
         self._data_manager: DataManager = DataManager()
@@ -100,12 +100,12 @@ class Config:
     #                 I/O                   #
     #########################################
     @property
-    def input_file(self) -> Optional[str]:
-        return self._input_file
+    def input_string(self) -> Optional[str]:
+        return self._input_string
 
-    @input_file.setter
-    def input_file(self, value: str):
-        self._input_file = value
+    @input_string.setter
+    def input_string(self, value: str):
+        self._input_string = value
 
     @property
     def world(self) -> Optional[MCWorld]:
