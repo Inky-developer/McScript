@@ -98,7 +98,7 @@ class MinecraftServer:
 
     def init_server(self):
         # first launch to create eula and properties
-        Popen(["java", "-jar", self.server_path.name, "--initSettings"], cwd=self.server_dir).wait(15)
+        Popen(["java", "-jar", self.server_path.name, "--initSettings"], cwd=self.server_dir).wait(300)
 
         with open(self.server_dir / "eula.txt", "r") as eula:
             contents = eula.read()

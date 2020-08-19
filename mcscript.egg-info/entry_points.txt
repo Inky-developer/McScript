@@ -1,0 +1,3 @@
+[console_scripts]
+mcscript = mcscript.cli:main
+
