@@ -19,6 +19,8 @@ test/server
 venv/
 out/
 dist/
+server/
+tests/server/
 
 docs/update_doc.cmd
 latest.log
