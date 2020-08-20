@@ -1,6 +1,6 @@
 # McScript (temporary name)
 
-![integration badge](https://github.com/Inky-developer/McScript/workflows/Python%20application/badge.svg)
+![Application-tests](https://github.com/Inky-developer/McScript/workflows/Python%20application/badge.svg)
 
 A simple and powerful tool to generate datapacks for minecraft.
 
