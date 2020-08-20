@@ -97,30 +97,68 @@ do {
 """
 
 code_temp = """
-struct Range {
-    min: Int
-    max: Int
-    current: Int
+let x_min = -1.8
+let x_max = 0.7
+let y_min = -1.25
+let y_max = 1.25
+
+let size = 32.0
+let x_step = (x_max - x_min) / size
+let y_step = (y_max - y_min) / size
+
+let max_iterations = 20
+let marker_name = "mandelbrot_marker"
+
+
+fun in_mandelbrot(x: Fixed, y: Fixed) -> Bool {
+    let x2 = .0
+    let y2 = .0
+    let x0 = x
+    let y0 = y
+    let i = 0
     
-    fun new(min: Int, max: Int) -> Range {
-        Range(min, max-1, min-1)
+    while x2 + y2 < 4.0 and i < max_iterations {
+        y = x * y * 2.0 + y0
+        x = x2 - y2 + x0
+        x2 = x*x
+        y2 = y*y
+        i += 1
     }
     
-    fun next(self) -> Tuple {
-        self.current += 1
-        (self.current, self.current < self.max)
-    }
+    i < max_iterations
 }
 
-let r = Range.new(0, 10)
-let sum = 0
-do {
-    let (value, not_empty) = r.next()
-    run for @a {print("{}", value)}
-    sum += value
-} while not_empty
-
-run for @a {print("{}", sum)}
+let should_run = false
+fun on_tick() {
+    should_run = evaluate("execute if entity @e[tag=$marker_name]") == 1
+    
+    if should_run {
+        run at @e[tag=$marker_name] {
+            let current_x = x_min
+            let current_y = y_min
+            
+            let i = 0.0
+            while i < size local 0, 0, 1 {
+                let j = 0.0
+                
+                while j < size local 1, 0, 0 {
+                    if in_mandelbrot(current_x, current_y) {
+                        execute("setblock ~ ~-1 ~ black_concrete")
+                    } else {
+                        execute("setblock ~ ~-1 ~ white_concrete")
+                    }
+                    current_x += x_step
+                    j += 1.0
+                }
+                
+                current_y += y_step
+                i += 1.0
+            }
+        }
+        
+        execute("kill @e[tag=$marker_name]")
+    }
+}
 """
 
 if __name__ == '__main__':
@@ -131,7 +169,7 @@ if __name__ == '__main__':
     config.world = world
 
     code = code_temp
-    # code = getScript("math")
+    # code = getScript("mandelbrot")
     config.input_string = code
 
     datapack = compileMcScript(config, lambda a, b, c: Logger.info(f"[compile] {a}: {round(b * 100, 2)}%"))

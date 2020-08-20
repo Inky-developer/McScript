@@ -132,6 +132,14 @@ class Analyzer:
             value, *_ignore_children = value.children
             self._handle_variable(str(value), tree)
 
+    def variable_update(self, tree: Tree):
+        accessor, expression = tree.children
+        self.visit(expression)
+
+        # for now, treat every property of an object as the object itself
+        identifier, *_ignore_children = accessor.children
+        self._handle_variable(identifier, expression)
+
     def static_declaration(self, tree: Tree):
         accessor, expression = tree.children[0].children
         self.visit(expression)

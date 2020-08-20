@@ -113,7 +113,8 @@ class McDatapackBackend(IRBackend[Datapack]):
             ExecuteNode.As: lambda node: f"as {node['selector']}",
             ExecuteNode.At: lambda node: f"at {node['selector']}",
             ExecuteNode.Positioned: lambda node: f"positioned {position_to_str(node['pos'])}",
-            ExecuteNode.Anchored: lambda node: f"anchored {node['anchor'].value}"
+            ExecuteNode.Anchored: lambda node: f"anchored {node['anchor'].value}",
+            ExecuteNode.Aligned: lambda node: f"align {node.align_string()}"
         }
 
         sub_nodes = [SUB_NODE_TO_STRING[type(i)](

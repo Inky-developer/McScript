@@ -10,10 +10,12 @@ from mcscript.compiler.Context import Context
 from mcscript.compiler.ContextStack import ContextStack
 from mcscript.compiler.ContextType import ContextType
 from mcscript.data.Config import Config
+from mcscript.exceptions.exceptions import McScriptUnexpectedTypeError
 from mcscript.ir.IrMaster import IrMaster
 from mcscript.ir.command_components import ScoreRange
 from mcscript.ir.components import FunctionNode, ConditionalNode
 from mcscript.lang.Type import Type
+from mcscript.lang.atomic_types import Bool
 from mcscript.lang.resource import BooleanResource
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.base.ResourceBase import Resource
@@ -148,7 +150,7 @@ class CompileState:
 
             return ConditionalNode([ConditionalNode.IfScoreMatches(value.scoreboard_value, ScoreRange(0), True)])
         if not isinstance(value, ConditionalNode):
-            raise ValueError(f"Unexpected type {value}")
+            raise McScriptUnexpectedTypeError("condition", value.type(), Bool, self)
         return value
 
     def currentContext(self) -> Context:

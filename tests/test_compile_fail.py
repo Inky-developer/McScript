@@ -38,6 +38,10 @@ EXPECT_FAIL = [
         McScriptUnexpectedTypeError
     ),
     (
+        "a += 5",
+        McScriptUndefinedVariableError
+    ),
+    (
         """
         struct Foo {
             bar: Int
@@ -160,6 +164,10 @@ EXPECT_FAIL = [
     ),
     (
         "if dyn(true) { 1 } else { 1.0 }",
+        McScriptUnexpectedTypeError
+    ),
+    (
+        "if 1 {1}",
         McScriptUnexpectedTypeError
     ),
     (

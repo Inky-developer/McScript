@@ -1,0 +1,94 @@
+let x_min = -1.8
+let x_max = 0.7
+let y_min = -1.25
+let y_max = 1.25
+
+let size = 128.0
+let x_step = (x_max - x_min) / size
+let y_step = (y_max - y_min) / size
+
+let max_iterations = 20
+let marker_name = "mandelbrot_marker"
+let worker_name = "mandelbrot_worker"
+
+struct Complex {
+    real: Fixed
+    imag: Fixed
+
+    fun add(self, other: Complex) {
+        self.real += other.real
+        self.imag += other.imag
+    }
+
+    fun square(self) {
+        let new_real = self.real*self.real - self.imag*self.imag
+        self.imag = 2.0 * self.real * self.imag
+        self.real = new_real
+    }
+
+    fun abs_squared(self) -> Fixed {
+        self.real*self.real + self.imag*self.imag
+    }
+}
+
+# calculates the mandelbrot value at x and y for max_iterations
+# z = z^2 + c
+fun mandelbrot(x: Fixed, y: Fixed) -> Bool {
+    let c = Complex(x, y)
+    # copy does not really work yet
+    let z = Complex(x, y)
+
+    let i = 1
+    while z.abs_squared() < 4.0 and i < max_iterations {
+        z.square()
+        z.add(c)
+        i += 1
+    }
+
+    i >= max_iterations
+}
+
+fun init_markers() {
+    let i = 0.0
+    while i < size local 1, 0, 0 {
+        execute("summon minecraft:armor_stand ~ ~ ~ {Tags:['$worker_name']}")
+        i += 1.0
+    }
+}
+
+let is_running = false
+let current_y = y_min
+fun on_tick() {
+    if not is_running {
+        let has_marker = evaluate("execute if entity @e[tag=$marker_name]")
+        if has_marker == 1 {
+            is_running = true
+            current_y = y_min
+            run at @e[tag=$marker_name] aligned "xz" local ".5", 0, ".5" {
+                init_markers()
+            }
+            execute("kill @e[tag=$marker_name]")
+        }
+    }
+    if is_running {
+        let current_x = x_min
+        run for @e[tag=$worker_name] at @s {
+            if mandelbrot(current_x, current_y) {
+                execute("setblock ~ ~-1 ~ black_concrete")
+            } else {
+                execute("setblock ~ ~-1 ~ white_concrete")
+            }
+            execute("tp @s ~ ~ ~1")
+            current_x += x_step
+        }
+        current_y += y_step
+
+        if current_y >= y_max {
+            execute("kill @e[tag=$worker_name]")
+            is_running = false
+            run for @a {
+                actionbar("[color=black]Completed[/]")
+            }
+        }
+    }
+}

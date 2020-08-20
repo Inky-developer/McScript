@@ -7,7 +7,7 @@ from mcscript.exceptions.exceptions import (McScriptArgumentError, McScriptUnexp
 from mcscript.lang.Type import Type
 from mcscript.lang.resource.FunctionResource import FunctionResource
 from mcscript.lang.resource.StructResource import StructResource
-from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource
+from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
 from mcscript.utils.JsonTextFormat.ResourceTextFormatter import ResourceTextFormatter
 
 if TYPE_CHECKING:
@@ -43,6 +43,11 @@ class StructObjectResource(ObjectResource):
                 raise McScriptArgumentError(f"Attribute {name} was specified twice", compile_state)
 
             used_parameters.add(name)
+
+            # because we do not track how the attributes are written to, every ValueResource must be copied!
+            if isinstance(value, ValueResource) and not value.is_static:
+                value = value.copy(compile_state.expressionStack.next(), compile_state)
+
             value.is_variable = True
             self.public_namespace[name] = value
 
@@ -68,6 +73,14 @@ class StructObjectResource(ObjectResource):
             raise McScriptUndefinedAttributeError(self, name, compile_state)
         if not value.type().matches(expected_type):
             raise McScriptUnexpectedTypeError(name, value.type(), expected_type, compile_state)
+
+        # if not static, make sure the new value has the same scoreboard objective
+        if isinstance(value, ValueResource) and not value.is_static:
+            old_val = self.public_namespace[name]
+            if isinstance(old_val, ValueResource) and not old_val.is_static:
+                if value.scoreboard_value != old_val.scoreboard_value:
+                    value = value.copy(old_val.scoreboard_value, compile_state)
+
         self.public_namespace[name] = value
         value.is_variable = True
 

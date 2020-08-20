@@ -294,6 +294,10 @@ class Compiler(Interpreter):
             if isinstance(number2, list):
                 # number2 is now also temporary, but is will not change anyways
                 number2 = self.binaryOperation(*number2)
+            elif is_static(number1) and not is_static(number2) and number2.is_variable:
+                # if the first value is static and the second a variable, they may not be swapped
+                # so store the first value
+                number1 = number1.store(self.compileState)
 
             # get the operator enum type
             operator = BinaryOperator(operator)

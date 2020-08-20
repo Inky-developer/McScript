@@ -91,7 +91,17 @@ class ExecuteNode(IRNode):
             super().__init__()
             self["anchor"] = anchor
 
-    ExecuteArgument = Union[As, At, Positioned, Anchored]
+    class Aligned(IRNode):
+        def __init__(self, x: bool, y: bool, z: bool):
+            super().__init__()
+            self["x"] = x
+            self["y"] = y
+            self["z"] = z
+
+        def align_string(self) -> str:
+            return "".join(i for i in "xyz" if self[i])
+
+    ExecuteArgument = Union[As, At, Positioned, Anchored, Aligned]
 
     def __init__(self, components: List[ExecuteArgument], sub_commands: List[IRNode]):
         super().__init__(sub_commands)

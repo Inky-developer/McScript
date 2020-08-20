@@ -91,6 +91,7 @@ context_modifier: _CONTEXT_FOR expression -> context_for
                 | _CONTEXT_RELATIVE expression "," expression "," expression -> context_relative
                 | _CONTEXT_LOCAL expression "," expression "," expression -> context_local
                 | _CONTEXT_ANCHORED expression -> context_anchor
+                | _KEYWORD_ALIGNED expression -> context_aligned
 
 
 INTEGER: /[0-9]+/
@@ -129,6 +130,7 @@ _CONTEXT_ABSOLUTE: /\babsolute\b/
 _CONTEXT_RELATIVE: /\brelative\b/
 _CONTEXT_LOCAL: /\blocal\b/
 _CONTEXT_ANCHORED: /\banchored\b/
+_KEYWORD_ALIGNED: /\baligned\b/
 
 _KEYWORD_LET: /\blet\b/
 _KEYWORD_RUN: /\brun\b/

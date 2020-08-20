@@ -16,7 +16,7 @@ from mcscript.exceptions.utils import requireType
 from mcscript.ir import IRNode
 from mcscript.ir.command_components import Position, ExecuteAnchor
 from mcscript.ir.components import ExecuteNode, FunctionCallNode, ConditionalNode, FunctionNode, IfNode
-from mcscript.lang.atomic_types import Selector as SelectorType
+from mcscript.lang.atomic_types import Selector as SelectorType, String
 from mcscript.lang.resource.SelectorResource import SelectorResource
 from mcscript.lang.resource.StringResource import StringResource
 from mcscript.lang.resource.base.ResourceBase import ObjectResource, Resource, ValueResource
@@ -247,13 +247,21 @@ def readContextManipulator(modifiers: List[Tree], compileState: CompileState) ->
                                 f"Expected one of {', '.join(i.value for i in ExecuteAnchor)}", compileState)
         return ExecuteNode.Anchored(value)
 
+    def aligned(xyz: StringResource):
+        requireType(xyz, String, compileState)
+        x = "x" in xyz.static_value
+        y = "y" in xyz.static_value
+        z = "z" in xyz.static_value
+        return ExecuteNode.Aligned(x, y, z)
+
     command_table = {
         "context_for": for_,
         "context_at": at,
         "context_absolute": absolute,
         "context_relative": relative,
         "context_local": local,
-        "context_anchor": anchor
+        "context_anchor": anchor,
+        "context_aligned": aligned
     }
 
     command_nodes = []
