@@ -12,7 +12,7 @@ from mcscript.lang.resource.StructObjectResource import StructObjectResource
 from mcscript.lang.resource.base.ResourceBase import Resource, ValueResource
 from mcscript.utils.Scoreboard import Scoreboard
 from mcscript.utils.addressCounter import ScoreboardAddressCounter, StorageAddressCounter
-from mcscript.utils.resources import DataPath
+from mcscript.utils.resources import DataPath, ScoreboardValue
 
 if TYPE_CHECKING:
     from mcscript.compiler.CompileState import CompileState
@@ -22,20 +22,14 @@ if TYPE_CHECKING:
 @dataclass()
 class UserData:
     struct: List[StructResource] = field(default_factory=list)
-    declaration: List[Resource] = field(default_factory=list)
     # Marks whether there is currently a condition evaluated
     condition: List[bool] = field(default_factory=list)
-    binary_operation: List[bool] = field(default_factory=list)
+    # Marks the current declaration and the preferred target scoreboard
+    declaration_scoreboard: List[ScoreboardValue] = field(default_factory=list)
 
     def get_struct(self) -> Optional[StructResource]:
         try:
             return self.struct[-1]
-        except IndexError:
-            return None
-
-    def get_declaration(self) -> Optional[Resource]:
-        try:
-            return self.declaration[-1]
         except IndexError:
             return None
 
@@ -45,11 +39,11 @@ class UserData:
         except IndexError:
             return False
 
-    def get_is_binary_operation(self) -> bool:
+    def get_target_scoreboard(self) -> Optional[ScoreboardValue]:
         try:
-            return self.binary_operation[-1]
+            return self.declaration_scoreboard[-1]
         except IndexError:
-            return False
+            return None
 
 
 class Context:

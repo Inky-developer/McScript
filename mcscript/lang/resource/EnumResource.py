@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 class EnumResource(ObjectResource):
     """
     Is an enum.
+    Currently enums are quite simple and boring, they can just store numbers.
+    Maybe this will change (rust-style enums would be great)
     """
 
     def __init__(self, *properties, **valueProperties):

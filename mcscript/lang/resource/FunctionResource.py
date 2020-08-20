@@ -5,6 +5,7 @@ from typing import Dict, List, TYPE_CHECKING
 from lark import Tree
 
 from mcscript.compiler.ContextType import ContextType
+from mcscript.exceptions.exceptions import McScriptInlineRecursionError
 from mcscript.ir.components import FunctionCallNode
 from mcscript.lang.Type import Type
 from mcscript.lang.atomic_types import Function
@@ -35,6 +36,15 @@ class FunctionResource(GenericFunctionResource):
 
     def call(self, compile_state: CompileState, parameters: List[Resource],
              keyword_parameters: Dict[str, Resource]) -> Resource:
+        # ToDo: Check whether to use an already generated file
+        if any(i is self.function_signature for i in compile_state.function_call_stack):
+            raise McScriptInlineRecursionError(self.function_signature, compile_state)
+
+        with compile_state.with_function(self.function_signature):
+            return self.generate_new(compile_state, parameters, keyword_parameters)
+
+    def generate_new(self, compile_state: CompileState, parameters: List[Resource],
+                     keyword_parameters: Dict[str, Resource]) -> Resource:
         with compile_state.node_block(ContextType.FUNCTION, self.code.line, self.code.column) as block_function:
             for template, parameter in zip(self.function_signature.parameters, parameters):
                 compile_state.currentContext().add_var(template.name, parameter)

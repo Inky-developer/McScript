@@ -43,6 +43,10 @@ class FunctionCallNode(IRNode):
     def optimized(self, ir_master: IrMaster, parent: IRNode) -> Tuple[Union[IRNode, Tuple[IRNode, ...]], bool]:
         # inline if the called function only has one child
         if len(self["function"].inner_nodes) == 1:
+            # prevent infinite inlining
+            # This code is flawed in itself (infinite recursive call) and is resolved by being fully removed
+            if self["function"].inner_nodes[0] is self:
+                return (), True
             node = self["function"].inner_nodes[0]
             if node.allow_inline_optimization():
                 # Drop this node because it will be inlined everywhere

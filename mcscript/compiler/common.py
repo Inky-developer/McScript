@@ -120,36 +120,45 @@ def update_variable(compile_state: CompileState, name: str, value: Resource):
     compile_state.currentContext().set_var(name, value)
 
 
-def set_property(compileState: CompileState, accessor: Tree, value: Resource):
+def set_property(compile_state: CompileState, accessor: Tree, value: Resource):
+    """
+    Tries to set an already existing variable to a specific value.
+    Defers to `update_variable` if accessor accesses a variable instead of a property
+
+    Args:
+        compile_state: the compile state
+        accessor: the accessor tree
+        value: the new value
+
+    """
     obj, *rest = accessor.children
 
-    # if there is no rest obj is a simple variable, no object
     if not rest:
-        raise ValueError("No object found")
+        return update_variable(compile_state, obj, value)
 
     # manual setting because this method is called manually
-    compileState.currentTree = obj
-    if obj not in compileState.currentContext():
-        raise McScriptUndefinedVariableError(obj, compileState)
-    obj = compileState.currentContext().find_resource(obj)
+    compile_state.currentTree = obj
+    if obj not in compile_state.currentContext():
+        raise McScriptUndefinedVariableError(obj, compile_state)
+    obj = compile_state.currentContext().find_resource(obj)
 
     for i in rest[:-1]:
-        compileState.currentTree = i
+        compile_state.currentTree = i
         if not isinstance(obj, ObjectResource):
-            raise McScriptUnexpectedTypeError("object", obj, "Object", compileState)
+            raise McScriptUnexpectedTypeError("object", obj, "Object", compile_state)
 
         try:
-            obj = obj.getAttribute(compileState, i)
+            obj = obj.getAttribute(compile_state, i)
         except AttributeError:
-            raise McScriptUndefinedAttributeError(obj, i, compileState)
+            raise McScriptUndefinedAttributeError(obj, i, compile_state)
 
     attribute = rest[-1]
 
     if not isinstance(obj, ObjectResource):
-        raise McScriptUnexpectedTypeError("Object", obj, "Object", compileState)
+        raise McScriptUnexpectedTypeError("Object", obj, "Object", compile_state)
 
-    compileState.currentTree = rest[-1]
-    obj.setAttribute(compileState, attribute, value)
+    compile_state.currentTree = rest[-1]
+    obj.setAttribute(compile_state, attribute, value)
 
 
 def conditional_loop(compile_state: CompileState,

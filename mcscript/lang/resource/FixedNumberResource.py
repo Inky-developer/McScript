@@ -38,7 +38,7 @@ class FixedNumberResource(ValueResource):
     def operation_test_relation(self, compileState: CompileState, relation: ScoreRelation,
                                 other: Resource) -> ConditionalNode:
         if not isinstance(other, FixedNumberResource):
-            raise TypeError
+            raise TypeError()
         return compare_scoreboard_values(self, other, relation)
 
     def operation_plus(self, other: FixedNumberResource, compileState: CompileState) -> FixedNumberResource:

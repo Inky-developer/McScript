@@ -43,7 +43,7 @@ class MinecraftServer:
         def __getitem__(self, item: str) -> str:
             return self.data[item]
 
-    RCON_PORT = "25575"
+    RCON_PORT = "25576"
     RCON_PASSWORD = "0000"
 
     def __init__(self, version=None):
@@ -110,6 +110,7 @@ class MinecraftServer:
         parser = self.SimplePropertiesParser()
         parser.read(self.server_dir / "server.properties")
 
+        parser["server-port"] = "25560"
         parser["rcon.port"] = self.RCON_PORT
         parser["rcon.password"] = self.RCON_PASSWORD
         parser["enable-rcon"] = "true"

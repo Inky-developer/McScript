@@ -67,7 +67,7 @@ class TupleResource(Resource):
 
         try:
             return self.resources[value]
-        except ValueError:
+        except IndexError:
             raise McScriptOutOfBoundsError(value, len(self.resources) - 1, compile_state)
 
     def size(self) -> int:

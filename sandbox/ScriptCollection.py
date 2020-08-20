@@ -97,22 +97,30 @@ do {
 """
 
 code_temp = """
-fun test() {
-    fun xor(a: Bool, b: Bool) -> Bool {
-            a and not b or not a and b
-        }
-        
-        let True = dyn(true)
-        let False = dyn(false)
-        let static_result = xor(true, false) and xor(false, true) and not xor(true, true) and not xor(false, false)
-        let dynamic_result = xor(True, False) and xor(False, True) and not xor(True, True) and not xor(False, False)
-
-        static_result and dynamic_result
+struct Range {
+    min: Int
+    max: Int
+    current: Int
+    
+    fun new(min: Int, max: Int) -> Range {
+        Range(min, max-1, min-1)
+    }
+    
+    fun next(self) -> Tuple {
+        self.current += 1
+        (self.current, self.current < self.max)
+    }
 }
 
-run for @a {
-    print("{}", test())
-}
+let r = Range.new(0, 10)
+let sum = 0
+do {
+    let (value, not_empty) = r.next()
+    run for @a {print("{}", value)}
+    sum += value
+} while not_empty
+
+run for @a {print("{}", sum)}
 """
 
 if __name__ == '__main__':

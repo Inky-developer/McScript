@@ -283,7 +283,7 @@ class Compiler(Interpreter):
         number1 = self.compileState.toResource(number1)
 
         # by default all operations are in-place. This is not wanted, so the resource is copied
-        if isinstance(number1, ValueResource) and (not all_static and not is_temporary) or number1.is_static:
+        if isinstance(number1, ValueResource) and (not all_static and not is_temporary):
             # copy, except the assign resource is number1 (OPT)
             if assignment_resource is None:
                 number1 = number1.copy(self.compileState.expressionStack.next(), self.compileState)
@@ -333,7 +333,7 @@ class Compiler(Interpreter):
 
         if len(node["conditions"]) == 1 and isinstance(node["conditions"][0], ConditionalNode.IfBool):
             cond = node["conditions"][0]
-            return BooleanResource(cond["val"], None)
+            return BooleanResource(int(cond["val"]), None)
 
         # if currently looking for a condition, return it directly
         if self.compileState.currentContext().user_data.get_is_condition():
@@ -380,7 +380,7 @@ class Compiler(Interpreter):
         accessor, expression = tree.children
 
         if len(accessor.children) != 1:
-            set_property(self.compileState, accessor, self.visit(expression))
+            return set_property(self.compileState, accessor, self.visit(expression))
 
         var_name, = accessor.children
 
@@ -391,7 +391,7 @@ class Compiler(Interpreter):
         else:
             target_resource = self.compileState.expressionStack.next()
 
-        with self.compileState.currentContext().set_global_state("declaration", target_resource):
+        with self.compileState.currentContext().set_global_state("declaration_scoreboard", target_resource):
             expression = self.visit(expression)
 
         update_variable(self.compileState, var_name, expression)
@@ -437,8 +437,7 @@ class Compiler(Interpreter):
             with self.compileState.node_block(ContextType.BLOCK, *line_and_column) as function:
                 if static_value is True:
                     self.visit_children(block)
-
-                if block_else is not None:
+                elif block_else is not None:
                     self.visit_children(block_else)
 
                 return_value = self.compileState.currentContext().return_resource

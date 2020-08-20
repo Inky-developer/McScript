@@ -98,6 +98,7 @@ EXPECT_PASS = [
     f=10
     }
     """,
+    # "enum Foo {}",
     """
     struct struct {
         a: a

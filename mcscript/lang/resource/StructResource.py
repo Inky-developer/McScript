@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Dict
 
+from mcscript.exceptions.exceptions import McScriptArgumentError
 from mcscript.lang.Type import Type
 from mcscript.lang.atomic_types import Struct, Any
 from mcscript.lang.resource.TypeResource import TypeResource
@@ -43,6 +44,9 @@ class StructResource(ObjectResource):
         assert not keywordParameters
 
         declared_vars = self.getDeclaredVariables()
+        if len(declared_vars) != len(parameters):
+            raise McScriptArgumentError(f"Expected exactly {len(declared_vars)} element(s) but got {len(parameters)}",
+                                        compileState)
         keyword_parameters = dict(zip(declared_vars.keys(), parameters))
 
         return StructObjectResource(self, compileState, keyword_parameters)

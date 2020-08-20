@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional, Any
 from mcscript.exceptions.McScriptException import McScriptError
 
 if TYPE_CHECKING:
+    from mcscript.lang.resource.base.functionSignature import FunctionSignature
     from mcscript.compiler.CompileState import CompileState
 
 
@@ -78,3 +79,8 @@ class McScriptOutOfBoundsError(McScriptError):
 class McScriptIfElseReturnTypeError(McScriptError):
     def __init__(self, got: Any, compile_state: CompileState):
         super().__init__(f"An if-else expression can only return atomic values, got {got}", compile_state)
+
+
+class McScriptInlineRecursionError(McScriptError):
+    def __init__(self, signature: FunctionSignature, compile_state):
+        super().__init__(f"Cannot inline {str(signature)}: would recurse infinitely", compile_state)

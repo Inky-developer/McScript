@@ -22,7 +22,7 @@ class BooleanResource(ValueResource[int]):
     def integer_value(self) -> int:
         if self.is_static:
             return int(self.static_value)
-        raise TypeError
+        raise TypeError()
 
     def operation_test_relation(self, compileState: CompileState, relation: ScoreRelation,
                                 other: Resource) -> ConditionalNode:
@@ -30,7 +30,7 @@ class BooleanResource(ValueResource[int]):
             raise TypeError()
 
         if relation not in (ScoreRelation.EQUAL, ScoreRelation.NOT_EQUAL):
-            raise TypeError
+            raise TypeError()
 
         a, b = self, other
 

@@ -77,7 +77,7 @@ control_do_while: _KEYWORD_DO [ context_modifier ] block _KEYWORD_WHILE expressi
 control_for: /\bfor\b/ IDENTIFIER /\bin\b/ expression block
 
 control_enum: /\benum\b/ IDENTIFIER enum_block
-enum_block: "{" "\n"? ( enum_property "," "\n"* )* enum_property ","? "\n"* "}"
+enum_block: "{" "\n"* ( enum_property "," "\n"* )* enum_property ","? "\n"* "}"
 enum_property: IDENTIFIER | (IDENTIFIER "=" INTEGER)
 
 control_struct: _KEYWORD_STRUCT IDENTIFIER struct_block

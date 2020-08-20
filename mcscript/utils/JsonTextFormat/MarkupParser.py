@@ -76,8 +76,8 @@ class MarkupParser(Interpreter):
             all_args.remove(used_arg)
 
         if all_args:
-            raise McScriptInvalidMarkupError(f"Not all arguments were used!\nunused indices: "
-                                             f"{', '.join(str(i) for i in all_args)}", self.compileState)
+            raise McScriptArgumentError(f"Not all arguments were used!\nunused indices: "
+                                        f"{', '.join(str(i) for i in all_args)}", self.compileState)
 
         # remove duplicate text elements
         return self.compact_data(data)

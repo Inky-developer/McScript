@@ -63,7 +63,7 @@ class StructObjectResource(ObjectResource):
             return result
 
     def setAttribute(self, compile_state: CompileState, name: str, value: Resource):
-        expected_type = self.struct.getDeclaredVariables()[name]
+        expected_type = self.struct.getDeclaredVariables().get(name, None)
         if name not in self.public_namespace:
             raise McScriptUndefinedAttributeError(self, name, compile_state)
         if not value.type().matches(expected_type):

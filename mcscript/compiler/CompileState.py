@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Callable, Dict, Optional, Tuple, Union, ContextManager, Set
+from typing import Callable, Dict, Optional, Tuple, Union, ContextManager, Set, List
 
 from lark import Tree
 
@@ -17,6 +17,7 @@ from mcscript.lang.Type import Type
 from mcscript.lang.resource import BooleanResource
 from mcscript.lang.resource.BooleanResource import BooleanResource
 from mcscript.lang.resource.base.ResourceBase import Resource
+from mcscript.lang.resource.base.functionSignature import FunctionSignature
 from mcscript.utils.Scoreboard import Scoreboard
 from mcscript.utils.addressCounter import ScoreboardAddressCounter, AddressCounter, StorageAddressCounter
 from mcscript.utils.resources import DataPath, ScoreboardValue, Identifier, ResourceSpecifier
@@ -55,6 +56,8 @@ class CompileState:
         # self.stack.append(Namespace(0, namespaceType=NamespaceType.GLOBAL))
         self.stack.append(Context(0, None, ContextType.GLOBAL, NamespaceContext([], [], (0, 0)), self.scoreboard_main,
                                   self.data_path_main))
+        # keeps track of all functions that are right now called
+        self.function_call_stack: List[FunctionSignature] = []
 
         # the ir master class
         self.ir = IrMaster()
@@ -75,6 +78,14 @@ class CompileState:
         self._currentTree = value
         if value is None:
             return
+
+    @contextmanager
+    def with_function(self, signature: FunctionSignature):
+        self.function_call_stack.append(signature)
+        try:
+            yield
+        finally:
+            self.function_call_stack.pop()
 
     def new_type(self, name: str, bases: Set[Type]) -> Type:
         t = Type(len(self.custom_types), name, bases)

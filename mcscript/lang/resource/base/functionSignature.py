@@ -196,3 +196,6 @@ class FunctionSignature:
 
     def arguments_format(self, arguments: List[Resource]):
         return "(" + ", ".join(str(i.type()) for i in arguments) + ")"
+
+    def __str__(self):
+        return self.signature_string()

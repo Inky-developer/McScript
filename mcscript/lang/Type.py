@@ -44,7 +44,7 @@ class Type:
 
     def __eq__(self, other: Type) -> bool:
         if not isinstance(other, Type):
-            raise NotADirectoryError
+            raise NotImplementedError
         return self.is_same_type(other)
 
     def __hash__(self) -> int:

@@ -140,7 +140,7 @@ class Analyzer:
 
         self._handle_variable(str(identifier), tree)
 
-    def term_ip(self, tree: Tree):
+    def operation_ip(self, tree: Tree):
         accessor, operator, expression = tree.children
         self.visit(expression)
 
