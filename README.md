@@ -4,6 +4,8 @@
 
 A simple and powerful tool to generate datapacks for minecraft.
 
+## Note that this is a prototype and not actively developed anymore. The successor project can be found [here](https://github.com/Inky-developer/debris).
+
 Getting Started:
 ================
 
